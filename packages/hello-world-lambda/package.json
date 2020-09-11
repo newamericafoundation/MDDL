@@ -1,0 +1,14 @@
+{
+  "name": "hello-world-lambda",
+  "version": "0.1.0",
+  "description": "Hello world lambda example",
+  "main": "dist/index.js",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "test": "jest",
+    "cdk": "cdk"
+  }
+}
