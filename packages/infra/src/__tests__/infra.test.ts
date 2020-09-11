@@ -18,7 +18,7 @@ test("Default Stack", () => {
       Role: {
         "Fn::GetAtt": ["HelloWorldFunctionServiceRole8E0BD458", "Arn"],
       },
-      Runtime: "nodejs10.x",
+      Runtime: "nodejs12.x",
     })
   );
 });
