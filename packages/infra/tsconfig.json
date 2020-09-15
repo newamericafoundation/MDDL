@@ -4,7 +4,11 @@
     "inlineSourceMap": true,
     "inlineSources": true,
     "outDir": "dist",
-    "rootDir": "src"
+    "rootDir": "src",
+    "types": [
+      "@types/node",
+      "@types/jest",
+    ]
   },
   "include": ["./src"],
   "exclude": ["cdk.out"]

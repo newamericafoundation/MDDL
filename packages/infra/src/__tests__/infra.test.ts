@@ -1,8 +1,4 @@
-import {
-  expect as expectCDK,
-  haveResource,
-  ResourcePart,
-} from "@aws-cdk/assert";
+import { expect as expectCDK, haveResource } from "@aws-cdk/assert";
 import * as cdk from "@aws-cdk/core";
 import * as Infra from "../infra-stack";
 

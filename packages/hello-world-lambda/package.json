@@ -10,5 +10,9 @@
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk"
+  },
+  "devDependencies": {
+    "@types/node": "10.17.27",
+    "typescript": "~3.9.7"
   }
 }

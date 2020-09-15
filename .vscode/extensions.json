@@ -1,0 +1,16 @@
+{
+  "recommendations": [
+    "amazonwebservices.aws-toolkit-vscode",
+    "danielthielking.aws-cloudformation-yaml",
+    "ms-dotnettools.csharp",
+    "streetsidesoftware.code-spell-checker",
+    "msjsdiag.debugger-for-chrome",
+    "firefox-devtools.vscode-firefox-debug",
+    "dbaeumer.vscode-eslint",
+    "ms-vscode.typescript-javascript-grammar",
+    "esbenp.prettier-vscode",
+    "octref.vetur",
+    "redhat.vscode-yaml"
+  ],
+  "unwantedRecommendations": ["dbaeumer.jshint"]
+}
