@@ -1,15 +1,10 @@
-<template>
-</template>
+<template><div></div></template>
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
 
 @Component
-export default class ComponentTemplate extends Vue {
-
-}
+export default class ComponentTemplate extends Vue {}
 </script>
 
-<style scoped lang="scss">
-
-</style>
+<style scoped lang="scss"></style>

@@ -1,3 +1,3 @@
-export const handler = (event: any) => {
-  return "Hello world!";
-};
+export const handler = (event: any): string => {
+  return 'Hello world!'
+}

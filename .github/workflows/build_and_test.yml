@@ -34,4 +34,4 @@ jobs:
 
       # Install, build and test
       - name: Install, build and test
-        run: yarn install && yarn build && yarn test
+        run: yarn install && yarn build && yarn test && yarn lint

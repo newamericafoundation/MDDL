@@ -1,13 +1,15 @@
 {
-    "private": true,
-    "workspaces": [
-        "packages/*"
-    ],
-    "scripts": {
-        "test": "yarn workspaces run test",
-        "build": "yarn workspaces run build",
-        "infra": "yarn workspace infra",
-        "ui": "yarn workspace frontend dev",
-        "storybook": "yarn workspace frontend storybook"
-    }
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "test": "yarn workspaces run test",
+    "build": "yarn workspaces run build",
+    "lint": "yarn workspaces run lint",
+    "infra": "yarn workspace infra",
+    "frontend": "yarn workspace frontend",
+    "ui": "yarn frontend dev",
+    "storybook": "yarn frontend storybook"
+  }
 }

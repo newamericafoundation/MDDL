@@ -91,7 +91,5 @@ import VuetifyLogo from '@/components/VuetifyLogo.vue'
     VuetifyLogo,
   },
 })
-export default class Dashboard extends Vue {
-  
-}
+export default class Dashboard extends Vue {}
 </script>
