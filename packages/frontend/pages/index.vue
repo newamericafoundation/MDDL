@@ -82,7 +82,7 @@
 
 <script>
 import { Vue, Component } from 'vue-property-decorator'
-import Logo from '@/components/Logo.vue'
+import Logo from '@/components/Logo/Logo.vue'
 import VuetifyLogo from '@/components/VuetifyLogo.vue'
 
 @Component({

@@ -8,8 +8,7 @@
     "build": "yarn workspaces run build",
     "lint": "yarn workspaces run lint",
     "infra": "yarn workspace infra",
-    "frontend": "yarn workspace frontend",
-    "ui": "yarn frontend dev",
-    "storybook": "yarn frontend storybook"
+    "fe": "yarn workspace frontend",
+    "storybook": "yarn workspace frontend storybook"
   }
 }

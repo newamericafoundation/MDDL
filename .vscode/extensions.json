@@ -4,7 +4,8 @@
     "dbaeumer.vscode-eslint",
     "ms-vscode.typescript-javascript-grammar",
     "esbenp.prettier-vscode",
-    "octref.vetur"
+    "octref.vetur",
+    "digitalbrainstem.javascript-ejs-support"
   ],
   "unwantedRecommendations": ["dbaeumer.jshint"]
 }

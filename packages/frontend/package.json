@@ -12,16 +12,19 @@
     "generate": "nuxt-ts generate",
     "lint": "eslint --ext .ts,.vue --ignore-path .gitignore .",
     "test": "jest",
-    "storybook": "yarn nuxt storybook"
+    "storybook": "yarn nuxt storybook",
+    "new": "HYGEN_TMPLS=templates hygen new"
   },
   "dependencies": {
+    "@babel/plugin-proposal-decorators": "^7.10.5",
     "@nuxt/typescript-runtime": "^2.0.0",
     "@nuxtjs/axios": "^5.12.2",
     "@nuxtjs/pwa": "^3.0.2",
+    "hygen": "^6.0.4",
     "nuxt": "^2.14.5",
-    "nuxt-typed-vuex": "^0.1.21",
     "vue-class-component": "^7.2.5",
-    "vue-property-decorator": "^9.0.0"
+    "vue-property-decorator": "^9.0.0",
+    "vuex-module-decorators": "^0.17.0"
   },
   "devDependencies": {
     "@nuxt/types": "^2.14.5",

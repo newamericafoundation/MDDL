@@ -1,0 +1,11 @@
+{
+  "files.associations": {
+    "*.ejs.t": "html"
+  },
+  "files.exclude": {
+    ".parcel-cache": true,
+    "**/.nuxt*": true,
+    "**/node_modules": true,
+    "packages/frontend/coverage": true
+  }
+}

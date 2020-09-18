@@ -11,9 +11,7 @@
     "esModuleInterop": true,
     "allowJs": true,
     "noEmit": true,
-    "experimentalDecorators": true,
     "baseUrl": ".",
-    "strictNullChecks": true,
     "paths": {
       "@/*": [
         "./*"
