@@ -20,7 +20,8 @@
     "types": [
       "@types/node",
       "@types/jest",
-      "@nuxt/types"
+      "@nuxt/types",
+      "nuxt-i18n",
     ]
   },
   "exclude": [

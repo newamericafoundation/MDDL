@@ -37,6 +37,14 @@
       </v-btn>
       <v-toolbar-title v-text="title" />
       <v-spacer />
+      <v-select
+        v-model="$i18n.locale"
+        :items="$i18n.locales"
+        :value="$i18n.locales[0]"
+        label="Language"
+        class="mt-4"
+        dense
+      ></v-select>
       <v-btn icon @click.stop="rightDrawer = !rightDrawer">
         <v-icon>mdi-menu</v-icon>
       </v-btn>
