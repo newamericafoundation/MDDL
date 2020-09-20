@@ -59,3 +59,30 @@ Rendering mode: Single Page App
 Deployment target: Static
 CSS Preprocessing: node-sass, sass-loader, @nuxtjs/style-resources
 Vue modules: vue-class-component, vue-property-decorator, nuxt-typed-vuex
+
+## Architecture
+
+High level infrastructure:
+
+![AWS Architecture](docs/aws_architecture.png)
+
+### Key concepts
+
+#### Data Encryption
+
+Encryption at rest is applied to the following storage mechanisms:
+
+1. S3 Buckets
+2. Database drives
+
+Encryption in-transit is applied via HTTPS between clients and API Gateway.
+
+#### Serverless compute
+
+Scalable and serverless compute powered by AWS Lambda
+
+#### Isolated multi-tenancy
+
+If a City is configured in a multi-tenant manner, documents are encrypted with a city-specific KMS key.
+
+A City stack will provision its own database and credentials on creation so it is fully isolated from other City data.

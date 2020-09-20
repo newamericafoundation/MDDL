@@ -1,0 +1,615 @@
+openapi: 3.0.2
+servers:
+  - url: /v1
+info:
+  description: |-
+    This documents the API for the New America Data Locker project.
+  version: 1.0.0
+  title: Data Locker
+tags:
+  - name: user
+    description: User based operations
+  - name: document
+    description: Document based operations
+  - name: agency
+    description: Agency based operations
+paths:
+  '/users/{userId}/documents':
+    post:
+      tags:
+        - user
+      summary: Add a new document
+      description: Add a new document for a user
+      operationId: addUserDocument
+      parameters:
+        - name: userId
+          in: path
+          description: ID of user to create document for
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+        '400':
+          description: Bad Request
+      security:
+        - datalocker_auth: []
+      requestBody:
+        description: Create a new document
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DocumentCreate'
+    get:
+      tags:
+        - user
+      summary: List documents owned by a user
+      description: List documents owned by a user
+      operationId: listUserDocuments
+      parameters:
+        - name: userId
+          in: path
+          description: ID of user to find documents for
+          required: true
+          schema:
+            type: string
+        - name: search
+          in: query
+          description: Search string to narrow down list
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentList'
+        '404':
+          description: User not found
+      security:
+        - datalocker_auth: []
+  '/users/{userId}/documents/shared':
+    get:
+      tags:
+        - user
+      summary: List documents shared to user
+      description: List documents shared to user
+      operationId: listUserDocumentsShared
+      parameters:
+        - name: userId
+          in: path
+          description: ID of user to find accessible documents for
+          required: true
+          schema:
+            type: string
+        - name: search
+          in: query
+          description: Search string to narrow down list
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentList'
+        '404':
+          description: User not found
+      security:
+        - datalocker_auth: []
+
+  '/users/{userId}':
+    get:
+      tags:
+        - user
+      summary: Get user
+      description: Get user details
+      operationId: getUser
+      parameters:
+        - name: userId
+          in: path
+          description: ID of user to find
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User not found
+      security:
+        - datalocker_auth: []
+
+  '/users/{userId}/agencies':
+    get:
+      tags:
+        - user
+      summary: List agencies for user
+      description: List agencies user is part of in current city
+      operationId: listAgenciesForUser
+      parameters:
+        - name: userId
+          in: path
+          description: ID of user to find agencies for
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgencyList'
+      security:
+        - datalocker_auth: []
+
+  '/users/{userId}/delegates':
+    get:
+      tags:
+        - user
+      summary: List delegated access
+      description: List access delegated to and from a user
+      operationId: listDelegatedAccess
+      parameters:
+        - name: userId
+          in: path
+          description: ID of user to find delegated access items for
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDelegatedAccessList'
+      security:
+        - datalocker_auth: []
+    post:
+      tags:
+        - user
+      summary: Add delegated access
+      description: Add delegated access to a user for current user
+      operationId: addDelegatedAccess
+      parameters:
+        - name: userId
+          in: path
+          description: ID of user to delegate access for
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDelegatedAccess'
+        '404':
+          description: User not found
+      requestBody:
+        description: Create a new delegated access
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserDelegatedAccessCreate'
+      security:
+        - datalocker_auth: []
+
+  '/documents/{documentId}':
+    get:
+      tags:
+        - document
+      summary: Find document by ID
+      description: Returns a single document
+      operationId: getDocumentById
+      parameters:
+        - name: documentId
+          in: path
+          description: ID of document to return
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Document not found
+      security:
+        - datalocker_auth: []
+    put:
+      tags:
+        - document
+      summary: Updates an existing document
+      description: ''
+      operationId: updateDocumentById
+      parameters:
+        - name: documentId
+          in: path
+          description: ID of the document that needs to be updated
+          required: true
+          schema:
+            type: string
+      responses:
+        '405':
+          description: Invalid input
+      security:
+        - datalocker_auth: []
+      requestBody:
+        description: Updates a document
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DocumentCreate'
+    delete:
+      tags:
+        - document
+      summary: Deletes a document
+      description: ''
+      operationId: deleteDocumentById
+      parameters:
+        - name: documentId
+          in: path
+          description: ID of Document to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        '404':
+          description: Document not found
+      security:
+        - datalocker_auth: []
+
+  '/documents/{documentId}/grants':
+    get:
+      tags:
+        - document
+      summary: Get access grants
+      description: Returns access grants for a single document
+      operationId: getGrantsByDocumentId
+      parameters:
+        - name: documentId
+          in: path
+          description: ID of document to find grants for
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentGrantList'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Document not found
+      security:
+        - datalocker_auth: []
+    post:
+      tags:
+        - document
+      summary: Create a document grant
+      description: Grant access to a document
+      operationId: createGrantForDocument
+      parameters:
+        - name: documentId
+          in: path
+          description: ID of the document that needs to be updated
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentGrant'
+        '405':
+          description: Invalid input
+      security:
+        - datalocker_auth: []
+      requestBody:
+        description: Create a document grant
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DocumentGrantCreate'
+
+  '/documents/{documentId}/grants/{grantId}':
+    delete:
+      tags:
+        - document
+      summary: Deletes a document grant
+      description: ''
+      operationId: deleteDocumentGrantById
+      parameters:
+        - name: documentId
+          in: path
+          description: ID of Document the Grant belongs to
+          required: true
+          schema:
+            type: string
+        - name: grantId
+          in: path
+          description: ID of the Document Grant to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        '404':
+          description: Document not found
+      security:
+        - datalocker_auth: []
+
+  '/agencies':
+    get:
+      tags:
+        - agency
+      summary: List agencies
+      description: List agencies in current city
+      operationId: listAgencies
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgencyList'
+      security:
+        - datalocker_auth: []
+
+components:
+  schemas:
+    DocumentUpdate:
+      $ref: '#/components/schemas/DocumentCreate'
+    DocumentCreate:
+      properties:
+        description:
+          type: string
+          description: Document description
+          example: Sam's SSN
+        format:
+          type: string
+          description: File format
+          enum:
+            - PNG
+            - PDF
+            - JPEG
+          example: PDF
+        source:
+          type: string
+          description: File source
+          enum:
+            - PHOTO
+            - SCAN
+          example: SCAN
+        type:
+          type: string
+          description: Document Type
+          enum:
+            - SOCIAL_SECURITY_CARD
+            - BIRTH_CERTIFICATE
+            - PROOF_OF_INCOME
+          example: SOCIAL_SECURITY_CARD
+        expiryDate:
+          type: string
+          format: date-time
+          example: '2025-01-01T01:01:01Z'
+      type: object
+    DocumentList:
+      properties:
+        documents:
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentListItem'
+      type: object
+    DocumentListItem:
+      properties:
+        id:
+          type: string
+          example: D050A33E-74F6-4BEF-AED5-87F48E5CCE44
+        type:
+          type: string
+          description: Document Type
+          enum:
+            - SOCIAL_SECURITY_CARD
+            - BIRTH_CERTIFICATE
+            - PROOF_OF_INCOME
+          example: SOCIAL_SECURITY_CARD
+      type: object
+    Document:
+      properties:
+        id:
+          type: string
+          example: D050A33E-74F6-4BEF-AED5-87F48E5CCE44
+        description:
+          type: string
+          description: Document description
+          example: Sam's SSN
+        source:
+          type: string
+          description: File source
+          enum:
+            - PHOTO
+            - SCAN
+          example: SCAN
+        format:
+          type: string
+          description: File format
+          enum:
+            - PNG
+            - PDF
+            - JPEG
+          example: PDF
+        type:
+          type: string
+          description: Document Type
+          enum:
+            - SOCIAL_SECURITY_CARD
+            - BIRTH_CERTIFICATE
+            - PROOF_OF_INCOME
+          example: SOCIAL_SECURITY_CARD
+        expiryDate:
+          type: string
+          format: date-time
+          example: '2025-01-01T01:01:01Z'
+        createdDate:
+          type: string
+          format: date-time
+          example: '2020-01-01T01:01:01Z'
+        links:
+          type: object
+          example:
+            upload: https://my-upload-url
+            download: https://my-download-url
+            delete: https://my-delete-url
+            share: https://my-share-url
+      type: object
+    User:
+      properties:
+        id:
+          type: string
+          example: 2D3D5CF7-ED9D-48F1-8A14-12B0C1114B64
+        givenName:
+          type: string
+          example: Sam
+        familyName:
+          type: string
+          example: Citizen
+        links:
+          type: object
+          example:
+            delete: https://my-delete-url
+      type: object
+    UserDelegatedAccessList:
+      properties:
+        delegatedAccess:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserDelegatedAccess'
+      type: object
+    UserDelegatedAccess:
+      properties:
+        email:
+          type: string
+          example: inviteduser@example.com
+        allowsAccessToUser:
+          $ref: '#/components/schemas/User'
+        createdDate:
+          type: string
+          format: date-time
+          example: '2020-01-01T01:01:01Z'
+        links:
+          type: object
+          example:
+            delete: https://my-delete-url
+      type: object
+    UserDelegatedAccessCreate:
+      properties:
+        email:
+          type: string
+          example: inviteduser@example.com
+      type: object
+    AgencyList:
+      properties:
+        agencies:
+          type: array
+          items:
+            $ref: '#/components/schemas/Agency'
+      type: object
+    Agency:
+      properties:
+        id:
+          type: string
+          example: 6462DDAA-DFC1-4A1F-A0A1-41170F955ECF
+        name:
+          type: string
+          example: Department of Homeless Services
+      type: object
+    DocumentGrantCreate:
+      properties:
+        type:
+          type: string
+          description: Document Grant Type
+          enum:
+            - AGENCY_ACCESS
+          example: AGENCY_ACCESS
+        agencyDetails:
+          type: object
+          properties:
+            id:
+              type: string
+              description: The ID of the agency
+      type: object
+    DocumentGrantList:
+      properties:
+        documents:
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentGrant'
+      type: object
+    DocumentGrant:
+      properties:
+        id:
+          type: string
+          example: 0693772D-5AED-4955-A6B5-41D1246E54AC
+        type:
+          type: string
+          description: Document Grant Type
+          enum:
+            - AGENCY_ACCESS
+          example: AGENCY_ACCESS
+        createdDate:
+          type: string
+          format: date-time
+          example: '2020-01-01T01:01:01Z'
+        agencyDetails:
+          type: object
+          properties:
+            id:
+              type: string
+              description: The ID of the agency
+        links:
+          type: object
+          example:
+            delete: https://my-delete-url
+      type: object
+
+  securitySchemes:
+    datalocker_auth:
+      type: oauth2
+      description: Example only. Scope is only defined here to distinguish between Agent access and Client access
+      flows:
+        authorizationCode:
+          authorizationUrl: 'https://example-auth-server.com/oauth/authorize'
+          tokenUrl: 'https://example-auth-server.com/oauth/tokens'
+          scopes:
+            'agent': has access to agent portal
