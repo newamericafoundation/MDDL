@@ -45,20 +45,48 @@ If you're using tools such as vue cli to bootstrap a project, after project set 
 - A `src` directory for all application code
 - A `src/__tests__` directory for all test code
 
-## Frontend Stack
+## Local development
 
-Workspace name: frontend
-Programming language: TypeScript
-Package manager: Yarn
-UI framework: Vue
-Component library: Vuetify.js
-Nuxt.js modules: Axios, Progressive Web App (PWA)
-Linting tools: ESLint, Prettier, eslint-config-prettier
-Testing frameworks: Jest, Storybook, (In future we will also use Browserstack)
-Rendering mode: Single Page App
-Deployment target: Static
-CSS Preprocessing: node-sass, sass-loader, @nuxtjs/style-resources
-Vue modules: vue-class-component, vue-property-decorator, nuxt-typed-vuex
+### Frontend
+
+Start the nuxt development server with `yarn fe dev`. You should be able to open the app on `http://localhost:3000/`.
+
+>Note: `fe` is a shorthand to run yarn scripts in the frontend workspace from the root workspace
+
+For more info see the [frontend readme](./packages/frontend/README.md)
+
+
+## Storybook
+
+Storybook helps you document components for reuse and automatically visually test your components to prevent bugs. Run storybook with `yarn storybook`. You can access the storybook by navigating to `http://localhost:3003/` in your browser. For more information see the [storybook docs](https://storybook.js.org/docs/vue/get-started/introduction).
+
+### Mock API
+
+Install [docker engine](https://docs.docker.com/docker-for-mac/install/).
+
+Installing the docker engine desktop app also installs [docker compose](https://docs.docker.com/compose/install/#install-compose-on-macos), which is required.
+
+> Note: Installing docker via homebrew proved to be a pain to get working. Not recommended.
+
+If you are doing local development on the backend, you may want to install [OpenAPI Generator](https://github.com/OpenAPITools/openapi-generator#table-of-contents) so you can generate a new mock backend to test the frontend against. Otherwise when you raise a PR a GitHub action will generate a new api client automatically and commit it to your branch.
+
+If you have followed the steps correctly, `yarn mockapi` will start a mock api on port 8080, which you can verify by navigating to `http://localhost:8080/v1/documents/1` in your browser. You should get a response similar to:
+
+```json
+{
+  "createdDate": "1835-05-28T14:19:46Z",
+  "description": "Non. Est dicta tenetur voluptatem.",
+  "expiryDate": "1994-08-29T05:29:01Z",
+  "format": "JPEG",
+  "id": "Earum. Perferendis quia. Et enim magnam eum. Dolor soluta suscipit.",
+  "links": {},
+  "source": "PHOTO",
+  "type": "PROOF_OF_INCOME"
+}
+```
+
+You will also need a plugin to set the appropriate CORS response headers, such as [Allow CORS: Access-Control-Allow-origin](https://mybrowseraddon.com/access-control-allow-origin.html)
+
 
 ## Architecture
 

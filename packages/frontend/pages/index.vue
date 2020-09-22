@@ -92,5 +92,10 @@ import VuetifyLogo from '@/components/VuetifyLogo.vue'
     VuetifyLogo,
   },
 })
-export default class Dashboard extends Vue {}
+export default class Dashboard extends Vue {
+  async mounted() {
+    const doc = await this.$api.document.getDocumentById('test')
+    console.log(doc)
+  }
+}
 </script>

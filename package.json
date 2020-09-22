@@ -9,6 +9,7 @@
     "lint": "yarn workspaces run lint",
     "infra": "yarn workspace infra",
     "fe": "yarn workspace frontend",
-    "storybook": "yarn workspace frontend storybook"
+    "storybook": "yarn workspace frontend storybook",
+    "mockapi": "cd packages/api-client && docker-compose up"
   }
 }

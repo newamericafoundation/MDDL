@@ -1,6 +1,6 @@
 openapi: 3.0.2
 servers:
-  - url: /v1
+  - url: /v1/
 info:
   description: |-
     This documents the API for the New America Data Locker project.

@@ -1,5 +1,5 @@
 import colors from 'vuetify/es5/util/colors'
-import messages from './locales/messages'
+import messages from './locales/messages.ts'
 
 export default {
   ssr: false,
@@ -43,9 +43,10 @@ export default {
   css: [],
   /*
    ** Plugins to load before mounting the App
+   ** Order is important!
    ** https://nuxtjs.org/guide/plugins
    */
-  plugins: [],
+  plugins: ['@/plugins/axios-interceptors.ts', '@/plugins/api-accessor.ts'],
   /*
    ** Auto import components
    ** See https://nuxtjs.org/api/configuration-components
@@ -104,4 +105,11 @@ export default {
    ** See https://nuxtjs.org/api/configuration-build/
    */
   build: {},
+  /*
+   ** Environment variables
+   ** See https://nuxtjs.org/api/configuration-env/
+   */
+  env: {
+    apiUrl: process.env.API_URL || 'http://localhost:8080/v1',
+  },
 }
