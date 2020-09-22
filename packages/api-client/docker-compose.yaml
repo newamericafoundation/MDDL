@@ -6,6 +6,7 @@ services:
     image: muonsoft/openapi-mock
     environment:
       OPENAPI_MOCK_SPECIFICATION_URL: '/app/api.yaml'
+      OPENAPI_MOCK_CORS_ENABLED: 1
     volumes:
       - ../../docs/api.yaml:/app/api.yaml
     ports:

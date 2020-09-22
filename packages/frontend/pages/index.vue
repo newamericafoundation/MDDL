@@ -91,6 +91,9 @@ import VuetifyLogo from '@/components/VuetifyLogo.vue'
     Logo,
     VuetifyLogo,
   },
+  head: {
+    title: 'Dashboard',
+  },
 })
 export default class Dashboard extends Vue {
   async mounted() {

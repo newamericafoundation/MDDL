@@ -17,39 +17,39 @@ export class ApiService {
   constructor(axiosInstance: NuxtAxiosInstance) {
     this.axios = axiosInstance
     this.config = {
-      basePath: process.env.apiUrl,
+      basePath: process.env.API_URL,
       // TODO: add access token
       // accessToken: '',
     }
   }
 
-  get document() {
+  get document(): DocumentApi {
     if (initialisedAPIs.document === null) {
       initialisedAPIs.document = new DocumentApi(
         this.config,
-        process.env.apiUrl,
+        process.env.API_URL,
         this.axios
       )
     }
     return initialisedAPIs.document
   }
 
-  get user() {
+  get user(): UserApi {
     if (initialisedAPIs.user === null) {
       initialisedAPIs.user = new UserApi(
         this.config,
-        process.env.apiUrl,
+        process.env.API_URL,
         this.axios
       )
     }
     return initialisedAPIs.user
   }
 
-  get agency() {
+  get agency(): AgencyApi {
     if (initialisedAPIs.agency === null) {
       initialisedAPIs.agency = new AgencyApi(
         this.config,
-        process.env.apiUrl,
+        process.env.API_URL,
         this.axios
       )
     }

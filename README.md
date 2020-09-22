@@ -85,9 +85,6 @@ If you have followed the steps correctly, `yarn mockapi` will start a mock api o
 }
 ```
 
-You will also need a plugin to set the appropriate CORS response headers, such as [Allow CORS: Access-Control-Allow-origin](https://mybrowseraddon.com/access-control-allow-origin.html)
-
-
 ## Architecture
 
 High level infrastructure:

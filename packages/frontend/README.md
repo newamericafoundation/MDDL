@@ -19,6 +19,10 @@ $ yarn generate
 
 For detailed explanation on how things work, check out [Nuxt.js docs](https://nuxtjs.org).
 
+## Config
+
+Example config can be found in [./.env.local](./.env.local). You can use this as a template for creating local dev config, however you will need to add any secrets which can't be committed (keep in mind this is an open source repo) and create your own `.env` file in the `packages/frontend` directory.
+
 ## Hygen Templates
 
 [Hygen](https://www.hygen.io/) templates are stored in `./templates`. You can use hygen templates to generate boilerplate code for you. We currently have templates for:
