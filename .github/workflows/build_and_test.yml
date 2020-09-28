@@ -3,8 +3,6 @@ name: Build and Test
 on:
   pull_request:
     branches: [master]
-  push:
-    branches: [master]
 
 jobs:
   build:
@@ -32,6 +30,18 @@ jobs:
       - name: Use Node 12.x
         uses: docker://node:12-slim
 
-      # Install, build and test
-      - name: Install, build and test
-        run: yarn install && yarn build && yarn test && yarn lint
+      # Install
+      - name: Install
+        run: yarn install
+
+      # Lint
+      - name: Lint
+        run: yarn run lint
+
+      # Build
+      - name: Build
+        run: yarn build
+
+      # Test
+      - name: Test
+        run: yarn test

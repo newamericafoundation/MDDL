@@ -7,15 +7,16 @@
     "build": "tsc",
     "watch": "tsc -w",
     "test": "jest",
+    "test:watch": "jest --watch",
     "cdk": "cdk",
     "lint": "eslint --ext .ts --ignore-path .gitignore ."
   },
   "devDependencies": {
-    "@aws-cdk/assert": "1.62.0",
+    "@aws-cdk/assert": "^1.63.0",
     "@types/jest": "^26.0.10",
     "@types/node": "10.17.27",
     "@typescript-eslint/eslint-plugin": "^4.1.1",
-    "aws-cdk": "1.62.0",
+    "aws-cdk": "^1.63.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-prettier": "^3.1.4",
     "jest": "^26.4.2",
@@ -26,9 +27,41 @@
     "typescript": "~3.9.7"
   },
   "dependencies": {
-    "@aws-cdk/aws-lambda": "^1.62.0",
-    "@aws-cdk/aws-lambda-nodejs": "^1.62.0",
-    "@aws-cdk/core": "1.62.0",
+    "@aws-cdk/aws-cloudformation": "^1.63.0",
+    "@aws-cdk/aws-codebuild": "^1.63.0",
+    "@aws-cdk/aws-codepipeline": "^1.63.0",
+    "@aws-cdk/aws-codepipeline-actions": "^1.63.0",
+    "@aws-cdk/aws-cognito": "^1.63.0",
+    "@aws-cdk/aws-ec2": "^1.63.0",
+    "@aws-cdk/aws-events": "^1.63.0",
+    "@aws-cdk/aws-iam": "^1.63.0",
+    "@aws-cdk/aws-kms": "^1.63.0",
+    "@aws-cdk/aws-lambda": "^1.63.0",
+    "@aws-cdk/aws-lambda-nodejs": "^1.63.0",
+    "@aws-cdk/aws-logs": "^1.63.0",
+    "@aws-cdk/aws-rds": "^1.63.0",
+    "@aws-cdk/aws-s3-notifications": "^1.63.0",
+    "@aws-cdk/aws-secretsmanager": "^1.63.0",
+    "@aws-cdk/aws-sns": "^1.63.0",
+    "@aws-cdk/core": "^1.63.0",
+    "@aws-cdk/custom-resources": "^1.63.0",
+    "@aws-cdk/pipelines": "^1.63.0",
+    "aws-sdk": "^2.757.0",
+    "constructs": "^3.0.4",
+    "mysql2": "^2.2.5",
     "source-map-support": "^0.5.16"
+  },
+  "targets": {
+    "cdk-lambda": {
+      "context": "node",
+      "includeNodeModules": {
+        "aws-sdk": false
+      },
+      "sourceMap": false,
+      "minify": false,
+      "engines": {
+        "node": ">= 12"
+      }
+    }
   }
 }

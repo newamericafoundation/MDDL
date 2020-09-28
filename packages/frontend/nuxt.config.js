@@ -14,8 +14,7 @@ export default {
    */
   head: {
     titleTemplate: '%s - Homeless Data Locker',
-    meta: [
-      {
+    meta: [{
         charset: 'utf-8',
       },
       {
@@ -28,13 +27,11 @@ export default {
         content: process.env.npm_package_description || '',
       },
     ],
-    link: [
-      {
-        rel: 'icon',
-        type: 'image/x-icon',
-        href: '/favicon.ico',
-      },
-    ],
+    link: [{
+      rel: 'icon',
+      type: 'image/x-icon',
+      href: '/favicon.ico',
+    }, ],
   },
   /*
    ** Global CSS
@@ -110,5 +107,12 @@ export default {
    */
   env: {
     apiUrl: process.env.API_URL || 'http://localhost:8080/v1',
+  },
+  /*
+   ** Generate variables
+   ** See https://nuxtjs.org/api/configuration-generate/
+   */
+  generate: {
+    dir: 'dist/' + process.env.OUTPUT_DIR,
   },
 }

@@ -3,6 +3,7 @@
   "compilerOptions": {
     "inlineSourceMap": true,
     "inlineSources": true,
+    "esModuleInterop": true,
     "outDir": "dist",
     "rootDir": "src",
     "types": [
