@@ -4,7 +4,7 @@ to: 'components/<%=h.changeCase.pascal(name)%>/<%=h.changeCase.pascal(name)%>.st
 <%
   const componentName = h.changeCase.pascal(name)
 %>export default {
-  title: '<%=componentName%>'
+  title: 'Components/<%=componentName%>',
 }
 
-export const NuxtWebsite = () => '<<%=componentName%> />'
+export const StoryName = () => '<<%=componentName%> />'

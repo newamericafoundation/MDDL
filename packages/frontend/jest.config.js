@@ -15,4 +15,5 @@ module.exports = {
     '<rootDir>/components/**/*.vue',
     '<rootDir>/pages/**/*.vue',
   ],
+  setupFiles: ['./jest.i18n.config.ts'],
 }

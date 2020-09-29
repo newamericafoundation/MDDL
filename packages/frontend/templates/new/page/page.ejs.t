@@ -1,7 +1,7 @@
 ---
-to: 'pages/<%=h.changeCase.pascal(name)%>/index.vue'
+to: 'pages/<%=h.changeCase.camel(name)%>/index.vue'
 ---
-<% const componentName = h.changeCase.pascal(name) %>
+<% const componentName = h.changeCase.pascal(name) -%>
 <template>
   <div />
 </template>

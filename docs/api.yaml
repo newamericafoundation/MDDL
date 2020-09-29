@@ -436,6 +436,9 @@ components:
         id:
           type: string
           example: D050A33E-74F6-4BEF-AED5-87F48E5CCE44
+        name:
+          type: string
+          example: Letter of Employment
         type:
           type: string
           description: Document Type

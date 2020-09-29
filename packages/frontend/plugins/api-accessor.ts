@@ -1,4 +1,3 @@
-import Vue from 'vue'
 // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
 import { NuxtAxiosInstance } from '@nuxtjs/axios'
 // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
@@ -57,8 +56,13 @@ export class ApiService {
   }
 }
 
-export default ({ $axios }: { $axios: NuxtAxiosInstance }) => {
-  const apiService = new ApiService($axios)
-  Vue.prototype.$api = apiService
-  ;(Vue as any).$api = apiService
+// eslint-disable-next-line import/no-mutable-exports
+export let api: ApiService
+
+export default (
+  { $axios }: { $axios: NuxtAxiosInstance },
+  inject: (s: string, o: any) => void
+) => {
+  api = new ApiService($axios)
+  inject('api', api)
 }

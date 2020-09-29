@@ -1,10 +1,10 @@
 ---
-to: 'pages/<%=h.changeCase.pascal(name)%>/<%=h.changeCase.pascal(name)%>.spec.ts'
+to: 'pages/<%=h.changeCase.camel(name)%>/<%=h.changeCase.camel(name)%>.spec.ts'
 ---
 <%
   const pageName = h.changeCase.pascal(name)
 %>import { shallowMount } from '@vue/test-utils'
-import <%= pageName %> from '@/pages/<%= pageName %>/index.vue'
+import <%= pageName %> from '@/pages/<%= h.changeCase.camel(name) %>/index.vue'
 import Layout from '@/layouts/default.vue'
 
 describe('<%=pageName%> component', () => {

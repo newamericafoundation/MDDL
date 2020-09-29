@@ -21,14 +21,16 @@
     "@nuxtjs/axios": "^5.12.2",
     "@nuxtjs/dotenv": "^1.4.1",
     "@nuxtjs/pwa": "^3.0.2",
+    "@storybook/addon-contexts": "^5.3.21",
+    "@storybook/addon-knobs": "^6.0.21",
+    "@storybook/addon-viewport": "^6.0.21",
     "api-client": "1.0.0",
     "hygen": "^6.0.4",
     "nuxt": "^2.14.5",
     "nuxt-i18n": "^6.15.1",
     "vue-class-component": "^7.2.5",
     "vue-property-decorator": "^9.0.0",
-    "vuex-module-decorators": "^0.17.0",
-    "api-client": "1.0.0"
+    "vuex-module-decorators": "^0.17.0"
   },
   "devDependencies": {
     "@nuxt/types": "^2.14.5",
@@ -39,7 +41,7 @@
     "@nuxtjs/storybook": "^2.2.0",
     "@nuxtjs/vuetify": "^1.11.2",
     "@vue/test-utils": "^1.1.0",
-    "babel-core": "^7.0.0-beta.41",
+    "babel-core": "^7.0.0-bridge.0",
     "babel-eslint": "^10.1.0",
     "babel-jest": "^26.3.0",
     "eslint": "^7.8.1",
