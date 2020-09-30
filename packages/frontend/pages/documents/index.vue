@@ -20,10 +20,12 @@ export default class Documents extends Vue {
   documents: DocumentListItem[] = []
 
   mounted() {
-    this.$store.dispatch('getDocuments').then((res: DocumentListItem[]) => {
-      this.documents = res
-      this.loading = false
-    })
+    this.$store
+      .dispatch('user/getDocuments')
+      .then((res: DocumentListItem[]) => {
+        this.documents = res
+        this.loading = false
+      })
   }
 }
 </script>

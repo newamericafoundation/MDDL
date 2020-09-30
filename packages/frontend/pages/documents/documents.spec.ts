@@ -11,7 +11,12 @@ describe('Documents component', () => {
       getDocuments: () => Promise.resolve([]),
     }
     store = new Vuex.Store({
-      actions,
+      modules: {
+        user: {
+          namespaced: true,
+          actions,
+        },
+      },
     })
   })
 

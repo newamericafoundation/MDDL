@@ -55,7 +55,6 @@ Start the nuxt development server with `yarn fe dev`. You should be able to open
 
 For more info see the [frontend readme](./packages/frontend/README.md)
 
-
 ## Storybook
 
 Storybook helps you document components for reuse and automatically visually test your components to prevent bugs. Run storybook with `yarn storybook`. You can access the storybook by navigating to `http://localhost:3003/` in your browser. For more information see the [storybook docs](https://storybook.js.org/docs/vue/get-started/introduction).
