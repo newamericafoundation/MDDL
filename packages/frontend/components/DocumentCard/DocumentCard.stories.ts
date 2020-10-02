@@ -1,7 +1,7 @@
 import DocumentCard from './DocumentCard.vue'
 
 export default {
-  title: 'Components/DocumentCard',
+  title: 'Components/DocumentCard'
 }
 
 const template = '<DocumentCard :document="document" />'
@@ -12,11 +12,11 @@ export const Primary = () => ({
     document: {
       default: () => ({
         name: 'Document name',
-        id: '1234',
-      }),
-    },
+        id: '1234'
+      })
+    }
   },
-  template,
+  template
 })
 
 export const NoName = () => ({
@@ -25,9 +25,9 @@ export const NoName = () => ({
     document: {
       default: () => ({
         name: '',
-        id: '1234',
-      }),
-    },
+        id: '1234'
+      })
+    }
   },
-  template,
+  template
 })

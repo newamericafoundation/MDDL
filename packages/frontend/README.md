@@ -1,6 +1,6 @@
 ## Build Setup
 
-To run these scripts from the root directory, use `yarn fe <script>`. 
+To run these scripts from the root directory, use `yarn fe <script>`.
 
 ```bash
 # install dependencies
@@ -46,4 +46,4 @@ Testing frameworks: Jest, Storybook, (In future we will also use Browserstack)
 Rendering mode: Single Page App
 Deployment target: Static
 CSS Preprocessing: node-sass, sass-loader, @nuxtjs/style-resources
-Vue modules: vue-class-component, vue-property-decorator, vuex-module-decorators
+Vue modules: vue-class-component, nuxt-property-decorator, vuex-module-decorators

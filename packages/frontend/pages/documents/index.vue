@@ -10,8 +10,7 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator'
-// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
+import { Vue, Component } from 'nuxt-property-decorator'
 import { DocumentListItem } from 'api-client'
 
 @Component

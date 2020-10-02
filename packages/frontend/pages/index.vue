@@ -18,18 +18,18 @@
 </template>
 
 <script>
-import { Vue, Component } from 'vue-property-decorator'
+import { Vue, Component } from 'nuxt-property-decorator'
 import Logo from '@/components/Logo/Logo.vue'
 import VuetifyLogo from '@/components/VuetifyLogo.vue'
 
 @Component({
   components: {
     Logo,
-    VuetifyLogo,
+    VuetifyLogo
   },
   head: {
-    title: 'Dashboard',
-  },
+    title: 'Dashboard'
+  }
 })
 export default class Dashboard extends Vue {}
 </script>

@@ -9,7 +9,7 @@ export const handler = async (event: any) => {
       Bucket: event.Records[0].s3.bucket.name,
       Key: 'source.zip',
       CopySource:
-        event.Records[0].s3.bucket.name + '/' + event.Records[0].s3.object.key,
+        event.Records[0].s3.bucket.name + '/' + event.Records[0].s3.object.key
     })
     .promise()
 }

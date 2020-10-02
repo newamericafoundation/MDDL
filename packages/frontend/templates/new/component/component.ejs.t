@@ -10,7 +10,7 @@ to: 'components/<%=h.changeCase.pascal(name)%>/<%=h.changeCase.pascal(name)%>.vu
 if (blocks.indexOf('script') !== -1) {
 %>
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator'
+import { Vue, Component } from 'nuxt-property-decorator'
 
 @Component
 export default class <%= h.changeCase.pascal(name) %> extends Vue {

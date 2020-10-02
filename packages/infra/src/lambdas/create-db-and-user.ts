@@ -31,7 +31,7 @@ export const handler: EventHandler = async (event: Event) => {
     // skip delete events
     console.log('Skipping delete event.')
     return {
-      PhysicalResourceId: 'db-config:' + secretId,
+      PhysicalResourceId: 'db-config:' + secretId
     }
   }
 
@@ -43,7 +43,7 @@ export const handler: EventHandler = async (event: Event) => {
       // skip update if secret is the same
       console.log('Skipping update event for same secret ID.')
       return {
-        PhysicalResourceId: 'db-config:' + secretId,
+        PhysicalResourceId: 'db-config:' + secretId
       }
     }
     throw new Error(
@@ -53,7 +53,7 @@ export const handler: EventHandler = async (event: Event) => {
 
   const newUserInformation = await sm
     .getSecretValue({
-      SecretId: secretId,
+      SecretId: secretId
     })
     .promise()
 
@@ -73,7 +73,7 @@ export const handler: EventHandler = async (event: Event) => {
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
-    database: process.env.DB_DEFAULT_DATABASE,
+    database: process.env.DB_DEFAULT_DATABASE
   })
   const stmts = [
     `CREATE DATABASE IF NOT EXISTS ${connection.escapeId(username)}`,
@@ -82,7 +82,7 @@ export const handler: EventHandler = async (event: Event) => {
     )}@'%' IDENTIFIED BY ${connection.escape(password)}`,
     `GRANT ALL PRIVILEGES ON ${connection.escapeId(
       username
-    )}.* TO ${connection.escapeId(username)}@'%'`,
+    )}.* TO ${connection.escapeId(username)}@'%'`
   ]
   stmts.forEach(async (stmt) => {
     const [rows, fields] = await connection.query(stmt)
@@ -92,6 +92,6 @@ export const handler: EventHandler = async (event: Event) => {
   connection.end()
 
   return {
-    PhysicalResourceId: 'db-config:' + secretId,
+    PhysicalResourceId: 'db-config:' + secretId
   }
 }

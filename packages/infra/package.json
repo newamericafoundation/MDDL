@@ -13,18 +13,18 @@
   },
   "devDependencies": {
     "@aws-cdk/assert": "^1.63.0",
-    "@types/jest": "^26.0.10",
+    "@types/jest": "^26.0.14",
     "@types/node": "10.17.27",
-    "@typescript-eslint/eslint-plugin": "^4.1.1",
+    "@typescript-eslint/eslint-plugin": "^4.3.0",
     "aws-cdk": "^1.63.0",
-    "eslint-config-prettier": "^6.11.0",
+    "eslint-config-prettier": "^6.12.0",
     "eslint-plugin-prettier": "^3.1.4",
     "jest": "^26.4.2",
     "parcel": "2.0.0-beta.1",
-    "prettier": "^2.1.1",
-    "ts-jest": "^26.2.0",
+    "prettier": "^2.1.2",
+    "ts-jest": "^26.4.1",
     "ts-node": "^8.1.0",
-    "typescript": "~3.9.7"
+    "typescript": "^4.0.2"
   },
   "dependencies": {
     "@aws-cdk/aws-cloudformation": "^1.63.0",

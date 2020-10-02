@@ -1,7 +1,7 @@
 import { App, Construct, Stack, StackProps } from '@aws-cdk/core'
 import {
   DataStoreStack,
-  Props as DataStoreStackProps,
+  Props as DataStoreStackProps
 } from './data-store-stack'
 import { AuthStack, Props as AuthStackProps } from './auth-stack'
 import { CityStack, Props as CityStackProps } from './city-stack'
@@ -10,7 +10,7 @@ import {
   CodeBuildAction,
   ManualApprovalAction,
   S3DeployAction,
-  S3SourceAction,
+  S3SourceAction
 } from '@aws-cdk/aws-codepipeline-actions'
 import { AddStackOptions, CdkPipeline, CdkStage } from '@aws-cdk/pipelines'
 import { CloudAssembly, CloudFormationStackArtifact } from '@aws-cdk/cx-api'
@@ -19,7 +19,7 @@ import {
   BucketEncryption,
   EventType,
   IBucket,
-  BlockPublicAccess,
+  BlockPublicAccess
 } from '@aws-cdk/aws-s3'
 import { LambdaDestination } from '@aws-cdk/aws-s3-notifications'
 import { BuildSpec, Project } from '@aws-cdk/aws-codebuild'
@@ -107,7 +107,7 @@ export class CiCdStack extends Stack {
     const {
       cloudAssemblyArtifact,
       codePipeline,
-      cityBuildArtifacts,
+      cityBuildArtifacts
     } = this.createCodePipeline(props, bucket)
 
     // create the CDK pipeline components
@@ -126,14 +126,14 @@ export class CiCdStack extends Stack {
   private createCiCdUser(bucket: Bucket) {
     // create user record
     const cicdUser = new User(this, 'CiCdUser', {
-      userName: 'cicd',
+      userName: 'cicd'
     })
 
     // add permissions
     cicdUser.addToPolicy(
       new PolicyStatement({
         resources: [bucket.arnForObjects('builds/*.zip')],
-        actions: ['s3:PutObject'],
+        actions: ['s3:PutObject']
       })
     )
 
@@ -148,14 +148,14 @@ export class CiCdStack extends Stack {
     const buildsBucket = new Bucket(this, 'BuildBucket', {
       blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
       versioned: true,
-      encryption: BucketEncryption.S3_MANAGED,
+      encryption: BucketEncryption.S3_MANAGED
     })
 
     // create the notification handler for when a new build is put in the "/builds" bucket
     const handler = new NodejsFunction(this, 'BuildBucketNotificationLambda', {
       entry: path.join(__dirname, 'lambdas', 'builds-bucket-event.ts'),
       minify: true,
-      runtime: Runtime.NODEJS_12_X,
+      runtime: Runtime.NODEJS_12_X
     })
 
     // allow handler to execute a copy within S3
@@ -165,9 +165,9 @@ export class CiCdStack extends Stack {
           's3:GetObject',
           's3:GetObjectTagging',
           's3:PutObject',
-          's3:PutObjectTagging',
+          's3:PutObjectTagging'
         ],
-        resources: [`${buildsBucket.bucketArn}/*`],
+        resources: [`${buildsBucket.bucketArn}/*`]
       })
     )
 
@@ -175,7 +175,7 @@ export class CiCdStack extends Stack {
     handler.addToRolePolicy(
       new PolicyStatement({
         actions: ['s3:ListBucket'],
-        resources: [buildsBucket.bucketArn],
+        resources: [buildsBucket.bucketArn]
       })
     )
 
@@ -185,12 +185,12 @@ export class CiCdStack extends Stack {
       new LambdaDestination(handler),
       {
         suffix: '.zip',
-        prefix: 'builds/',
+        prefix: 'builds/'
       }
     )
 
     return {
-      bucket: buildsBucket,
+      bucket: buildsBucket
     }
   }
 
@@ -220,8 +220,8 @@ export class CiCdStack extends Stack {
       [cloudAssemblyArtifact.artifactName]: {
         files: '**/*',
         name: cloudAssemblyArtifact.artifactName,
-        'base-directory': 'packages/infra/cdk.out',
-      },
+        'base-directory': 'packages/infra/cdk.out'
+      }
     }
 
     // initialise our build commands with the CDK build
@@ -234,7 +234,7 @@ export class CiCdStack extends Stack {
       artifactConfig[artifactName] = {
         files: '**/*',
         name: artifactName,
-        'base-directory': `packages/frontend/dist/${cba.name}`,
+        'base-directory': `packages/frontend/dist/${cba.name}`
       }
 
       // build the .env file contents
@@ -257,35 +257,35 @@ export class CiCdStack extends Stack {
       buildSpec: BuildSpec.fromObject({
         version: 0.2,
         env: {
-          'exported-variables': ['BUILD_NUMBER'],
+          'exported-variables': ['BUILD_NUMBER']
         },
         phases: {
           install: {
             'runtime-versions': {
               python: 3.7,
-              nodejs: 12,
+              nodejs: 12
             },
-            commands: ['yarn'],
+            commands: ['yarn']
           },
           build: {
             commands: [
               'BUILD_NUMBER=$(cat build-details.json | python -c "import sys, json; print(json.load(sys.stdin)[\'buildNumber\'])")',
-              ...buildCommands,
-            ],
-          },
+              ...buildCommands
+            ]
+          }
         },
         artifacts: {
           files: '**/*',
-          'secondary-artifacts': artifactConfig,
-        },
-      }),
+          'secondary-artifacts': artifactConfig
+        }
+      })
     })
 
     // permissions to fetch context, e.g. AZ's for VPC
     project.addToRolePolicy(
       new PolicyStatement({
         actions: ['ec2:Describe*', 'ec2:Get*'],
-        resources: ['*'],
+        resources: ['*']
       })
     )
 
@@ -304,14 +304,14 @@ export class CiCdStack extends Stack {
 
     // create base pipeline
     const codePipeline = new Pipeline(this, 'Pipeline', {
-      restartExecutionOnUpdate: true,
+      restartExecutionOnUpdate: true
     })
 
     // determine city stacks that will need to be built, and their args
     const cityStacks = this.getCityStacksProps(props)
     const cityBuildArgs = cityStacks.map((cs) => ({
       name: cs.name,
-      env: cs.props.webAppBuildVariables || {},
+      env: cs.props.webAppBuildVariables || {}
     }))
 
     // create artifacts for each one
@@ -334,9 +334,9 @@ export class CiCdStack extends Stack {
           bucket,
           bucketKey: 'source.zip',
           actionName: 'Source',
-          output: sourceArtifact,
-        }),
-      ],
+          output: sourceArtifact
+        })
+      ]
     })
 
     // add the build stage with codebuild project and all artifacts
@@ -347,15 +347,15 @@ export class CiCdStack extends Stack {
           actionName: 'Build',
           project: project,
           input: sourceArtifact,
-          outputs: [cloudAssemblyArtifact, ...cityBuildArtifacts],
-        }),
-      ],
+          outputs: [cloudAssemblyArtifact, ...cityBuildArtifacts]
+        })
+      ]
     })
 
     return {
       codePipeline,
       cloudAssemblyArtifact,
-      cityBuildArtifacts,
+      cityBuildArtifacts
     }
   }
 
@@ -388,7 +388,7 @@ export class CiCdStack extends Stack {
     const {
       authStackProps,
       dataStoreStackProps,
-      cityStacksProps: stage1CityStacksProps = [],
+      cityStacksProps: stage1CityStacksProps = []
     } = stage1Configuration
 
     // create lambda function to add city stack to the stage
@@ -432,7 +432,7 @@ export class CiCdStack extends Stack {
             name + 'WebAppBucket',
             synthesizedStack.bucketNames['WebApp']
           ),
-          runOrder: stage.nextSequentialRunOrder(),
+          runOrder: stage.nextSequentialRunOrder()
         })
       )
     }
@@ -440,7 +440,7 @@ export class CiCdStack extends Stack {
     // create CDK pipeline
     const cdkPipeline = new CdkPipeline(this, 'CdkPipeline', {
       cloudAssemblyArtifact,
-      codePipeline,
+      codePipeline
     })
 
     // Add and configure deployment stage 1
@@ -475,7 +475,7 @@ export class CiCdStack extends Stack {
         new ManualApprovalAction({
           actionName: `ApproveDeploymentStage2`,
           additionalInformation: `Approve to continue deployment to stage 2 environments.`,
-          runOrder: stage2.nextSequentialRunOrder(),
+          runOrder: stage2.nextSequentialRunOrder()
         })
       )
 
@@ -485,7 +485,7 @@ export class CiCdStack extends Stack {
       const executeRunOrder = stage2.nextSequentialRunOrder()
       const parallelOptions: AddStackOptions = {
         runOrder,
-        executeRunOrder,
+        executeRunOrder
       }
 
       // add each city to the current stage
@@ -498,13 +498,13 @@ export class CiCdStack extends Stack {
         new ManualApprovalAction({
           actionName: `ApproveChangeSetsStage2`,
           additionalInformation: `Approve to execute change sets for stage 2 environments.`,
-          runOrder: approvalOrder,
+          runOrder: approvalOrder
         })
       )
     }
 
     return {
-      cdkPipeline,
+      cdkPipeline
     }
   }
 
@@ -536,7 +536,7 @@ export class CiCdStack extends Stack {
     if (!options) {
       options = {
         runOrder: stage.nextSequentialRunOrder(),
-        executeRunOrder: stage.nextSequentialRunOrder(),
+        executeRunOrder: stage.nextSequentialRunOrder()
       }
     }
     stage.addStackArtifactDeployment(stackArtifact, options)
@@ -550,7 +550,7 @@ export class CiCdStack extends Stack {
   private getCityStacksProps(props: Props) {
     const {
       stage1Configuration,
-      stage2Configuration = { cityStacksProps: [] },
+      stage2Configuration = { cityStacksProps: [] }
     } = props
     const { cityStacksProps: stage1CityStacks = [] } = stage1Configuration
     const { cityStacksProps: stage2CityStacks } = stage2Configuration
@@ -586,7 +586,7 @@ export class CiCdStack extends Stack {
     )
     createdStacks.push({
       name: dataStoreStackProps.name,
-      stack: dataStoreStack,
+      stack: dataStoreStack
     })
 
     // add all city stacks
@@ -595,7 +595,7 @@ export class CiCdStack extends Stack {
       const stack = new CityStack(app, name, {
         authStack: props.expectsAuthStack ? authStack : undefined,
         ...props,
-        dataStoreStack,
+        dataStoreStack
       })
       createdStacks.push({ name, stack })
     })

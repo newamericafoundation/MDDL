@@ -13,7 +13,8 @@ export default {
    */
   head: {
     titleTemplate: '%s - Homeless Data Locker',
-    meta: [{
+    meta: [
+      {
         charset: 'utf-8',
       },
       {
@@ -26,11 +27,13 @@ export default {
         content: process.env.npm_package_description || '',
       },
     ],
-    link: [{
-      rel: 'icon',
-      type: 'image/x-icon',
-      href: '/favicon.ico',
-    }, ],
+    link: [
+      {
+        rel: 'icon',
+        type: 'image/x-icon',
+        href: '/favicon.ico',
+      },
+    ],
   },
   /*
    ** Global CSS

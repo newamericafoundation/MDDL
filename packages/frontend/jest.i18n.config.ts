@@ -8,5 +8,5 @@ Vue.use(Vuex)
 config.mocks.$t = (key: string) => key
 config.mocks.$i18n = {
   locale: 'en',
-  locales: [],
+  locales: []
 }

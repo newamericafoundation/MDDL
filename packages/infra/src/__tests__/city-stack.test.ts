@@ -9,20 +9,20 @@ test('Fails validation for auth stack', () => {
   const app = new cdk.App()
   // WHEN
   const authStack = new AuthStack(app, 'MyTestAuthStack', {
-    userPoolName: 'MyTestAuthStack',
+    userPoolName: 'MyTestAuthStack'
   })
   const dataStoreStack = new DataStoreStack(app, 'MyTestDataStoreStack', {})
   expect(() => {
     new CityStack(app, 'MyTestStack1', {
       dataStoreStack,
-      expectsAuthStack: true,
+      expectsAuthStack: true
     })
   }).toThrowError(/authStack must be provided when expectsAuthStack is true/)
   expect(() => {
     new CityStack(app, 'MyTestStack2', {
       dataStoreStack,
       authStack,
-      expectsAuthStack: false,
+      expectsAuthStack: false
     })
   }).toThrowError(
     /authStack should not be provided when expectsAuthStack is false/
@@ -34,7 +34,7 @@ test('Default Stack', () => {
   const dataStoreStack = new DataStoreStack(app, 'MyTestDataStoreStack', {})
   const stack = new CityStack(app, 'MyTestStack', {
     dataStoreStack,
-    expectsAuthStack: false,
+    expectsAuthStack: false
   })
   // THEN
   expectCDK(stack).to(haveResource('AWS::IAM::Role'))
@@ -42,9 +42,9 @@ test('Default Stack', () => {
     haveResource('AWS::Lambda::Function', {
       Handler: 'index.handler',
       Role: {
-        'Fn::GetAtt': ['HelloWorldFunctionServiceRole8E0BD458', 'Arn'],
+        'Fn::GetAtt': ['HelloWorldFunctionServiceRole8E0BD458', 'Arn']
       },
-      Runtime: 'nodejs12.x',
+      Runtime: 'nodejs12.x'
     })
   )
 })

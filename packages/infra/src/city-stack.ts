@@ -3,7 +3,7 @@ import {
   CustomResource,
   Duration,
   Stack,
-  StackProps,
+  StackProps
 } from '@aws-cdk/core'
 import { NodejsFunction } from '@aws-cdk/aws-lambda-nodejs'
 import path = require('path')
@@ -11,7 +11,7 @@ import { Function, IFunction, Runtime } from '@aws-cdk/aws-lambda'
 import { Bucket } from '@aws-cdk/aws-s3'
 import {
   OriginAccessIdentity,
-  CloudFrontWebDistribution,
+  CloudFrontWebDistribution
 } from '@aws-cdk/aws-cloudfront'
 import { DataStoreStack } from './data-store-stack'
 import { AuthStack } from './auth-stack'
@@ -26,13 +26,13 @@ import {
   ARecord,
   HostedZone,
   RecordTarget,
-  HostedZoneAttributes,
+  HostedZoneAttributes
 } from '@aws-cdk/aws-route53'
 import { CloudFrontTarget } from '@aws-cdk/aws-route53-targets'
 import {
   CfnUserPoolResourceServer,
   OAuthScope,
-  UserPool,
+  UserPool
 } from '@aws-cdk/aws-cognito'
 import { HostedDomain } from './hosted-domain'
 
@@ -85,7 +85,7 @@ export class CityStack extends Stack {
       expectsAuthStack,
       apiDomainConfig,
       webAppDomainConfig,
-      hostedZoneAttributes,
+      hostedZoneAttributes
     } = props
 
     // check auth stack is given if this stack expects it
@@ -132,7 +132,7 @@ export class CityStack extends Stack {
     // add a sample lambda
     new NodejsFunction(this, 'HelloWorldFunction', {
       entry: pathToLambda('hello-world-lambda'),
-      runtime: Runtime.NODEJS_12_X,
+      runtime: Runtime.NODEJS_12_X
     })
 
     // add a sample lambda in a VPC
@@ -140,7 +140,7 @@ export class CityStack extends Stack {
       entry: pathToLambda('hello-world-lambda'),
       runtime: Runtime.NODEJS_12_X,
       vpc: dataStoreStack.vpc,
-      securityGroups: [dataStoreStack.rdsAccessSecurityGroup],
+      securityGroups: [dataStoreStack.rdsAccessSecurityGroup]
     })
 
     // create the city key used for encryption of resources in this stack
@@ -171,16 +171,16 @@ export class CityStack extends Stack {
       userPool.addClient('DataLockerClient', {
         authFlows: {
           userSrp: true,
-          refreshToken: true,
+          refreshToken: true
         },
         preventUserExistenceErrors: true,
         oAuth: {
           callbackUrls: ['https://' + redirectUrl],
           scopes: [OAuthScope.PROFILE, OAuthScope.OPENID, OAuthScope.EMAIL],
           flows: {
-            authorizationCodeGrant: true,
-          },
-        },
+            authorizationCodeGrant: true
+          }
+        }
       })
 
       // add the resource server
@@ -188,7 +188,7 @@ export class CityStack extends Stack {
         new CfnUserPoolResourceServer(this, 'UserPoolResourceServer', {
           identifier: 'https://' + apiDomainConfig.domain,
           name: this.stackName,
-          userPoolId: authStack.userPoolId,
+          userPoolId: authStack.userPoolId
         })
       }
     }
@@ -214,7 +214,7 @@ export class CityStack extends Stack {
         hostedDomainConfig.certificateArn
       )
       viewerCertificate = ViewerCertificate.fromAcmCertificate(certificate, {
-        aliases: [hostedDomainConfig.domain],
+        aliases: [hostedDomainConfig.domain]
       })
     }
 
@@ -228,9 +228,9 @@ export class CityStack extends Stack {
         blockPublicAcls: true,
         blockPublicPolicy: true,
         ignorePublicAcls: true,
-        restrictPublicBuckets: true,
+        restrictPublicBuckets: true
       },
-      bucketName,
+      bucketName
     })
 
     // Create App Origin Access Identity
@@ -238,7 +238,7 @@ export class CityStack extends Stack {
       this,
       `${appName}OriginAccessIdentity`,
       {
-        comment: appName,
+        comment: appName
       }
     )
     bucket.grantRead(originAccessIdentity)
@@ -253,19 +253,19 @@ export class CityStack extends Stack {
           {
             errorCode: 403,
             responseCode: 200,
-            responsePagePath: '/index.html',
+            responsePagePath: '/index.html'
           },
           {
             errorCode: 404,
             responseCode: 200,
-            responsePagePath: '/index.html',
-          },
+            responsePagePath: '/index.html'
+          }
         ],
         originConfigs: [
           {
             s3OriginSource: {
               s3BucketSource: bucket,
-              originAccessIdentity: originAccessIdentity,
+              originAccessIdentity: originAccessIdentity
             },
             behaviors: [
               {
@@ -273,16 +273,16 @@ export class CityStack extends Stack {
                 minTtl: Duration.minutes(5),
                 defaultTtl: Duration.minutes(5),
                 pathPattern: '/index.html',
-                compress: true,
+                compress: true
               },
               {
                 isDefaultBehavior: true,
-                compress: true,
-              },
-            ],
-          },
+                compress: true
+              }
+            ]
+          }
         ],
-        viewerCertificate,
+        viewerCertificate
       }
     )
     cloudFrontDistribution.node.addDependency(bucket, originAccessIdentity)
@@ -300,7 +300,7 @@ export class CityStack extends Stack {
         recordName: domain,
         target: RecordTarget.fromAlias(
           new CloudFrontTarget(cloudFrontDistribution)
-        ),
+        )
       })
       aliasRecord.node.addDependency(cloudFrontDistribution)
     }
@@ -308,7 +308,7 @@ export class CityStack extends Stack {
     return {
       domain: hostedDomainConfig
         ? hostedDomainConfig.domain
-        : cloudFrontDistribution.distributionDomainName,
+        : cloudFrontDistribution.distributionDomainName
     }
   }
 
@@ -318,7 +318,7 @@ export class CityStack extends Stack {
   private addKmsKey() {
     const kmsKey = new Key(this, 'Key', {
       description: `KMS Key for ${this.stackName} stack`,
-      enableKeyRotation: true,
+      enableKeyRotation: true
     })
 
     // permissions are automatically added to the key policy
@@ -332,21 +332,21 @@ export class CityStack extends Stack {
           'kms:ReEncrypt*',
           'kms:GenerateDataKey*',
           'kms:CreateGrant',
-          'kms:DescribeKey',
+          'kms:DescribeKey'
         ],
         resources: ['*'],
         principals: [new AnyPrincipal()],
         conditions: {
           StringEquals: {
             'kms:ViaService': `secretsmanager.${this.region}.amazonaws.com`,
-            'kms:CallerAccount': this.account,
-          },
-        },
+            'kms:CallerAccount': this.account
+          }
+        }
       })
     )
 
     return {
-      kmsKey,
+      kmsKey
     }
   }
 
@@ -386,7 +386,7 @@ export class CityStack extends Stack {
       'CreateDbUserCustomResourceProvider',
       {
         onEventHandler: createDbUserFunction,
-        logRetention: RetentionDays.ONE_DAY,
+        logRetention: RetentionDays.ONE_DAY
       }
     )
 
@@ -395,15 +395,15 @@ export class CityStack extends Stack {
       secretName: `${this.stackName}-rds-db-credentials`,
       generateSecretString: {
         secretStringTemplate: JSON.stringify({
-          username: this.stackName.toLowerCase().replace(/[\W_]+/g, ''),
+          username: this.stackName.toLowerCase().replace(/[\W_]+/g, '')
         }),
         excludePunctuation: true,
         includeSpace: false,
         generateStringKey: 'password',
         excludeCharacters: '"@/\\',
-        passwordLength: 30,
+        passwordLength: 30
       },
-      encryptionKey: kmsKey,
+      encryptionKey: kmsKey
     })
 
     // allow the base function to access our new secret
@@ -412,9 +412,9 @@ export class CityStack extends Stack {
       statements: [
         new PolicyStatement({
           actions: ['secretsmanager:GetSecretValue'],
-          resources: [dbCredentials.secretArn],
-        }),
-      ],
+          resources: [dbCredentials.secretArn]
+        })
+      ]
     })
 
     // execute the custom resource to connect to the DB Server and create the new DB and User
@@ -424,8 +424,8 @@ export class CityStack extends Stack {
       {
         serviceToken: createDbUserCustomResourceProvider.serviceToken,
         properties: {
-          NewUserSecretId: dbCredentials.secretArn,
-        },
+          NewUserSecretId: dbCredentials.secretArn
+        }
       }
     )
     createDbUser.node.addDependency(secretAccessPolicy)

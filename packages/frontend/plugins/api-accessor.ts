@@ -6,7 +6,7 @@ import { DocumentApi, AgencyApi, UserApi, Configuration } from 'api-client'
 const initialisedAPIs = {
   document: null as DocumentApi | null,
   user: null as UserApi | null,
-  agency: null as AgencyApi | null,
+  agency: null as AgencyApi | null
 }
 
 export class ApiService {
@@ -16,7 +16,7 @@ export class ApiService {
   constructor(axiosInstance: NuxtAxiosInstance) {
     this.axios = axiosInstance
     this.config = {
-      basePath: process.env.API_URL,
+      basePath: process.env.API_URL
       // TODO: add access token
       // accessToken: '',
     }

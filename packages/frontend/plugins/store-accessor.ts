@@ -15,6 +15,6 @@ export default ({ store }: { store: Store<any> }) => {
 }
 
 export {
-  userStore,
+  userStore
   // export insertion point (do not change this text, it is being used by hygen cli)
 }

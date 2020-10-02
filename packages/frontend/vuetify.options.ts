@@ -19,7 +19,7 @@ const vuetifyOptions = (ctx: Context): Options => {
           info: colors.blue.lighten2,
           warning: colors.amber.base,
           error: colors.red.accent4,
-          success: colors.green.accent3,
+          success: colors.green.accent3
         },
         dark: {
           primary: colors.blue.darken2,
@@ -28,15 +28,15 @@ const vuetifyOptions = (ctx: Context): Options => {
           info: colors.teal.lighten1,
           warning: colors.amber.base,
           error: colors.deepOrange.accent4,
-          success: colors.green.accent3,
-        },
-      },
+          success: colors.green.accent3
+        }
+      }
     },
     lang: {
       locales: {},
       current: '',
-      t: (key, ...params) => ctx.app.i18n.t(key, params) as string,
-    },
+      t: (key, ...params) => ctx.app.i18n.t(key, params) as string
+    }
   }
 }
 
