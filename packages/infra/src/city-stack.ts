@@ -3,44 +3,94 @@ import {
   CustomResource,
   Duration,
   Stack,
-  StackProps
+  StackProps,
 } from '@aws-cdk/core'
 import { NodejsFunction } from '@aws-cdk/aws-lambda-nodejs'
 import path = require('path')
-import { Function, IFunction, Runtime } from '@aws-cdk/aws-lambda'
+import {
+  Function,
+  LayerVersion,
+  IFunction,
+  ILayerVersion,
+  Runtime,
+  Code,
+} from '@aws-cdk/aws-lambda'
 import { Bucket } from '@aws-cdk/aws-s3'
 import {
   OriginAccessIdentity,
-  CloudFrontWebDistribution
+  CloudFrontWebDistribution,
 } from '@aws-cdk/aws-cloudfront'
 import { DataStoreStack } from './data-store-stack'
 import { AuthStack } from './auth-stack'
 import { Provider } from '@aws-cdk/custom-resources'
 import { RetentionDays } from '@aws-cdk/aws-logs'
-import { Secret } from '@aws-cdk/aws-secretsmanager'
-import { AnyPrincipal, Policy, PolicyStatement, Role } from '@aws-cdk/aws-iam'
+import { ISecret, Secret } from '@aws-cdk/aws-secretsmanager'
+import {
+  AnyPrincipal,
+  Policy,
+  PolicyStatement,
+  Role,
+  ServicePrincipal,
+} from '@aws-cdk/aws-iam'
 import { IKey, Key } from '@aws-cdk/aws-kms'
 import { Certificate } from '@aws-cdk/aws-certificatemanager'
+import {
+  DefaultDomainMappingOptions,
+  DomainName,
+  HttpApi,
+  HttpMethod,
+  CfnRoute,
+  CfnAuthorizer,
+  CfnIntegration,
+} from '@aws-cdk/aws-apigatewayv2'
 import { ViewerCertificate } from '@aws-cdk/aws-cloudfront/lib/web_distribution'
 import {
   ARecord,
   HostedZone,
+  IHostedZone,
   RecordTarget,
-  HostedZoneAttributes
+  HostedZoneAttributes,
 } from '@aws-cdk/aws-route53'
 import { CloudFrontTarget } from '@aws-cdk/aws-route53-targets'
 import {
   CfnUserPoolResourceServer,
   OAuthScope,
-  UserPool
+  UserPool,
 } from '@aws-cdk/aws-cognito'
 import { HostedDomain } from './hosted-domain'
+import { ISecurityGroup, IVpc } from '@aws-cdk/aws-ec2'
+import { MinimalCloudFrontTarget } from './minimal-cloudfront-target'
+
+interface ApiHostedDomain extends HostedDomain {
+  /**
+   * Whether to allow any host for the CORS policy.
+   * Useful for development environments.
+   * @default false
+   */
+  corsAllowAnyHost?: boolean
+}
+
+interface JwtConfiguration {
+  /**
+   * The audience (aud) of the JWT token
+   */
+  audience: string[]
+
+  /**
+   * The issuer (iss) of the JWT token
+   */
+  issuer: string
+}
 
 export interface Props extends StackProps {
   /**
    * The auth stack to secure access to the application resources in this stack
    */
   authStack?: AuthStack
+  /**
+   * The JWT Authorizer settings if not using the auth stack
+   */
+  jwtAuth?: JwtConfiguration
   /**
    * Whether or not an auth stack should be provided for this
    */
@@ -56,7 +106,7 @@ export interface Props extends StackProps {
   /**
    * API domain configuration
    */
-  apiDomainConfig?: HostedDomain
+  apiDomainConfig?: ApiHostedDomain
   /**
    * Web App domain configuration
    */
@@ -67,10 +117,23 @@ export interface Props extends StackProps {
   hostedZoneAttributes?: HostedZoneAttributes
 }
 
+interface ApiProps {
+  api: HttpApi
+  dbSecret: ISecret
+  mySqlLayer: ILayerVersion
+  authorizer: CfnAuthorizer
+}
+
 const pathToLambda = (packageName: string, handlerName = 'index.ts'): string =>
   path.join(__dirname, '..', '..', packageName, 'src', handlerName)
 
+const pathToApi = (name: string) =>
+  pathToLambda(`api-service`, `apis/${name}.ts`)
+
 export class CityStack extends Stack {
+  private lambdaVpc: IVpc
+  private lambdaSecurityGroups: ISecurityGroup[]
+  private rdsEndpoint: string
   public bucketNames: { [index: string]: string }
   constructor(scope: Construct, id: string, props: Props) {
     super(scope, id, props)
@@ -85,21 +148,26 @@ export class CityStack extends Stack {
       expectsAuthStack,
       apiDomainConfig,
       webAppDomainConfig,
-      hostedZoneAttributes
+      hostedZoneAttributes,
+      jwtAuth,
     } = props
 
     // check auth stack is given if this stack expects it
     if (expectsAuthStack && !authStack) {
       throw new Error(
-        'authStack must be provided when expectsAuthStack is true'
+        'authStack must be provided when expectsAuthStack is true',
       )
     }
 
     // check auth stack is not given if this stack doesn't expect it
     if (!expectsAuthStack && authStack) {
       throw new Error(
-        'authStack should not be provided when expectsAuthStack is false'
+        'authStack should not be provided when expectsAuthStack is false',
       )
+    }
+    // check jwt auth is given if auth stack is not
+    if (!expectsAuthStack && !jwtAuth) {
+      throw new Error('jwtAuth must be provided when expectsAuthStack is false')
     }
 
     // check data store stack is given - it is "optional" to allow for configuration
@@ -108,6 +176,12 @@ export class CityStack extends Stack {
       throw new Error('dataStoreStack must be provided')
     }
 
+    // set VPC details for lambda access
+    const { vpc, rdsAccessSecurityGroup, rdsEndpoint } = dataStoreStack
+    this.lambdaVpc = vpc
+    this.lambdaSecurityGroups = [rdsAccessSecurityGroup]
+    this.rdsEndpoint = rdsEndpoint
+
     // check the cloudfront certificate is in north virginia
     if (
       webAppDomainConfig &&
@@ -115,39 +189,68 @@ export class CityStack extends Stack {
       !webAppDomainConfig.certificateArn.toLowerCase().includes('us-east-1')
     ) {
       throw new Error(
-        'webAppDomainConfig.certificateArn must be a certificate in us-east-1'
+        'webAppDomainConfig.certificateArn must be a certificate in us-east-1',
       )
     }
 
+    // reference hosted zone
+    const hostedZone: IHostedZone | undefined = hostedZoneAttributes
+      ? HostedZone.fromHostedZoneAttributes(
+          this,
+          `HostedZone`,
+          hostedZoneAttributes,
+        )
+      : undefined
+
     // add hosting for the web app
-    const { domain } = this.addHosting(
+    const { domain: webAppDomain } = this.addHosting(
       'WebApp',
       webAppDomainConfig,
-      hostedZoneAttributes
+      hostedZone,
     )
 
     // add auth stack integration
-    this.addAuthIntegration(domain, authStack, apiDomainConfig)
-
-    // add a sample lambda
-    new NodejsFunction(this, 'HelloWorldFunction', {
-      entry: pathToLambda('hello-world-lambda'),
-      runtime: Runtime.NODEJS_12_X
-    })
-
-    // add a sample lambda in a VPC
-    new NodejsFunction(this, 'HelloWorldFunction2', {
-      entry: pathToLambda('hello-world-lambda'),
-      runtime: Runtime.NODEJS_12_X,
-      vpc: dataStoreStack.vpc,
-      securityGroups: [dataStoreStack.rdsAccessSecurityGroup]
-    })
+    const { jwtConfiguration } = this.addAuthIntegration(
+      webAppDomain,
+      authStack,
+      apiDomainConfig,
+      jwtAuth,
+    )
 
     // create the city key used for encryption of resources in this stack
     const { kmsKey } = this.addKmsKey()
 
     // create the DB and access credentials for this city
-    this.addDbAndCredentials(kmsKey, dataStoreStack.createDbUserFunction)
+    const { secret } = this.addDbAndCredentials(
+      kmsKey,
+      dataStoreStack.createDbUserFunction,
+    )
+
+    // create the mysql lambda layer
+    const { layer: mySqlLayer } = this.addMysqlLayer()
+
+    // add api
+    const { api, authorizer } = this.addApi(
+      webAppDomain,
+      jwtConfiguration,
+      apiDomainConfig,
+      hostedZone,
+    )
+    const apiProps: ApiProps = {
+      api,
+      authorizer,
+      dbSecret: secret,
+      mySqlLayer,
+    }
+
+    // add user routes
+    this.addUserRoutes(apiProps)
+
+    // add document routes
+    this.addDocumentRoutes(apiProps)
+
+    // run database migrations
+    this.runMigrations(secret, mySqlLayer)
   }
 
   /**
@@ -155,42 +258,59 @@ export class CityStack extends Stack {
    * @param redirectUrl The allowed URL for redirection for the auth integration
    * @param authStack The auth stack, if any
    * @param apiDomainConfig The API's domain configuration
+   * @param jwtAuth The JWT Auth, if not using the auth stack
    */
   private addAuthIntegration(
     redirectUrl: string,
     authStack?: AuthStack,
-    apiDomainConfig?: HostedDomain
+    apiDomainConfig?: HostedDomain,
+    jwtAuth?: JwtConfiguration,
   ) {
-    if (authStack) {
-      // add cognito specific integration
-      const userPool = UserPool.fromUserPoolId(
-        this,
-        'UserPool',
-        authStack.userPoolId
-      )
-      userPool.addClient('DataLockerClient', {
-        authFlows: {
-          userSrp: true,
-          refreshToken: true
-        },
-        preventUserExistenceErrors: true,
-        oAuth: {
-          callbackUrls: ['https://' + redirectUrl],
-          scopes: [OAuthScope.PROFILE, OAuthScope.OPENID, OAuthScope.EMAIL],
-          flows: {
-            authorizationCodeGrant: true
-          }
-        }
-      })
+    // if JWT Auth is given, shortcut out
+    if (jwtAuth) {
+      return { jwtConfiguration: jwtAuth }
+    }
 
-      // add the resource server
-      if (apiDomainConfig) {
-        new CfnUserPoolResourceServer(this, 'UserPoolResourceServer', {
-          identifier: 'https://' + apiDomainConfig.domain,
-          name: this.stackName,
-          userPoolId: authStack.userPoolId
-        })
-      }
+    // make sure auth stack is given - it should be as this has been checked already
+    if (!authStack) {
+      throw new Error('AuthStack should not be null at this point')
+    }
+
+    // add cognito specific integration
+    const userPool = UserPool.fromUserPoolId(
+      this,
+      'UserPool',
+      authStack.userPoolId,
+    )
+    const client = userPool.addClient('DataLockerClient', {
+      authFlows: {
+        userSrp: true,
+        refreshToken: true,
+      },
+      preventUserExistenceErrors: true,
+      oAuth: {
+        callbackUrls: ['https://' + redirectUrl],
+        scopes: [OAuthScope.PROFILE, OAuthScope.OPENID, OAuthScope.EMAIL],
+        flows: {
+          authorizationCodeGrant: true,
+        },
+      },
+    })
+
+    // add the resource server
+    if (apiDomainConfig) {
+      new CfnUserPoolResourceServer(this, 'UserPoolResourceServer', {
+        identifier: 'https://' + apiDomainConfig.domain,
+        name: this.stackName,
+        userPoolId: authStack.userPoolId,
+      })
+    }
+
+    return {
+      jwtConfiguration: {
+        audience: [client.userPoolClientId],
+        issuer: `https://cognito-idp.${this.region}.amazonaws.com/${userPool.userPoolId}`,
+      },
     }
   }
 
@@ -198,12 +318,12 @@ export class CityStack extends Stack {
    * Add hosting for a web app
    * @param appName The name of the web app
    * @param hostedDomainConfig The configuration for its hosting domain (optional)
-   * @param hostedZoneAttributes The hosted zone attributes (optional)
+   * @param hostedZone The hosted zone (optional)
    */
   private addHosting(
     appName: string,
     hostedDomainConfig?: HostedDomain,
-    hostedZoneAttributes?: HostedZoneAttributes
+    hostedZone?: IHostedZone,
   ) {
     //Create Certificate
     let viewerCertificate: ViewerCertificate | undefined
@@ -211,10 +331,10 @@ export class CityStack extends Stack {
       const certificate = Certificate.fromCertificateArn(
         this,
         `${appName}Certificate`,
-        hostedDomainConfig.certificateArn
+        hostedDomainConfig.certificateArn,
       )
       viewerCertificate = ViewerCertificate.fromAcmCertificate(certificate, {
-        aliases: [hostedDomainConfig.domain]
+        aliases: [hostedDomainConfig.domain],
       })
     }
 
@@ -228,9 +348,9 @@ export class CityStack extends Stack {
         blockPublicAcls: true,
         blockPublicPolicy: true,
         ignorePublicAcls: true,
-        restrictPublicBuckets: true
+        restrictPublicBuckets: true,
       },
-      bucketName
+      bucketName,
     })
 
     // Create App Origin Access Identity
@@ -238,8 +358,8 @@ export class CityStack extends Stack {
       this,
       `${appName}OriginAccessIdentity`,
       {
-        comment: appName
-      }
+        comment: appName,
+      },
     )
     bucket.grantRead(originAccessIdentity)
 
@@ -253,19 +373,19 @@ export class CityStack extends Stack {
           {
             errorCode: 403,
             responseCode: 200,
-            responsePagePath: '/index.html'
+            responsePagePath: '/index.html',
           },
           {
             errorCode: 404,
             responseCode: 200,
-            responsePagePath: '/index.html'
-          }
+            responsePagePath: '/index.html',
+          },
         ],
         originConfigs: [
           {
             s3OriginSource: {
               s3BucketSource: bucket,
-              originAccessIdentity: originAccessIdentity
+              originAccessIdentity: originAccessIdentity,
             },
             behaviors: [
               {
@@ -273,34 +393,29 @@ export class CityStack extends Stack {
                 minTtl: Duration.minutes(5),
                 defaultTtl: Duration.minutes(5),
                 pathPattern: '/index.html',
-                compress: true
+                compress: true,
               },
               {
                 isDefaultBehavior: true,
-                compress: true
-              }
-            ]
-          }
+                compress: true,
+              },
+            ],
+          },
         ],
-        viewerCertificate
-      }
+        viewerCertificate,
+      },
     )
     cloudFrontDistribution.node.addDependency(bucket, originAccessIdentity)
 
     // Create Domain Record
-    if (hostedDomainConfig && hostedZoneAttributes) {
+    if (hostedDomainConfig && hostedZone) {
       const { domain } = hostedDomainConfig
-      const hostedZone = HostedZone.fromHostedZoneAttributes(
-        this,
-        `${appName}HostedZone`,
-        hostedZoneAttributes
-      )
       const aliasRecord = new ARecord(this, `${appName}AliasRecord`, {
         zone: hostedZone,
         recordName: domain,
         target: RecordTarget.fromAlias(
-          new CloudFrontTarget(cloudFrontDistribution)
-        )
+          new CloudFrontTarget(cloudFrontDistribution),
+        ),
       })
       aliasRecord.node.addDependency(cloudFrontDistribution)
     }
@@ -308,7 +423,7 @@ export class CityStack extends Stack {
     return {
       domain: hostedDomainConfig
         ? hostedDomainConfig.domain
-        : cloudFrontDistribution.distributionDomainName
+        : cloudFrontDistribution.distributionDomainName,
     }
   }
 
@@ -318,7 +433,7 @@ export class CityStack extends Stack {
   private addKmsKey() {
     const kmsKey = new Key(this, 'Key', {
       description: `KMS Key for ${this.stackName} stack`,
-      enableKeyRotation: true
+      enableKeyRotation: true,
     })
 
     // permissions are automatically added to the key policy
@@ -332,21 +447,21 @@ export class CityStack extends Stack {
           'kms:ReEncrypt*',
           'kms:GenerateDataKey*',
           'kms:CreateGrant',
-          'kms:DescribeKey'
+          'kms:DescribeKey',
         ],
         resources: ['*'],
         principals: [new AnyPrincipal()],
         conditions: {
           StringEquals: {
             'kms:ViaService': `secretsmanager.${this.region}.amazonaws.com`,
-            'kms:CallerAccount': this.account
-          }
-        }
-      })
+            'kms:CallerAccount': this.account,
+          },
+        },
+      }),
     )
 
     return {
-      kmsKey
+      kmsKey,
     }
   }
 
@@ -357,19 +472,19 @@ export class CityStack extends Stack {
    */
   private addDbAndCredentials(
     kmsKey: IKey,
-    exportedCreateDbUserFunction: IFunction
+    exportedCreateDbUserFunction: IFunction,
   ) {
     // import the function
     const createDbUserFunction = Function.fromFunctionArn(
       this,
       'CreateDbUserFunction',
-      exportedCreateDbUserFunction.functionArn
+      exportedCreateDbUserFunction.functionArn,
     )
 
     // check the exported role is accessible
     if (!exportedCreateDbUserFunction.role) {
       throw new Error(
-        'dataStoreStack.createDbUserFunction.role should be accessible'
+        'dataStoreStack.createDbUserFunction.role should be accessible',
       )
     }
 
@@ -377,7 +492,7 @@ export class CityStack extends Stack {
     const createDbUserFunctionRole = Role.fromRoleArn(
       this,
       'CreateDbUserFunctionRole',
-      exportedCreateDbUserFunction.role.roleArn
+      exportedCreateDbUserFunction.role.roleArn,
     )
 
     // create a custom resource provider
@@ -386,8 +501,8 @@ export class CityStack extends Stack {
       'CreateDbUserCustomResourceProvider',
       {
         onEventHandler: createDbUserFunction,
-        logRetention: RetentionDays.ONE_DAY
-      }
+        logRetention: RetentionDays.ONE_DAY,
+      },
     )
 
     // create the new DB user's credentials
@@ -395,15 +510,15 @@ export class CityStack extends Stack {
       secretName: `${this.stackName}-rds-db-credentials`,
       generateSecretString: {
         secretStringTemplate: JSON.stringify({
-          username: this.stackName.toLowerCase().replace(/[\W_]+/g, '')
+          username: this.stackName.toLowerCase().replace(/[\W_]+/g, ''),
         }),
         excludePunctuation: true,
         includeSpace: false,
         generateStringKey: 'password',
         excludeCharacters: '"@/\\',
-        passwordLength: 30
+        passwordLength: 30,
       },
-      encryptionKey: kmsKey
+      encryptionKey: kmsKey,
     })
 
     // allow the base function to access our new secret
@@ -412,9 +527,9 @@ export class CityStack extends Stack {
       statements: [
         new PolicyStatement({
           actions: ['secretsmanager:GetSecretValue'],
-          resources: [dbCredentials.secretArn]
-        })
-      ]
+          resources: [dbCredentials.secretArn],
+        }),
+      ],
     })
 
     // execute the custom resource to connect to the DB Server and create the new DB and User
@@ -424,10 +539,284 @@ export class CityStack extends Stack {
       {
         serviceToken: createDbUserCustomResourceProvider.serviceToken,
         properties: {
-          NewUserSecretId: dbCredentials.secretArn
-        }
-      }
+          NewUserSecretId: dbCredentials.secretArn,
+        },
+      },
     )
     createDbUser.node.addDependency(secretAccessPolicy)
+
+    return { secret: dbCredentials }
+  }
+
+  /**
+   * Adds and configures the API Gateway resource for this City
+   * @param webAppDomain Domain for the web app, to allow CORS access from
+   * @param jwtConfiguration JWT configuration for the authorizer
+   * @param apiDomainConfig API Domain details (optional) for setting up the custom domain
+   * @param hostedZone Hosted zone config (optional) for hooking up the custom domain
+   */
+  private addApi(
+    webAppDomain: string,
+    jwtConfiguration: JwtConfiguration,
+    apiDomainConfig?: ApiHostedDomain,
+    hostedZone?: IHostedZone,
+  ) {
+    // read out config
+    const { corsAllowAnyHost = false, domain, certificateArn } =
+      apiDomainConfig || {}
+    apiDomainConfig || {}
+
+    // register custom domain name if we can
+    let defaultDomainMapping: DefaultDomainMappingOptions | undefined
+    if (domain && certificateArn) {
+      const certificate = Certificate.fromCertificateArn(
+        this,
+        'ApiDomainCertificate',
+        certificateArn,
+      )
+      const domainMapping = new DomainName(this, 'ApiDomainName', {
+        domainName: domain,
+        certificate: certificate,
+      })
+      defaultDomainMapping = {
+        domainName: domainMapping,
+      }
+      if (hostedZone) {
+        new ARecord(this, `ApiAliasRecord`, {
+          zone: hostedZone,
+          recordName: domain,
+          target: RecordTarget.fromAlias(
+            new MinimalCloudFrontTarget(
+              this,
+              domainMapping.regionalDomainName,
+              domainMapping.regionalHostedZoneId,
+            ),
+          ),
+        })
+      }
+    }
+
+    // create api
+    const api = new HttpApi(this, 'Api', {
+      apiName: `${this.stackName}Api`,
+      corsPreflight: {
+        allowMethods: [
+          HttpMethod.GET,
+          HttpMethod.DELETE,
+          HttpMethod.OPTIONS,
+          HttpMethod.POST,
+        ],
+        allowOrigins: [corsAllowAnyHost ? '*' : `https://${webAppDomain}`],
+      },
+      defaultDomainMapping,
+    })
+
+    // create authorizer
+    const authorizer = new CfnAuthorizer(this, 'ApiJwtAuthorizer', {
+      apiId: api.httpApiId,
+      authorizerType: 'JWT',
+      jwtConfiguration: jwtConfiguration,
+      identitySource: ['$request.header.Authorization'],
+      name: 'JwtAuthorizer',
+    })
+
+    return {
+      api,
+      authorizer,
+    }
+  }
+
+  /**
+   * Adds user specific routes to the API
+   * @param apiProps Common properties for API functions
+   */
+  private addUserRoutes(apiProps: ApiProps) {
+    const { api, dbSecret, mySqlLayer, authorizer } = apiProps
+    this.addRoute(api, {
+      name: 'GetUserDocuments',
+      routeKey: 'GET /users/{userId}/documents',
+      lambdaFunction: this.createLambda(
+        'GetUserDocuments',
+        pathToApi('document'),
+        {
+          dbSecret,
+          layers: [mySqlLayer],
+          handler: 'getByUserId',
+        },
+      ),
+      authorizer,
+    })
+  }
+
+  /**
+   * Adds document specific routes to the API
+   * @param apiProps Common properties for API functions
+   */
+  private addDocumentRoutes(apiProps: ApiProps) {
+    const { api, dbSecret, mySqlLayer, authorizer } = apiProps
+    this.addRoute(api, {
+      name: 'GetDocumentById',
+      routeKey: 'GET /documents/{documentId}',
+      lambdaFunction: this.createLambda(
+        'GetDocumentById',
+        pathToApi('document'),
+        {
+          dbSecret,
+          layers: [mySqlLayer],
+          handler: 'getById',
+        },
+      ),
+      authorizer,
+    })
+  }
+
+  /**
+   * Adds a route to the API
+   * @param api The API to register the route with
+   * @param props The props for the route
+   */
+  private addRoute(
+    api: HttpApi,
+    props: {
+      name: string
+      routeKey: string
+      lambdaFunction: IFunction
+      authorizer?: CfnAuthorizer
+    },
+  ) {
+    const { name, routeKey, lambdaFunction, authorizer } = props
+    const grant = lambdaFunction.grantInvoke(
+      new ServicePrincipal('apigateway.amazonaws.com'),
+    )
+    if (grant.principalStatement) {
+      grant.principalStatement.addCondition('ArnLike', {
+        'AWS:SourceArn': `arn:${this.partition}:execute-api:${this.region}:${this.account}:${api.httpApiId}/*/*`,
+      })
+    }
+
+    const integration = new CfnIntegration(this, `${name}Integration`, {
+      apiId: api.httpApiId,
+      integrationType: 'AWS_PROXY',
+      integrationUri: `arn:${this.partition}:apigateway:${this.region}:lambda:path/2015-03-31/functions/${lambdaFunction.functionArn}/invocations`,
+      payloadFormatVersion: '2.0',
+    })
+    grant.applyBefore(integration)
+
+    new CfnRoute(this, `${name}Route`, {
+      apiId: api.httpApiId,
+      routeKey: routeKey,
+      target: `integrations/${integration.ref}`,
+      authorizerId: authorizer ? authorizer.ref : undefined,
+      authorizationType: authorizer ? authorizer.authorizerType : undefined,
+    })
+  }
+
+  /**
+   * Create a lambda function with a standard configuration
+   * @param name The name for constructs
+   * @param path The path to the entrypoint
+   * @param props Extra properties for the function
+   */
+  private createLambda(
+    name: string,
+    path: string,
+    props: {
+      handler?: string
+      dbSecret?: ISecret
+      extraEnvironmentVariables?: { [key: string]: string }
+      layers?: ILayerVersion[]
+    },
+  ) {
+    const {
+      handler = 'handler',
+      dbSecret,
+      extraEnvironmentVariables = {},
+      layers,
+    } = props
+    const requiresDbConnectivity = !!dbSecret
+    const dbParams: { [key: string]: string } = dbSecret
+      ? {
+          DB_HOST: this.rdsEndpoint,
+          DB_USER: dbSecret.secretValueFromJson('username').toString(),
+          DB_PASSWORD: dbSecret.secretValueFromJson('password').toString(),
+          DB_NAME: dbSecret.secretValueFromJson('username').toString(),
+        }
+      : {}
+    return new NodejsFunction(this, name, {
+      entry: path,
+      handler,
+      environment: {
+        NODE_ENV: 'production',
+        ...dbParams,
+        ...extraEnvironmentVariables,
+      },
+      layers,
+      externalModules: requiresDbConnectivity
+        ? ['aws-sdk', 'knex', 'mysql2']
+        : undefined,
+      runtime: Runtime.NODEJS_12_X,
+      minify: true,
+      vpc: requiresDbConnectivity ? this.lambdaVpc : undefined,
+      securityGroups: requiresDbConnectivity
+        ? this.lambdaSecurityGroups
+        : undefined,
+    })
+  }
+
+  /**
+   * Adds the mysql lambda layer to the stack
+   */
+  private addMysqlLayer() {
+    return {
+      layer: new LayerVersion(this, 'MysqlLayer', {
+        code: Code.fromAsset(
+          path.join(__dirname, 'lambdas', 'sql-layer', 'layer.zip'),
+        ),
+        compatibleRuntimes: [Runtime.NODEJS_12_X],
+      }),
+    }
+  }
+
+  /**
+   * Runs DB migrations using Knex
+   * @param dbSecret The DB secret for accessing the database
+   * @param mysqlLayer The mysql layer
+   */
+  private runMigrations(dbSecret: ISecret, mysqlLayer: ILayerVersion) {
+    const runMigrationsFunction = new Function(this, 'RunMigrationsFunction', {
+      code: Code.fromAsset(
+        path.join(__dirname, '..', '..', 'api-service', 'dist', 'migrator'),
+      ),
+      handler: 'index.handler',
+      runtime: Runtime.NODEJS_12_X,
+      vpc: this.lambdaVpc,
+      securityGroups: this.lambdaSecurityGroups,
+      layers: [mysqlLayer],
+      timeout: Duration.seconds(60),
+      environment: {
+        DB_HOST: this.rdsEndpoint,
+        DB_USER: dbSecret.secretValueFromJson('username').toString(),
+        DB_PASSWORD: dbSecret.secretValueFromJson('password').toString(),
+        DB_NAME: dbSecret.secretValueFromJson('username').toString(),
+      },
+    })
+
+    // create a custom resource provider
+    const runMigrationsResourceProvider = new Provider(
+      this,
+      'RunMigrationsCustomResourceProvider',
+      {
+        onEventHandler: runMigrationsFunction,
+        logRetention: RetentionDays.ONE_DAY,
+      },
+    )
+
+    new CustomResource(this, 'RunMigrationsCustomResource', {
+      serviceToken: runMigrationsResourceProvider.serviceToken,
+      properties: {
+        // Dynamic prop to force execution each time
+        Execution: Math.random().toString(36).substr(2),
+      },
+    })
   }
 }

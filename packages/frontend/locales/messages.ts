@@ -1,14 +1,14 @@
 export default {
   en: {
     welcome: 'Welcome',
-    view: 'View'
+    view: 'View',
   },
   fr: {
     welcome: 'Bienvenue',
-    view: 'Voir'
+    view: 'Voir',
   },
   es: {
     welcome: 'Bienvenido',
-    view: 'Ver'
-  }
+    view: 'Ver',
+  },
 }

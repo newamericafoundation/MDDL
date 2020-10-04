@@ -27,6 +27,7 @@
     "typescript": "^4.0.2"
   },
   "dependencies": {
+    "@aws-cdk/aws-apigatewayv2": "^1.63.0",
     "@aws-cdk/aws-cloudformation": "^1.63.0",
     "@aws-cdk/aws-codebuild": "^1.63.0",
     "@aws-cdk/aws-codepipeline": "^1.63.0",

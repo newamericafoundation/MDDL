@@ -1,0 +1,33 @@
+{
+  "name": "@datalocker/api-service",
+  "version": "0.1.0",
+  "description": "API Service",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "lint": "eslint --ext .ts src",
+    "knex": "knex --knexfile src/knexfile.ts",
+    "start": "docker-compose up -d && knex --knexfile src/knexfile.ts migrate:latest",
+    "stop": "docker-compose down"
+  },
+  "devDependencies": {
+    "@types/node": "10.17.27",
+    "@typescript-eslint/eslint-plugin": "^4.1.1",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "prettier": "^2.1.1",
+    "typescript": "~3.9.7"
+  },
+  "dependencies": {
+    "@types/aws-lambda": "^8.10.62",
+    "@types/uuid": "^8.3.0",
+    "knex": "^0.21.6",
+    "mysql2": "^2.2.5",
+    "objection": "^2.2.3",
+    "uuid": "^8.3.0"
+  }
+}

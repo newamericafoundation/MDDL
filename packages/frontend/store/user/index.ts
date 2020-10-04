@@ -6,7 +6,7 @@ import { DocumentListItem } from 'api-client'
 @Module({
   name: 'user',
   stateFactory: true,
-  namespaced: true
+  namespaced: true,
 })
 export default class User extends VuexModule {
   userId = 'test'
@@ -16,7 +16,7 @@ export default class User extends VuexModule {
     return api.user
       .listUserDocuments(this.userId)
       .then((response) =>
-        response.data.documents ? response.data.documents : []
+        response.data.documents ? response.data.documents : [],
       )
   }
 }

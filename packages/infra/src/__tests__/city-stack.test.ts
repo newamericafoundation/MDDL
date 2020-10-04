@@ -9,23 +9,23 @@ test('Fails validation for auth stack', () => {
   const app = new cdk.App()
   // WHEN
   const authStack = new AuthStack(app, 'MyTestAuthStack', {
-    userPoolName: 'MyTestAuthStack'
+    userPoolName: 'MyTestAuthStack',
   })
   const dataStoreStack = new DataStoreStack(app, 'MyTestDataStoreStack', {})
   expect(() => {
     new CityStack(app, 'MyTestStack1', {
       dataStoreStack,
-      expectsAuthStack: true
+      expectsAuthStack: true,
     })
   }).toThrowError(/authStack must be provided when expectsAuthStack is true/)
   expect(() => {
     new CityStack(app, 'MyTestStack2', {
       dataStoreStack,
       authStack,
-      expectsAuthStack: false
+      expectsAuthStack: false,
     })
   }).toThrowError(
-    /authStack should not be provided when expectsAuthStack is false/
+    /authStack should not be provided when expectsAuthStack is false/,
   )
 })
 test('Default Stack', () => {
@@ -34,17 +34,30 @@ test('Default Stack', () => {
   const dataStoreStack = new DataStoreStack(app, 'MyTestDataStoreStack', {})
   const stack = new CityStack(app, 'MyTestStack', {
     dataStoreStack,
-    expectsAuthStack: false
+    expectsAuthStack: false,
+    jwtAuth: {
+      audience: ['https://my-audience.com'],
+      issuer: 'https://my-audience.com',
+    },
   })
   // THEN
   expectCDK(stack).to(haveResource('AWS::IAM::Role'))
   expectCDK(stack).to(
     haveResource('AWS::Lambda::Function', {
+      Handler: 'index.getById',
+      Runtime: 'nodejs12.x',
+    }),
+  )
+  expectCDK(stack).to(
+    haveResource('AWS::Lambda::Function', {
+      Handler: 'index.getByUserId',
+      Runtime: 'nodejs12.x',
+    }),
+  )
+  expectCDK(stack).to(
+    haveResource('AWS::Lambda::Function', {
       Handler: 'index.handler',
-      Role: {
-        'Fn::GetAtt': ['HelloWorldFunctionServiceRole8E0BD458', 'Arn']
-      },
-      Runtime: 'nodejs12.x'
-    })
+      Runtime: 'nodejs12.x',
+    }),
   )
 })

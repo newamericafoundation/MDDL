@@ -6,7 +6,7 @@ import { DocumentApi, AgencyApi, UserApi, Configuration } from 'api-client'
 const initialisedAPIs = {
   document: null as DocumentApi | null,
   user: null as UserApi | null,
-  agency: null as AgencyApi | null
+  agency: null as AgencyApi | null,
 }
 
 export class ApiService {
@@ -16,7 +16,7 @@ export class ApiService {
   constructor(axiosInstance: NuxtAxiosInstance) {
     this.axios = axiosInstance
     this.config = {
-      basePath: process.env.API_URL
+      basePath: process.env.API_URL,
       // TODO: add access token
       // accessToken: '',
     }
@@ -27,7 +27,7 @@ export class ApiService {
       initialisedAPIs.document = new DocumentApi(
         this.config,
         process.env.API_URL,
-        this.axios
+        this.axios,
       )
     }
     return initialisedAPIs.document
@@ -38,7 +38,7 @@ export class ApiService {
       initialisedAPIs.user = new UserApi(
         this.config,
         process.env.API_URL,
-        this.axios
+        this.axios,
       )
     }
     return initialisedAPIs.user
@@ -49,7 +49,7 @@ export class ApiService {
       initialisedAPIs.agency = new AgencyApi(
         this.config,
         process.env.API_URL,
-        this.axios
+        this.axios,
       )
     }
     return initialisedAPIs.agency
@@ -61,7 +61,7 @@ export let api: ApiService
 
 export default (
   { $axios }: { $axios: NuxtAxiosInstance },
-  inject: (s: string, o: any) => void
+  inject: (s: string, o: any) => void,
 ) => {
   api = new ApiService($axios)
   inject('api', api)

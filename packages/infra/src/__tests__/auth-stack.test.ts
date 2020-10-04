@@ -3,7 +3,7 @@ import {
   expect as expectCDK,
   haveResource,
   ResourcePart,
-  ABSENT
+  ABSENT,
 } from '@aws-cdk/assert'
 import * as cdk from '@aws-cdk/core'
 import { AuthStack } from '../auth-stack'
@@ -13,7 +13,7 @@ test('Default Stack', () => {
   // WHEN
   const name = 'test-user-pool'
   const stack = new AuthStack(app, 'MyTestAuthStack', {
-    userPoolName: name
+    userPoolName: name,
   })
   // THEN
   expectCDK(stack).to(
@@ -21,20 +21,20 @@ test('Default Stack', () => {
       UserPoolName: name,
       Schema: (arr: any[]) => arr.length == 6,
       UsernameConfiguration: {
-        CaseSensitive: false
+        CaseSensitive: false,
       },
       EmailConfiguration: ABSENT,
-      AutoVerifiedAttributes: ['email']
-    })
+      AutoVerifiedAttributes: ['email'],
+    }),
   )
   expectCDK(stack).to(
     haveResource(
       'AWS::Cognito::UserPool',
       {
-        DeletionPolicy: 'Retain'
+        DeletionPolicy: 'Retain',
       },
-      ResourcePart.CompleteDefinition
-    )
+      ResourcePart.CompleteDefinition,
+    ),
   )
   expectCDK(stack).to(countResources('AWS::Cognito::UserPoolDomain', 0))
   expectCDK(stack).to(countResources('AWS::SNS::Topic', 3))
@@ -52,17 +52,17 @@ test('Stack with all options', () => {
       domain: 'auth.example.com',
       hostedZoneAttributes: {
         hostedZoneId: '111111111',
-        zoneName: 'example.com'
+        zoneName: 'example.com',
       },
-      shouldCreateRootARecord: true
+      shouldCreateRootARecord: true,
     },
     emailSender: {
       address: 'verification@example.com',
-      name: 'Verifier'
+      name: 'Verifier',
     },
     env: {
-      region: 'us-east-1'
-    }
+      region: 'us-east-1',
+    },
   })
   // THEN
   expectCDK(stack).to(
@@ -70,24 +70,24 @@ test('Stack with all options', () => {
       UserPoolName: name,
       Schema: (arr: any[]) => arr.length == 6,
       UsernameConfiguration: {
-        CaseSensitive: false
+        CaseSensitive: false,
       },
       EmailConfiguration: {
         EmailSendingAccount: 'DEVELOPER',
         From: 'Verifier <verification@example.com>',
-        SourceArn: (fn: any) => !!fn
+        SourceArn: (fn: any) => !!fn,
       },
-      AutoVerifiedAttributes: ['email']
-    })
+      AutoVerifiedAttributes: ['email'],
+    }),
   )
   expectCDK(stack).to(
     haveResource('AWS::Cognito::UserPoolDomain', {
       Domain: 'auth.example.com',
       CustomDomainConfig: {
         CertificateArn:
-          'arn:aws:acm:us-east-1:111111111111:certificate/aaaaaa-aaaa-aaaa-aaaaa'
-      }
-    })
+          'arn:aws:acm:us-east-1:111111111111:certificate/aaaaaa-aaaa-aaaa-aaaaa',
+      },
+    }),
   )
   expectCDK(stack).to(countResources('AWS::Route53::RecordSet', 2))
 })

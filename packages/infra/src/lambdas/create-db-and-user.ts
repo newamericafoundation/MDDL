@@ -31,7 +31,7 @@ export const handler: EventHandler = async (event: Event) => {
     // skip delete events
     console.log('Skipping delete event.')
     return {
-      PhysicalResourceId: 'db-config:' + secretId
+      PhysicalResourceId: 'db-config:' + secretId,
     }
   }
 
@@ -43,17 +43,17 @@ export const handler: EventHandler = async (event: Event) => {
       // skip update if secret is the same
       console.log('Skipping update event for same secret ID.')
       return {
-        PhysicalResourceId: 'db-config:' + secretId
+        PhysicalResourceId: 'db-config:' + secretId,
       }
     }
     throw new Error(
-      'Update is not supported for this resource. Create a new resource with the updated secret ID.'
+      'Update is not supported for this resource. Create a new resource with the updated secret ID.',
     )
   }
 
   const newUserInformation = await sm
     .getSecretValue({
-      SecretId: secretId
+      SecretId: secretId,
     })
     .promise()
 
@@ -62,7 +62,7 @@ export const handler: EventHandler = async (event: Event) => {
   }
 
   const { username, password } = JSON.parse(
-    newUserInformation.SecretString
+    newUserInformation.SecretString,
   ) as {
     username: string
     password: string
@@ -73,25 +73,25 @@ export const handler: EventHandler = async (event: Event) => {
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
-    database: process.env.DB_DEFAULT_DATABASE
+    database: process.env.DB_DEFAULT_DATABASE,
   })
   const stmts = [
     `CREATE DATABASE IF NOT EXISTS ${connection.escapeId(username)}`,
     `CREATE USER ${connection.escapeId(
-      username
+      username,
     )}@'%' IDENTIFIED BY ${connection.escape(password)}`,
     `GRANT ALL PRIVILEGES ON ${connection.escapeId(
-      username
-    )}.* TO ${connection.escapeId(username)}@'%'`
+      username,
+    )}.* TO ${connection.escapeId(username)}@'%'`,
   ]
-  stmts.forEach(async (stmt) => {
+  for (const stmt of stmts) {
     const [rows, fields] = await connection.query(stmt)
     console.log('Rows: ', rows)
     console.log('Fields: ', fields)
-  })
+  }
   connection.end()
 
   return {
-    PhysicalResourceId: 'db-config:' + secretId
+    PhysicalResourceId: 'db-config:' + secretId,
   }
 }

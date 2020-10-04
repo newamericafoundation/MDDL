@@ -19,7 +19,7 @@
     "prettier": {
       "semi": false,
       "singleQuote": true,
-      "trailingComma": "none"
+      "trailingComma": "all"
     }
   }
 }

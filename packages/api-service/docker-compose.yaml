@@ -1,0 +1,17 @@
+version: '3.0'
+
+services:
+  db:
+    image: mysql:5.7
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 'Lock3r'
+      MYSQL_DATABASE: 'db'
+    volumes:
+      - data-locker-mysql:/var/lib/mysql
+    ports:
+      - 3306:3306
+
+volumes:
+  data-locker-mysql:

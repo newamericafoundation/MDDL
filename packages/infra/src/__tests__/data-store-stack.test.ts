@@ -2,7 +2,7 @@ import {
   countResources,
   expect as expectCDK,
   haveResource,
-  ResourcePart
+  ResourcePart,
 } from '@aws-cdk/assert'
 import * as cdk from '@aws-cdk/core'
 import { DataStoreStack } from '../data-store-stack'
@@ -12,12 +12,12 @@ test('Minimum Stack', () => {
   // WHEN
   const stack = new DataStoreStack(app, 'MyTestDataStoreStack', {
     rdsConfig: {
-      backupRetentionDays: 1
+      backupRetentionDays: 1,
     },
     vpcConfig: {
       natGatewaysCount: 1,
-      maxAzs: 1
-    }
+      maxAzs: 1,
+    },
   })
   expectCDK(stack).to(countResources('AWS::EC2::NatGateway', 1))
   expectCDK(stack).to(countResources('AWS::EC2::Subnet', 3))
@@ -27,8 +27,8 @@ test('Default Stack', () => {
   // WHEN
   const stack = new DataStoreStack(app, 'MyTestDataStoreStack', {
     rdsConfig: {
-      backupRetentionDays: 1
-    }
+      backupRetentionDays: 1,
+    },
   })
   // THEN
   expectCDK(stack).to(haveResource('AWS::KMS::Key'))
@@ -46,18 +46,18 @@ test('Default Stack', () => {
       DatabaseName: 'root',
       StorageEncrypted: true,
       DeletionProtection: true,
-      DBSubnetGroupName: (v: any) => !!v
-    })
+      DBSubnetGroupName: (v: any) => !!v,
+    }),
   )
   expectCDK(stack).to(
     haveResource(
       'AWS::RDS::DBCluster',
       {
         UpdateReplacePolicy: 'Snapshot',
-        DeletionPolicy: 'Snapshot'
+        DeletionPolicy: 'Snapshot',
       },
-      ResourcePart.CompleteDefinition
-    )
+      ResourcePart.CompleteDefinition,
+    ),
   )
   expectCDK(stack).to(haveResource('AWS::SecretsManager::Secret'))
 })

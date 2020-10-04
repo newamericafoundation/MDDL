@@ -440,22 +440,24 @@ components:
           type: string
           example: Letter of Employment
         type:
-          type: string
-          description: Document Type
-          enum:
-            - SOCIAL_SECURITY_CARD
-            - BIRTH_CERTIFICATE
-            - PROOF_OF_INCOME
-          example: SOCIAL_SECURITY_CARD
+          $ref: '#/components/schemas/DocumentTypeEnum'
       type: object
+    DocumentTypeEnum:
+      type: string
+      description: Document Type
+      enum:
+        - SOCIAL_SECURITY_CARD
+        - BIRTH_CERTIFICATE
+        - PROOF_OF_INCOME
+      example: SOCIAL_SECURITY_CARD
     Document:
       properties:
         id:
           type: string
           example: D050A33E-74F6-4BEF-AED5-87F48E5CCE44
-        description:
+        name:
           type: string
-          description: Document description
+          description: File name (system or user provided)
           example: Sam's SSN
         source:
           type: string
@@ -473,13 +475,7 @@ components:
             - JPEG
           example: PDF
         type:
-          type: string
-          description: Document Type
-          enum:
-            - SOCIAL_SECURITY_CARD
-            - BIRTH_CERTIFICATE
-            - PROOF_OF_INCOME
-          example: SOCIAL_SECURITY_CARD
+          $ref: '#/components/schemas/DocumentTypeEnum'
         expiryDate:
           type: string
           format: date-time

@@ -8,37 +8,37 @@ const fullUserStore = new Vuex.Store({
       return [
         {
           name: 'Document one',
-          id: '1'
+          id: '1',
         },
         {
           name: 'Document two',
-          id: '2'
+          id: '2',
         },
         {
           name: 'Document three',
-          id: '3'
-        }
+          id: '3',
+        },
       ]
-    }
-  }
+    },
+  },
 })
 
 storiesOf('Documents Page', module).add('Default', () => ({
   components: { Documents },
   store: fullUserStore,
-  template: '<Documents />'
+  template: '<Documents />',
 }))
 
 const emptyUserStore = new Vuex.Store({
   actions: {
     getDocuments() {
       return []
-    }
-  }
+    },
+  },
 })
 
 storiesOf('Documents Page', module).add('Empty', () => ({
   components: { Documents },
   store: emptyUserStore,
-  template: '<Documents />'
+  template: '<Documents />',
 }))

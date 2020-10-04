@@ -10,7 +10,8 @@
     "infra": "yarn workspace infra",
     "fe": "yarn workspace frontend",
     "storybook": "yarn workspace frontend storybook",
-    "mockapi": "cd packages/api-client && docker-compose up"
+    "mockapi": "cd packages/api-client && docker-compose up",
+    "api": "yarn workspace @datalocker/api-service"
   },
   "version": "0.0.0"
 }

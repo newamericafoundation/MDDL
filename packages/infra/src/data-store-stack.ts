@@ -4,7 +4,7 @@ import {
   Port,
   SecurityGroup,
   SubnetType,
-  Vpc
+  Vpc,
 } from '@aws-cdk/aws-ec2'
 import { AccountRootPrincipal, PolicyStatement } from '@aws-cdk/aws-iam'
 import { Key } from '@aws-cdk/aws-kms'
@@ -14,7 +14,7 @@ import {
   Duration,
   RemovalPolicy,
   Stack,
-  StackProps
+  StackProps,
 } from '@aws-cdk/core'
 import { ISecret, Secret } from '@aws-cdk/aws-secretsmanager'
 import { NodejsFunction } from '@aws-cdk/aws-lambda-nodejs'
@@ -84,8 +84,8 @@ export interface Props extends StackProps {
 export class DataStoreStack extends Stack {
   public vpc: IVpc
   public rdsAccessSecurityGroup: ISecurityGroup
-  public rdsRootCredentialsSecret: ISecret
   public createDbUserFunction: IFunction
+  public rdsEndpoint: string
 
   constructor(scope: Construct, id: string, props: Props) {
     super(scope, id, props)
@@ -95,20 +95,20 @@ export class DataStoreStack extends Stack {
     const {
       cidrBlock = '10.0.0.0/16',
       maxAzs = 2,
-      natGatewaysCount = 2
+      natGatewaysCount = 2,
     } = vpcConfig
     const {
       backupWindowDaily = '16:00-17:00',
       maintenanceWindowWeekly = 'mon:17:30-mon:18:30',
       backupRetentionDays = 30,
       minCapacity = 1,
-      maxCapacity = 8
+      maxCapacity = 8,
     } = rdsConfig
 
     // create new KMS key for the data store to use
     const kmsKey = new Key(this, 'Key', {
       description: `KMS Key for ${this.stackName} stack`,
-      enableKeyRotation: true
+      enableKeyRotation: true,
     })
 
     // allow encrypt and decrypt operations for root, so permissions can be managed via IAM
@@ -116,8 +116,8 @@ export class DataStoreStack extends Stack {
       new PolicyStatement({
         actions: ['kms:Encrypt', 'kms:Decrypt', 'kms:ReEncrypt*'],
         resources: ['*'],
-        principals: [new AccountRootPrincipal()]
-      })
+        principals: [new AccountRootPrincipal()],
+      }),
     )
 
     // create the VPC
@@ -131,52 +131,52 @@ export class DataStoreStack extends Stack {
         {
           cidrMask: 28,
           name: 'isolated',
-          subnetType: SubnetType.ISOLATED
+          subnetType: SubnetType.ISOLATED,
         },
         {
           cidrMask: 28,
           name: 'private',
-          subnetType: SubnetType.PRIVATE
+          subnetType: SubnetType.PRIVATE,
         },
         {
           cidrMask: 28,
           name: 'public',
-          subnetType: SubnetType.PUBLIC
-        }
-      ]
+          subnetType: SubnetType.PUBLIC,
+        },
+      ],
     })
 
     // create the root DB credentials
-    this.rdsRootCredentialsSecret = new Secret(
+    const rdsRootCredentialsSecret = new Secret(
       this,
       'RdsClusterCredentialsSecret',
       {
         secretName: `${this.stackName}-rds-root-credentials`,
         generateSecretString: {
           secretStringTemplate: JSON.stringify({
-            username: 'root'
+            username: 'root',
           }),
           excludePunctuation: true,
           includeSpace: false,
           generateStringKey: 'password',
           excludeCharacters: '"@/\\',
-          passwordLength: 30
+          passwordLength: 30,
         },
-        encryptionKey: kmsKey
-      }
+        encryptionKey: kmsKey,
+      },
     )
 
     // configure RDS subnet group
     const rdsSubnetGroup = new CfnDBSubnetGroup(this, 'RdsSubnetGroup', {
       dbSubnetGroupDescription: `Subnet group for RDS ${this.stackName}`,
-      subnetIds: this.vpc.isolatedSubnets.map((s) => s.subnetId)
+      subnetIds: this.vpc.isolatedSubnets.map((s) => s.subnetId),
     })
 
     // configure RDS security group
     const rdsSecurityGroup = new SecurityGroup(this, 'RdsSecurityGroup', {
       vpc: this.vpc,
       allowAllOutbound: false,
-      description: `${this.stackName} security group for RDS`
+      description: `${this.stackName} security group for RDS`,
     })
 
     // create the DB cluster
@@ -189,17 +189,17 @@ export class DataStoreStack extends Stack {
       enableHttpEndpoint: true,
       databaseName,
       kmsKeyId: kmsKey.keyId,
-      masterUsername: this.rdsRootCredentialsSecret
+      masterUsername: rdsRootCredentialsSecret
         .secretValueFromJson('username')
         .toString(),
-      masterUserPassword: this.rdsRootCredentialsSecret
+      masterUserPassword: rdsRootCredentialsSecret
         .secretValueFromJson('password')
         .toString(),
       backupRetentionPeriod: backupRetentionDays,
       scalingConfiguration: {
         maxCapacity,
         minCapacity,
-        autoPause: false
+        autoPause: false,
       },
       deletionProtection: true,
       dbSubnetGroupName: rdsSubnetGroup.ref,
@@ -210,10 +210,11 @@ export class DataStoreStack extends Stack {
       // preferredBackupWindow: backupWindowDaily,
       // port: rdsPort,
       storageEncrypted: true,
-      vpcSecurityGroupIds: [rdsSecurityGroup.securityGroupId]
+      vpcSecurityGroupIds: [rdsSecurityGroup.securityGroupId],
     })
     rdsCluster.applyRemovalPolicy(RemovalPolicy.SNAPSHOT)
     rdsCluster.node.addDependency(this.vpc, kmsKey)
+    this.rdsEndpoint = rdsCluster.attrEndpointAddress
 
     // add database networking
     this.rdsAccessSecurityGroup = new SecurityGroup(
@@ -221,20 +222,20 @@ export class DataStoreStack extends Stack {
       'RdsAccessSecurityGroup',
       {
         vpc: this.vpc,
-        description: `${this.stackName} security group for RDS Access`
-      }
+        description: `${this.stackName} security group for RDS Access`,
+      },
     )
     rdsSecurityGroup.addIngressRule(
       this.rdsAccessSecurityGroup,
-      Port.tcp(rdsPort)
+      Port.tcp(rdsPort),
     )
     rdsSecurityGroup.addEgressRule(
       this.rdsAccessSecurityGroup,
-      Port.tcp(rdsPort)
+      Port.tcp(rdsPort),
     )
     this.rdsAccessSecurityGroup.addIngressRule(
       rdsSecurityGroup,
-      Port.tcp(rdsPort)
+      Port.tcp(rdsPort),
     )
 
     // configure function used by the city stacks to create a new DB and user within this cluster
@@ -249,15 +250,15 @@ export class DataStoreStack extends Stack {
         securityGroups: [this.rdsAccessSecurityGroup],
         environment: {
           DB_HOST: rdsCluster.attrEndpointAddress,
-          DB_USER: this.rdsRootCredentialsSecret
+          DB_USER: rdsRootCredentialsSecret
             .secretValueFromJson('username')
             .toString(),
-          DB_PASSWORD: this.rdsRootCredentialsSecret
+          DB_PASSWORD: rdsRootCredentialsSecret
             .secretValueFromJson('password')
             .toString(),
-          DB_DEFAULT_DATABASE: databaseName
-        }
-      }
+          DB_DEFAULT_DATABASE: databaseName,
+        },
+      },
     )
   }
 }

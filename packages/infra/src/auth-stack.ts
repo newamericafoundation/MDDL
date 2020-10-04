@@ -1,49 +1,29 @@
 import {
   Construct,
-  IConstruct,
   IDependable,
   RemovalPolicy,
   Stack,
-  StackProps
+  StackProps,
 } from '@aws-cdk/core'
 import {
   AccountRecovery,
   CfnUserPool,
   StringAttribute,
   UserPool,
-  VerificationEmailStyle
+  VerificationEmailStyle,
 } from '@aws-cdk/aws-cognito'
 import { Topic } from '@aws-cdk/aws-sns'
 import { Certificate } from '@aws-cdk/aws-certificatemanager'
 import { HostedDomain } from './hosted-domain'
 import {
-  AliasRecordTargetConfig,
   ARecord,
-  IAliasRecordTarget,
-  IRecordSet,
   HostedZone,
   RecordTarget,
-  HostedZoneAttributes
+  HostedZoneAttributes,
 } from '@aws-cdk/aws-route53'
 import { Bucket, RedirectProtocol } from '@aws-cdk/aws-s3'
-import {
-  BucketWebsiteTarget,
-  CloudFrontTarget
-} from '@aws-cdk/aws-route53-targets'
-
-class MinimalCloudFrontTarget implements IAliasRecordTarget {
-  constructor(
-    private readonly construct: IConstruct,
-    private readonly domainName: string
-  ) {}
-
-  public bind(_record: IRecordSet): AliasRecordTargetConfig {
-    return {
-      hostedZoneId: CloudFrontTarget.getHostedZoneId(this.construct),
-      dnsName: this.domainName
-    }
-  }
-}
+import { BucketWebsiteTarget } from '@aws-cdk/aws-route53-targets'
+import { MinimalCloudFrontTarget } from './minimal-cloudfront-target'
 
 interface CustomHostedDomain extends HostedDomain {
   /**
@@ -109,17 +89,17 @@ export class AuthStack extends Stack {
 
     // SNS Topics for SES Bounce Event
     new Topic(this, 'SesBounceTopic', {
-      displayName: 'Bounce notifications topic'
+      displayName: 'Bounce notifications topic',
     })
 
     // SNS Topics for SES Complaint Event
     new Topic(this, 'SesComplaintsTopic', {
-      displayName: 'Complaints notifications topic'
+      displayName: 'Complaints notifications topic',
     })
 
     // SNS Topics for SES Delivery Event
     new Topic(this, 'SesDeliveryTopic', {
-      displayName: 'Delivery Notifications topic'
+      displayName: 'Delivery Notifications topic',
     })
   }
 
@@ -132,16 +112,16 @@ export class AuthStack extends Stack {
     const userPool = new UserPool(this, 'UserPool', {
       accountRecovery: AccountRecovery.EMAIL_ONLY,
       signInAliases: {
-        email: true
+        email: true,
       },
       emailSettings: emailSender
         ? {
-            from: `${emailSender.name} <${emailSender.address}>`
+            from: `${emailSender.name} <${emailSender.address}>`,
           }
         : undefined,
       userVerification: {
         emailStyle: VerificationEmailStyle.CODE,
-        emailSubject: 'Data Locker - Please verify your email'
+        emailSubject: 'Data Locker - Please verify your email',
       },
       selfSignUpEnabled: true,
       passwordPolicy: {
@@ -149,39 +129,39 @@ export class AuthStack extends Stack {
         requireDigits: true,
         requireLowercase: false,
         requireUppercase: true,
-        requireSymbols: true
+        requireSymbols: true,
       },
       standardAttributes: {
         email: {
           mutable: true,
-          required: true
+          required: true,
         },
         givenName: {
           mutable: true,
-          required: true
+          required: true,
         },
         familyName: {
           mutable: true,
-          required: true
+          required: true,
         },
         locale: {
           mutable: true,
-          required: false
+          required: false,
         },
         timezone: {
           mutable: true,
-          required: false
-        }
+          required: false,
+        },
       },
       customAttributes: {
         features: new StringAttribute({
           maxLen: 255,
           mutable: true,
-          minLen: 0
-        })
+          minLen: 0,
+        }),
       },
       signInCaseSensitive: false,
-      userPoolName
+      userPoolName,
     })
 
     // manual override to retain the user pool
@@ -193,20 +173,20 @@ export class AuthStack extends Stack {
       const {
         region = this.region,
         address,
-        accountId = this.account
+        accountId = this.account,
       } = emailSender
       cfnUserPool.addPropertyOverride(
         'EmailConfiguration.EmailSendingAccount',
-        'DEVELOPER'
+        'DEVELOPER',
       )
       cfnUserPool.addPropertyOverride(
         'EmailConfiguration.SourceArn',
-        `arn:aws:ses:${region}:${accountId}:identity/${address}`
+        `arn:aws:ses:${region}:${accountId}:identity/${address}`,
       )
     }
 
     return {
-      userPool
+      userPool,
     }
   }
 
@@ -217,14 +197,14 @@ export class AuthStack extends Stack {
    */
   private addCustomDomain(
     userPool: UserPool,
-    customDomain: CustomHostedDomain
+    customDomain: CustomHostedDomain,
   ) {
     // read out configuration
     const {
       domain,
       certificateArn,
       shouldCreateRootARecord,
-      hostedZoneAttributes
+      hostedZoneAttributes,
     } = customDomain
     const dependencies: IDependable[] = []
 
@@ -232,7 +212,7 @@ export class AuthStack extends Stack {
     const hostedZone = HostedZone.fromHostedZoneAttributes(
       this,
       `HostedZone`,
-      hostedZoneAttributes
+      hostedZoneAttributes,
     )
 
     // add root A record if needed
@@ -243,15 +223,15 @@ export class AuthStack extends Stack {
         publicReadAccess: true,
         websiteRedirect: {
           hostName: domain,
-          protocol: RedirectProtocol.HTTPS
-        }
+          protocol: RedirectProtocol.HTTPS,
+        },
       })
       const rootAliasRecord = new ARecord(this, `RootAliasRecord`, {
         zone: hostedZone,
         recordName: rootDomain,
         target: RecordTarget.fromAlias(
-          new BucketWebsiteTarget(rootDomainBucket)
-        )
+          new BucketWebsiteTarget(rootDomainBucket),
+        ),
       })
       rootAliasRecord.node.addDependency(rootDomainBucket)
       dependencies.push(rootAliasRecord)
@@ -261,15 +241,15 @@ export class AuthStack extends Stack {
     const certificate = Certificate.fromCertificateArn(
       this,
       `UserPoolCertificate`,
-      certificateArn
+      certificateArn,
     )
 
     // add domain to user pool
     const userPoolDomain = userPool.addDomain('HostedDomain', {
       customDomain: {
         certificate,
-        domainName: domain
-      }
+        domainName: domain,
+      },
     })
     userPoolDomain.node.addDependency(...dependencies)
 
@@ -278,8 +258,8 @@ export class AuthStack extends Stack {
       zone: hostedZone,
       recordName: domain,
       target: RecordTarget.fromAlias(
-        new MinimalCloudFrontTarget(this, userPoolDomain.cloudFrontDomainName)
-      )
+        new MinimalCloudFrontTarget(this, userPoolDomain.cloudFrontDomainName),
+      ),
     })
   }
 }

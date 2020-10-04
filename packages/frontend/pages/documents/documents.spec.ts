@@ -8,22 +8,22 @@ describe('Documents component', () => {
   let actions
   beforeEach(() => {
     actions = {
-      getDocuments: () => Promise.resolve([])
+      getDocuments: () => Promise.resolve([]),
     }
     store = new Vuex.Store({
       modules: {
         user: {
           namespaced: true,
-          actions
-        }
-      }
+          actions,
+        },
+      },
     })
   })
 
   it('exports a valid page', () => {
     const wrapper = shallowMount(Documents, {
       store,
-      stubs: { Layout }
+      stubs: { Layout },
     })
     expect(wrapper.html()).toBeTruthy()
   })
