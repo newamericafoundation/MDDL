@@ -1,4 +1,5 @@
-// tslint:disable
+/* tslint:disable */
+/* eslint-disable */
 /**
  * Data Locker
  * This documents the API for the New America Data Locker project.

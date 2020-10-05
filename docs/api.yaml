@@ -264,7 +264,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DocumentCreate'
+              $ref: '#/components/schemas/DocumentUpdate'
     delete:
       tags:
         - document
@@ -388,43 +388,57 @@ paths:
 
 components:
   schemas:
+    FileContentTypeEnum:
+      type: string
+      description: File content type
+      enum:
+        - application/pdf
+        - image/jpeg
+        - image/png
+        - image/tiff
+      example: image/jpeg
     DocumentUpdate:
-      $ref: '#/components/schemas/DocumentCreate'
-    DocumentCreate:
+      type: object
+      required:
+        - name
       properties:
-        description:
+        name:
           type: string
           description: Document description
           example: Sam's SSN
-        format:
+    DocumentCreate:
+      required:
+        - name
+        - files
+      properties:
+        name:
           type: string
-          description: File format
-          enum:
-            - PNG
-            - PDF
-            - JPEG
-          example: PDF
-        source:
+          description: Document name (system or user provided)
+          example: Sam's SSN
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentCreateFile'
+      type: object
+    DocumentCreateFile:
+      required:
+        - name
+        - contentType
+        - sha256Checksum
+      properties:
+        name:
           type: string
-          description: File source
-          enum:
-            - PHOTO
-            - SCAN
-          example: SCAN
-        type:
+          description: File original name
+          example: IMG20200101.jpg
+        contentType:
+          $ref: '#/components/schemas/FileContentTypeEnum'
+        sha256Checksum:
           type: string
-          description: Document Type
-          enum:
-            - SOCIAL_SECURITY_CARD
-            - BIRTH_CERTIFICATE
-            - PROOF_OF_INCOME
-          example: SOCIAL_SECURITY_CARD
-        expiryDate:
-          type: string
-          format: date-time
-          example: '2025-01-01T01:01:01Z'
+          description: SHA256 Checksum of file content
       type: object
     DocumentList:
+      required:
+        - documents
       properties:
         documents:
           type: array
@@ -432,6 +446,11 @@ components:
             $ref: '#/components/schemas/DocumentListItem'
       type: object
     DocumentListItem:
+      required:
+        - id
+        - name
+        - createdDate
+        - links
       properties:
         id:
           type: string
@@ -439,47 +458,36 @@ components:
         name:
           type: string
           example: Letter of Employment
-        type:
-          $ref: '#/components/schemas/DocumentTypeEnum'
+        createdDate:
+          type: string
+          format: date-time
+          example: '2020-01-01T01:01:01Z'
+        links:
+          type: object
+          example:
+            details: https://my-details-url
       type: object
-    DocumentTypeEnum:
-      type: string
-      description: Document Type
-      enum:
-        - SOCIAL_SECURITY_CARD
-        - BIRTH_CERTIFICATE
-        - PROOF_OF_INCOME
-      example: SOCIAL_SECURITY_CARD
-    Document:
+    DocumentFile:
+      required:
+        - id
+        - name
+        - contentType
+        - sha256Checksum
+        - createdDate
+        - links
       properties:
         id:
           type: string
           example: D050A33E-74F6-4BEF-AED5-87F48E5CCE44
         name:
           type: string
-          description: File name (system or user provided)
-          example: Sam's SSN
-        source:
+          description: File original name
+          example: IMG20200101.jpg
+        contentType:
+          $ref: '#/components/schemas/FileContentTypeEnum'
+        sha256Checksum:
           type: string
-          description: File source
-          enum:
-            - PHOTO
-            - SCAN
-          example: SCAN
-        format:
-          type: string
-          description: File format
-          enum:
-            - PNG
-            - PDF
-            - JPEG
-          example: PDF
-        type:
-          $ref: '#/components/schemas/DocumentTypeEnum'
-        expiryDate:
-          type: string
-          format: date-time
-          example: '2025-01-01T01:01:01Z'
+          description: SHA256 Checksum of file content
         createdDate:
           type: string
           format: date-time
@@ -489,10 +497,42 @@ components:
           example:
             upload: https://my-upload-url
             download: https://my-download-url
+      type: object
+    Document:
+      required:
+        - id
+        - name
+        - createdDate
+        - files
+        - links
+      properties:
+        id:
+          type: string
+          example: D050A33E-74F6-4BEF-AED5-87F48E5CCE44
+        name:
+          type: string
+          description: Document name (system or user provided)
+          example: Sam's SSN
+        createdDate:
+          type: string
+          format: date-time
+          example: '2020-01-01T01:01:01Z'
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentFile'
+        links:
+          type: object
+          example:
+            download: https://my-download-url
             delete: https://my-delete-url
-            share: https://my-share-url
       type: object
     User:
+      required:
+        - id
+        - givenName
+        - familyName
+        - links
       properties:
         id:
           type: string
@@ -509,6 +549,8 @@ components:
             delete: https://my-delete-url
       type: object
     UserDelegatedAccessList:
+      required:
+        - delegatedAccess
       properties:
         delegatedAccess:
           type: array
@@ -516,6 +558,10 @@ components:
             $ref: '#/components/schemas/UserDelegatedAccess'
       type: object
     UserDelegatedAccess:
+      required:
+        - email
+        - createdDate
+        - links
       properties:
         email:
           type: string
@@ -532,12 +578,16 @@ components:
             delete: https://my-delete-url
       type: object
     UserDelegatedAccessCreate:
+      required:
+        - email
       properties:
         email:
           type: string
           example: inviteduser@example.com
       type: object
     AgencyList:
+      required:
+        - agencies
       properties:
         agencies:
           type: array
@@ -545,6 +595,9 @@ components:
             $ref: '#/components/schemas/Agency'
       type: object
     Agency:
+      required:
+        - id
+        - name
       properties:
         id:
           type: string
@@ -553,14 +606,19 @@ components:
           type: string
           example: Department of Homeless Services
       type: object
+    DocumentGrantType:
+      type: string
+      description: Document Grant Type
+      enum:
+        - AGENCY_ACCESS
+      example: AGENCY_ACCESS
     DocumentGrantCreate:
+      required:
+        - type
+        - agencyDetails
       properties:
         type:
-          type: string
-          description: Document Grant Type
-          enum:
-            - AGENCY_ACCESS
-          example: AGENCY_ACCESS
+          $ref: '#/components/schemas/DocumentGrantType'
         agencyDetails:
           type: object
           properties:
@@ -569,23 +627,27 @@ components:
               description: The ID of the agency
       type: object
     DocumentGrantList:
+      required:
+        - documentGrants
       properties:
-        documents:
+        documentGrants:
           type: array
           items:
             $ref: '#/components/schemas/DocumentGrant'
       type: object
     DocumentGrant:
+      required:
+        - id
+        - type
+        - createdDate
+        - links
+        - agencyDetails
       properties:
         id:
           type: string
           example: 0693772D-5AED-4955-A6B5-41D1246E54AC
         type:
-          type: string
-          description: Document Grant Type
-          enum:
-            - AGENCY_ACCESS
-          example: AGENCY_ACCESS
+          $ref: '#/components/schemas/DocumentGrantType'
         createdDate:
           type: string
           format: date-time
@@ -596,6 +658,10 @@ components:
             id:
               type: string
               description: The ID of the agency
+            links:
+              type: object
+              example:
+                details: https://agency-details-url
         links:
           type: object
           example:

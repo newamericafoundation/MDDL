@@ -51,7 +51,7 @@ If you're using tools such as vue cli to bootstrap a project, after project set 
 
 Start the nuxt development server with `yarn fe dev`. You should be able to open the app on `http://localhost:3000/`.
 
->Note: `fe` is a shorthand to run yarn scripts in the frontend workspace from the root workspace
+> Note: `fe` is a shorthand to run yarn scripts in the frontend workspace from the root workspace
 
 For more info see the [frontend readme](./packages/frontend/README.md)
 
@@ -67,8 +67,6 @@ Installing the docker engine desktop app also installs [docker compose](https://
 
 > Note: Installing docker via homebrew proved to be a pain to get working. Not recommended.
 
-If you are doing local development on the backend, you may want to install [OpenAPI Generator](https://github.com/OpenAPITools/openapi-generator#table-of-contents) so you can generate a new mock backend to test the frontend against. Otherwise when you raise a PR a GitHub action will generate a new api client automatically and commit it to your branch.
-
 If you have followed the steps correctly, `yarn mockapi` will start a mock api on port 8080, which you can verify by navigating to `http://localhost:8080/v1/documents/1` in your browser. You should get a response similar to:
 
 ```json
@@ -83,6 +81,19 @@ If you have followed the steps correctly, `yarn mockapi` will start a mock api o
   "type": "PROOF_OF_INCOME"
 }
 ```
+
+#### Regenerating the API Client
+
+You can use the [OpenAPI Generator](https://github.com/OpenAPITools/openapi-generator#table-of-contents) docker image to regenerate the `api-client` (packages/api-client) with the following command:
+
+```bash
+docker run --rm -v "${PWD}:/local" openapitools/openapi-generator-cli:latest-release generate \
+    -i /local/docs/api.yaml \
+    -g typescript-axios \
+    -o /local/packages/api-client
+```
+
+> note: run this from the root directory
 
 ## Architecture
 
