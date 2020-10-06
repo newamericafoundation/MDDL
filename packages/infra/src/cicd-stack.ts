@@ -107,7 +107,7 @@ export class CiCdStack extends Stack {
     const {
       cloudAssemblyArtifact,
       codePipeline,
-      cityBuildArtifacts,
+      sourceArtifact,
     } = this.createCodePipeline(props, bucket)
 
     // create the CDK pipeline components
@@ -115,7 +115,7 @@ export class CiCdStack extends Stack {
       props,
       cloudAssemblyArtifact,
       codePipeline,
-      cityBuildArtifacts,
+      sourceArtifact,
     )
   }
 
@@ -195,19 +195,57 @@ export class CiCdStack extends Stack {
   }
 
   /**
-   * Create the Code Build project to build the CDK assets and create FE builds
-   * @param cloudAssemblyArtifact The artifact for the CDK cloud assembly
+   * Create the Code Build project to build the CDK assets
+   */
+  private createBuildCloudAssemblyProject() {
+    // create the project
+    const project = new Project(this, 'BuildCloudAssemblyProject', {
+      buildSpec: BuildSpec.fromObject({
+        version: 0.2,
+        env: {
+          'exported-variables': ['BUILD_NUMBER'],
+        },
+        phases: {
+          install: {
+            'runtime-versions': {
+              python: 3.7,
+              nodejs: 12,
+            },
+            commands: ['yarn'],
+          },
+          build: {
+            commands: [
+              'BUILD_NUMBER=$(cat build-details.json | python -c "import sys, json; print(json.load(sys.stdin)[\'buildNumber\'])")',
+              'yarn build',
+              'yarn infra cdk synth',
+            ],
+          },
+        },
+        artifacts: {
+          files: '**/*',
+          'base-directory': 'packages/infra/cdk.out',
+        },
+      }),
+    })
+
+    // permissions to fetch context, e.g. AZ's for VPC
+    project.addToRolePolicy(
+      new PolicyStatement({
+        actions: ['ec2:Describe*', 'ec2:Get*'],
+        resources: ['*'],
+      }),
+    )
+
+    return { project }
+  }
+
+  /**
+   * Create the Code Build project to create FE builds
    * @param cityBuildArgs Array of city builds to run
    */
-  private createBuildSourceProject(
-    cloudAssemblyArtifact: Artifact,
+  private createBuildWebAppsProject(
     cityBuildArgs: CityStackArtifactBuildConfiguration[],
   ) {
-    // as we're using secondary artifacts, require a name
-    if (!cloudAssemblyArtifact.artifactName) {
-      throw new Error('cloudAssemblyArtifact must be named')
-    }
-
     // declare the artifact config
     const artifactConfig: {
       [index: string]: {
@@ -216,17 +254,10 @@ export class CiCdStack extends Stack {
         'discard-paths'?: 'no' | 'yes'
         'base-directory'?: string
       }
-    } = {
-      // add cloud assembly artifact
-      [cloudAssemblyArtifact.artifactName]: {
-        files: '**/*',
-        name: cloudAssemblyArtifact.artifactName,
-        'base-directory': 'packages/infra/cdk.out',
-      },
-    }
+    } = {}
 
-    // initialise our build commands with the CDK build
-    const buildCommands = ['yarn infra cdk synth']
+    // initialise our build commands
+    const buildCommands: string[] = []
 
     // for each city stack
     cityBuildArgs.forEach((cba, index) => {
@@ -254,25 +285,18 @@ export class CiCdStack extends Stack {
     })
 
     // create the project
-    const project = new Project(this, 'BuildSourceProject', {
+    const project = new Project(this, 'BuildWebAppsProject', {
       buildSpec: BuildSpec.fromObject({
         version: 0.2,
-        env: {
-          'exported-variables': ['BUILD_NUMBER'],
-        },
         phases: {
           install: {
             'runtime-versions': {
-              python: 3.7,
               nodejs: 12,
             },
             commands: ['yarn'],
           },
           build: {
-            commands: [
-              'BUILD_NUMBER=$(cat build-details.json | python -c "import sys, json; print(json.load(sys.stdin)[\'buildNumber\'])")',
-              ...buildCommands,
-            ],
+            commands: buildCommands,
           },
         },
         artifacts: {
@@ -281,14 +305,6 @@ export class CiCdStack extends Stack {
         },
       }),
     })
-
-    // permissions to fetch context, e.g. AZ's for VPC
-    project.addToRolePolicy(
-      new PolicyStatement({
-        actions: ['ec2:Describe*', 'ec2:Get*'],
-        resources: ['*'],
-      }),
-    )
 
     return { project }
   }
@@ -308,24 +324,8 @@ export class CiCdStack extends Stack {
       restartExecutionOnUpdate: true,
     })
 
-    // determine city stacks that will need to be built, and their args
-    const cityStacks = CiCdStack.getCityStacksProps(props)
-    const cityBuildArgs = cityStacks.map((cs) => ({
-      name: cs.name,
-      env: cs.props.webAppBuildVariables || {},
-    }))
-
-    // create artifacts for each one
-    const cityBuildArtifacts = cityStacks.map(
-      (cs) => new Artifact(this.getFrontendArtifactName(cs.name)),
-    )
-
-    // create the CodeBuild project that will run the build jobs
-    // we do this in a single project so that all dependencies are the same across outputs
-    const { project } = this.createBuildSourceProject(
-      cloudAssemblyArtifact,
-      cityBuildArgs,
-    )
+    // create the CodeBuild project that will run the build job
+    const { project } = this.createBuildCloudAssemblyProject()
 
     // add the source stage with s3 source action
     codePipeline.addStage({
@@ -340,7 +340,7 @@ export class CiCdStack extends Stack {
       ],
     })
 
-    // add the build stage with codebuild project and all artifacts
+    // add the build stage with codebuild project and CDK artifact
     codePipeline.addStage({
       stageName: 'Build',
       actions: [
@@ -348,7 +348,7 @@ export class CiCdStack extends Stack {
           actionName: 'Build',
           project: project,
           input: sourceArtifact,
-          outputs: [cloudAssemblyArtifact, ...cityBuildArtifacts],
+          outputs: [cloudAssemblyArtifact],
         }),
       ],
     })
@@ -356,7 +356,7 @@ export class CiCdStack extends Stack {
     return {
       codePipeline,
       cloudAssemblyArtifact,
-      cityBuildArtifacts,
+      sourceArtifact,
     }
   }
 
@@ -373,13 +373,13 @@ export class CiCdStack extends Stack {
    * @param props The pipeline config which determines stacks to be deployed
    * @param cloudAssemblyArtifact The artifact which contains the cloud assembly to be deployed
    * @param codePipeline The CodePipeline pipeline
-   * @param cityBuildArtifacts Artifacts for city FE builds
+   * @param sourceArtifact The source code artifact
    */
   private createCdkPipeline(
     props: Props,
     cloudAssemblyArtifact: Artifact,
     codePipeline: Pipeline,
-    cityBuildArtifacts: Artifact[],
+    sourceArtifact: Artifact,
   ) {
     // synthesize the cloud assembly
     const { app, createdStacks } = CiCdStack.buildApp(props)
@@ -392,6 +392,18 @@ export class CiCdStack extends Stack {
       dataStoreStackProps,
       cityStacksProps: stage1CityStacksProps = [],
     } = stage1Configuration
+
+    // determine city stacks that will need to be built, and their args
+    const cityStacks = CiCdStack.getCityStacksProps(props)
+    const cityBuildArgs = cityStacks.map((cs) => ({
+      name: cs.name,
+      env: cs.props.webAppBuildVariables || {},
+    }))
+
+    // create artifacts for each one
+    const cityBuildArtifacts = cityStacks.map(
+      (cs) => new Artifact(this.getFrontendArtifactName(cs.name)),
+    )
 
     // create lambda function to add city stack to the stage
     // this is a lambda rather than a function so we can use the consts defined above
@@ -443,6 +455,23 @@ export class CiCdStack extends Stack {
     const cdkPipeline = new CdkPipeline(this, 'CdkPipeline', {
       cloudAssemblyArtifact,
       codePipeline,
+    })
+
+    // create the CodeBuild project that will build the web apps
+    // we do this in a single project so that all dependencies are the same across outputs
+    const { project } = this.createBuildWebAppsProject(cityBuildArgs)
+
+    // add the build stage with codebuild project and all artifacts
+    codePipeline.addStage({
+      stageName: 'BuildWebApps',
+      actions: [
+        new CodeBuildAction({
+          actionName: 'Build',
+          project: project,
+          input: sourceArtifact,
+          outputs: cityBuildArtifacts,
+        }),
+      ],
     })
 
     // Add and configure deployment stage 1
