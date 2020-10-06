@@ -13,5 +13,10 @@
     "mockapi": "cd packages/api-client && docker-compose up",
     "api": "yarn workspace @datalocker/api-service"
   },
-  "version": "0.0.0"
+  "version": "0.0.0",
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  }
 }

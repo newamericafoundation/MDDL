@@ -1,0 +1,17 @@
+{
+  "packages/api-service/**/*.ts": [
+    "yarn workspace @datalocker/api-service lint --fix",
+    "prettier --write",
+    "git add"
+  ],
+  "packages/frontend/**/*.{ts,vue}": [
+    "yarn workspace frontend lint --fix",
+    "prettier --write",
+    "git add"
+  ],
+  "packages/infra/**/*.ts": [
+    "yarn workspace infra lint --fix",
+    "prettier --write",
+    "git add"
+  ]
+}
