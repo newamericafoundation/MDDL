@@ -3,22 +3,27 @@ import { storiesOf } from '@storybook/vue'
 import Documents from './index.vue'
 
 const fullUserStore = new Vuex.Store({
-  actions: {
-    getDocuments() {
-      return [
-        {
-          name: 'Document one',
-          id: '1',
+  modules: {
+    user: {
+      namespaced: true,
+      actions: {
+        getDocuments() {
+          return [
+            {
+              name: 'Document one',
+              id: '1',
+            },
+            {
+              name: 'Document two',
+              id: '2',
+            },
+            {
+              name: 'Document three',
+              id: '3',
+            },
+          ]
         },
-        {
-          name: 'Document two',
-          id: '2',
-        },
-        {
-          name: 'Document three',
-          id: '3',
-        },
-      ]
+      },
     },
   },
 })
@@ -30,9 +35,14 @@ storiesOf('Documents Page', module).add('Default', () => ({
 }))
 
 const emptyUserStore = new Vuex.Store({
-  actions: {
-    getDocuments() {
-      return []
+  modules: {
+    user: {
+      namespaced: true,
+      actions: {
+        getDocuments() {
+          return []
+        },
+      },
     },
   },
 })

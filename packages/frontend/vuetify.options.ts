@@ -1,10 +1,10 @@
-// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
 import { Context } from '@nuxt/types'
-// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars, import/named
+// eslint-disable-next-line import/named
 import { Options } from '@nuxtjs/vuetify'
 import colors from 'vuetify/es5/util/colors'
 const vuetifyOptions = (ctx: Context): Options => {
   return {
+    treeShake: true,
     customVariables: ['~/assets/variables.scss'],
     theme: {
       dark: true,

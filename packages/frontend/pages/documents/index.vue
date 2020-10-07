@@ -1,5 +1,6 @@
 <template>
   <div>
+    <UploadButton />
     <DocumentCard
       v-for="(document, i) in documents"
       :key="i"

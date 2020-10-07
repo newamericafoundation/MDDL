@@ -1,6 +1,4 @@
-// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
 import { NuxtAxiosInstance } from '@nuxtjs/axios'
-// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
 import { DocumentApi, AgencyApi, UserApi, Configuration } from 'api-client'
 
 const initialisedAPIs = {

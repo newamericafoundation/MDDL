@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@babel/plugin-proposal-decorators": "^7.10.5",
+    "@nuxt/babel-preset-app": "^2.14.6",
     "@nuxt/typescript-runtime": "^2.0.0",
     "@nuxtjs/axios": "^5.12.2",
     "@nuxtjs/dotenv": "^1.4.1",
@@ -25,6 +26,9 @@
     "@storybook/addon-knobs": "^6.0.22",
     "@storybook/addon-viewport": "^6.0.22",
     "api-client": "1.0.0",
+    "asmcrypto.js": "^2.3.2",
+    "babel-core": "^7.0.0-bridge.0",
+    "flush-promises": "^1.0.2",
     "hygen": "^6.0.4",
     "nuxt": "^2.14.6",
     "nuxt-i18n": "^6.15.1",
@@ -40,8 +44,7 @@
     "@nuxtjs/storybook": "^2.2.1",
     "@nuxtjs/vuetify": "^1.11.2",
     "@vue/test-utils": "^1.1.0",
-    "babel-core": "^7.0.0-bridge.0",
-    "babel-jest": "^26.3.0",
+    "babel-jest": "^26.5.2",
     "eslint": "^7.10.0",
     "eslint-config-prettier": "^6.12.0",
     "eslint-plugin-nuxt": "^1.0.0",
@@ -53,6 +56,6 @@
     "ts-jest": "^26.4.1",
     "typescript": "^4.0.2",
     "vue-eslint-parser": "^7.1.0",
-    "vue-jest": "^3.0.6"
+    "vue-jest": "^3.0.7"
   }
 }

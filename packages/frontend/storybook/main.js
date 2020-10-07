@@ -5,4 +5,8 @@ module.exports = {
     '@storybook/addon-viewport',
     '@storybook/addon-contexts',
   ],
+  webpackFinal(config, options) {
+    config = options.nuxtStorybookConfig.webpackFinal(config, options)
+    return config
+  },
 }

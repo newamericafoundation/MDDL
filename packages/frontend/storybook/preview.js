@@ -2,13 +2,14 @@ import '../.nuxt-storybook/storybook/preview.js'
 import { addDecorator } from '@storybook/vue'
 import Vue from 'vue'
 import Vuex from 'vuex'
-import messages from '@/locales/messages'
 import { withKnobs, select, boolean } from '@storybook/addon-knobs'
 import VueI18n from 'vue-i18n'
-import Vuetify from 'vuetify'
+import Vuetify, { VSnackbar } from 'vuetify/lib'
 import 'vuetify/dist/vuetify.min.css'
 import colors from 'vuetify/es5/util/colors'
 import { withContexts } from '@storybook/addon-contexts/vue'
+import messages from '@/locales/messages'
+import VueRouter from 'vue-router'
 
 Vue.use(Vuex)
 
@@ -19,7 +20,11 @@ Vue.prototype.toJSON = function () {
   return this
 }
 
-Vue.use(Vuetify)
+Vue.use(Vuetify, {
+  components: {
+    VSnackbar
+  }
+})
 
 const vuetify = new Vuetify({
   customVariables: ['~/assets/variables.scss'],
@@ -33,16 +38,16 @@ const vuetify = new Vuetify({
         info: colors.teal.lighten1,
         warning: colors.amber.base,
         error: colors.deepOrange.accent4,
-        success: colors.green.accent3,
-      },
-    },
+        success: colors.green.accent3
+      }
+    }
   },
   lang: {
-    t: (key, ...params) => i18n.t(key, params),
+    t: (key, ...params) => i18n.t(key, params)
   },
   icons: {
-    iconfont: 'mdiSvg',
-  },
+    iconfont: 'mdiSvg'
+  }
 })
 
 const vuetifyDecorator = () => ({
@@ -51,17 +56,17 @@ const vuetifyDecorator = () => ({
   props: {
     vuetifyDark: {
       type: Boolean,
-      default: boolean('Vuetify Dark theme', true),
-    },
+      default: boolean('Vuetify Dark theme', true)
+    }
   },
   watch: {
     vuetifyDark: {
       handler() {
         this.$vuetify.theme.dark = this.vuetifyDark
       },
-      immediate: true,
-    },
-  },
+      immediate: true
+    }
+  }
 })
 
 addDecorator(vuetifyDecorator)
@@ -71,8 +76,16 @@ Vue.use(VueI18n)
 const i18n = new VueI18n({
   locale: 'es',
   locales: ['en', 'es', 'fr'],
-  messages,
+  messages
 })
+
+// i18n._dataListeners = new Proxy([], {
+//   push: (item) => {
+//     console.log('pushing', item, 'to', i18n)
+//     item._renderProxy._i18n = null
+//   }
+// })
+// Object.assign({}, context, { hooks: null });
 
 const i18nDecorator = () => ({
   i18n,
@@ -80,17 +93,17 @@ const i18nDecorator = () => ({
   props: {
     storybookLocale: {
       type: String,
-      default: select('locale', ['en', 'es', 'fr'], 'es'),
-    },
+      default: select('locale', ['en', 'es', 'fr'], 'es')
+    }
   },
   watch: {
     storybookLocale: {
       handler() {
         this.$i18n.locale = this.storybookLocale
       },
-      immediate: true,
-    },
-  },
+      immediate: true
+    }
+  }
 })
 
 addDecorator(i18nDecorator)
@@ -107,13 +120,13 @@ const localeContext = {
   // },
   beforeCreate() {
     this.$root._i18n = this.$i18n
-  },
+  }
 }
 const topLevelContexts = [
   {
     icon: 'globe',
     title: 'Locale',
-    components: [localeContext],
+    components: [localeContext]
     // params: [
     //   {
     //     name: 'English',
@@ -129,6 +142,6 @@ const topLevelContexts = [
     //     },
     //   },
     // ],
-  },
+  }
 ]
 addDecorator(withContexts(topLevelContexts))
