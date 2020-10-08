@@ -888,7 +888,7 @@ export class CityStack extends Stack {
       },
       layers,
       externalModules: requiresDbConnectivity
-        ? ['aws-sdk', 'knex', 'mysql2']
+        ? ['aws-sdk', 'knex', 'mysql2', 'objection']
         : undefined,
       runtime: Runtime.NODEJS_12_X,
       minify: true,

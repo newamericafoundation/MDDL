@@ -434,6 +434,10 @@ export class CiCdStack extends Stack {
 
       // add the stack to the stage
       this.addStack(stage, cityStack, options)
+      const s3DeployRunOrder =
+        options && options.executeRunOrder
+          ? options.executeRunOrder + 1
+          : stage.nextSequentialRunOrder()
 
       // add action to deploy the frontend web app to its bucket
       stage.addActions(
@@ -445,7 +449,7 @@ export class CiCdStack extends Stack {
             name + 'WebAppBucket',
             synthesizedStack.bucketNames['WebApp'],
           ),
-          runOrder: stage.nextSequentialRunOrder(),
+          runOrder: s3DeployRunOrder,
         }),
       )
     }
@@ -487,6 +491,7 @@ export class CiCdStack extends Stack {
         baseStackOptions,
       )
     }
+    const numberOfBaseActions = stage1.nextSequentialRunOrder()
     stage1CityStacksProps.forEach((cityStackProps) =>
       addCityStackToStage(stage1, cityStackProps),
     )
@@ -499,6 +504,10 @@ export class CiCdStack extends Stack {
 
       // create stage 2
       const stage2 = cdkPipeline.addStage('DeploymentStage2')
+      let currentRunOrder = stage2.nextSequentialRunOrder()
+      while (currentRunOrder < numberOfBaseActions) {
+        currentRunOrder = stage2.nextSequentialRunOrder()
+      }
 
       // add manual approval
       stage2.addActions(
