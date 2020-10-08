@@ -33,6 +33,16 @@ Example config can be found in [./.env.local](./.env.local). You can use this as
 - Store Modules: Generates a store module with unit tests. Also modifies the [store accessor plugin](./utils/store-accessor.ts) to export a type-safe reference to the module.
 - Utils: Generates a utility module with unit tests.
 
+## Customising Hosted Login
+
+The frontend uses AWS Cognito hosted login to serve sign in, sign out, and other auth-related pages. Customisation can be accomplished by making changes to [hostedLogin.css](./assets/css/hostedLogin.css) and running:
+
+<pre>
+aws cognito-idp set-ui-customization --user-pool-id <span style="color: #fa671d">user_pool_id</span> --client-id <span style="color: #fa671d">client_id</span> --css "$(<./packages/frontend/assets/css/hostedLogin.css)"
+</pre>
+
+More information can be found on the AWS docs regarding permitted [CSS classes](https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-pools-app-ui-customization.html#cognito-user-pools-app-ui-customization-css) and [CSS variables](https://docs.amplify.aws/ui/customization/theming/q/framework/vue):
+
 ## Frontend Stack
 
 Workspace name: frontend

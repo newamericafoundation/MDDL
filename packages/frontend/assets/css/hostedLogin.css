@@ -1,0 +1,64 @@
+body,
+.banner-customizable {
+  background-color: white;
+}
+
+a:hover {
+  text-decoration: none !important;
+}
+
+.background-customizable,
+.inputField-customizable,
+.inputField-customizable:focus {
+  box-shadow: none;
+}
+
+.textDescription-customizable,
+p.redirect-customizable > span {
+  display: none;
+}
+
+.label-customizable {
+  margin-top: 1rem;
+}
+
+.inputField-customizable {
+  border-color: rgba(0, 0, 0, 0.42);
+  border-radius: 0;
+  outline: 0;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  border-width: 1px;
+  margin-bottom: 2px;
+  transition: 0.2s;
+}
+.inputField-customizable:focus {
+  border-width: 3px;
+  border-color: #1867c0;
+}
+
+a.redirect-customizable {
+  margin-top: 0.5rem;
+  float: right;
+}
+
+p.redirect-customizable {
+  padding: 0.8rem 0;
+  border-radius: 4px;
+  border: 0.5pt solid rgba(0, 0, 0, 0.42);
+}
+
+p.redirect-customizable > a {
+  position: absolute;
+  left: 1.5rem;
+  right: 1.5rem;
+  bottom: 2.5rem;
+  height: 3.8rem;
+  padding-top: 0.8rem;
+}
+
+.submitButton-customizable {
+  border: none;
+  font-weight: normal;
+}
