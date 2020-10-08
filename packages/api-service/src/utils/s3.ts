@@ -1,5 +1,8 @@
 import S3 from 'aws-sdk/clients/s3'
-const s3 = new S3()
+const s3 = new S3({
+  signatureVersion: 'v4',
+  region: process.env.AWS_REGION || undefined,
+})
 const BUCKET = process.env.DOCUMENTS_BUCKET
 
 export const createFilePath = (
@@ -42,6 +45,5 @@ export const getPresignedDownloadUrl = async (path: string) => {
     Bucket: BUCKET,
     Key: path,
     Expires: 300,
-    // SignatureVersion: 'v4',
   })
 }

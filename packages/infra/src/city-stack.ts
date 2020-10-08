@@ -677,11 +677,33 @@ export class CityStack extends Stack {
   private addPermissionsToDocumentBucket(
     lambdaFunction: IFunction,
     uploadsBucket: IBucket,
-    actions: string[],
+    permissions: {
+      includeRead?: boolean
+      includeWrite?: boolean
+    },
   ) {
+    // set up constants
+    const { includeRead, includeWrite } = permissions
+    const { encryptionKey } = uploadsBucket
+    const bucketActions = []
+    const keyActions = []
+
+    // determine read permissions needed
+    if (includeRead) {
+      bucketActions.push('s3:GetObject')
+      keyActions.push('kms:Decrypt')
+    }
+
+    // determine write permissions needed
+    if (includeWrite) {
+      bucketActions.push('s3:PutObject')
+      keyActions.push('kms:GenerateDataKey')
+    }
+
+    // add bucket permissions
     lambdaFunction.addToRolePolicy(
       new PolicyStatement({
-        actions,
+        actions: bucketActions,
         resources: [
           uploadsBucket.arnForObjects(
             `${CityStack.documentsBucketUploadsPrefix}*`,
@@ -689,11 +711,13 @@ export class CityStack extends Stack {
         ],
       }),
     )
-    if (uploadsBucket.encryptionKey) {
+
+    // add key permissions
+    if (encryptionKey) {
       lambdaFunction.addToRolePolicy(
         new PolicyStatement({
-          actions: ['kms:GenerateDataKey'],
-          resources: [uploadsBucket.encryptionKey.keyArn],
+          actions: keyActions,
+          resources: [encryptionKey.keyArn],
         }),
       )
     }
@@ -738,7 +762,9 @@ export class CityStack extends Stack {
     this.addPermissionsToDocumentBucket(
       postUserDocumentsLambda,
       uploadsBucket,
-      ['s3:PutObject'],
+      {
+        includeWrite: true,
+      },
     )
 
     // add route
@@ -772,10 +798,10 @@ export class CityStack extends Stack {
     )
 
     // permission needed to create presigned urls (for get and put)
-    this.addPermissionsToDocumentBucket(getDocumentByIdLambda, uploadsBucket, [
-      's3:PutObject',
-      's3:GetObject',
-    ])
+    this.addPermissionsToDocumentBucket(getDocumentByIdLambda, uploadsBucket, {
+      includeRead: true,
+      includeWrite: true,
+    })
 
     // add route
     this.addRoute(api, {
