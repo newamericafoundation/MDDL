@@ -1,4 +1,4 @@
-import { getById } from '../../apis/document'
+import getById from './getById'
 import { getPathParameter, getUserId } from '../../utils/api-gateway'
 import {
   getDocumentById,
@@ -8,7 +8,7 @@ import {
   createMockContext,
   createMockEvent,
   toMockedFunction,
-} from '../helpers'
+} from '../../utils/test'
 
 jest.mock('../../utils/database', () => {
   return {
@@ -48,21 +48,15 @@ describe('getById', () => {
         DocumentModel.fromJson({
           id: documentId,
           ownerId: documentId,
-          format: 'JPEG',
-          source: 'SCAN',
-          type: undefined,
+          name: 'My First File',
           createdAt: new Date('2015-01-12T13:14:15Z'),
-          filePath: 'myfile/burrito.jpeg',
-          fileChecksum:
-            'd6ef411b95dd65edea7e5c24e5fa2f7e1fe5505ef790bd65d366967cb181f547',
-          fileContentType: 'image/jpeg',
         }),
       ),
     )
     expect(await getById(createMockEvent(), createMockContext(), jest.fn()))
       .toMatchInlineSnapshot(`
       Object {
-        "body": "{\\"createdDate\\":\\"2015-01-12T13:14:15.000Z\\",\\"id\\":\\"myDocumentId\\",\\"format\\":\\"JPEG\\",\\"source\\":\\"SCAN\\"}",
+        "body": "{\\"createdDate\\":\\"2015-01-12T13:14:15.000Z\\",\\"name\\":\\"My First File\\",\\"id\\":\\"myDocumentId\\",\\"files\\":[],\\"links\\":[]}",
         "cookies": Array [],
         "headers": Object {
           "Content-Type": "application/json",

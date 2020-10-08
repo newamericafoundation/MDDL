@@ -1,21 +1,24 @@
 import BaseModel from './base-model'
 import { v4 as uuidv4 } from 'uuid'
-import { QueryBuilder } from 'objection'
+import { Model, QueryBuilder } from 'objection'
+import { File } from './file'
 
 export class Document extends BaseModel {
+  // columns
   public id: string
-  public name?: string
+  public name: string
   public ownerId: string
   public source?: string
   public format?: string
   public type?: string
-  public filePath: string
-  public fileContentType: string
-  public fileChecksum: string
-  public fileReceived: boolean
   public expiryDate?: Date
+  public createdBy: string
   public createdAt: Date
   public updatedAt: Date
+  public updatedBy: string
+
+  // navigation property
+  public files?: File[]
 
   static get tableName() {
     return 'documents'
@@ -24,21 +27,14 @@ export class Document extends BaseModel {
   static get modifiers() {
     return {
       fieldsForList(query: QueryBuilder<Document>) {
-        const fields = ['id', 'name', 'format', 'type', 'filePath', 'createdAt']
+        const fields = ['id', 'name', 'createdAt']
         return query.select(...fields.map((f) => Document.ref(f)))
       },
       fieldsForSingle(query: QueryBuilder<Document>) {
-        const fields = [
-          'id',
-          'name',
-          'format',
-          'source',
-          'type',
-          'expiryDate',
-          'filePath',
-          'createdAt',
-        ]
-        return query.select(...fields.map((f) => Document.ref(f)))
+        const fields = ['id', 'name', 'createdAt']
+        return query
+          .select(...fields.map((f) => Document.ref(f)))
+          .withGraphFetched('files')
       },
       byOwnerId(query: QueryBuilder<Document>, userId: string) {
         return query.where({
@@ -49,7 +45,7 @@ export class Document extends BaseModel {
         return query.where({
           id: id,
           ownerId: userId,
-        })
+        }).first
       },
     }
   }
@@ -57,7 +53,7 @@ export class Document extends BaseModel {
   static get jsonSchema() {
     return {
       type: 'object',
-      required: ['ownerId', 'filePath', 'fileContentType', 'fileChecksum'],
+      required: ['ownerId'],
       properties: {
         id: { type: 'string', minLength: 1, maxLength: 40 },
         name: { type: 'string', maxLength: 255 },
@@ -65,16 +61,26 @@ export class Document extends BaseModel {
         source: { type: 'string', maxLength: 255 },
         format: { type: 'string', maxLength: 255 },
         type: { type: 'string', maxLength: 255 },
-        filePath: { type: 'string', minLength: 1, maxLength: 255 },
-        fileContentType: { type: 'string', minLength: 1, maxLength: 255 },
-        fileChecksum: { type: 'string', minLength: 1, maxLength: 255 },
         expiryDate: { type: 'date-time' },
+        updatedBy: { type: 'string', minLength: 1, maxLength: 255 },
+        createdBy: { type: 'string', minLength: 1, maxLength: 255 },
       },
     }
   }
 
+  static relationMappings = {
+    files: {
+      relation: Model.HasManyRelation,
+      modelClass: File,
+      join: {
+        from: 'documents.id',
+        to: 'files.documentId',
+      },
+    },
+  }
+
   async $beforeInsert() {
-    this.$id(uuidv4())
+    if (!this.id) this.$id(uuidv4())
   }
 }
 
@@ -85,13 +91,43 @@ export const getDocumentById = async (id: string, accessingUserId: string) => {
   return results.length ? results[0] : null
 }
 
-export const getDocumentsByOwnerId = async (
-  ownerId: string,
-  accessingUserId: string,
-) => {
+export const getDocumentsByOwnerId = async (ownerId: string) => {
   const results = await Document.query()
     .modify('fieldsForList')
-    .modify('byOwnerId', ownerId, accessingUserId)
+    .modify('byOwnerId', ownerId)
     .orderBy('createdAt', 'DESC')
   return results
+}
+
+export const countDocumentsByOwnerId = async (ownerId: string) => {
+  const results = await Document.query().modify('byOwnerId', ownerId).count()
+  return results
+}
+
+export interface CreateDocumentInput {
+  id: string
+  name: string
+  ownerId: string
+  createdBy: string
+  createdAt: Date
+  updatedAt: Date
+  updatedBy: string
+  files: CreateDocumentFileInput[]
+}
+export interface CreateDocumentFileInput {
+  id: string
+  name: string
+  path: string
+  contentType: string
+  contentLength: number
+  sha256Checksum: string
+  createdAt: Date
+  createdBy: string
+  received: boolean
+}
+
+export const createDocument = async (document: CreateDocumentInput) => {
+  return await Document.query().insertGraphAndFetch({
+    ...document,
+  })
 }

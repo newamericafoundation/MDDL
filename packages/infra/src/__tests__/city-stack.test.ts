@@ -1,5 +1,8 @@
-import { expect as expectCDK, haveResource } from '@aws-cdk/assert'
-import { InstanceClass, InstanceSize, InstanceType } from '@aws-cdk/aws-ec2'
+import {
+  countResourcesLike,
+  expect as expectCDK,
+  haveResource,
+} from '@aws-cdk/assert'
 import * as cdk from '@aws-cdk/core'
 import { AuthStack } from '../auth-stack'
 import { CityStack } from '../city-stack'
@@ -43,19 +46,7 @@ test('Default Stack', () => {
   // THEN
   expectCDK(stack).to(haveResource('AWS::IAM::Role'))
   expectCDK(stack).to(
-    haveResource('AWS::Lambda::Function', {
-      Handler: 'index.getById',
-      Runtime: 'nodejs12.x',
-    }),
-  )
-  expectCDK(stack).to(
-    haveResource('AWS::Lambda::Function', {
-      Handler: 'index.getByUserId',
-      Runtime: 'nodejs12.x',
-    }),
-  )
-  expectCDK(stack).to(
-    haveResource('AWS::Lambda::Function', {
+    countResourcesLike('AWS::Lambda::Function', 5, {
       Handler: 'index.handler',
       Runtime: 'nodejs12.x',
     }),

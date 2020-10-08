@@ -2,6 +2,7 @@ import {
   Construct,
   CustomResource,
   Duration,
+  RemovalPolicy,
   Stack,
   StackProps,
 } from '@aws-cdk/core'
@@ -15,7 +16,8 @@ import {
   Runtime,
   Code,
 } from '@aws-cdk/aws-lambda'
-import { Bucket } from '@aws-cdk/aws-s3'
+import { S3EventSource } from '@aws-cdk/aws-lambda-event-sources'
+import { Bucket, IBucket, HttpMethods, EventType } from '@aws-cdk/aws-s3'
 import {
   OriginAccessIdentity,
   CloudFrontWebDistribution,
@@ -124,13 +126,16 @@ interface ApiProps {
   authorizer: CfnAuthorizer
 }
 
-const pathToLambda = (packageName: string, handlerName = 'index.ts'): string =>
-  path.join(__dirname, '..', '..', packageName, 'src', handlerName)
+const pathToOtherPackageLambda = (
+  packageName: string,
+  handlerName = 'index.ts',
+): string => path.join(__dirname, '..', '..', packageName, 'src', handlerName)
 
-const pathToApi = (name: string) =>
-  pathToLambda(`api-service`, `apis/${name}.ts`)
+const pathToApiServiceLambda = (name: string) =>
+  pathToOtherPackageLambda(`api-service`, `lambdas/${name}.ts`)
 
 export class CityStack extends Stack {
+  private static documentsBucketUploadsPrefix = 'documents/'
   private lambdaVpc: IVpc
   private lambdaSecurityGroups: ISecurityGroup[]
   private rdsEndpoint: string
@@ -230,7 +235,7 @@ export class CityStack extends Stack {
     const { layer: mySqlLayer } = this.addMysqlLayer()
 
     // add api
-    const { api, authorizer } = this.addApi(
+    const { api, authorizer, corsOrigins } = this.addApi(
       webAppDomain,
       jwtConfiguration,
       apiDomainConfig,
@@ -243,14 +248,50 @@ export class CityStack extends Stack {
       mySqlLayer,
     }
 
+    // create uploads bucket
+    const { bucket } = this.createUploadsBucket(kmsKey, corsOrigins)
+
     // add user routes
-    this.addUserRoutes(apiProps)
+    this.addUserRoutes(apiProps, bucket)
 
     // add document routes
-    this.addDocumentRoutes(apiProps)
+    this.addDocumentRoutes(apiProps, bucket)
 
     // run database migrations
     this.runMigrations(secret, mySqlLayer)
+  }
+
+  /**
+   * Create the bucket for storing uploads
+   * @param kmsKey The encryption key for the bucket
+   * @param corsOrigins CORS origins for the bucket policy
+   */
+  private createUploadsBucket(kmsKey: Key, corsOrigins: string[]) {
+    return {
+      bucket: new Bucket(this, 'DocumentsBucket', {
+        blockPublicAccess: {
+          blockPublicAcls: true,
+          blockPublicPolicy: true,
+          ignorePublicAcls: true,
+          restrictPublicBuckets: true,
+        },
+        encryptionKey: kmsKey,
+        removalPolicy: RemovalPolicy.RETAIN,
+        cors: [
+          {
+            allowedMethods: [HttpMethods.PUT],
+            allowedOrigins: corsOrigins,
+            maxAge: 3000,
+            allowedHeaders: [
+              'x-amz-*',
+              'content-type',
+              'content-disposition',
+              'content-length',
+            ],
+          },
+        ],
+      }),
+    }
   }
 
   /**
@@ -285,7 +326,6 @@ export class CityStack extends Stack {
     const client = userPool.addClient('DataLockerClient', {
       authFlows: {
         userSrp: true,
-        refreshToken: true,
       },
       preventUserExistenceErrors: true,
       oAuth: {
@@ -597,6 +637,7 @@ export class CityStack extends Stack {
     }
 
     // create api
+    const corsOrigins = [corsAllowAnyHost ? '*' : `https://${webAppDomain}`]
     const api = new HttpApi(this, 'Api', {
       apiName: `${this.stackName}Api`,
       corsPreflight: {
@@ -606,7 +647,7 @@ export class CityStack extends Stack {
           HttpMethod.OPTIONS,
           HttpMethod.POST,
         ],
-        allowOrigins: [corsAllowAnyHost ? '*' : `https://${webAppDomain}`],
+        allowOrigins: corsOrigins,
       },
       defaultDomainMapping,
     })
@@ -623,27 +664,88 @@ export class CityStack extends Stack {
     return {
       api,
       authorizer,
+      corsOrigins,
+    }
+  }
+
+  /**
+   * Adds Policy Statements to allow some actions in the S3 bucket
+   * @param lambdaFunction The function to apply the statements to
+   * @param uploadsBucket The Documents Upload Bucket
+   * @param actions The actions to allow
+   */
+  private addPermissionsToDocumentBucket(
+    lambdaFunction: IFunction,
+    uploadsBucket: IBucket,
+    actions: string[],
+  ) {
+    lambdaFunction.addToRolePolicy(
+      new PolicyStatement({
+        actions,
+        resources: [
+          uploadsBucket.arnForObjects(
+            `${CityStack.documentsBucketUploadsPrefix}*`,
+          ),
+        ],
+      }),
+    )
+    if (uploadsBucket.encryptionKey) {
+      lambdaFunction.addToRolePolicy(
+        new PolicyStatement({
+          actions: ['kms:GenerateDataKey'],
+          resources: [uploadsBucket.encryptionKey.keyArn],
+        }),
+      )
     }
   }
 
   /**
    * Adds user specific routes to the API
    * @param apiProps Common properties for API functions
+   * @param uploadsBucket The bucket with document uploads
    */
-  private addUserRoutes(apiProps: ApiProps) {
+  private addUserRoutes(apiProps: ApiProps, uploadsBucket: IBucket) {
     const { api, dbSecret, mySqlLayer, authorizer } = apiProps
+
+    // add route and lambda to list users documents
     this.addRoute(api, {
       name: 'GetUserDocuments',
       routeKey: 'GET /users/{userId}/documents',
       lambdaFunction: this.createLambda(
         'GetUserDocuments',
-        pathToApi('document'),
+        pathToApiServiceLambda('documents/getByUserId'),
         {
           dbSecret,
           layers: [mySqlLayer],
-          handler: 'getByUserId',
         },
       ),
+      authorizer,
+    })
+
+    // create lambda to submit a document
+    const postUserDocumentsLambda = this.createLambda(
+      'PostUserDocuments',
+      pathToApiServiceLambda('documents/createDocumentForUser'),
+      {
+        dbSecret,
+        layers: [mySqlLayer],
+        extraEnvironmentVariables: {
+          DOCUMENTS_BUCKET: uploadsBucket.bucketName,
+        },
+      },
+    )
+    // permission needed to create presigned url
+    this.addPermissionsToDocumentBucket(
+      postUserDocumentsLambda,
+      uploadsBucket,
+      ['s3:PutObject'],
+    )
+
+    // add route
+    this.addRoute(api, {
+      name: 'PostUserDocuments',
+      routeKey: 'POST /users/{userId}/documents',
+      lambdaFunction: postUserDocumentsLambda,
       authorizer,
     })
   }
@@ -651,23 +753,57 @@ export class CityStack extends Stack {
   /**
    * Adds document specific routes to the API
    * @param apiProps Common properties for API functions
+   * @param uploadsBucket The bucket with document uploads
    */
-  private addDocumentRoutes(apiProps: ApiProps) {
+  private addDocumentRoutes(apiProps: ApiProps, uploadsBucket: Bucket) {
     const { api, dbSecret, mySqlLayer, authorizer } = apiProps
+
+    // create lambda to fetch a document
+    const getDocumentByIdLambda = this.createLambda(
+      'GetDocumentById',
+      pathToApiServiceLambda('documents/getById'),
+      {
+        dbSecret,
+        layers: [mySqlLayer],
+        extraEnvironmentVariables: {
+          DOCUMENTS_BUCKET: uploadsBucket.bucketName,
+        },
+      },
+    )
+
+    // permission needed to create presigned urls (for get and put)
+    this.addPermissionsToDocumentBucket(getDocumentByIdLambda, uploadsBucket, [
+      's3:PutObject',
+      's3:GetObject',
+    ])
+
+    // add route
     this.addRoute(api, {
       name: 'GetDocumentById',
       routeKey: 'GET /documents/{documentId}',
-      lambdaFunction: this.createLambda(
-        'GetDocumentById',
-        pathToApi('document'),
-        {
-          dbSecret,
-          layers: [mySqlLayer],
-          handler: 'getById',
-        },
-      ),
+      lambdaFunction: getDocumentByIdLambda,
       authorizer,
     })
+
+    // create lambda to mark document as received
+    const markFileAsReceived = this.createLambda(
+      'MarkFileAsReceived',
+      pathToApiServiceLambda('documents/markFileReceived'),
+      {
+        dbSecret,
+        layers: [mySqlLayer],
+      },
+    )
+    markFileAsReceived.addEventSource(
+      new S3EventSource(uploadsBucket, {
+        events: [EventType.OBJECT_CREATED],
+        filters: [
+          {
+            prefix: CityStack.documentsBucketUploadsPrefix,
+          },
+        ],
+      }),
+    )
   }
 
   /**

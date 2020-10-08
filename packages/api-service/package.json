@@ -7,8 +7,8 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
-    "test": "jest",
-    "test:watch": "jest --watch",
+    "test": "jest --testPathIgnorePatterns=models",
+    "test:watch": "NODE_ENV=development jest --watch --runInBand",
     "lint": "eslint --ext .ts src",
     "knex": "knex --knexfile src/knexfile.ts",
     "start": "docker-compose up -d && knex --knexfile src/knexfile.ts migrate:latest",
@@ -27,6 +27,8 @@
   "dependencies": {
     "@types/aws-lambda": "^8.10.62",
     "@types/uuid": "^8.3.0",
+    "aws-sdk": "^2.768.0",
+    "joi": "^17.2.1",
     "knex": "^0.21.6",
     "mysql2": "^2.2.5",
     "objection": "^2.2.3",

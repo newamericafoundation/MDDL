@@ -1,3 +1,8 @@
+const migrations = {
+  tableName: 'knex_migrations',
+  directory: `${__dirname}/migrator/migrations`,
+}
+
 const config: { [index: string]: any } = {
   development: {
     client: 'mysql2',
@@ -6,10 +11,7 @@ const config: { [index: string]: any } = {
       user: 'root',
       password: 'Lock3r', // defined in docker-compose.yaml
     },
-    migrations: {
-      tableName: 'knex_migrations',
-      directory: `${__dirname}/migrator/migrations`,
-    },
+    migrations,
   },
 
   production: {
@@ -20,10 +22,7 @@ const config: { [index: string]: any } = {
       user: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
     },
-    migrations: {
-      tableName: 'knex_migrations',
-      directory: `${__dirname}/migrator/migrations`,
-    },
+    migrations,
   },
 }
 

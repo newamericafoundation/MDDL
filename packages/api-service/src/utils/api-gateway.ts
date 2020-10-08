@@ -12,6 +12,10 @@ export const getPathParameter = (
     : undefined
 }
 
+export const getUrl = (event: APIGatewayProxyEventV2): string => {
+  return event.requestContext.domainName
+}
+
 export const getUserId = (
   event: APIGatewayProxyEventV2,
 ): string | undefined => {
@@ -20,8 +24,8 @@ export const getUserId = (
   return event.requestContext.authorizer.jwt.claims['sub'] as string
 }
 
-export const createJsonResponse = (
-  body: any,
+export const createJsonResponse = <T = any>(
+  body: T,
   httpStatusCode = 200,
 ): APIGatewayProxyStructuredResultV2 => {
   return {

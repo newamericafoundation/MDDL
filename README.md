@@ -43,7 +43,7 @@ If you're using tools such as vue cli to bootstrap a project, after project set 
 
 - A README.md outlining any non-standard commands and how to work with the package.
 - A `src` directory for all application code
-- A `src/__tests__` directory for all test code
+- Test files are preferably adjacent to the code file they are testing, e.g `src/myModule/index.test.ts`
 
 ## Local development
 

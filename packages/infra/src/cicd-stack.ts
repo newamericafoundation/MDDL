@@ -108,7 +108,7 @@ export class CiCdStack extends Stack {
       cloudAssemblyArtifact,
       codePipeline,
       sourceArtifact,
-    } = this.createCodePipeline(props, bucket)
+    } = this.createCodePipeline(bucket)
 
     // create the CDK pipeline components
     this.createCdkPipeline(
@@ -311,10 +311,9 @@ export class CiCdStack extends Stack {
 
   /**
    * Create the CodePipeline pipeline and add base stages and actions
-   * @param props The pipeline config which determines stacks to be deployed
    * @param bucket The builds source bucket
    */
-  private createCodePipeline(props: Props, bucket: IBucket) {
+  private createCodePipeline(bucket: IBucket) {
     // create artifacts
     const sourceArtifact = new Artifact()
     const cloudAssemblyArtifact = new Artifact('cloudAssembly')
