@@ -7,7 +7,7 @@ import {
 } from '@aws-cdk/assert'
 import * as cdk from '@aws-cdk/core'
 import { DefaultStackSynthesizer } from '@aws-cdk/core'
-import { CiCdStack } from '../cicd-stack'
+import { CiCdStack } from './cicd-stack'
 
 test.skip('Default Stack', () => {
   const app = new cdk.App()

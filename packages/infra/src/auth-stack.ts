@@ -8,6 +8,7 @@ import {
 import {
   AccountRecovery,
   CfnUserPool,
+  CfnUserPoolUICustomizationAttachment,
   StringAttribute,
   UserPool,
   VerificationEmailStyle,
@@ -24,6 +25,8 @@ import {
 import { Bucket, RedirectProtocol } from '@aws-cdk/aws-s3'
 import { BucketWebsiteTarget } from '@aws-cdk/aws-route53-targets'
 import { MinimalCloudFrontTarget } from './minimal-cloudfront-target'
+import path = require('path')
+import fs = require('fs')
 
 interface CustomHostedDomain extends HostedDomain {
   /**
@@ -120,7 +123,7 @@ export class AuthStack extends Stack {
           }
         : undefined,
       userVerification: {
-        emailStyle: VerificationEmailStyle.CODE,
+        emailStyle: VerificationEmailStyle.LINK,
         emailSubject: 'Data Locker - Please verify your email',
       },
       selfSignUpEnabled: true,
@@ -184,6 +187,20 @@ export class AuthStack extends Stack {
         `arn:aws:ses:${region}:${accountId}:identity/${address}`,
       )
     }
+
+    // CSS for hosted login
+    new CfnUserPoolUICustomizationAttachment(
+      this,
+      'UserPoolUICustomizationAttachment',
+      {
+        clientId: 'ALL',
+        userPoolId: userPool.userPoolId,
+        css: fs.readFileSync(
+          path.join(__dirname, 'assets', 'hostedLogin.css'),
+          'utf8',
+        ),
+      },
+    )
 
     return {
       userPool,

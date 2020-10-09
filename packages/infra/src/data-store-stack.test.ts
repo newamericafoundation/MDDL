@@ -5,7 +5,7 @@ import {
   ResourcePart,
 } from '@aws-cdk/assert'
 import * as cdk from '@aws-cdk/core'
-import { DataStoreStack } from '../data-store-stack'
+import { DataStoreStack } from './data-store-stack'
 
 test('Minimum Stack', () => {
   const app = new cdk.App()

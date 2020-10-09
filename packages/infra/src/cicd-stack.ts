@@ -277,7 +277,8 @@ export class CiCdStack extends Stack {
 
       // write the .env file and package the build for the environment
       buildCommands.push(
-        `echo "${envFileContents}" > packages/frontend/.env`,
+        'BUILD_NUMBER=$(cat build-details.json | python -c "import sys, json; print(json.load(sys.stdin)[\'buildNumber\'])")',
+        `echo "${envFileContents}\nBUILD_NUMBER=$BUILD_NUMBER\nBUILD_TIME=$CODEBUILD_START_TIME\nBUILD_ENVIRONMENT=${cba.name}" > packages/frontend/.env`,
         `OUTPUT_DIR=${cba.name} yarn fe generate${
           index !== 0 ? ' --no-build' : ''
         }`,
@@ -291,6 +292,7 @@ export class CiCdStack extends Stack {
         phases: {
           install: {
             'runtime-versions': {
+              python: 3.7,
               nodejs: 12,
             },
             commands: ['yarn'],

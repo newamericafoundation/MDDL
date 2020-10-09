@@ -4,9 +4,9 @@ import {
   haveResource,
 } from '@aws-cdk/assert'
 import * as cdk from '@aws-cdk/core'
-import { AuthStack } from '../auth-stack'
-import { CityStack } from '../city-stack'
-import { DataStoreStack } from '../data-store-stack'
+import { AuthStack } from './auth-stack'
+import { CityStack } from './city-stack'
+import { DataStoreStack } from './data-store-stack'
 
 test('Fails validation for auth stack', () => {
   const app = new cdk.App()

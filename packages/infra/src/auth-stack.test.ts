@@ -6,7 +6,7 @@ import {
   ABSENT,
 } from '@aws-cdk/assert'
 import * as cdk from '@aws-cdk/core'
-import { AuthStack } from '../auth-stack'
+import { AuthStack } from './auth-stack'
 
 test('Default Stack', () => {
   const app = new cdk.App()
@@ -35,6 +35,11 @@ test('Default Stack', () => {
       },
       ResourcePart.CompleteDefinition,
     ),
+  )
+  expectCDK(stack).to(
+    haveResource('AWS::Cognito::UserPoolUICustomizationAttachment', {
+      ClientId: 'ALL',
+    }),
   )
   expectCDK(stack).to(countResources('AWS::Cognito::UserPoolDomain', 0))
   expectCDK(stack).to(countResources('AWS::SNS::Topic', 3))
