@@ -1,9 +1,9 @@
 import Vuex from 'vuex'
 import { shallowMount } from '@vue/test-utils'
-import Documents from '@/pages/documents/index.vue'
+import Dashboard from '@/pages/dashboard/index.vue'
 import Layout from '@/layouts/default.vue'
 
-describe('Documents component', () => {
+describe('Page/Dashboard', () => {
   let store: any
   let actions
   beforeEach(() => {
@@ -21,7 +21,7 @@ describe('Documents component', () => {
   })
 
   it('exports a valid page', () => {
-    const wrapper = shallowMount(Documents, {
+    const wrapper = shallowMount(Dashboard, {
       store,
       stubs: { Layout },
     })

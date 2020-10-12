@@ -1,5 +1,5 @@
 import { string_to_bytes as stringToBytes } from 'asmcrypto.js'
-import hashFile from '.'
+import { hashFile } from '.'
 
 describe('SHA256 hash', () => {
   const sha256Vectors: { hash: string; file: File }[] = [

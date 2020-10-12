@@ -1,8 +1,8 @@
 import { Module, VuexModule, Action } from 'vuex-module-decorators'
 import { api } from '@/plugins/api-accessor'
 import { Document, DocumentListItem, FileContentTypeEnum } from 'api-client'
-// import { AxiosResponse } from 'axios'
-import hashFile from '@/assets/js/hash/'
+import axios, { AxiosResponse, AxiosRequestConfig } from 'axios'
+import { hashFile } from '@/assets/js/hash/'
 
 @Module({
   name: 'user',
@@ -10,77 +10,112 @@ import hashFile from '@/assets/js/hash/'
   namespaced: true,
 })
 export default class User extends VuexModule {
-  userId = 'test'
+  // TODO: get user ID from API after login
+  userId = '6ebb6c5f-2931-45bf-8482-f9dff5869a0f'
 
+  // TODO: Update after upload API changes
   @Action
   async uploadDocument({
-    file,
+    fileList,
     onUploadProgress = () => {
       // default empty function
     },
   }: {
-    file: File
+    fileList: FileList
     onUploadProgress?: (e: ProgressEvent) => void
   }): Promise<Document> {
-    // file greater than 10 mB
-    if (file.size > 10 * 1024 * 1024) {
-      throw new Error('File too large')
+    // FileList has a weird spec, with no iterator. This gets around it.
+    const files = new Array(fileList.length)
+    for (let i = 0; i < fileList.length; i++) {
+      files[i] = fileList[i]
     }
 
-    const sha256Checksum = await hashFile(file)
+    if (!files.length)
+      return Promise.reject(new Error('Files must not be an empty list'))
 
-    const { data } = await api.user.addUserDocument(this.userId, {
-      name: file.name,
-      files: [
-        {
-          name: file.name.split('.').slice(0, -1).join('.'),
+    for (const file of files) {
+      if (file.size > Math.pow(10, 7))
+        throw new Error(`File ${file.name} is too large`)
+      else if (file.size <= 0) throw new Error(`File ${file.name} is empty`)
+    }
+
+    const hashes = await Promise.all(files.map(hashFile))
+
+    const addResponse: AxiosResponse<Document> = await api.user.addUserDocument(
+      this.userId,
+      {
+        name: files[0].name
+          .split('.')
+          .slice(0, -1)
+          .join('.'),
+        files: files.map((file, i) => ({
+          name: file.name,
           contentType: file.type as FileContentTypeEnum,
-          sha256Checksum,
-        },
-      ],
-    })
+          sha256Checksum: hashes[i],
+          contentLength: file.size,
+        })),
+      },
+    )
 
-    // TODO: upload file to s3 and remove mock code
-    const mockUploadPromise = new Promise<Document>((resolve) => {
-      let mockUploadIterations = 0
-      const mockUploadInterval = window.setInterval(() => {
-        if (mockUploadIterations <= 10) {
-          onUploadProgress(
-            new ProgressEvent('upload', {
-              lengthComputable: true,
-              loaded: mockUploadIterations * 20,
-              total: 200,
-            }),
-          )
-          mockUploadIterations += 1
-        } else {
-          window.clearInterval(mockUploadInterval)
-          resolve(data)
+    const axiosInstance = axios.create()
+    // don't put our API token in the request otherwise we confuse AWS
+    delete axiosInstance.defaults.headers.common.Authorization
+
+    const totalUploadSize = files.reduce((sum, file) => sum + file.size, 0)
+    const uploadProgress = new Array(files.length).fill(0)
+
+    const uploadResponses = await Promise.all(
+      addResponse.data.files.map((documentFile, i) => {
+        const options: AxiosRequestConfig = {
+          onUploadProgress: e => {
+            uploadProgress[i] = e.loaded
+            onUploadProgress(
+              new ProgressEvent('upload', {
+                loaded: uploadProgress.reduce((sum, val) => sum + val, 0),
+                total: totalUploadSize,
+              }),
+            )
+          },
         }
-      }, 250)
-    })
 
-    return mockUploadPromise
+        const uploadLink = (documentFile.links as any[]).find(
+          l => l.type === 'POST',
+        )
 
-    // const instance = axios.create()
-    // // don't put our API token in the request otherwise we confuse AWS
-    // delete instance.defaults.headers.common.Authorization
+        if (!uploadLink)
+          return Promise.reject(
+            new Error(
+              `No upload link for file ${documentFile.name} (${documentFile.id})`,
+            ),
+          )
 
-    // const options: AxiosRequestConfig = {
-    //   headers: {
-    //     'Content-Type': file.type,
-    //     'Content-Disposition': `attachment; filename=${file.name}`,
-    //   },
-    //   onUploadProgress,
-    // }
-    // await instance.put(data.url, file, options)
+        const file = files.find(
+          (_, i) => hashes[i] === documentFile.sha256Checksum,
+        )
+        if (!file)
+          Promise.reject(
+            new Error(
+              `Corrupted hash for file ${documentFile.name} (${documentFile.id})`,
+            ),
+          )
+
+        const formData = new FormData()
+        Object.keys(uploadLink.includeFormData).forEach(key =>
+          formData.append(key, uploadLink.includeFormData[key]),
+        )
+        formData.append('file', file)
+        return axiosInstance.post(uploadLink.href, formData, options)
+      }),
+    )
+
+    return addResponse.data
   }
 
   @Action
   getDocuments(): Promise<DocumentListItem[]> {
     return api.user
       .listUserDocuments(this.userId)
-      .then((response) =>
+      .then(response =>
         response.data.documents ? response.data.documents : [],
       )
   }

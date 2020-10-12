@@ -1,15 +1,28 @@
 <template>
-  <v-form v-if="document" v-model="valid">
-    <v-text-field v-model="document.name" label="Name" required />
+  <div v-if="document">
+    <v-form v-model="valid">
+      <v-text-field v-model="document.name" label="Document Name" required />
+    </v-form>
+
+    <!-- TODO: remove me an display each page -->
+    <h5>Pages:</h5>
+    <ol>
+      <template v-for="(file, i) in document.files">
+        <li :key="i">{{ file.name }}</li>
+      </template>
+    </ol>
+
     <v-btn
-      color="primary"
       :loading="loading"
       :disabled="!valid || loading"
+      class="mt-4"
+      color="primary"
       block
+      @click.stop="save"
     >
       Save Changes
     </v-btn>
-  </v-form>
+  </div>
 </template>
 
 <script lang="ts">

@@ -9,4 +9,16 @@ export default ({ $axios }: { $axios: NuxtAxiosInstance }) => {
   //   return res
   // }
   // $axios.interceptors.response.use(unauthorizedResponseInterceptor)
+
+  const authTokenInterceptor = (config: AxiosRequestConfig) => {
+    if (process.env.debugToken) {
+      // TODO: remove me once we have proper auth implemented
+      config.headers.Authorization = process.env.debugToken
+    } else {
+      // TODO: attach the real token to request
+    }
+    return config
+  }
+
+  $axios.interceptors.request.use(authTokenInterceptor)
 }

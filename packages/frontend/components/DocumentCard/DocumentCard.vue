@@ -4,7 +4,8 @@
       {{ document.name }}
     </v-card-title>
     <v-card-actions>
-      <v-btn text nuxt :to="`/documents/${document.id}`">
+      <!-- TODO: unhide me once document view is implemented -->
+      <v-btn v-show="false" text nuxt :to="`/documents/${document.id}`">
         {{ $t('view') }}
       </v-btn>
     </v-card-actions>

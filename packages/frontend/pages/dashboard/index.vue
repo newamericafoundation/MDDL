@@ -1,6 +1,5 @@
 <template>
   <div>
-    <UploadButton />
     <DocumentCard
       v-for="(document, i) in documents"
       :key="i"
@@ -14,7 +13,9 @@
 import { Vue, Component } from 'nuxt-property-decorator'
 import { DocumentListItem } from 'api-client'
 
-@Component
+@Component({
+  layout: 'dashboard',
+})
 export default class Documents extends Vue {
   loading = true
   documents: DocumentListItem[] = []

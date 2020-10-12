@@ -2,7 +2,7 @@
 import { Module, VuexModule, Action } from 'vuex-module-decorators'
 import { api } from '@/plugins/api-accessor'
 import { AxiosResponse } from 'axios'
-import { Document, DocumentCreate } from 'api-client'
+import { Document } from 'api-client'
 
 @Module({
   name: 'document',
@@ -19,6 +19,8 @@ export default class DocumentStore extends VuexModule {
 
   @Action
   update(document: Document) {
-    api.document.updateDocumentById(document.id!, document as DocumentCreate)
+    api.document.updateDocumentById(document.id!, {
+      name: document.name,
+    })
   }
 }

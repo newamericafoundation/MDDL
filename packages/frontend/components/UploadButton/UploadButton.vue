@@ -7,7 +7,7 @@
         type="file"
         multiple="false"
         class="fileInput"
-        accept="application/pdf, image/jpeg, image/png"
+        accept="application/pdf, image/jpeg, image/png, image/tiff"
         @change="onFileInput"
       />
     </label>
@@ -25,7 +25,8 @@
     </v-dialog>
     <SnackBar v-model="showSnackbar">
       Document Uploaded
-      <template v-slot:action="{ attrs }">
+      <!-- TODO: Show me once view document is finished -->
+      <template v-show="false" v-slot:action="{ attrs }">
         <nuxt-link
           v-if="document"
           v-bind="attrs"
@@ -57,11 +58,11 @@ export default class UploadButton extends Vue {
   document: Document | null = null
 
   onFileInput(event: any) {
-    if (event?.target?.files || event?.target?.files.length) {
+    if (event?.target?.files && event.target.files.length) {
       this.showProgressDialog = true
       this.$store
         .dispatch('user/uploadDocument', {
-          file: event?.target?.files[0],
+          fileList: event.target.files,
           onUploadProgress: (e: ProgressEvent) => {
             this.uploadPercentage = Math.round((e.loaded / e.total) * 100)
           },

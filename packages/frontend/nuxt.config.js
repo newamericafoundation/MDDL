@@ -2,15 +2,7 @@ import messages from './locales/messages.ts'
 
 export default {
   ssr: false,
-  /*
-   ** Nuxt target
-   ** See https://nuxtjs.org/api/configuration-target
-   */
   target: 'static',
-  /*
-   ** Headers of the page
-   ** See https://nuxtjs.org/api/configuration-head
-   */
   head: {
     titleTemplate: '%s - Homeless Data Locker',
     meta: [
@@ -35,38 +27,15 @@ export default {
       },
     ],
   },
-  /*
-   ** Global CSS
-   */
   css: [],
-  /*
-   ** Plugins to load before mounting the App
-   ** Order is important!
-   ** https://nuxtjs.org/guide/plugins
-   */
   plugins: [
     '@/plugins/axios-interceptors.ts',
     '@/plugins/api-accessor.ts',
     '@plugins/store-accessor.ts',
   ],
-  /*
-   ** Auto import components
-   ** See https://nuxtjs.org/api/configuration-components
-   */
   components: true,
-  /*
-   ** Nuxt.js dev-modules
-   */
   buildModules: ['@nuxt/typescript-build', '@nuxtjs/vuetify', '@nuxtjs/dotenv'],
-  /*
-   ** Nuxt.js modules
-   */
-  modules: [
-    // Doc: https://axios.nuxtjs.org/usage
-    '@nuxtjs/axios',
-    '@nuxtjs/pwa',
-    'nuxt-i18n',
-  ],
+  modules: ['@nuxtjs/axios', '@nuxtjs/pwa', 'nuxt-i18n'],
 
   i18n: {
     locales: ['en', 'fr', 'es'],
@@ -76,39 +45,23 @@ export default {
       messages,
     },
   },
-  /*
-   ** Axios module configuration
-   ** See https://axios.nuxtjs.org/options
-   */
   axios: {},
-  /*
-   ** vuetify module configuration
-   ** https://github.com/nuxt-community/vuetify-module
-   */
   vuetify: {
-    vuetify: {
-      optionsPath: './vuetify.options.ts',
-    },
+    optionsPath: './vuetify.options.ts',
   },
-  /*
-   ** Build configuration
-   ** See https://nuxtjs.org/api/configuration-build/
-   */
   build: {
     extractCSS: true,
   },
-  /*
-   ** Environment variables
-   ** See https://nuxtjs.org/api/configuration-env/
-   */
   env: {
-    apiUrl: process.env.API_URL || 'http://localhost:8080/v1',
+    apiUrl: process.env.API_URL || 'http://localhost:8080/',
+    debugToken: process.env.DEBUG_TOKEN,
+    buildNumber: process.env.CODEBUILD_BUILD_NUMBER,
+    buildTime: process.env.CODEBUILD_START_TIME,
   },
-  /*
-   ** Generate variables
-   ** See https://nuxtjs.org/api/configuration-generate/
-   */
   generate: {
     dir: 'dist/' + process.env.OUTPUT_DIR,
+  },
+  router: {
+    middleware: 'auth',
   },
 }
