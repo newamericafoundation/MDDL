@@ -6,15 +6,15 @@ import {
 import {
   DocumentListItem,
   DocumentList as DocumentListContract,
-} from '../contracts'
-import { getDocumentsByOwnerId } from '../../models/document'
+} from 'api-client'
+import { getDocumentsByOwnerId } from '@/models/document'
 import {
   createErrorResponse,
   createJsonResponse,
   getPathParameter,
   getUserId,
-} from '../../utils/api-gateway'
-import { connectDatabase } from '../../utils/database'
+} from '@/utils/api-gateway'
+import { connectDatabase } from '@/utils/database'
 
 connectDatabase()
 

@@ -1,25 +1,22 @@
 import createDocumentForUser from './createDocumentForUser'
-import { getPathParameter, getUserId } from '../../utils/api-gateway'
-import {
-  createDocument,
-  Document as DocumentModel,
-} from '../../models/document'
+import { getPathParameter, getUserId } from '@/utils/api-gateway'
+import { createDocument, Document as DocumentModel } from '@/models/document'
 import {
   createMockContext,
   createMockEvent,
   toMockedFunction,
-} from '../../utils/test'
-import { createFilePath } from '../../utils/s3'
+} from '@/utils/test'
+import { createFilePath } from '@/utils/s3'
 import { APIGatewayProxyStructuredResultV2 } from 'aws-lambda'
 
-jest.mock('../../utils/database', () => {
+jest.mock('@/utils/database', () => {
   return {
     connectDatabase: jest.fn(),
   }
 })
 
-jest.mock('../../utils/api-gateway', () => {
-  const module = jest.requireActual('../../utils/api-gateway')
+jest.mock('@/utils/api-gateway', () => {
+  const module = jest.requireActual('@/utils/api-gateway')
   return {
     ...module,
     getPathParameter: jest.fn(),
@@ -27,8 +24,8 @@ jest.mock('../../utils/api-gateway', () => {
   }
 })
 
-jest.mock('../../utils/s3', () => {
-  const module = jest.requireActual('../../utils/s3')
+jest.mock('@/utils/s3', () => {
+  const module = jest.requireActual('@/utils/s3')
   return {
     ...module,
     getPresignedUploadUrl: (
@@ -47,8 +44,8 @@ jest.mock('../../utils/s3', () => {
   }
 })
 
-jest.mock('../../models/document', () => {
-  const module = jest.requireActual('../../models/document')
+jest.mock('@/models/document', () => {
+  const module = jest.requireActual('@/models/document')
   return {
     ...module,
     createDocument: jest.fn(),

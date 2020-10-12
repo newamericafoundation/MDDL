@@ -5,7 +5,7 @@ import {
   Document as DocumentModel,
 } from './document'
 import { v4 as uuidv4 } from 'uuid'
-import { connectDatabase } from '../utils/database'
+import { connectDatabase } from '@/utils/database'
 
 describe('DocumentModel', () => {
   beforeAll(async () => {

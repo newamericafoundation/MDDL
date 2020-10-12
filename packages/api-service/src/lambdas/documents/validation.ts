@@ -1,5 +1,5 @@
 import Joi from 'joi'
-import { File } from '../../models/file'
+import { File } from '@/models/file'
 
 export const createFileSchema = Joi.object({
   name: Joi.string().min(1).max(255).required(),

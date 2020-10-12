@@ -6,22 +6,22 @@ import {
 import {
   Document as DocumentContract,
   DocumentCreate as DocumentCreateContract,
-} from '../contracts'
+} from 'api-client'
 import {
   createDocument,
   CreateDocumentInput,
   CreateDocumentFileInput,
-} from '../../models/document'
+} from '@/models/document'
 import {
   createErrorResponse,
   getPathParameter,
   getUserId,
-} from '../../utils/api-gateway'
-import { connectDatabase } from '../../utils/database'
+} from '@/utils/api-gateway'
+import { connectDatabase } from '@/utils/database'
 import { createDocumentSchema } from './validation'
-import { createFilePath } from '../../utils/s3'
+import { createFilePath } from '@/utils/s3'
 import { v4 as uuidv4 } from 'uuid'
-import { createSingleDocumentResult } from '.'
+import { createSingleDocumentResult } from '@/lambdas/documents'
 
 connectDatabase()
 

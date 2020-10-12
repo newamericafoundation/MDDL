@@ -6,7 +6,6 @@ import {
   Stack,
   StackProps,
 } from '@aws-cdk/core'
-import { NodejsFunction } from '@aws-cdk/aws-lambda-nodejs'
 import path = require('path')
 import {
   Function,
@@ -126,13 +125,8 @@ interface ApiProps {
   authorizer: CfnAuthorizer
 }
 
-const pathToOtherPackageLambda = (
-  packageName: string,
-  handlerName = 'index.ts',
-): string => path.join(__dirname, '..', '..', packageName, 'src', handlerName)
-
 const pathToApiServiceLambda = (name: string) =>
-  pathToOtherPackageLambda(`api-service`, `lambdas/${name}.ts`)
+  path.join(__dirname, '..', '..', 'api-service', 'build', `${name}.zip`)
 
 export class CityStack extends Stack {
   private static documentsBucketUploadsPrefix = 'documents/'
@@ -890,7 +884,7 @@ export class CityStack extends Stack {
     },
   ) {
     const {
-      handler = 'handler',
+      handler = 'index.handler',
       dbSecret,
       extraEnvironmentVariables = {},
       layers,
@@ -904,8 +898,8 @@ export class CityStack extends Stack {
           DB_NAME: dbSecret.secretValueFromJson('username').toString(),
         }
       : {}
-    return new NodejsFunction(this, name, {
-      entry: path,
+    return new Function(this, name, {
+      code: Code.fromAsset(path),
       handler,
       environment: {
         NODE_ENV: 'production',
@@ -913,11 +907,7 @@ export class CityStack extends Stack {
         ...extraEnvironmentVariables,
       },
       layers,
-      externalModules: requiresDbConnectivity
-        ? ['aws-sdk', 'knex', 'mysql2', 'objection']
-        : undefined,
       runtime: Runtime.NODEJS_12_X,
-      minify: true,
       vpc: requiresDbConnectivity ? this.lambdaVpc : undefined,
       securityGroups: requiresDbConnectivity
         ? this.lambdaSecurityGroups

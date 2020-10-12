@@ -3,15 +3,15 @@ import {
   APIGatewayProxyHandlerV2,
   APIGatewayProxyResultV2,
 } from 'aws-lambda'
-import { Document as DocumentContract } from '../contracts'
-import { getDocumentById } from '../../models/document'
+import { Document as DocumentContract } from 'api-client'
+import { getDocumentById } from '@/models/document'
 import {
   createErrorResponse,
   getPathParameter,
   getUserId,
-} from '../../utils/api-gateway'
-import { connectDatabase } from '../../utils/database'
-import { createSingleDocumentResult } from '.'
+} from '@/utils/api-gateway'
+import { connectDatabase } from '@/utils/database'
+import { createSingleDocumentResult } from '@/lambdas/documents'
 
 connectDatabase()
 

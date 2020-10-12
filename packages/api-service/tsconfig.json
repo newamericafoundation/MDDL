@@ -2,11 +2,10 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "dist",
-    "rootDir": "src",
     "esModuleInterop": true,
     "declaration": false,
     "paths": {
-      "~/*": ["./*"]
+      "@/*": ["./*"]
     },
     "baseUrl": "./src",
     "types": ["@types/node", "@types/jest"]

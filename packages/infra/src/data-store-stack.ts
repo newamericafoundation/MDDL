@@ -16,7 +16,7 @@ import {
   Stack,
   StackProps,
 } from '@aws-cdk/core'
-import { ISecret, Secret } from '@aws-cdk/aws-secretsmanager'
+import { Secret } from '@aws-cdk/aws-secretsmanager'
 import { NodejsFunction } from '@aws-cdk/aws-lambda-nodejs'
 import path = require('path')
 import { IFunction, Runtime } from '@aws-cdk/aws-lambda'

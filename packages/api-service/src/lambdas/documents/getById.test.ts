@@ -1,23 +1,20 @@
 import getById from './getById'
-import { getPathParameter, getUserId } from '../../utils/api-gateway'
-import {
-  getDocumentById,
-  Document as DocumentModel,
-} from '../../models/document'
+import { getPathParameter, getUserId } from '@/utils/api-gateway'
+import { getDocumentById, Document as DocumentModel } from '@/models/document'
 import {
   createMockContext,
   createMockEvent,
   toMockedFunction,
-} from '../../utils/test'
+} from '@/utils/test'
 
-jest.mock('../../utils/database', () => {
+jest.mock('@/utils/database', () => {
   return {
     connectDatabase: jest.fn(),
   }
 })
 
-jest.mock('../../utils/api-gateway', () => {
-  const module = jest.requireActual('../../utils/api-gateway')
+jest.mock('@/utils/api-gateway', () => {
+  const module = jest.requireActual('@/utils/api-gateway')
   return {
     ...module,
     getPathParameter: jest.fn(),
@@ -25,8 +22,8 @@ jest.mock('../../utils/api-gateway', () => {
   }
 })
 
-jest.mock('../../models/document', () => {
-  const module = jest.requireActual('../../models/document')
+jest.mock('@/models/document', () => {
+  const module = jest.requireActual('@/models/document')
   return {
     ...module,
     getDocumentById: jest.fn(),

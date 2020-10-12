@@ -211,7 +211,7 @@ export class CiCdStack extends Stack {
               python: 3.7,
               nodejs: 12,
             },
-            commands: ['yarn'],
+            commands: ['yarn install --frozen-lockfile'],
           },
           build: {
             commands: [
@@ -295,7 +295,7 @@ export class CiCdStack extends Stack {
               python: 3.7,
               nodejs: 12,
             },
-            commands: ['yarn'],
+            commands: ['yarn install --frozen-lockfile'],
           },
           build: {
             commands: buildCommands,

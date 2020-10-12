@@ -1,6 +1,6 @@
 import { S3Event, S3Handler } from 'aws-lambda'
-import { markFileReceived } from '../../models/file'
-import { connectDatabase } from '../../utils/database'
+import { markFileReceived } from '@/models/file'
+import { connectDatabase } from '@/utils/database'
 
 connectDatabase()
 

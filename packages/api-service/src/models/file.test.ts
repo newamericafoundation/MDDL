@@ -1,7 +1,7 @@
 import { createDocument } from './document'
 import { File as FileModel, markFileReceived } from './file'
 import { v4 as uuidv4 } from 'uuid'
-import { connectDatabase } from '../utils/database'
+import { connectDatabase } from '@/utils/database'
 
 describe('FileModel', () => {
   beforeAll(async () => {

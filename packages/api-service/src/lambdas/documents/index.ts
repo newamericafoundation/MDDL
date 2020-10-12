@@ -2,12 +2,12 @@ import {
   Document as DocumentContract,
   DocumentFile as DocumentFileContract,
   FileContentTypeEnum,
-} from '../contracts'
-import { Document } from '../../models/document'
-import { File } from '../../models/file'
-import { createJsonResponse } from '../../utils/api-gateway'
-import { FILE_CONTENT_TYPE } from '../constants'
-import { getPresignedUploadUrl, getPresignedDownloadUrl } from '../../utils/s3'
+} from 'api-client'
+import { Document } from '@/models/document'
+import { File } from '@/models/file'
+import { createJsonResponse } from '@/utils/api-gateway'
+import { FILE_CONTENT_TYPE } from '@/lambdas/constants'
+import { getPresignedUploadUrl, getPresignedDownloadUrl } from '@/utils/s3'
 
 export const createLinksForFile = async (file: File) => {
   const links: any[] = []
