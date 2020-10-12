@@ -51,6 +51,12 @@ const config = {
         path: path.join(OUT_DIR, directory),
         extension: 'zip',
         include: entryName,
+        pathMapper: (assetPath) => {
+          const match = entryName + '/'
+          if (assetPath.startsWith(match)) {
+            return assetPath.replace(match, '', 1)
+          }
+        },
       })
     }),
   ],
