@@ -327,6 +327,7 @@ export class CityStack extends Stack {
         scopes: [OAuthScope.PROFILE, OAuthScope.OPENID, OAuthScope.EMAIL],
         flows: {
           authorizationCodeGrant: true,
+          implicitCodeGrant: true,
         },
       },
     })
