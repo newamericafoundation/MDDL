@@ -5,7 +5,7 @@
       Upload
       <input
         type="file"
-        multiple="false"
+        :multiple="false"
         class="fileInput"
         accept="application/pdf, image/jpeg, image/png, image/tiff"
         @change="onFileInput"
@@ -71,6 +71,7 @@ export default class UploadButton extends Vue {
           this.document = document
           this.showProgressDialog = false
           this.showSnackbar = true
+          return this.$store.dispatch('user/getDocuments')
         })
     }
   }

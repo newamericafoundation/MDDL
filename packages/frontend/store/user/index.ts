@@ -1,4 +1,4 @@
-import { Module, VuexModule, Action } from 'vuex-module-decorators'
+import { Module, VuexModule, Action, Mutation } from 'vuex-module-decorators'
 import { api } from '@/plugins/api-accessor'
 import { Document, DocumentListItem, FileContentTypeEnum } from 'api-client'
 import axios, { AxiosResponse, AxiosRequestConfig } from 'axios'
@@ -12,6 +12,12 @@ import { hashFile } from '@/assets/js/hash/'
 export default class User extends VuexModule {
   // TODO: get user ID from API after login
   userId = '6ebb6c5f-2931-45bf-8482-f9dff5869a0f'
+
+  _documents: DocumentListItem[] = []
+
+  get documents() {
+    return this._documents
+  }
 
   // TODO: Update after upload API changes
   @Action
@@ -44,10 +50,7 @@ export default class User extends VuexModule {
     const addResponse: AxiosResponse<Document> = await api.user.addUserDocument(
       this.userId,
       {
-        name: files[0].name
-          .split('.')
-          .slice(0, -1)
-          .join('.'),
+        name: files[0].name.split('.').slice(0, -1).join('.'),
         files: files.map((file, i) => ({
           name: file.name,
           contentType: file.type as FileContentTypeEnum,
@@ -67,7 +70,7 @@ export default class User extends VuexModule {
     const uploadResponses = await Promise.all(
       addResponse.data.files.map((documentFile, i) => {
         const options: AxiosRequestConfig = {
-          onUploadProgress: e => {
+          onUploadProgress: (e) => {
             uploadProgress[i] = e.loaded
             onUploadProgress(
               new ProgressEvent('upload', {
@@ -79,7 +82,7 @@ export default class User extends VuexModule {
         }
 
         const uploadLink = (documentFile.links as any[]).find(
-          l => l.type === 'POST',
+          (l) => l.type === 'POST',
         )
 
         if (!uploadLink)
@@ -100,7 +103,7 @@ export default class User extends VuexModule {
           )
 
         const formData = new FormData()
-        Object.keys(uploadLink.includeFormData).forEach(key =>
+        Object.keys(uploadLink.includeFormData).forEach((key) =>
           formData.append(key, uploadLink.includeFormData[key]),
         )
         formData.append('file', file)
@@ -111,12 +114,15 @@ export default class User extends VuexModule {
     return addResponse.data
   }
 
-  @Action
+  @Mutation
+  setDocuments(documents: DocumentListItem[]) {
+    this._documents = documents
+  }
+
+  @Action({ rawError: true, commit: 'setDocuments' })
   getDocuments(): Promise<DocumentListItem[]> {
-    return api.user
-      .listUserDocuments(this.userId)
-      .then(response =>
-        response.data.documents ? response.data.documents : [],
-      )
+    return api.user.listUserDocuments(this.userId).then((response) => {
+      return response.data.documents ? response.data.documents : []
+    })
   }
 }

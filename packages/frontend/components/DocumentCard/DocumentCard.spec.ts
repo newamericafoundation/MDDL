@@ -8,6 +8,7 @@ describe('DocumentCard component', () => {
         document: {
           name: 'test',
           id: '1',
+          createdDate: '2020-01-02T10:11:12.345Z',
         },
       },
     })

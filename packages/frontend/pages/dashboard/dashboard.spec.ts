@@ -3,6 +3,12 @@ import { shallowMount } from '@vue/test-utils'
 import Dashboard from '@/pages/dashboard/index.vue'
 import Layout from '@/layouts/default.vue'
 
+jest.mock('@/plugins/store-accessor', () => ({
+  userStore: {
+    documents: [],
+  },
+}))
+
 describe('Page/Dashboard', () => {
   let store: any
   let actions

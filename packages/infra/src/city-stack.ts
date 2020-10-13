@@ -641,8 +641,10 @@ export class CityStack extends Stack {
           HttpMethod.DELETE,
           HttpMethod.OPTIONS,
           HttpMethod.POST,
+          HttpMethod.PUT,
         ],
         allowOrigins: corsOrigins,
+        allowHeaders: ['authorization', 'content-type'],
       },
       defaultDomainMapping,
     })

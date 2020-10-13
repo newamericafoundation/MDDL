@@ -23,4 +23,11 @@ export default class DocumentStore extends VuexModule {
       name: document.name,
     })
   }
+
+  @Action
+  download(document: Document): Promise<string> {
+    return api.document
+      .downloadDocumentFileById(document.id, document.files[0].id)
+      .then((r) => r.data.href)
+  }
 }

@@ -1,33 +1,22 @@
 <template>
   <div v-if="document">
-    <v-form v-model="valid">
-      <v-text-field v-model="document.name" label="Document Name" required />
-    </v-form>
+    <div>Document Name: {{ document.name }}</div>
+    <div>Created Date: {{ documentDate }}</div>
+    <div>Size: {{ documentContentSize }}MB</div>
 
-    <!-- TODO: remove me an display each page -->
-    <h5>Pages:</h5>
-    <ol>
-      <template v-for="(file, i) in document.files">
-        <li :key="i">{{ file.name }}</li>
-      </template>
-    </ol>
-
-    <v-btn
-      :loading="loading"
-      :disabled="!valid || loading"
-      class="mt-4"
-      color="primary"
-      block
-      @click.stop="save"
-    >
-      Save Changes
-    </v-btn>
+    <v-skeleton-loader
+      class="my-4"
+      type="image"
+      boilerplate
+    ></v-skeleton-loader>
+    <v-btn block :disabled="loading" @click="downloadFile"> Download </v-btn>
   </div>
 </template>
 
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator'
 import { Document } from 'api-client'
+import { format } from 'date-fns'
 
 @Component
 export default class ViewDocument extends Vue {
@@ -44,11 +33,33 @@ export default class ViewDocument extends Vue {
       })
   }
 
-  save() {
+  get documentDate() {
+    if (this.document) {
+      return format(new Date(this.document.createdDate), 'do LLL yyyy')
+    }
+    return new Date()
+  }
+
+  get documentContentSize() {
+    if (!this.document) return ''
+    const totalBytes = this.document.files
+      .map((f) => f.contentLength)
+      .reduce(
+        (fileContentLength, documentContentLength) =>
+          fileContentLength + documentContentLength,
+        0,
+      )
+    const mb = totalBytes / 1000000
+    return mb.toFixed(2)
+  }
+
+  async downloadFile() {
+    if (!this.document) return null
     this.loading = true
-    this.$store.dispatch('document/update', this.document).then(() => {
-      this.loading = false
-    })
+    const url = await this.$store.dispatch('document/download', this.document)
+    window.open(url, '_blank')
+    this.loading = false
+    return url
   }
 }
 </script>

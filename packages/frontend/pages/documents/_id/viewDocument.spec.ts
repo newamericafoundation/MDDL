@@ -15,6 +15,13 @@ describe('Documents component', () => {
               Promise.resolve({
                 name: 'test doc',
                 id: '1',
+                createdDate: '2020-01-02T10:11:12.345Z',
+                files: [
+                  {
+                    id: '1',
+                    contentLength: 1000000,
+                  },
+                ],
               }),
             update: () => Promise.resolve(),
           },

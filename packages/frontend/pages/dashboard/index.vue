@@ -12,21 +12,24 @@
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator'
 import { DocumentListItem } from 'api-client'
+import { userStore } from '@/plugins/store-accessor'
 
 @Component({
   layout: 'dashboard',
 })
 export default class Documents extends Vue {
   loading = true
-  documents: DocumentListItem[] = []
 
   mounted() {
     this.$store
       .dispatch('user/getDocuments')
       .then((res: DocumentListItem[]) => {
-        this.documents = res
         this.loading = false
       })
+  }
+
+  get documents() {
+    return userStore.documents
   }
 }
 </script>

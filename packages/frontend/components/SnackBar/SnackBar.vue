@@ -7,7 +7,7 @@
     elevation="0"
   >
     <slot />
-    <template v-slot:action="{ attrs }">
+    <template v-show="false" v-slot:action="{ attrs }">
       <slot name="action" v-bind="attrs" />
       <v-btn
         v-if="dismissable"
