@@ -28,15 +28,10 @@ export default {
     ],
   },
   css: [],
-  plugins: [
-    '@/plugins/axios-interceptors.ts',
-    '@/plugins/api-accessor.ts',
-    '@plugins/store-accessor.ts',
-  ],
+  plugins: ['@/plugins/api-accessor.ts'],
   components: true,
   buildModules: ['@nuxt/typescript-build', '@nuxtjs/vuetify', '@nuxtjs/dotenv'],
-  modules: ['@nuxtjs/axios', '@nuxtjs/pwa', 'nuxt-i18n'],
-
+  modules: ['@nuxtjs/axios', '@nuxtjs/auth', '@nuxtjs/pwa', 'nuxt-i18n'],
   i18n: {
     locales: ['en', 'fr', 'es'],
     defaultLocale: 'en',
@@ -53,7 +48,7 @@ export default {
     extractCSS: true,
   },
   env: {
-    apiUrl: process.env.API_URL || 'http://localhost:8080/',
+    apiUrl: process.env.API_URL,
     debugToken: process.env.DEBUG_TOKEN,
     buildNumber: process.env.CODEBUILD_BUILD_NUMBER,
     buildTime: process.env.CODEBUILD_START_TIME,
@@ -61,7 +56,36 @@ export default {
   generate: {
     dir: 'dist/' + process.env.OUTPUT_DIR,
   },
+  /*
+   ** Enforce auth for all routes
+   ** Can be disabled by adding property `auth: false` to your page component
+   */
   router: {
-    middleware: 'auth',
+    middleware: ['auth', 'default'],
+  },
+  /*
+   ** Auth Config
+   ** See https://auth.nuxtjs.org/schemes/oauth2.html#usage
+   */
+  auth: {
+    strategies: {
+      oauth2: {
+        _scheme: 'oauth2',
+        audience: process.env.API_URL,
+        codeChallengeMethod: 'S256',
+        authorization_endpoint: process.env.AUTH_URL + '/login',
+        userinfo_endpoint: process.env.AUTH_URL + '/oauth2/userInfo',
+        scope: ['openid', 'profile', 'email'],
+        client_id: process.env.AUTH_CLIENT_ID,
+        token_type: 'Bearer',
+        token_key: 'access_token',
+        response_type: 'token',
+      },
+      local: false,
+    },
+    redirect: {
+      callback: '/authorize',
+    },
+    plugins: ['@plugins/store-accessor.ts'],
   },
 }

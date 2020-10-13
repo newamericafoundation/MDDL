@@ -4,7 +4,14 @@
       <v-list>
         <template v-for="(item, i) in navItems">
           <v-divider v-if="item.type === 'break'" :key="i" />
-          <v-list-item v-else :key="i" :to="item.to" router exact>
+          <v-list-item
+            v-else
+            :key="i"
+            :to="item.to"
+            router
+            exact
+            @click.stop="item.click"
+          >
             <v-list-item-action v-if="item.icon">
               <v-icon>{{ item.icon }}</v-icon>
             </v-list-item-action>
@@ -48,6 +55,13 @@ export default class ClientDashboard extends Vue {
     {
       title: 'Account',
       to: '/account',
+    },
+    {
+      title: 'Sign out',
+      click: async () => {
+        await this.$auth.logout()
+        this.$router.push('/')
+      },
     },
   ]
 }
