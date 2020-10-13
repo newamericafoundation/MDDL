@@ -20,45 +20,173 @@ import globalAxios, { AxiosPromise, AxiosInstance } from 'axios';
 import { BASE_PATH, COLLECTION_FORMATS, RequestArgs, BaseAPI, RequiredError } from './base';
 
 /**
- * 
+ * A collection of documents
  * @export
- * @interface Agency
+ * @interface Collection
  */
-export interface Agency {
+export interface Collection {
     /**
-     * 
+     * The ID of the collection
      * @type {string}
-     * @memberof Agency
+     * @memberof Collection
+     */
+    id: string;
+    /**
+     * The name of the collection
+     * @type {string}
+     * @memberof Collection
+     */
+    name: string;
+    /**
+     * The date the collection was created
+     * @type {string}
+     * @memberof Collection
+     */
+    createdDate: string;
+}
+/**
+ * Request data to create a collection
+ * @export
+ * @interface CollectionCreate
+ */
+export interface CollectionCreate {
+    /**
+     * The name of the collection
+     * @type {string}
+     * @memberof CollectionCreate
+     */
+    name: string;
+    /**
+     * The ID\'s of the Documents to add to this collection
+     * @type {Array<string>}
+     * @memberof CollectionCreate
+     */
+    documentIds: Array<string>;
+    /**
+     * The email addresses to grant access to this collection
+     * @type {Array<string>}
+     * @memberof CollectionCreate
+     */
+    emailAddresses: Array<string>;
+}
+/**
+ * A collection access grant
+ * @export
+ * @interface CollectionGrant
+ */
+export interface CollectionGrant {
+    /**
+     * The ID of the grant
+     * @type {string}
+     * @memberof CollectionGrant
      */
     id: string;
     /**
      * 
+     * @type {CollectionGrantType}
+     * @memberof CollectionGrant
+     */
+    type: CollectionGrantType;
+    /**
+     * The date the grant was created
      * @type {string}
-     * @memberof Agency
+     * @memberof CollectionGrant
+     */
+    createdDate: string;
+    /**
+     * The email address that has been granted access
+     * @type {string}
+     * @memberof CollectionGrant
+     */
+    emailAddress?: string;
+    /**
+     * An array of Links
+     * @type {Array<Link>}
+     * @memberof CollectionGrant
+     */
+    links: Array<Link>;
+}
+/**
+ * Request data to create an access grant to a collection
+ * @export
+ * @interface CollectionGrantCreate
+ */
+export interface CollectionGrantCreate {
+    /**
+     * The list of email addresses to allow access to the collection
+     * @type {Array<string>}
+     * @memberof CollectionGrantCreate
+     */
+    emailAddresses: Array<string>;
+}
+/**
+ * A result containing a list of access grants to a document
+ * @export
+ * @interface CollectionGrantList
+ */
+export interface CollectionGrantList {
+    /**
+     * The list of grants for a collection
+     * @type {Array<CollectionGrant>}
+     * @memberof CollectionGrantList
+     */
+    collectionGrants: Array<CollectionGrant>;
+}
+/**
+ * The valid types for access grants to a collection
+ * @export
+ * @enum {string}
+ */
+export enum CollectionGrantType {
+    EMAIL = 'EMAIL'
+}
+
+/**
+ * A result containing a list of collections
+ * @export
+ * @interface CollectionList
+ */
+export interface CollectionList {
+    /**
+     * The collections list
+     * @type {Array<CollectionListItem>}
+     * @memberof CollectionList
+     */
+    collections: Array<CollectionListItem>;
+}
+/**
+ * Basic details for listing a collection
+ * @export
+ * @interface CollectionListItem
+ */
+export interface CollectionListItem {
+    /**
+     * The ID of the collection
+     * @type {string}
+     * @memberof CollectionListItem
+     */
+    id: string;
+    /**
+     * The name of the collection
+     * @type {string}
+     * @memberof CollectionListItem
      */
     name: string;
-}
-/**
- * 
- * @export
- * @interface AgencyList
- */
-export interface AgencyList {
     /**
-     * 
-     * @type {Array<Agency>}
-     * @memberof AgencyList
+     * The date the collection was created
+     * @type {string}
+     * @memberof CollectionListItem
      */
-    agencies: Array<Agency>;
+    createdDate: string;
 }
 /**
- * 
+ * A document
  * @export
  * @interface Document
  */
 export interface Document {
     /**
-     * 
+     * The ID of the document
      * @type {string}
      * @memberof Document
      */
@@ -70,26 +198,26 @@ export interface Document {
      */
     name: string;
     /**
-     * 
+     * Date the document was created
      * @type {string}
      * @memberof Document
      */
     createdDate: string;
     /**
-     * 
+     * The files in the document
      * @type {Array<DocumentFile>}
      * @memberof Document
      */
     files: Array<DocumentFile>;
     /**
-     * 
-     * @type {object}
+     * An array of Links
+     * @type {Array<Link>}
      * @memberof Document
      */
-    links: object;
+    links: Array<Link>;
 }
 /**
- * 
+ * Request data to create a document
  * @export
  * @interface DocumentCreate
  */
@@ -101,14 +229,14 @@ export interface DocumentCreate {
      */
     name: string;
     /**
-     * 
+     * The files that are part of the document
      * @type {Array<DocumentCreateFile>}
      * @memberof DocumentCreate
      */
     files: Array<DocumentCreateFile>;
 }
 /**
- * 
+ * Request data to create a file of a document
  * @export
  * @interface DocumentCreateFile
  */
@@ -131,15 +259,21 @@ export interface DocumentCreateFile {
      * @memberof DocumentCreateFile
      */
     sha256Checksum: string;
+    /**
+     * Content length in bytes of the file
+     * @type {number}
+     * @memberof DocumentCreateFile
+     */
+    contentLength: number;
 }
 /**
- * 
+ * A file of a document
  * @export
  * @interface DocumentFile
  */
 export interface DocumentFile {
     /**
-     * 
+     * The ID of the document file
      * @type {string}
      * @memberof DocumentFile
      */
@@ -163,174 +297,70 @@ export interface DocumentFile {
      */
     sha256Checksum: string;
     /**
-     * 
+     * Content length in bytes of the file
+     * @type {number}
+     * @memberof DocumentFile
+     */
+    contentLength: number;
+    /**
+     * Date the document file was created
      * @type {string}
      * @memberof DocumentFile
      */
     createdDate: string;
     /**
-     * 
-     * @type {object}
+     * An array of Links
+     * @type {Array<Link>}
      * @memberof DocumentFile
      */
-    links: object;
+    links: Array<Link>;
 }
 /**
- * 
- * @export
- * @interface DocumentGrant
- */
-export interface DocumentGrant {
-    /**
-     * 
-     * @type {string}
-     * @memberof DocumentGrant
-     */
-    id: string;
-    /**
-     * 
-     * @type {DocumentGrantType}
-     * @memberof DocumentGrant
-     */
-    type: DocumentGrantType;
-    /**
-     * 
-     * @type {string}
-     * @memberof DocumentGrant
-     */
-    createdDate: string;
-    /**
-     * 
-     * @type {DocumentGrantAgencyDetails}
-     * @memberof DocumentGrant
-     */
-    agencyDetails: DocumentGrantAgencyDetails;
-    /**
-     * 
-     * @type {object}
-     * @memberof DocumentGrant
-     */
-    links: object;
-}
-/**
- * 
- * @export
- * @interface DocumentGrantAgencyDetails
- */
-export interface DocumentGrantAgencyDetails {
-    /**
-     * The ID of the agency
-     * @type {string}
-     * @memberof DocumentGrantAgencyDetails
-     */
-    id?: string;
-    /**
-     * 
-     * @type {object}
-     * @memberof DocumentGrantAgencyDetails
-     */
-    links?: object;
-}
-/**
- * 
- * @export
- * @interface DocumentGrantCreate
- */
-export interface DocumentGrantCreate {
-    /**
-     * 
-     * @type {DocumentGrantType}
-     * @memberof DocumentGrantCreate
-     */
-    type: DocumentGrantType;
-    /**
-     * 
-     * @type {DocumentGrantCreateAgencyDetails}
-     * @memberof DocumentGrantCreate
-     */
-    agencyDetails: DocumentGrantCreateAgencyDetails;
-}
-/**
- * 
- * @export
- * @interface DocumentGrantCreateAgencyDetails
- */
-export interface DocumentGrantCreateAgencyDetails {
-    /**
-     * The ID of the agency
-     * @type {string}
-     * @memberof DocumentGrantCreateAgencyDetails
-     */
-    id?: string;
-}
-/**
- * 
- * @export
- * @interface DocumentGrantList
- */
-export interface DocumentGrantList {
-    /**
-     * 
-     * @type {Array<DocumentGrant>}
-     * @memberof DocumentGrantList
-     */
-    documentGrants: Array<DocumentGrant>;
-}
-/**
- * Document Grant Type
- * @export
- * @enum {string}
- */
-export enum DocumentGrantType {
-    AGENCYACCESS = 'AGENCY_ACCESS'
-}
-
-/**
- * 
+ * A result containing a list of documents
  * @export
  * @interface DocumentList
  */
 export interface DocumentList {
     /**
-     * 
+     * The documents list
      * @type {Array<DocumentListItem>}
      * @memberof DocumentList
      */
     documents: Array<DocumentListItem>;
 }
 /**
- * 
+ * A listed document, deliberately minimal
  * @export
  * @interface DocumentListItem
  */
 export interface DocumentListItem {
     /**
-     * 
+     * The ID of the document
      * @type {string}
      * @memberof DocumentListItem
      */
     id: string;
     /**
-     * 
+     * The human readable name of the document
      * @type {string}
      * @memberof DocumentListItem
      */
     name: string;
     /**
-     * 
+     * Date the document was created
      * @type {string}
      * @memberof DocumentListItem
      */
     createdDate: string;
     /**
-     * 
-     * @type {object}
+     * An array of Links
+     * @type {Array<Link>}
      * @memberof DocumentListItem
      */
-    links: object;
+    links: Array<Link>;
 }
 /**
- * 
+ * Request data to update a document
  * @export
  * @interface DocumentUpdate
  */
@@ -343,7 +373,7 @@ export interface DocumentUpdate {
     name: string;
 }
 /**
- * File content type
+ * The accepted content type for files
  * @export
  * @enum {string}
  */
@@ -355,44 +385,88 @@ export enum FileContentTypeEnum {
 }
 
 /**
- * 
+ * A result containing a download link to a file
+ * @export
+ * @interface FileDownload
+ */
+export interface FileDownload {
+    /**
+     * The web address (relative or absolute) for the linked resource
+     * @type {string}
+     * @memberof FileDownload
+     */
+    href: string;
+}
+/**
+ * A HATEOS Link
+ * @export
+ * @interface Link
+ */
+export interface Link {
+    /**
+     * The web address (relative or absolute) for the linked resource
+     * @type {string}
+     * @memberof Link
+     */
+    href: string;
+    /**
+     * The relation this linked resource has to the resource it is attached to.
+     * @type {string}
+     * @memberof Link
+     */
+    rel: string;
+    /**
+     * The HTTP method to use to access the linked resource
+     * @type {string}
+     * @memberof Link
+     */
+    type: string;
+    /**
+     * Form data to include in the request
+     * @type {{ [key: string]: string; }}
+     * @memberof Link
+     */
+    includeFormData?: { [key: string]: string; };
+}
+/**
+ * A user
  * @export
  * @interface User
  */
 export interface User {
     /**
-     * 
+     * The user id
      * @type {string}
      * @memberof User
      */
     id: string;
     /**
-     * 
+     * The users given name
      * @type {string}
      * @memberof User
      */
     givenName: string;
     /**
-     * 
+     * The users family name
      * @type {string}
      * @memberof User
      */
     familyName: string;
     /**
-     * 
-     * @type {object}
+     * An array of Links
+     * @type {Array<Link>}
      * @memberof User
      */
-    links: object;
+    links: Array<Link>;
 }
 /**
- * 
+ * Delegated access to a user account
  * @export
  * @interface UserDelegatedAccess
  */
 export interface UserDelegatedAccess {
     /**
-     * 
+     * The email of the user to delegate access to
      * @type {string}
      * @memberof UserDelegatedAccess
      */
@@ -404,39 +478,39 @@ export interface UserDelegatedAccess {
      */
     allowsAccessToUser?: User;
     /**
-     * 
+     * The date the access delegation was added
      * @type {string}
      * @memberof UserDelegatedAccess
      */
     createdDate: string;
     /**
-     * 
-     * @type {object}
+     * An array of Links
+     * @type {Array<Link>}
      * @memberof UserDelegatedAccess
      */
-    links: object;
+    links: Array<Link>;
 }
 /**
- * 
+ * Request data to create delegated access to a user account
  * @export
  * @interface UserDelegatedAccessCreate
  */
 export interface UserDelegatedAccessCreate {
     /**
-     * 
+     * The email of the user to delegate access to
      * @type {string}
      * @memberof UserDelegatedAccessCreate
      */
     email: string;
 }
 /**
- * 
+ * A result containing the delagated access information for a user account
  * @export
  * @interface UserDelegatedAccessList
  */
 export interface UserDelegatedAccessList {
     /**
-     * 
+     * The list of delegated access to the account
      * @type {Array<UserDelegatedAccess>}
      * @memberof UserDelegatedAccessList
      */
@@ -444,19 +518,193 @@ export interface UserDelegatedAccessList {
 }
 
 /**
- * AgencyApi - axios parameter creator
+ * CollectionsApi - axios parameter creator
  * @export
  */
-export const AgencyApiAxiosParamCreator = function (configuration?: Configuration) {
+export const CollectionsApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * List agencies in current city
-         * @summary List agencies
+         * Grant access to a collection
+         * @summary Create grants to a collection
+         * @param {string} collectionId ID of the collection
+         * @param {CollectionGrantCreate} collectionGrantCreate Create a document grant
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listAgencies: async (options: any = {}): Promise<RequestArgs> => {
-            const localVarPath = `/agencies`;
+        createGrantsForCollection: async (collectionId: string, collectionGrantCreate: CollectionGrantCreate, options: any = {}): Promise<RequestArgs> => {
+            // verify required parameter 'collectionId' is not null or undefined
+            if (collectionId === null || collectionId === undefined) {
+                throw new RequiredError('collectionId','Required parameter collectionId was null or undefined when calling createGrantsForCollection.');
+            }
+            // verify required parameter 'collectionGrantCreate' is not null or undefined
+            if (collectionGrantCreate === null || collectionGrantCreate === undefined) {
+                throw new RequiredError('collectionGrantCreate','Required parameter collectionGrantCreate was null or undefined when calling createGrantsForCollection.');
+            }
+            const localVarPath = `/collections/{collectionId}/grants`
+                .replace(`{${"collectionId"}}`, encodeURIComponent(String(collectionId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, 'https://example.com');
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication datalocker_auth required
+            // oauth required
+            if (configuration && configuration.accessToken) {
+                const localVarAccessTokenValue = typeof configuration.accessToken === 'function'
+                    ? await configuration.accessToken("datalocker_auth", [])
+                    : await configuration.accessToken;
+                localVarHeaderParameter["Authorization"] = "Bearer " + localVarAccessTokenValue;
+            }
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            const query = new URLSearchParams(localVarUrlObj.search);
+            for (const key in localVarQueryParameter) {
+                query.set(key, localVarQueryParameter[key]);
+            }
+            for (const key in options.query) {
+                query.set(key, options.query[key]);
+            }
+            localVarUrlObj.search = (new URLSearchParams(query)).toString();
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            const needsSerialization = (typeof collectionGrantCreate !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.data =  needsSerialization ? JSON.stringify(collectionGrantCreate !== undefined ? collectionGrantCreate : {}) : (collectionGrantCreate || "");
+
+            return {
+                url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Revokes access to a collection by removing the grant
+         * @summary Deletes a collection grant
+         * @param {string} collectionId ID of the collection the grant belongs to
+         * @param {string} grantId ID of the grant to delete
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteCollectionGrantById: async (collectionId: string, grantId: string, options: any = {}): Promise<RequestArgs> => {
+            // verify required parameter 'collectionId' is not null or undefined
+            if (collectionId === null || collectionId === undefined) {
+                throw new RequiredError('collectionId','Required parameter collectionId was null or undefined when calling deleteCollectionGrantById.');
+            }
+            // verify required parameter 'grantId' is not null or undefined
+            if (grantId === null || grantId === undefined) {
+                throw new RequiredError('grantId','Required parameter grantId was null or undefined when calling deleteCollectionGrantById.');
+            }
+            const localVarPath = `/collection/{collectionId}/grants/{grantId}`
+                .replace(`{${"collectionId"}}`, encodeURIComponent(String(collectionId)))
+                .replace(`{${"grantId"}}`, encodeURIComponent(String(grantId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, 'https://example.com');
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication datalocker_auth required
+            // oauth required
+            if (configuration && configuration.accessToken) {
+                const localVarAccessTokenValue = typeof configuration.accessToken === 'function'
+                    ? await configuration.accessToken("datalocker_auth", [])
+                    : await configuration.accessToken;
+                localVarHeaderParameter["Authorization"] = "Bearer " + localVarAccessTokenValue;
+            }
+
+
+    
+            const query = new URLSearchParams(localVarUrlObj.search);
+            for (const key in localVarQueryParameter) {
+                query.set(key, localVarQueryParameter[key]);
+            }
+            for (const key in options.query) {
+                query.set(key, options.query[key]);
+            }
+            localVarUrlObj.search = (new URLSearchParams(query)).toString();
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Get documents in a collection
+         * @summary Get documents
+         * @param {string} collectionId ID of the collection to fetch
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getCollectionDocuments: async (collectionId: string, options: any = {}): Promise<RequestArgs> => {
+            // verify required parameter 'collectionId' is not null or undefined
+            if (collectionId === null || collectionId === undefined) {
+                throw new RequiredError('collectionId','Required parameter collectionId was null or undefined when calling getCollectionDocuments.');
+            }
+            const localVarPath = `/collections/{collectionId}/documents`
+                .replace(`{${"collectionId"}}`, encodeURIComponent(String(collectionId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, 'https://example.com');
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication datalocker_auth required
+            // oauth required
+            if (configuration && configuration.accessToken) {
+                const localVarAccessTokenValue = typeof configuration.accessToken === 'function'
+                    ? await configuration.accessToken("datalocker_auth", [])
+                    : await configuration.accessToken;
+                localVarHeaderParameter["Authorization"] = "Bearer " + localVarAccessTokenValue;
+            }
+
+
+    
+            const query = new URLSearchParams(localVarUrlObj.search);
+            for (const key in localVarQueryParameter) {
+                query.set(key, localVarQueryParameter[key]);
+            }
+            for (const key in options.query) {
+                query.set(key, options.query[key]);
+            }
+            localVarUrlObj.search = (new URLSearchParams(query)).toString();
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Returns access grants for a single collection
+         * @summary Get access grants to collection
+         * @param {string} collectionId ID of collection to find grants for
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getGrantsByCollectionId: async (collectionId: string, options: any = {}): Promise<RequestArgs> => {
+            // verify required parameter 'collectionId' is not null or undefined
+            if (collectionId === null || collectionId === undefined) {
+                throw new RequiredError('collectionId','Required parameter collectionId was null or undefined when calling getGrantsByCollectionId.');
+            }
+            const localVarPath = `/collections/{collectionId}/grants`
+                .replace(`{${"collectionId"}}`, encodeURIComponent(String(collectionId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, 'https://example.com');
             let baseOptions;
@@ -498,19 +746,64 @@ export const AgencyApiAxiosParamCreator = function (configuration?: Configuratio
 };
 
 /**
- * AgencyApi - functional programming interface
+ * CollectionsApi - functional programming interface
  * @export
  */
-export const AgencyApiFp = function(configuration?: Configuration) {
+export const CollectionsApiFp = function(configuration?: Configuration) {
     return {
         /**
-         * List agencies in current city
-         * @summary List agencies
+         * Grant access to a collection
+         * @summary Create grants to a collection
+         * @param {string} collectionId ID of the collection
+         * @param {CollectionGrantCreate} collectionGrantCreate Create a document grant
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async listAgencies(options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AgencyList>> {
-            const localVarAxiosArgs = await AgencyApiAxiosParamCreator(configuration).listAgencies(options);
+        async createGrantsForCollection(collectionId: string, collectionGrantCreate: CollectionGrantCreate, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await CollectionsApiAxiosParamCreator(configuration).createGrantsForCollection(collectionId, collectionGrantCreate, options);
+            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
+                const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
+                return axios.request(axiosRequestArgs);
+            };
+        },
+        /**
+         * Revokes access to a collection by removing the grant
+         * @summary Deletes a collection grant
+         * @param {string} collectionId ID of the collection the grant belongs to
+         * @param {string} grantId ID of the grant to delete
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async deleteCollectionGrantById(collectionId: string, grantId: string, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await CollectionsApiAxiosParamCreator(configuration).deleteCollectionGrantById(collectionId, grantId, options);
+            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
+                const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
+                return axios.request(axiosRequestArgs);
+            };
+        },
+        /**
+         * Get documents in a collection
+         * @summary Get documents
+         * @param {string} collectionId ID of the collection to fetch
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getCollectionDocuments(collectionId: string, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<DocumentList>> {
+            const localVarAxiosArgs = await CollectionsApiAxiosParamCreator(configuration).getCollectionDocuments(collectionId, options);
+            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
+                const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
+                return axios.request(axiosRequestArgs);
+            };
+        },
+        /**
+         * Returns access grants for a single collection
+         * @summary Get access grants to collection
+         * @param {string} collectionId ID of collection to find grants for
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getGrantsByCollectionId(collectionId: string, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionGrantList>> {
+            const localVarAxiosArgs = await CollectionsApiAxiosParamCreator(configuration).getGrantsByCollectionId(collectionId, options);
             return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
                 const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
                 return axios.request(axiosRequestArgs);
@@ -520,39 +813,111 @@ export const AgencyApiFp = function(configuration?: Configuration) {
 };
 
 /**
- * AgencyApi - factory interface
+ * CollectionsApi - factory interface
  * @export
  */
-export const AgencyApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+export const CollectionsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
     return {
         /**
-         * List agencies in current city
-         * @summary List agencies
+         * Grant access to a collection
+         * @summary Create grants to a collection
+         * @param {string} collectionId ID of the collection
+         * @param {CollectionGrantCreate} collectionGrantCreate Create a document grant
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listAgencies(options?: any): AxiosPromise<AgencyList> {
-            return AgencyApiFp(configuration).listAgencies(options).then((request) => request(axios, basePath));
+        createGrantsForCollection(collectionId: string, collectionGrantCreate: CollectionGrantCreate, options?: any): AxiosPromise<void> {
+            return CollectionsApiFp(configuration).createGrantsForCollection(collectionId, collectionGrantCreate, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Revokes access to a collection by removing the grant
+         * @summary Deletes a collection grant
+         * @param {string} collectionId ID of the collection the grant belongs to
+         * @param {string} grantId ID of the grant to delete
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteCollectionGrantById(collectionId: string, grantId: string, options?: any): AxiosPromise<void> {
+            return CollectionsApiFp(configuration).deleteCollectionGrantById(collectionId, grantId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Get documents in a collection
+         * @summary Get documents
+         * @param {string} collectionId ID of the collection to fetch
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getCollectionDocuments(collectionId: string, options?: any): AxiosPromise<DocumentList> {
+            return CollectionsApiFp(configuration).getCollectionDocuments(collectionId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Returns access grants for a single collection
+         * @summary Get access grants to collection
+         * @param {string} collectionId ID of collection to find grants for
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getGrantsByCollectionId(collectionId: string, options?: any): AxiosPromise<CollectionGrantList> {
+            return CollectionsApiFp(configuration).getGrantsByCollectionId(collectionId, options).then((request) => request(axios, basePath));
         },
     };
 };
 
 /**
- * AgencyApi - object-oriented interface
+ * CollectionsApi - object-oriented interface
  * @export
- * @class AgencyApi
+ * @class CollectionsApi
  * @extends {BaseAPI}
  */
-export class AgencyApi extends BaseAPI {
+export class CollectionsApi extends BaseAPI {
     /**
-     * List agencies in current city
-     * @summary List agencies
+     * Grant access to a collection
+     * @summary Create grants to a collection
+     * @param {string} collectionId ID of the collection
+     * @param {CollectionGrantCreate} collectionGrantCreate Create a document grant
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof AgencyApi
+     * @memberof CollectionsApi
      */
-    public listAgencies(options?: any) {
-        return AgencyApiFp(this.configuration).listAgencies(options).then((request) => request(this.axios, this.basePath));
+    public createGrantsForCollection(collectionId: string, collectionGrantCreate: CollectionGrantCreate, options?: any) {
+        return CollectionsApiFp(this.configuration).createGrantsForCollection(collectionId, collectionGrantCreate, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Revokes access to a collection by removing the grant
+     * @summary Deletes a collection grant
+     * @param {string} collectionId ID of the collection the grant belongs to
+     * @param {string} grantId ID of the grant to delete
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CollectionsApi
+     */
+    public deleteCollectionGrantById(collectionId: string, grantId: string, options?: any) {
+        return CollectionsApiFp(this.configuration).deleteCollectionGrantById(collectionId, grantId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Get documents in a collection
+     * @summary Get documents
+     * @param {string} collectionId ID of the collection to fetch
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CollectionsApi
+     */
+    public getCollectionDocuments(collectionId: string, options?: any) {
+        return CollectionsApiFp(this.configuration).getCollectionDocuments(collectionId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Returns access grants for a single collection
+     * @summary Get access grants to collection
+     * @param {string} collectionId ID of collection to find grants for
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CollectionsApi
+     */
+    public getGrantsByCollectionId(collectionId: string, options?: any) {
+        return CollectionsApiFp(this.configuration).getGrantsByCollectionId(collectionId, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -563,66 +928,6 @@ export class AgencyApi extends BaseAPI {
  */
 export const DocumentApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
-        /**
-         * Grant access to a document
-         * @summary Create a document grant
-         * @param {string} documentId ID of the document that needs to be updated
-         * @param {DocumentGrantCreate} documentGrantCreate Create a document grant
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        createGrantForDocument: async (documentId: string, documentGrantCreate: DocumentGrantCreate, options: any = {}): Promise<RequestArgs> => {
-            // verify required parameter 'documentId' is not null or undefined
-            if (documentId === null || documentId === undefined) {
-                throw new RequiredError('documentId','Required parameter documentId was null or undefined when calling createGrantForDocument.');
-            }
-            // verify required parameter 'documentGrantCreate' is not null or undefined
-            if (documentGrantCreate === null || documentGrantCreate === undefined) {
-                throw new RequiredError('documentGrantCreate','Required parameter documentGrantCreate was null or undefined when calling createGrantForDocument.');
-            }
-            const localVarPath = `/documents/{documentId}/grants`
-                .replace(`{${"documentId"}}`, encodeURIComponent(String(documentId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, 'https://example.com');
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication datalocker_auth required
-            // oauth required
-            if (configuration && configuration.accessToken) {
-                const localVarAccessTokenValue = typeof configuration.accessToken === 'function'
-                    ? await configuration.accessToken("datalocker_auth", [])
-                    : await configuration.accessToken;
-                localVarHeaderParameter["Authorization"] = "Bearer " + localVarAccessTokenValue;
-            }
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            const query = new URLSearchParams(localVarUrlObj.search);
-            for (const key in localVarQueryParameter) {
-                query.set(key, localVarQueryParameter[key]);
-            }
-            for (const key in options.query) {
-                query.set(key, options.query[key]);
-            }
-            localVarUrlObj.search = (new URLSearchParams(query)).toString();
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            const needsSerialization = (typeof documentGrantCreate !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.data =  needsSerialization ? JSON.stringify(documentGrantCreate !== undefined ? documentGrantCreate : {}) : (documentGrantCreate || "");
-
-            return {
-                url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
-                options: localVarRequestOptions,
-            };
-        },
         /**
          * 
          * @summary Deletes a document
@@ -675,76 +980,25 @@ export const DocumentApiAxiosParamCreator = function (configuration?: Configurat
             };
         },
         /**
-         * 
-         * @summary Deletes a document grant
-         * @param {string} documentId ID of Document the Grant belongs to
-         * @param {string} grantId ID of the Document Grant to delete
+         * Get a presigned POST URL to download the specified file. This will be audited as a download by the end user.
+         * @summary File download information
+         * @param {string} documentId ID of document
+         * @param {string} fileId ID of file in the document
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deleteDocumentGrantById: async (documentId: string, grantId: string, options: any = {}): Promise<RequestArgs> => {
+        downloadDocumentFileById: async (documentId: string, fileId: string, options: any = {}): Promise<RequestArgs> => {
             // verify required parameter 'documentId' is not null or undefined
             if (documentId === null || documentId === undefined) {
-                throw new RequiredError('documentId','Required parameter documentId was null or undefined when calling deleteDocumentGrantById.');
+                throw new RequiredError('documentId','Required parameter documentId was null or undefined when calling downloadDocumentFileById.');
             }
-            // verify required parameter 'grantId' is not null or undefined
-            if (grantId === null || grantId === undefined) {
-                throw new RequiredError('grantId','Required parameter grantId was null or undefined when calling deleteDocumentGrantById.');
+            // verify required parameter 'fileId' is not null or undefined
+            if (fileId === null || fileId === undefined) {
+                throw new RequiredError('fileId','Required parameter fileId was null or undefined when calling downloadDocumentFileById.');
             }
-            const localVarPath = `/documents/{documentId}/grants/{grantId}`
+            const localVarPath = `/documents/{documentId}/files/{fileId}/download`
                 .replace(`{${"documentId"}}`, encodeURIComponent(String(documentId)))
-                .replace(`{${"grantId"}}`, encodeURIComponent(String(grantId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, 'https://example.com');
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication datalocker_auth required
-            // oauth required
-            if (configuration && configuration.accessToken) {
-                const localVarAccessTokenValue = typeof configuration.accessToken === 'function'
-                    ? await configuration.accessToken("datalocker_auth", [])
-                    : await configuration.accessToken;
-                localVarHeaderParameter["Authorization"] = "Bearer " + localVarAccessTokenValue;
-            }
-
-
-    
-            const query = new URLSearchParams(localVarUrlObj.search);
-            for (const key in localVarQueryParameter) {
-                query.set(key, localVarQueryParameter[key]);
-            }
-            for (const key in options.query) {
-                query.set(key, options.query[key]);
-            }
-            localVarUrlObj.search = (new URLSearchParams(query)).toString();
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * Returns a single document
-         * @summary Find document by ID
-         * @param {string} documentId ID of document to return
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getDocumentById: async (documentId: string, options: any = {}): Promise<RequestArgs> => {
-            // verify required parameter 'documentId' is not null or undefined
-            if (documentId === null || documentId === undefined) {
-                throw new RequiredError('documentId','Required parameter documentId was null or undefined when calling getDocumentById.');
-            }
-            const localVarPath = `/documents/{documentId}`
-                .replace(`{${"documentId"}}`, encodeURIComponent(String(documentId)));
+                .replace(`{${"fileId"}}`, encodeURIComponent(String(fileId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, 'https://example.com');
             let baseOptions;
@@ -783,18 +1037,18 @@ export const DocumentApiAxiosParamCreator = function (configuration?: Configurat
             };
         },
         /**
-         * Returns access grants for a single document
-         * @summary Get access grants
-         * @param {string} documentId ID of document to find grants for
+         * Returns a single document. This will be audited as a document view by the current user
+         * @summary Find document by ID
+         * @param {string} documentId ID of document to return
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getGrantsByDocumentId: async (documentId: string, options: any = {}): Promise<RequestArgs> => {
+        getDocumentById: async (documentId: string, options: any = {}): Promise<RequestArgs> => {
             // verify required parameter 'documentId' is not null or undefined
             if (documentId === null || documentId === undefined) {
-                throw new RequiredError('documentId','Required parameter documentId was null or undefined when calling getGrantsByDocumentId.');
+                throw new RequiredError('documentId','Required parameter documentId was null or undefined when calling getDocumentById.');
             }
-            const localVarPath = `/documents/{documentId}/grants`
+            const localVarPath = `/documents/{documentId}`
                 .replace(`{${"documentId"}}`, encodeURIComponent(String(documentId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, 'https://example.com');
@@ -903,21 +1157,6 @@ export const DocumentApiAxiosParamCreator = function (configuration?: Configurat
 export const DocumentApiFp = function(configuration?: Configuration) {
     return {
         /**
-         * Grant access to a document
-         * @summary Create a document grant
-         * @param {string} documentId ID of the document that needs to be updated
-         * @param {DocumentGrantCreate} documentGrantCreate Create a document grant
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async createGrantForDocument(documentId: string, documentGrantCreate: DocumentGrantCreate, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<DocumentGrant>> {
-            const localVarAxiosArgs = await DocumentApiAxiosParamCreator(configuration).createGrantForDocument(documentId, documentGrantCreate, options);
-            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
-                const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
-                return axios.request(axiosRequestArgs);
-            };
-        },
-        /**
          * 
          * @summary Deletes a document
          * @param {string} documentId ID of Document to delete
@@ -932,22 +1171,22 @@ export const DocumentApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         * 
-         * @summary Deletes a document grant
-         * @param {string} documentId ID of Document the Grant belongs to
-         * @param {string} grantId ID of the Document Grant to delete
+         * Get a presigned POST URL to download the specified file. This will be audited as a download by the end user.
+         * @summary File download information
+         * @param {string} documentId ID of document
+         * @param {string} fileId ID of file in the document
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async deleteDocumentGrantById(documentId: string, grantId: string, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await DocumentApiAxiosParamCreator(configuration).deleteDocumentGrantById(documentId, grantId, options);
+        async downloadDocumentFileById(documentId: string, fileId: string, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<FileDownload>> {
+            const localVarAxiosArgs = await DocumentApiAxiosParamCreator(configuration).downloadDocumentFileById(documentId, fileId, options);
             return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
                 const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
                 return axios.request(axiosRequestArgs);
             };
         },
         /**
-         * Returns a single document
+         * Returns a single document. This will be audited as a document view by the current user
          * @summary Find document by ID
          * @param {string} documentId ID of document to return
          * @param {*} [options] Override http request option.
@@ -955,20 +1194,6 @@ export const DocumentApiFp = function(configuration?: Configuration) {
          */
         async getDocumentById(documentId: string, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Document>> {
             const localVarAxiosArgs = await DocumentApiAxiosParamCreator(configuration).getDocumentById(documentId, options);
-            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
-                const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
-                return axios.request(axiosRequestArgs);
-            };
-        },
-        /**
-         * Returns access grants for a single document
-         * @summary Get access grants
-         * @param {string} documentId ID of document to find grants for
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async getGrantsByDocumentId(documentId: string, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<DocumentGrantList>> {
-            const localVarAxiosArgs = await DocumentApiAxiosParamCreator(configuration).getGrantsByDocumentId(documentId, options);
             return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
                 const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
                 return axios.request(axiosRequestArgs);
@@ -999,17 +1224,6 @@ export const DocumentApiFp = function(configuration?: Configuration) {
 export const DocumentApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
     return {
         /**
-         * Grant access to a document
-         * @summary Create a document grant
-         * @param {string} documentId ID of the document that needs to be updated
-         * @param {DocumentGrantCreate} documentGrantCreate Create a document grant
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        createGrantForDocument(documentId: string, documentGrantCreate: DocumentGrantCreate, options?: any): AxiosPromise<DocumentGrant> {
-            return DocumentApiFp(configuration).createGrantForDocument(documentId, documentGrantCreate, options).then((request) => request(axios, basePath));
-        },
-        /**
          * 
          * @summary Deletes a document
          * @param {string} documentId ID of Document to delete
@@ -1020,18 +1234,18 @@ export const DocumentApiFactory = function (configuration?: Configuration, baseP
             return DocumentApiFp(configuration).deleteDocumentById(documentId, options).then((request) => request(axios, basePath));
         },
         /**
-         * 
-         * @summary Deletes a document grant
-         * @param {string} documentId ID of Document the Grant belongs to
-         * @param {string} grantId ID of the Document Grant to delete
+         * Get a presigned POST URL to download the specified file. This will be audited as a download by the end user.
+         * @summary File download information
+         * @param {string} documentId ID of document
+         * @param {string} fileId ID of file in the document
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deleteDocumentGrantById(documentId: string, grantId: string, options?: any): AxiosPromise<void> {
-            return DocumentApiFp(configuration).deleteDocumentGrantById(documentId, grantId, options).then((request) => request(axios, basePath));
+        downloadDocumentFileById(documentId: string, fileId: string, options?: any): AxiosPromise<FileDownload> {
+            return DocumentApiFp(configuration).downloadDocumentFileById(documentId, fileId, options).then((request) => request(axios, basePath));
         },
         /**
-         * Returns a single document
+         * Returns a single document. This will be audited as a document view by the current user
          * @summary Find document by ID
          * @param {string} documentId ID of document to return
          * @param {*} [options] Override http request option.
@@ -1039,16 +1253,6 @@ export const DocumentApiFactory = function (configuration?: Configuration, baseP
          */
         getDocumentById(documentId: string, options?: any): AxiosPromise<Document> {
             return DocumentApiFp(configuration).getDocumentById(documentId, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * Returns access grants for a single document
-         * @summary Get access grants
-         * @param {string} documentId ID of document to find grants for
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getGrantsByDocumentId(documentId: string, options?: any): AxiosPromise<DocumentGrantList> {
-            return DocumentApiFp(configuration).getGrantsByDocumentId(documentId, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -1072,19 +1276,6 @@ export const DocumentApiFactory = function (configuration?: Configuration, baseP
  */
 export class DocumentApi extends BaseAPI {
     /**
-     * Grant access to a document
-     * @summary Create a document grant
-     * @param {string} documentId ID of the document that needs to be updated
-     * @param {DocumentGrantCreate} documentGrantCreate Create a document grant
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof DocumentApi
-     */
-    public createGrantForDocument(documentId: string, documentGrantCreate: DocumentGrantCreate, options?: any) {
-        return DocumentApiFp(this.configuration).createGrantForDocument(documentId, documentGrantCreate, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
      * 
      * @summary Deletes a document
      * @param {string} documentId ID of Document to delete
@@ -1097,20 +1288,20 @@ export class DocumentApi extends BaseAPI {
     }
 
     /**
-     * 
-     * @summary Deletes a document grant
-     * @param {string} documentId ID of Document the Grant belongs to
-     * @param {string} grantId ID of the Document Grant to delete
+     * Get a presigned POST URL to download the specified file. This will be audited as a download by the end user.
+     * @summary File download information
+     * @param {string} documentId ID of document
+     * @param {string} fileId ID of file in the document
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof DocumentApi
      */
-    public deleteDocumentGrantById(documentId: string, grantId: string, options?: any) {
-        return DocumentApiFp(this.configuration).deleteDocumentGrantById(documentId, grantId, options).then((request) => request(this.axios, this.basePath));
+    public downloadDocumentFileById(documentId: string, fileId: string, options?: any) {
+        return DocumentApiFp(this.configuration).downloadDocumentFileById(documentId, fileId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
-     * Returns a single document
+     * Returns a single document. This will be audited as a document view by the current user
      * @summary Find document by ID
      * @param {string} documentId ID of document to return
      * @param {*} [options] Override http request option.
@@ -1119,18 +1310,6 @@ export class DocumentApi extends BaseAPI {
      */
     public getDocumentById(documentId: string, options?: any) {
         return DocumentApiFp(this.configuration).getDocumentById(documentId, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * Returns access grants for a single document
-     * @summary Get access grants
-     * @param {string} documentId ID of document to find grants for
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof DocumentApi
-     */
-    public getGrantsByDocumentId(documentId: string, options?: any) {
-        return DocumentApiFp(this.configuration).getGrantsByDocumentId(documentId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1208,6 +1387,66 @@ export const UserApiAxiosParamCreator = function (configuration?: Configuration)
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             const needsSerialization = (typeof userDelegatedAccessCreate !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.data =  needsSerialization ? JSON.stringify(userDelegatedAccessCreate !== undefined ? userDelegatedAccessCreate : {}) : (userDelegatedAccessCreate || "");
+
+            return {
+                url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Add a new collection for a user
+         * @summary Add a new collection
+         * @param {string} userId ID of user to create the collection for
+         * @param {CollectionCreate} collectionCreate Create a new collection
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        addUserCollection: async (userId: string, collectionCreate: CollectionCreate, options: any = {}): Promise<RequestArgs> => {
+            // verify required parameter 'userId' is not null or undefined
+            if (userId === null || userId === undefined) {
+                throw new RequiredError('userId','Required parameter userId was null or undefined when calling addUserCollection.');
+            }
+            // verify required parameter 'collectionCreate' is not null or undefined
+            if (collectionCreate === null || collectionCreate === undefined) {
+                throw new RequiredError('collectionCreate','Required parameter collectionCreate was null or undefined when calling addUserCollection.');
+            }
+            const localVarPath = `/users/{userId}/collections`
+                .replace(`{${"userId"}}`, encodeURIComponent(String(userId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, 'https://example.com');
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication datalocker_auth required
+            // oauth required
+            if (configuration && configuration.accessToken) {
+                const localVarAccessTokenValue = typeof configuration.accessToken === 'function'
+                    ? await configuration.accessToken("datalocker_auth", [])
+                    : await configuration.accessToken;
+                localVarHeaderParameter["Authorization"] = "Bearer " + localVarAccessTokenValue;
+            }
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            const query = new URLSearchParams(localVarUrlObj.search);
+            for (const key in localVarQueryParameter) {
+                query.set(key, localVarQueryParameter[key]);
+            }
+            for (const key in options.query) {
+                query.set(key, options.query[key]);
+            }
+            localVarUrlObj.search = (new URLSearchParams(query)).toString();
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            const needsSerialization = (typeof collectionCreate !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.data =  needsSerialization ? JSON.stringify(collectionCreate !== undefined ? collectionCreate : {}) : (collectionCreate || "");
 
             return {
                 url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
@@ -1326,18 +1565,18 @@ export const UserApiAxiosParamCreator = function (configuration?: Configuration)
             };
         },
         /**
-         * List agencies user is part of in current city
-         * @summary List agencies for user
-         * @param {string} userId ID of user to find agencies for
+         * List access delegated to and from a user
+         * @summary List delegated access
+         * @param {string} userId ID of user to find delegated access items for
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listAgenciesForUser: async (userId: string, options: any = {}): Promise<RequestArgs> => {
+        listDelegatedAccess: async (userId: string, options: any = {}): Promise<RequestArgs> => {
             // verify required parameter 'userId' is not null or undefined
             if (userId === null || userId === undefined) {
-                throw new RequiredError('userId','Required parameter userId was null or undefined when calling listAgenciesForUser.');
+                throw new RequiredError('userId','Required parameter userId was null or undefined when calling listDelegatedAccess.');
             }
-            const localVarPath = `/users/{userId}/agencies`
+            const localVarPath = `/users/{userId}/delegates`
                 .replace(`{${"userId"}}`, encodeURIComponent(String(userId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, 'https://example.com');
@@ -1377,18 +1616,19 @@ export const UserApiAxiosParamCreator = function (configuration?: Configuration)
             };
         },
         /**
-         * List access delegated to and from a user
-         * @summary List delegated access
-         * @param {string} userId ID of user to find delegated access items for
+         * List collections owned by a user
+         * @summary List collections owned by a user
+         * @param {string} userId ID of user to find collections for
+         * @param {string} [search] Search string to narrow down list
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listDelegatedAccess: async (userId: string, options: any = {}): Promise<RequestArgs> => {
+        listUserCollections: async (userId: string, search?: string, options: any = {}): Promise<RequestArgs> => {
             // verify required parameter 'userId' is not null or undefined
             if (userId === null || userId === undefined) {
-                throw new RequiredError('userId','Required parameter userId was null or undefined when calling listDelegatedAccess.');
+                throw new RequiredError('userId','Required parameter userId was null or undefined when calling listUserCollections.');
             }
-            const localVarPath = `/users/{userId}/delegates`
+            const localVarPath = `/users/{userId}/collections`
                 .replace(`{${"userId"}}`, encodeURIComponent(String(userId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, 'https://example.com');
@@ -1407,6 +1647,66 @@ export const UserApiAxiosParamCreator = function (configuration?: Configuration)
                     ? await configuration.accessToken("datalocker_auth", [])
                     : await configuration.accessToken;
                 localVarHeaderParameter["Authorization"] = "Bearer " + localVarAccessTokenValue;
+            }
+
+            if (search !== undefined) {
+                localVarQueryParameter['search'] = search;
+            }
+
+
+    
+            const query = new URLSearchParams(localVarUrlObj.search);
+            for (const key in localVarQueryParameter) {
+                query.set(key, localVarQueryParameter[key]);
+            }
+            for (const key in options.query) {
+                query.set(key, options.query[key]);
+            }
+            localVarUrlObj.search = (new URLSearchParams(query)).toString();
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * List collections shared to user
+         * @summary List collections shared to user
+         * @param {string} userId ID of user to find accessible collections for
+         * @param {string} [search] Search string to narrow down list
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listUserCollectionsShared: async (userId: string, search?: string, options: any = {}): Promise<RequestArgs> => {
+            // verify required parameter 'userId' is not null or undefined
+            if (userId === null || userId === undefined) {
+                throw new RequiredError('userId','Required parameter userId was null or undefined when calling listUserCollectionsShared.');
+            }
+            const localVarPath = `/users/{userId}/collections/shared`
+                .replace(`{${"userId"}}`, encodeURIComponent(String(userId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, 'https://example.com');
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication datalocker_auth required
+            // oauth required
+            if (configuration && configuration.accessToken) {
+                const localVarAccessTokenValue = typeof configuration.accessToken === 'function'
+                    ? await configuration.accessToken("datalocker_auth", [])
+                    : await configuration.accessToken;
+                localVarHeaderParameter["Authorization"] = "Bearer " + localVarAccessTokenValue;
+            }
+
+            if (search !== undefined) {
+                localVarQueryParameter['search'] = search;
             }
 
 
@@ -1483,62 +1783,6 @@ export const UserApiAxiosParamCreator = function (configuration?: Configuration)
                 options: localVarRequestOptions,
             };
         },
-        /**
-         * List documents shared to user
-         * @summary List documents shared to user
-         * @param {string} userId ID of user to find accessible documents for
-         * @param {string} [search] Search string to narrow down list
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        listUserDocumentsShared: async (userId: string, search?: string, options: any = {}): Promise<RequestArgs> => {
-            // verify required parameter 'userId' is not null or undefined
-            if (userId === null || userId === undefined) {
-                throw new RequiredError('userId','Required parameter userId was null or undefined when calling listUserDocumentsShared.');
-            }
-            const localVarPath = `/users/{userId}/documents/shared`
-                .replace(`{${"userId"}}`, encodeURIComponent(String(userId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, 'https://example.com');
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication datalocker_auth required
-            // oauth required
-            if (configuration && configuration.accessToken) {
-                const localVarAccessTokenValue = typeof configuration.accessToken === 'function'
-                    ? await configuration.accessToken("datalocker_auth", [])
-                    : await configuration.accessToken;
-                localVarHeaderParameter["Authorization"] = "Bearer " + localVarAccessTokenValue;
-            }
-
-            if (search !== undefined) {
-                localVarQueryParameter['search'] = search;
-            }
-
-
-    
-            const query = new URLSearchParams(localVarUrlObj.search);
-            for (const key in localVarQueryParameter) {
-                query.set(key, localVarQueryParameter[key]);
-            }
-            for (const key in options.query) {
-                query.set(key, options.query[key]);
-            }
-            localVarUrlObj.search = (new URLSearchParams(query)).toString();
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
-                options: localVarRequestOptions,
-            };
-        },
     }
 };
 
@@ -1558,6 +1802,21 @@ export const UserApiFp = function(configuration?: Configuration) {
          */
         async addDelegatedAccess(userId: string, userDelegatedAccessCreate: UserDelegatedAccessCreate, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserDelegatedAccess>> {
             const localVarAxiosArgs = await UserApiAxiosParamCreator(configuration).addDelegatedAccess(userId, userDelegatedAccessCreate, options);
+            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
+                const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
+                return axios.request(axiosRequestArgs);
+            };
+        },
+        /**
+         * Add a new collection for a user
+         * @summary Add a new collection
+         * @param {string} userId ID of user to create the collection for
+         * @param {CollectionCreate} collectionCreate Create a new collection
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async addUserCollection(userId: string, collectionCreate: CollectionCreate, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Collection>> {
+            const localVarAxiosArgs = await UserApiAxiosParamCreator(configuration).addUserCollection(userId, collectionCreate, options);
             return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
                 const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
                 return axios.request(axiosRequestArgs);
@@ -1593,20 +1852,6 @@ export const UserApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         * List agencies user is part of in current city
-         * @summary List agencies for user
-         * @param {string} userId ID of user to find agencies for
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async listAgenciesForUser(userId: string, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AgencyList>> {
-            const localVarAxiosArgs = await UserApiAxiosParamCreator(configuration).listAgenciesForUser(userId, options);
-            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
-                const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
-                return axios.request(axiosRequestArgs);
-            };
-        },
-        /**
          * List access delegated to and from a user
          * @summary List delegated access
          * @param {string} userId ID of user to find delegated access items for
@@ -1615,6 +1860,36 @@ export const UserApiFp = function(configuration?: Configuration) {
          */
         async listDelegatedAccess(userId: string, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserDelegatedAccessList>> {
             const localVarAxiosArgs = await UserApiAxiosParamCreator(configuration).listDelegatedAccess(userId, options);
+            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
+                const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
+                return axios.request(axiosRequestArgs);
+            };
+        },
+        /**
+         * List collections owned by a user
+         * @summary List collections owned by a user
+         * @param {string} userId ID of user to find collections for
+         * @param {string} [search] Search string to narrow down list
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listUserCollections(userId: string, search?: string, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionList>> {
+            const localVarAxiosArgs = await UserApiAxiosParamCreator(configuration).listUserCollections(userId, search, options);
+            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
+                const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
+                return axios.request(axiosRequestArgs);
+            };
+        },
+        /**
+         * List collections shared to user
+         * @summary List collections shared to user
+         * @param {string} userId ID of user to find accessible collections for
+         * @param {string} [search] Search string to narrow down list
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listUserCollectionsShared(userId: string, search?: string, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionList>> {
+            const localVarAxiosArgs = await UserApiAxiosParamCreator(configuration).listUserCollectionsShared(userId, search, options);
             return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
                 const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
                 return axios.request(axiosRequestArgs);
@@ -1630,21 +1905,6 @@ export const UserApiFp = function(configuration?: Configuration) {
          */
         async listUserDocuments(userId: string, search?: string, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<DocumentList>> {
             const localVarAxiosArgs = await UserApiAxiosParamCreator(configuration).listUserDocuments(userId, search, options);
-            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
-                const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
-                return axios.request(axiosRequestArgs);
-            };
-        },
-        /**
-         * List documents shared to user
-         * @summary List documents shared to user
-         * @param {string} userId ID of user to find accessible documents for
-         * @param {string} [search] Search string to narrow down list
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async listUserDocumentsShared(userId: string, search?: string, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<DocumentList>> {
-            const localVarAxiosArgs = await UserApiAxiosParamCreator(configuration).listUserDocumentsShared(userId, search, options);
             return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
                 const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
                 return axios.request(axiosRequestArgs);
@@ -1671,6 +1931,17 @@ export const UserApiFactory = function (configuration?: Configuration, basePath?
             return UserApiFp(configuration).addDelegatedAccess(userId, userDelegatedAccessCreate, options).then((request) => request(axios, basePath));
         },
         /**
+         * Add a new collection for a user
+         * @summary Add a new collection
+         * @param {string} userId ID of user to create the collection for
+         * @param {CollectionCreate} collectionCreate Create a new collection
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        addUserCollection(userId: string, collectionCreate: CollectionCreate, options?: any): AxiosPromise<Collection> {
+            return UserApiFp(configuration).addUserCollection(userId, collectionCreate, options).then((request) => request(axios, basePath));
+        },
+        /**
          * Add a new document for a user
          * @summary Add a new document
          * @param {string} userId ID of user to create document for
@@ -1692,16 +1963,6 @@ export const UserApiFactory = function (configuration?: Configuration, basePath?
             return UserApiFp(configuration).getUser(userId, options).then((request) => request(axios, basePath));
         },
         /**
-         * List agencies user is part of in current city
-         * @summary List agencies for user
-         * @param {string} userId ID of user to find agencies for
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        listAgenciesForUser(userId: string, options?: any): AxiosPromise<AgencyList> {
-            return UserApiFp(configuration).listAgenciesForUser(userId, options).then((request) => request(axios, basePath));
-        },
-        /**
          * List access delegated to and from a user
          * @summary List delegated access
          * @param {string} userId ID of user to find delegated access items for
@@ -1710,6 +1971,28 @@ export const UserApiFactory = function (configuration?: Configuration, basePath?
          */
         listDelegatedAccess(userId: string, options?: any): AxiosPromise<UserDelegatedAccessList> {
             return UserApiFp(configuration).listDelegatedAccess(userId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * List collections owned by a user
+         * @summary List collections owned by a user
+         * @param {string} userId ID of user to find collections for
+         * @param {string} [search] Search string to narrow down list
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listUserCollections(userId: string, search?: string, options?: any): AxiosPromise<CollectionList> {
+            return UserApiFp(configuration).listUserCollections(userId, search, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * List collections shared to user
+         * @summary List collections shared to user
+         * @param {string} userId ID of user to find accessible collections for
+         * @param {string} [search] Search string to narrow down list
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listUserCollectionsShared(userId: string, search?: string, options?: any): AxiosPromise<CollectionList> {
+            return UserApiFp(configuration).listUserCollectionsShared(userId, search, options).then((request) => request(axios, basePath));
         },
         /**
          * List documents owned by a user
@@ -1721,17 +2004,6 @@ export const UserApiFactory = function (configuration?: Configuration, basePath?
          */
         listUserDocuments(userId: string, search?: string, options?: any): AxiosPromise<DocumentList> {
             return UserApiFp(configuration).listUserDocuments(userId, search, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * List documents shared to user
-         * @summary List documents shared to user
-         * @param {string} userId ID of user to find accessible documents for
-         * @param {string} [search] Search string to narrow down list
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        listUserDocumentsShared(userId: string, search?: string, options?: any): AxiosPromise<DocumentList> {
-            return UserApiFp(configuration).listUserDocumentsShared(userId, search, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -1754,6 +2026,19 @@ export class UserApi extends BaseAPI {
      */
     public addDelegatedAccess(userId: string, userDelegatedAccessCreate: UserDelegatedAccessCreate, options?: any) {
         return UserApiFp(this.configuration).addDelegatedAccess(userId, userDelegatedAccessCreate, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Add a new collection for a user
+     * @summary Add a new collection
+     * @param {string} userId ID of user to create the collection for
+     * @param {CollectionCreate} collectionCreate Create a new collection
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UserApi
+     */
+    public addUserCollection(userId: string, collectionCreate: CollectionCreate, options?: any) {
+        return UserApiFp(this.configuration).addUserCollection(userId, collectionCreate, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1782,18 +2067,6 @@ export class UserApi extends BaseAPI {
     }
 
     /**
-     * List agencies user is part of in current city
-     * @summary List agencies for user
-     * @param {string} userId ID of user to find agencies for
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof UserApi
-     */
-    public listAgenciesForUser(userId: string, options?: any) {
-        return UserApiFp(this.configuration).listAgenciesForUser(userId, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
      * List access delegated to and from a user
      * @summary List delegated access
      * @param {string} userId ID of user to find delegated access items for
@@ -1803,6 +2076,32 @@ export class UserApi extends BaseAPI {
      */
     public listDelegatedAccess(userId: string, options?: any) {
         return UserApiFp(this.configuration).listDelegatedAccess(userId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * List collections owned by a user
+     * @summary List collections owned by a user
+     * @param {string} userId ID of user to find collections for
+     * @param {string} [search] Search string to narrow down list
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UserApi
+     */
+    public listUserCollections(userId: string, search?: string, options?: any) {
+        return UserApiFp(this.configuration).listUserCollections(userId, search, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * List collections shared to user
+     * @summary List collections shared to user
+     * @param {string} userId ID of user to find accessible collections for
+     * @param {string} [search] Search string to narrow down list
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UserApi
+     */
+    public listUserCollectionsShared(userId: string, search?: string, options?: any) {
+        return UserApiFp(this.configuration).listUserCollectionsShared(userId, search, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1816,19 +2115,6 @@ export class UserApi extends BaseAPI {
      */
     public listUserDocuments(userId: string, search?: string, options?: any) {
         return UserApiFp(this.configuration).listUserDocuments(userId, search, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * List documents shared to user
-     * @summary List documents shared to user
-     * @param {string} userId ID of user to find accessible documents for
-     * @param {string} [search] Search string to narrow down list
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof UserApi
-     */
-    public listUserDocumentsShared(userId: string, search?: string, options?: any) {
-        return UserApiFp(this.configuration).listUserDocumentsShared(userId, search, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

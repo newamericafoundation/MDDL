@@ -46,6 +46,7 @@ export class File extends BaseModel {
         'path',
         'received',
         'contentType',
+        'contentLength',
         'sha256Checksum',
         'createdAt',
         'createdBy',
@@ -92,4 +93,17 @@ export class File extends BaseModel {
 export const markFileReceived = async (path: string) => {
   await File.query().patch({ received: true }).where({ path })
   return await File.query().where({ path }).first()
+}
+
+export const getFileByIdAndDocumentId = async (
+  fileId: string,
+  documentId: string,
+) => {
+  const file = await File.query()
+    .where({
+      id: fileId,
+      documentId,
+    })
+    .first()
+  return file ? file : null
 }

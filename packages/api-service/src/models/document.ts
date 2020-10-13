@@ -91,6 +91,14 @@ export const getDocumentById = async (id: string, accessingUserId: string) => {
   return results.length ? results[0] : null
 }
 
+export const documentExistsById = async (
+  id: string,
+  accessingUserId: string,
+) => {
+  const results = await Document.query().modify('byId', id, accessingUserId)
+  return !!results.length
+}
+
 export const getDocumentsByOwnerId = async (ownerId: string) => {
   const results = await Document.query()
     .modify('fieldsForList')

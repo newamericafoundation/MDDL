@@ -7,13 +7,13 @@ import { Document } from '@/models/document'
 import { File } from '@/models/file'
 import { createJsonResponse } from '@/utils/api-gateway'
 import { FILE_CONTENT_TYPE } from '@/lambdas/constants'
-import { getPresignedUploadUrl, getPresignedDownloadUrl } from '@/utils/s3'
+import { getPresignedUploadUrl } from '@/utils/s3'
 
 export const createLinksForFile = async (file: File) => {
   const links: any[] = []
   if (file.received) {
     links.push({
-      href: await getPresignedDownloadUrl(file.path),
+      href: `/documents/${file.documentId}/files/${file.id}/download`,
       rel: 'download',
       type: 'GET',
     })
@@ -54,6 +54,7 @@ export const createSingleDocumentResult = async (document: Document) => {
           contentType: FILE_CONTENT_TYPE.get(
             f.contentType,
           ) as FileContentTypeEnum,
+          contentLength: f.contentLength,
         }),
       ),
     ),

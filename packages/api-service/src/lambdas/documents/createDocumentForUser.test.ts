@@ -192,6 +192,7 @@ describe('createDocumentForUser', () => {
             ],
             name: 'MyFile1.jpg',
             sha256Checksum: 'ABC123',
+            contentLength: 1000,
           },
         ],
         links: [],

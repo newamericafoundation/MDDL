@@ -273,7 +273,7 @@ export class CityStack extends Stack {
         removalPolicy: RemovalPolicy.RETAIN,
         cors: [
           {
-            allowedMethods: [HttpMethods.PUT],
+            allowedMethods: [HttpMethods.POST, HttpMethods.GET],
             allowedOrigins: corsOrigins,
             maxAge: 3000,
             allowedHeaders: [
@@ -802,6 +802,36 @@ export class CityStack extends Stack {
       name: 'GetDocumentById',
       routeKey: 'GET /documents/{documentId}',
       lambdaFunction: getDocumentByIdLambda,
+      authorizer,
+    })
+
+    // create lambda to get a file download link
+    const getFileDownloadByIdLambda = this.createLambda(
+      'DownloadDocumentFileById',
+      pathToApiServiceLambda('documents/getFileDownloadLinkById'),
+      {
+        dbSecret,
+        layers: [mySqlLayer],
+        extraEnvironmentVariables: {
+          DOCUMENTS_BUCKET: uploadsBucket.bucketName,
+        },
+      },
+    )
+
+    // permission needed to create presigned urls (for get)
+    this.addPermissionsToDocumentBucket(
+      getFileDownloadByIdLambda,
+      uploadsBucket,
+      {
+        includeRead: true,
+      },
+    )
+
+    // add route
+    this.addRoute(api, {
+      name: 'DownloadDocumentFileById',
+      routeKey: 'GET /documents/{documentId}/files/{fileId}/download',
+      lambdaFunction: getFileDownloadByIdLambda,
       authorizer,
     })
 

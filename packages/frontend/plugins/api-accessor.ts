@@ -1,10 +1,9 @@
 import { NuxtAxiosInstance } from '@nuxtjs/axios'
-import { DocumentApi, AgencyApi, UserApi, Configuration } from 'api-client'
+import { DocumentApi, UserApi, Configuration } from 'api-client'
 
 const initialisedAPIs = {
   document: null as DocumentApi | null,
   user: null as UserApi | null,
-  agency: null as AgencyApi | null,
 }
 
 export class ApiService {
@@ -40,17 +39,6 @@ export class ApiService {
       )
     }
     return initialisedAPIs.user
-  }
-
-  get agency(): AgencyApi {
-    if (initialisedAPIs.agency === null) {
-      initialisedAPIs.agency = new AgencyApi(
-        this.config,
-        process.env.API_URL,
-        this.axios,
-      )
-    }
-    return initialisedAPIs.agency
   }
 }
 

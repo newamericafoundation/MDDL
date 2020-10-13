@@ -11,10 +11,40 @@ tags:
     description: User based operations
   - name: document
     description: Document based operations
-  - name: agency
-    description: Agency based operations
+  - name: collections
+    description: Collection based operations
 paths:
   '/users/{userId}/documents':
+    get:
+      tags:
+        - user
+      summary: List documents owned by a user
+      description: List documents owned by a user
+      operationId: listUserDocuments
+      parameters:
+        - name: userId
+          in: path
+          description: ID of user to find documents for
+          required: true
+          schema:
+            type: string
+        - name: search
+          in: query
+          description: Search string to narrow down list
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentList'
+        '404':
+          description: User not found
+      security:
+        - datalocker_auth: []
     post:
       tags:
         - user
@@ -46,67 +76,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/DocumentCreate'
-    get:
-      tags:
-        - user
-      summary: List documents owned by a user
-      description: List documents owned by a user
-      operationId: listUserDocuments
-      parameters:
-        - name: userId
-          in: path
-          description: ID of user to find documents for
-          required: true
-          schema:
-            type: string
-        - name: search
-          in: query
-          description: Search string to narrow down list
-          required: false
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DocumentList'
-        '404':
-          description: User not found
-      security:
-        - datalocker_auth: []
-  '/users/{userId}/documents/shared':
-    get:
-      tags:
-        - user
-      summary: List documents shared to user
-      description: List documents shared to user
-      operationId: listUserDocumentsShared
-      parameters:
-        - name: userId
-          in: path
-          description: ID of user to find accessible documents for
-          required: true
-          schema:
-            type: string
-        - name: search
-          in: query
-          description: Search string to narrow down list
-          required: false
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DocumentList'
-        '404':
-          description: User not found
-      security:
-        - datalocker_auth: []
 
   '/users/{userId}':
     get:
@@ -131,30 +100,6 @@ paths:
                 $ref: '#/components/schemas/User'
         '404':
           description: User not found
-      security:
-        - datalocker_auth: []
-
-  '/users/{userId}/agencies':
-    get:
-      tags:
-        - user
-      summary: List agencies for user
-      description: List agencies user is part of in current city
-      operationId: listAgenciesForUser
-      parameters:
-        - name: userId
-          in: path
-          description: ID of user to find agencies for
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AgencyList'
       security:
         - datalocker_auth: []
 
@@ -213,12 +158,107 @@ paths:
       security:
         - datalocker_auth: []
 
+  '/users/{userId}/collections':
+    get:
+      tags:
+        - user
+      summary: List collections owned by a user
+      description: List collections owned by a user
+      operationId: listUserCollections
+      parameters:
+        - name: userId
+          in: path
+          description: ID of user to find collections for
+          required: true
+          schema:
+            type: string
+        - name: search
+          in: query
+          description: Search string to narrow down list
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectionList'
+        '404':
+          description: User not found
+      security:
+        - datalocker_auth: []
+    post:
+      tags:
+        - user
+      summary: Add a new collection
+      description: Add a new collection for a user
+      operationId: addUserCollection
+      parameters:
+        - name: userId
+          in: path
+          description: ID of user to create the collection for
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Collection'
+        '400':
+          description: Bad Request
+      security:
+        - datalocker_auth: []
+      requestBody:
+        description: Create a new collection
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CollectionCreate'
+
+  '/users/{userId}/collections/shared':
+    get:
+      tags:
+        - user
+      summary: List collections shared to user
+      description: List collections shared to user
+      operationId: listUserCollectionsShared
+      parameters:
+        - name: userId
+          in: path
+          description: ID of user to find accessible collections for
+          required: true
+          schema:
+            type: string
+        - name: search
+          in: query
+          description: Search string to narrow down list
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectionList'
+        '404':
+          description: User not found
+      security:
+        - datalocker_auth: []
+
   '/documents/{documentId}':
     get:
       tags:
         - document
       summary: Find document by ID
-      description: Returns a single document
+      description: Returns a single document. This will be audited as a document view by the current user
       operationId: getDocumentById
       parameters:
         - name: documentId
@@ -284,17 +324,23 @@ paths:
       security:
         - datalocker_auth: []
 
-  '/documents/{documentId}/grants':
+  '/documents/{documentId}/files/{fileId}/download':
     get:
       tags:
         - document
-      summary: Get access grants
-      description: Returns access grants for a single document
-      operationId: getGrantsByDocumentId
+      summary: File download information
+      description: Get a presigned POST URL to download the specified file. This will be audited as a download by the end user.
+      operationId: downloadDocumentFileById
       parameters:
         - name: documentId
           in: path
-          description: ID of document to find grants for
+          description: ID of document
+          required: true
+          schema:
+            type: string
+        - name: fileId
+          in: path
+          description: ID of file in the document
           required: true
           schema:
             type: string
@@ -304,33 +350,57 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DocumentGrantList'
+                $ref: '#/components/schemas/FileDownload'
         '400':
           description: Invalid ID supplied
         '404':
-          description: Document not found
+          description: Document or file not found
+      security:
+        - datalocker_auth: []
+
+  '/collections/{collectionId}/grants':
+    get:
+      tags:
+        - collections
+      summary: Get access grants to collection
+      description: Returns access grants for a single collection
+      operationId: getGrantsByCollectionId
+      parameters:
+        - name: collectionId
+          in: path
+          description: ID of collection to find grants for
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectionGrantList'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Collection not found
       security:
         - datalocker_auth: []
     post:
       tags:
-        - document
-      summary: Create a document grant
-      description: Grant access to a document
-      operationId: createGrantForDocument
+        - collections
+      summary: Create grants to a collection
+      description: Grant access to a collection
+      operationId: createGrantsForCollection
       parameters:
-        - name: documentId
+        - name: collectionId
           in: path
-          description: ID of the document that needs to be updated
+          description: ID of the collection
           required: true
           schema:
             type: string
       responses:
         '200':
           description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DocumentGrant'
         '405':
           description: Invalid input
       security:
@@ -341,56 +411,95 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DocumentGrantCreate'
+              $ref: '#/components/schemas/CollectionGrantCreate'
 
-  '/documents/{documentId}/grants/{grantId}':
+  '/collection/{collectionId}/grants/{grantId}':
     delete:
       tags:
-        - document
-      summary: Deletes a document grant
-      description: ''
-      operationId: deleteDocumentGrantById
+        - collections
+      summary: Deletes a collection grant
+      description: Revokes access to a collection by removing the grant
+      operationId: deleteCollectionGrantById
       parameters:
-        - name: documentId
+        - name: collectionId
           in: path
-          description: ID of Document the Grant belongs to
+          description: ID of the collection the grant belongs to
           required: true
           schema:
             type: string
         - name: grantId
           in: path
-          description: ID of the Document Grant to delete
+          description: ID of the grant to delete
           required: true
           schema:
             type: string
       responses:
         '404':
-          description: Document not found
+          description: Collection not found
       security:
         - datalocker_auth: []
 
-  '/agencies':
+  '/collections/{collectionId}/documents':
     get:
       tags:
-        - agency
-      summary: List agencies
-      description: List agencies in current city
-      operationId: listAgencies
+        - collections
+      summary: Get documents
+      description: Get documents in a collection
+      operationId: getCollectionDocuments
+      parameters:
+        - name: collectionId
+          in: path
+          description: ID of the collection to fetch
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AgencyList'
+                $ref: '#/components/schemas/DocumentList'
+        '404':
+          description: User not found
       security:
         - datalocker_auth: []
 
 components:
   schemas:
+    Link:
+      description: A HATEOS Link
+      type: object
+      required:
+        - href
+        - rel
+        - type
+      properties:
+        href:
+          type: string
+          description: The web address (relative or absolute) for the linked resource
+          example: 'https://my-doc-link.com'
+        rel:
+          type: string
+          description: The relation this linked resource has to the resource it is attached to.
+          example: 'parent'
+        type:
+          type: string
+          description: The HTTP method to use to access the linked resource
+          example: GET
+        includeFormData:
+          type: object
+          description: Form data to include in the request
+          additionalProperties:
+            type: string
+    Links:
+      description: An array of Links
+      type: array
+      items:
+        $ref: '#/components/schemas/Link'
     FileContentTypeEnum:
+      description: The accepted content type for files
       type: string
-      description: File content type
       enum:
         - application/pdf
         - image/jpeg
@@ -398,6 +507,7 @@ components:
         - image/tiff
       example: image/jpeg
     DocumentUpdate:
+      description: Request data to update a document
       type: object
       required:
         - name
@@ -407,6 +517,7 @@ components:
           description: Document description
           example: Sam's SSN
     DocumentCreate:
+      description: Request data to create a document
       required:
         - name
         - files
@@ -417,14 +528,17 @@ components:
           example: Sam's SSN
         files:
           type: array
+          description: The files that are part of the document
           items:
             $ref: '#/components/schemas/DocumentCreateFile'
       type: object
     DocumentCreateFile:
+      description: Request data to create a file of a document
       required:
         - name
         - contentType
         - sha256Checksum
+        - contentLength
       properties:
         name:
           type: string
@@ -435,17 +549,23 @@ components:
         sha256Checksum:
           type: string
           description: SHA256 Checksum of file content
+        contentLength:
+          type: number
+          description: Content length in bytes of the file
       type: object
     DocumentList:
+      description: A result containing a list of documents
       required:
         - documents
       properties:
         documents:
           type: array
+          description: The documents list
           items:
             $ref: '#/components/schemas/DocumentListItem'
       type: object
     DocumentListItem:
+      description: A listed document, deliberately minimal
       required:
         - id
         - name
@@ -454,30 +574,34 @@ components:
       properties:
         id:
           type: string
+          description: The ID of the document
           example: D050A33E-74F6-4BEF-AED5-87F48E5CCE44
         name:
           type: string
+          description: The human readable name of the document
           example: Letter of Employment
         createdDate:
           type: string
+          description: Date the document was created
           format: date-time
           example: '2020-01-01T01:01:01Z'
         links:
-          type: object
-          example:
-            details: https://my-details-url
+          $ref: '#/components/schemas/Links'
       type: object
     DocumentFile:
+      description: A file of a document
       required:
         - id
         - name
         - contentType
         - sha256Checksum
         - createdDate
+        - contentLength
         - links
       properties:
         id:
           type: string
+          description: The ID of the document file
           example: D050A33E-74F6-4BEF-AED5-87F48E5CCE44
         name:
           type: string
@@ -488,17 +612,19 @@ components:
         sha256Checksum:
           type: string
           description: SHA256 Checksum of file content
+        contentLength:
+          type: number
+          description: Content length in bytes of the file
         createdDate:
           type: string
           format: date-time
+          description: Date the document file was created
           example: '2020-01-01T01:01:01Z'
         links:
-          type: object
-          example:
-            upload: https://my-upload-url
-            download: https://my-download-url
+          $ref: '#/components/schemas/Links'
       type: object
     Document:
+      description: A document
       required:
         - id
         - name
@@ -508,6 +634,7 @@ components:
       properties:
         id:
           type: string
+          description: The ID of the document
           example: D050A33E-74F6-4BEF-AED5-87F48E5CCE44
         name:
           type: string
@@ -515,19 +642,29 @@ components:
           example: Sam's SSN
         createdDate:
           type: string
+          description: Date the document was created
           format: date-time
           example: '2020-01-01T01:01:01Z'
         files:
           type: array
+          description: The files in the document
           items:
             $ref: '#/components/schemas/DocumentFile'
         links:
-          type: object
-          example:
-            download: https://my-download-url
-            delete: https://my-delete-url
+          $ref: '#/components/schemas/Links'
       type: object
+    FileDownload:
+      description: A result containing a download link to a file
+      type: object
+      required:
+        - href
+      properties:
+        href:
+          type: string
+          description: The web address (relative or absolute) for the linked resource
+          example: 'https://my-download-link.com'
     User:
+      description: A user
       required:
         - id
         - givenName
@@ -537,27 +674,31 @@ components:
         id:
           type: string
           example: 2D3D5CF7-ED9D-48F1-8A14-12B0C1114B64
+          description: The user id
         givenName:
           type: string
           example: Sam
+          description: The users given name
         familyName:
           type: string
+          description: The users family name
           example: Citizen
         links:
-          type: object
-          example:
-            delete: https://my-delete-url
+          $ref: '#/components/schemas/Links'
       type: object
     UserDelegatedAccessList:
+      description: A result containing the delagated access information for a user account
       required:
         - delegatedAccess
       properties:
         delegatedAccess:
           type: array
+          description: The list of delegated access to the account
           items:
             $ref: '#/components/schemas/UserDelegatedAccess'
       type: object
     UserDelegatedAccess:
+      description: Delegated access to a user account
       required:
         - email
         - createdDate
@@ -565,77 +706,58 @@ components:
       properties:
         email:
           type: string
+          description: The email of the user to delegate access to
           example: inviteduser@example.com
         allowsAccessToUser:
           $ref: '#/components/schemas/User'
         createdDate:
           type: string
+          description: The date the access delegation was added
           format: date-time
           example: '2020-01-01T01:01:01Z'
         links:
-          type: object
-          example:
-            delete: https://my-delete-url
+          $ref: '#/components/schemas/Links'
       type: object
     UserDelegatedAccessCreate:
+      description: Request data to create delegated access to a user account
       required:
         - email
       properties:
         email:
           type: string
+          description: The email of the user to delegate access to
           example: inviteduser@example.com
       type: object
-    AgencyList:
-      required:
-        - agencies
-      properties:
-        agencies:
-          type: array
-          items:
-            $ref: '#/components/schemas/Agency'
-      type: object
-    Agency:
-      required:
-        - id
-        - name
-      properties:
-        id:
-          type: string
-          example: 6462DDAA-DFC1-4A1F-A0A1-41170F955ECF
-        name:
-          type: string
-          example: Department of Homeless Services
-      type: object
-    DocumentGrantType:
+    CollectionGrantType:
+      description: The valid types for access grants to a collection
       type: string
-      description: Document Grant Type
       enum:
-        - AGENCY_ACCESS
-      example: AGENCY_ACCESS
-    DocumentGrantCreate:
+        - EMAIL
+      example: EMAIL
+    CollectionGrantCreate:
+      description: Request data to create an access grant to a collection
       required:
-        - type
-        - agencyDetails
+        - emailAddresses
       properties:
-        type:
-          $ref: '#/components/schemas/DocumentGrantType'
-        agencyDetails:
-          type: object
-          properties:
-            id:
-              type: string
-              description: The ID of the agency
-      type: object
-    DocumentGrantList:
-      required:
-        - documentGrants
-      properties:
-        documentGrants:
+        emailAddresses:
+          description: The list of email addresses to allow access to the collection
           type: array
           items:
-            $ref: '#/components/schemas/DocumentGrant'
+            type: string
       type: object
-    DocumentGrant:
+    CollectionGrantList:
+      description: A result containing a list of access grants to a document
+      required:
+        - collectionGrants
+      properties:
+        collectionGrants:
+          type: array
+          description: The list of grants for a collection
+          items:
+            $ref: '#/components/schemas/CollectionGrant'
+      type: object
+    CollectionGrant:
+      description: A collection access grant
       required:
         - id
         - type
@@ -646,27 +768,95 @@ components:
         id:
           type: string
           example: 0693772D-5AED-4955-A6B5-41D1246E54AC
+          description: The ID of the grant
         type:
-          $ref: '#/components/schemas/DocumentGrantType'
+          $ref: '#/components/schemas/CollectionGrantType'
         createdDate:
           type: string
           format: date-time
           example: '2020-01-01T01:01:01Z'
-        agencyDetails:
-          type: object
-          properties:
-            id:
-              type: string
-              description: The ID of the agency
-            links:
-              type: object
-              example:
-                details: https://agency-details-url
+          description: The date the grant was created
+        emailAddress:
+          description: The email address that has been granted access
+          type: string
         links:
-          type: object
-          example:
-            delete: https://my-delete-url
+          $ref: '#/components/schemas/Links'
       type: object
+    CollectionList:
+      type: object
+      description: A result containing a list of collections
+      required:
+        - collections
+      properties:
+        collections:
+          type: array
+          description: The collections list
+          items:
+            $ref: '#/components/schemas/CollectionListItem'
+    CollectionListItem:
+      type: object
+      description: Basic details for listing a collection
+      required:
+        - id
+        - name
+        - createdDate
+      properties:
+        id:
+          type: string
+          example: D050A33E-74F6-4BEF-AED5-87F48E5CCE44
+          description: The ID of the collection
+        name:
+          type: string
+          example: Housing application
+          description: The name of the collection
+        createdDate:
+          type: string
+          format: date-time
+          example: '2020-01-01T01:01:01Z'
+          description: The date the collection was created
+    Collection:
+      type: object
+      description: A collection of documents
+      required:
+        - id
+        - name
+        - createdDate
+      properties:
+        id:
+          type: string
+          example: D050A33E-74F6-4BEF-AED5-87F48E5CCE44
+          description: The ID of the collection
+        name:
+          type: string
+          example: Housing application
+          description: The name of the collection
+        createdDate:
+          type: string
+          format: date-time
+          example: '2020-01-01T01:01:01Z'
+          description: The date the collection was created
+    CollectionCreate:
+      type: object
+      description: Request data to create a collection
+      required:
+        - name
+        - documentIds
+        - emailAddresses
+      properties:
+        name:
+          type: string
+          example: Housing application
+          description: The name of the collection
+        documentIds:
+          type: array
+          description: The ID's of the Documents to add to this collection
+          items:
+            type: string
+        emailAddresses:
+          type: array
+          description: The email addresses to grant access to this collection
+          items:
+            type: string
 
   securitySchemes:
     datalocker_auth:

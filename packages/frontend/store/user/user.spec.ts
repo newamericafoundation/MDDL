@@ -26,10 +26,14 @@ jest.mock('@/plugins/api-accessor', () => ({
                   id: 'testFileId',
                   sha256Checksum:
                     '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08',
+                  contentType: 'image/jpeg',
+                  contentLength: 2000,
+                  createdDate: '2020-01-12T10:11:12.123Z',
                   links: [
                     {
                       href: 'uploadUrl',
                       type: 'POST',
+                      rel: 'upload',
                       includeFormData: {
                         testFormKey: 'testFormValue',
                       },

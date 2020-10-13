@@ -17,6 +17,9 @@ const lambdas = {
   documents_getById: lambdaPath('documents/getById.ts'),
   documents_getByUserId: lambdaPath('documents/getByUserId.ts'),
   documents_markFileReceived: lambdaPath('documents/markFileReceived.ts'),
+  documents_getFileDownloadLinkById: lambdaPath(
+    'documents/getFileDownloadLinkById.ts',
+  ),
 }
 
 const config = {
