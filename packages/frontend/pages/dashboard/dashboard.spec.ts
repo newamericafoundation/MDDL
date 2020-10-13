@@ -21,6 +21,9 @@ describe('Page/Dashboard', () => {
         user: {
           namespaced: true,
           actions,
+          mutations: {
+            setUserId: () => Promise.resolve(),
+          },
         },
       },
     })
@@ -30,6 +33,13 @@ describe('Page/Dashboard', () => {
     const wrapper = shallowMount(Dashboard, {
       store,
       stubs: { Layout },
+      mocks: {
+        $auth: {
+          user: {
+            username: 'test',
+          },
+        },
+      },
     })
     expect(wrapper.html()).toBeTruthy()
   })

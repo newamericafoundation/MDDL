@@ -10,13 +10,16 @@ import { hashFile } from '@/assets/js/hash/'
   namespaced: true,
 })
 export default class User extends VuexModule {
-  // TODO: get user ID from API after login
-  userId = '6ebb6c5f-2931-45bf-8482-f9dff5869a0f'
-
+  _userId: string | null = null
   _documents: DocumentListItem[] = []
 
   get documents() {
     return this._documents
+  }
+
+  @Mutation
+  setUserId(userId: string) {
+    this._userId = userId
   }
 
   // TODO: Update after upload API changes
@@ -39,6 +42,8 @@ export default class User extends VuexModule {
     if (!files.length)
       return Promise.reject(new Error('Files must not be an empty list'))
 
+    if (!this._userId) return Promise.reject(new Error('UserID not set'))
+
     for (const file of files) {
       if (file.size > Math.pow(10, 7))
         throw new Error(`File ${file.name} is too large`)
@@ -48,7 +53,7 @@ export default class User extends VuexModule {
     const hashes = await Promise.all(files.map(hashFile))
 
     const addResponse: AxiosResponse<Document> = await api.user.addUserDocument(
-      this.userId,
+      this._userId,
       {
         name: files[0].name.split('.').slice(0, -1).join('.'),
         files: files.map((file, i) => ({
@@ -67,7 +72,7 @@ export default class User extends VuexModule {
     const totalUploadSize = files.reduce((sum, file) => sum + file.size, 0)
     const uploadProgress = new Array(files.length).fill(0)
 
-    const uploadResponses = await Promise.all(
+    await Promise.all(
       addResponse.data.files.map((documentFile, i) => {
         const options: AxiosRequestConfig = {
           onUploadProgress: (e) => {
@@ -121,7 +126,8 @@ export default class User extends VuexModule {
 
   @Action({ rawError: true, commit: 'setDocuments' })
   getDocuments(): Promise<DocumentListItem[]> {
-    return api.user.listUserDocuments(this.userId).then((response) => {
+    if (!this._userId) return Promise.reject(new Error('UserID not set'))
+    return api.user.listUserDocuments(this._userId).then((response) => {
       return response.data.documents ? response.data.documents : []
     })
   }

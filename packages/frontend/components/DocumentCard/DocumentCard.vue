@@ -1,12 +1,12 @@
 <template>
   <v-card
     class="mx-auto"
-    max-width="344"
+    max-width="700"
     outlined
     :to="`/documents/${document.id}`"
   >
     <v-row align="center">
-      <v-col class="py-0">
+      <v-col class="py-0" xs="6" sm="4">
         <v-skeleton-loader boilerplate type="image" tile></v-skeleton-loader>
       </v-col>
       <v-col>

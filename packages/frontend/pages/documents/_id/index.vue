@@ -11,6 +11,12 @@
     ></v-skeleton-loader>
     <v-btn block :disabled="loading" @click="downloadFile"> Download </v-btn>
   </div>
+  <div v-else>
+    <v-skeleton-loader
+      class="my-2"
+      type="list-item-three-line, image, list-item"
+    ></v-skeleton-loader>
+  </div>
 </template>
 
 <script lang="ts">

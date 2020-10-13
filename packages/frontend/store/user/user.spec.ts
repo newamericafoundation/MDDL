@@ -62,9 +62,15 @@ jest.mock('axios', () => ({
   }),
 }))
 
-test('UserStore.getDocuments [Happy case]', async () => {
+const createTestStore = () => {
   const store = createStore()
   initialiseStores({ store })
+  store.commit('user/setUserId', 'ABC123')
+  return store
+}
+
+test('UserStore.getDocuments [Happy case]', async () => {
+  const store = createTestStore()
   const docs = await store.dispatch('user/getDocuments')
 
   expect(
@@ -77,8 +83,7 @@ test('UserStore.getDocuments [Happy case]', async () => {
 // TODO: implement me after upload api changes
 
 test('UserStore.uploadDocument [Empty file list]', async () => {
-  const store = createStore()
-  initialiseStores({ store })
+  const store = createTestStore()
   expect.assertions(1)
   try {
     await store.dispatch('user/uploadDocument', {
@@ -93,9 +98,7 @@ test('UserStore.uploadDocument [Empty file list]', async () => {
 })
 
 test('UserStore.uploadDocument [Oversize file]', async () => {
-  const store = createStore()
-  initialiseStores({ store })
-  // const file = new File(new Array(10000001).fill('a'), 'large')
+  const store = createTestStore()
   const file = {
     size: 10000001,
     name: 'large',
@@ -114,8 +117,7 @@ test('UserStore.uploadDocument [Oversize file]', async () => {
 })
 
 test('UserStore.uploadDocument [Empty file]', async () => {
-  const store = createStore()
-  initialiseStores({ store })
+  const store = createTestStore()
   const file = new File([], 'empty')
   expect.assertions(1)
   try {
@@ -131,8 +133,7 @@ test('UserStore.uploadDocument [Empty file]', async () => {
 })
 
 test('UserStore.uploadDocument [Happy case]', async () => {
-  const store = createStore()
-  initialiseStores({ store })
+  const store = createTestStore()
   const file = new File(['test'], 'test.png', {
     type: 'image/png',
   })

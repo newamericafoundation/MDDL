@@ -116,6 +116,12 @@ export interface Props extends StackProps {
    * Hosted zone attributes for adding record sets to
    */
   hostedZoneAttributes?: HostedZoneAttributes
+  /**
+   * Additional callback URLs to be registered with the Auth Stack
+   * Useful for development environments.
+   * @default false
+   */
+  additionalCallbackUrls?: string[]
 }
 
 interface ApiProps {
@@ -149,6 +155,7 @@ export class CityStack extends Stack {
       webAppDomainConfig,
       hostedZoneAttributes,
       jwtAuth,
+      additionalCallbackUrls = [],
     } = props
 
     // check auth stack is given if this stack expects it
@@ -210,7 +217,7 @@ export class CityStack extends Stack {
 
     // add auth stack integration
     const { jwtConfiguration } = this.addAuthIntegration(
-      webAppDomain,
+      [`https://${webAppDomain}/authorize`, ...additionalCallbackUrls],
       authStack,
       apiDomainConfig,
       jwtAuth,
@@ -290,13 +297,13 @@ export class CityStack extends Stack {
 
   /**
    * Add any required auth integration for the stack
-   * @param redirectUrl The allowed URL for redirection for the auth integration
+   * @param callbackUrls The allowed callback URLs for the auth integration
    * @param authStack The auth stack, if any
    * @param apiDomainConfig The API's domain configuration
    * @param jwtAuth The JWT Auth, if not using the auth stack
    */
   private addAuthIntegration(
-    redirectUrl: string,
+    callbackUrls: string[],
     authStack?: AuthStack,
     apiDomainConfig?: HostedDomain,
     jwtAuth?: JwtConfiguration,
@@ -323,7 +330,7 @@ export class CityStack extends Stack {
       },
       preventUserExistenceErrors: true,
       oAuth: {
-        callbackUrls: ['https://' + redirectUrl],
+        callbackUrls,
         scopes: [OAuthScope.PROFILE, OAuthScope.OPENID, OAuthScope.EMAIL],
         flows: {
           authorizationCodeGrant: true,

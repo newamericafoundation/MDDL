@@ -47,6 +47,7 @@ p.redirect-customizable {
   padding: 0.8rem 0;
   border-radius: 4px;
   border: 0.5pt solid rgba(0, 0, 0, 0.42);
+  height: 3.8rem;
 }
 
 p.redirect-customizable > a {
@@ -54,11 +55,14 @@ p.redirect-customizable > a {
   left: 1.5rem;
   right: 1.5rem;
   bottom: 2.5rem;
-  height: 3.8rem;
   padding-top: 0.8rem;
+  line-height: 3.8rem;
 }
 
 .submitButton-customizable {
   border: none;
   font-weight: normal;
+  min-height: 40px;
+  height: unset;
+  white-space: initial;
 }
