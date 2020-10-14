@@ -14,5 +14,3 @@ import { Vue, Component } from 'nuxt-property-decorator'
 @Component
 export default class AppBar extends Vue {}
 </script>
-
-<style scoped lang="scss"></style>

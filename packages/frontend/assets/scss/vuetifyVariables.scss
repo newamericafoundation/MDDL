@@ -1,0 +1,93 @@
+$body-font-family: 'Noto', sans-serif;
+$heading-font-family: 'Noto', sans-serif;
+
+// Breakpoints
+$grid-breakpoints: (
+  'xs': 0,
+  'sm': 480px,
+  'md': 768px,
+  'lg': 960px,
+  'xl': 1280px,
+);
+
+// Button
+$btn-active-opacity: 0;
+$btn-border-radius: 0.4rem;
+$btn-focus-opacity: 0;
+$btn-font-weight: normal;
+$btn-hover-opacity: 0;
+$btn-letter-spacing: 0;
+$btn-text-transform: none;
+
+// Border Radius
+$border-radius-root: 0.4rem;
+
+// Card
+$card-btn-padding: 0 1rem;
+
+// Toolbar
+$toolbar-content-padding-y: 0;
+$toolbar-content-padding-x: 0;
+
+// See https://vuetifyjs.com/en/styles/text-and-typography/#typography
+
+// Typography
+$headings: map-deep-merge(
+  (
+    // ---- Title font ----
+    'h1':
+      (
+        'size': 1.25rem,
+        'weight': 600,
+        'line-height': auto,
+        'letter-spacing': 0,
+        'font-family': $heading-font-family,
+        'text-transform': false,
+      ),
+    // ---- Menu font ----
+    'body-1':
+      (
+        'size': 1.0625rem,
+        'weight': normal,
+        'line-height': auto,
+        'letter-spacing': 0,
+        'font-family': $body-font-family,
+        'text-transform': false,
+      ),
+    // ---- Menu font ----
+    'button':
+      (
+        'size': 1.0625rem,
+        'weight': normal,
+        'line-height': auto,
+        'letter-spacing': 0,
+        'font-family': $body-font-family,
+        'text-transform': false,
+      ),
+    // ---- Label font ----
+    'subtitle-1':
+      (
+        'size': 1.0625rem,
+        'weight': bold,
+        'line-height': auto,
+        'letter-spacing': 0,
+        'font-family': $body-font-family,
+        'text-transform': false,
+      ),
+    // ---- Sublabel font ----
+    'subtitle-2':
+      (
+        'size': 0.875rem,
+        'weight': normal,
+        'line-height': auto,
+        'letter-spacing': 0,
+        'font-family': $body-font-family,
+        'text-transform': false,
+      )
+  ),
+  $headings
+);
+
+$material-light: (
+  'background': #fff,
+);

@@ -27,11 +27,20 @@ export default {
       },
     ],
   },
-  css: [],
+  css: ['@/assets/scss/main.scss'],
+  styleResources: {
+    scss: ['@/assets/scss/colors.scss'],
+  },
   plugins: ['@/plugins/api-accessor.ts'],
   components: true,
   buildModules: ['@nuxt/typescript-build', '@nuxtjs/vuetify', '@nuxtjs/dotenv'],
-  modules: ['@nuxtjs/axios', '@nuxtjs/auth', '@nuxtjs/pwa', 'nuxt-i18n'],
+  modules: [
+    '@nuxtjs/style-resources',
+    '@nuxtjs/axios',
+    '@nuxtjs/auth',
+    '@nuxtjs/pwa',
+    'nuxt-i18n',
+  ],
   i18n: {
     locales: ['en', 'fr', 'es'],
     defaultLocale: 'en',

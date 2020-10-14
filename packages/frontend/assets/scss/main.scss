@@ -1,0 +1,97 @@
+#__nuxt {
+  .__nuxt-error-page {
+    .error {
+      background-color: transparent !important;
+    }
+  }
+  // Error Message
+  .v-alert {
+    &.error {
+      color: var(--white) !important;
+      border-color: var(--error-red) !important;
+      background-color: var(--error-red) !important;
+    }
+  }
+
+  // Text
+  .error--text,
+  .red--text {
+    color: var(--error-red) !important;
+  }
+  .secondary--text {
+    color: var(--indigo) !important;
+    &:hover {
+      color: var(--ny-blue) !important;
+    }
+  }
+  .v-sheet {
+    color: var(--dark-grey);
+  }
+
+  // Disable Material Design Ripple Effect
+  .v-ripple__container,
+  .v-input--selection-controls__ripple {
+    display: none !important;
+  }
+
+  // Text Field
+  .v-text-field {
+    .v-label,
+    .v-text-field__details {
+      @extend .unselectable;
+    }
+  }
+
+  .v-text-field.v-input--is-disabled .v-input__slot::before {
+    border-image: none;
+  }
+
+  // App Bar
+  .v-app-bar {
+    background-color: var(--white);
+    border-bottom: 1px solid var(--light-grey);
+    box-shadow: none;
+  }
+
+  // Main
+  .v-main {
+    background-color: var(--white);
+  }
+
+  // Expansion Panel
+  .v-expansion-panel::before {
+    box-shadow: none;
+  }
+
+  // Card
+  .v-card {
+    box-shadow: none;
+    .v-card__text {
+      color: var(--dark-grey);
+    }
+  }
+
+  // Link
+  a {
+    color: var(--indigo);
+    &:hover {
+      color: var(--ny-blue);
+    }
+  }
+
+  // Button
+  .v-btn--outlined {
+    border: 2px solid currentColor;
+  }
+  .v-btn {
+    box-shadow: none;
+    min-width: 4rem !important;
+  }
+
+  .unselectable {
+    -webkit-user-select: none; /* Chrome all / Safari all */
+    -moz-user-select: none; /* Firefox all */
+    -ms-user-select: none; /* IE 10+ */
+    user-select: none; /* Likely future */
+  }
+}

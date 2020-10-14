@@ -16,8 +16,7 @@ import Send from '@/components/icons/send.vue'
 const vuetifyOptions = (ctx: Context): Options => {
   return {
     treeShake: true,
-    customVariables: ['~/assets/variables.scss'],
-    // optionsPath: '@/plugins/vuetify.ts',
+    customVariables: ['@/assets/vuetifyVariables.scss'],
     theme: {
       dark: false,
       disable: false,
@@ -25,13 +24,13 @@ const vuetifyOptions = (ctx: Context): Options => {
       options: {},
       themes: {
         light: {
-          primary: colors.teal.lighten2,
+          primary: '#2157e4',
           accent: colors.blueGrey.darken3,
           secondary: colors.pink.darken1,
           info: colors.blue.lighten2,
           warning: colors.amber.base,
-          error: colors.red.accent4,
-          success: colors.green.accent3,
+          error: '#ff5c62',
+          success: '#2affb8',
         },
         dark: {
           primary: colors.blue.darken2,

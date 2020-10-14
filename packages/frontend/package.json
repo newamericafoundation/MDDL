@@ -23,6 +23,7 @@
     "@nuxtjs/axios": "^5.12.2",
     "@nuxtjs/dotenv": "^1.4.1",
     "@nuxtjs/pwa": "^3.0.2",
+    "@nuxtjs/style-resources": "^1.0.0",
     "@storybook/addon-contexts": "^5.3.21",
     "@storybook/addon-knobs": "^6.0.22",
     "@storybook/addon-viewport": "^6.0.22",
