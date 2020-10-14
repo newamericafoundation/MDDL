@@ -27,6 +27,7 @@ import { Provider } from '@aws-cdk/custom-resources'
 import { RetentionDays } from '@aws-cdk/aws-logs'
 import { ISecret, Secret } from '@aws-cdk/aws-secretsmanager'
 import {
+  AccountPrincipal,
   AnyPrincipal,
   Policy,
   PolicyStatement,
@@ -499,6 +500,15 @@ export class CityStack extends Stack {
             'kms:CallerAccount': this.account,
           },
         },
+      }),
+    )
+
+    // add permissions for decryption of documents in bucket
+    kmsKey.addToResourcePolicy(
+      new PolicyStatement({
+        actions: ['kms:Decrypt', 'kms:GenerateDataKey*'],
+        resources: ['*'],
+        principals: [new AccountPrincipal(this.account)],
       }),
     )
 
