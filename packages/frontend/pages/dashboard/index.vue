@@ -1,11 +1,26 @@
 <template>
   <div v-if="!loading">
-    <DocumentCard
-      v-for="(document, i) in documents"
-      :key="i"
-      :document="document"
-      class="mb-4"
-    />
+    <template v-if="documents.length">
+      <DocumentCard
+        v-for="(document, i) in documents"
+        :key="i"
+        :document="document"
+        class="mb-4"
+      />
+    </template>
+    <div v-else>
+      <v-img
+        max-width="30rem"
+        class="mx-auto"
+        :src="require('@/assets/images/upload.svg')"
+      />
+      <p class="d-flex justify-center">There's nothing here yet</p>
+      <UploadButton
+        class="d-flex justify-center"
+        label="Upload your first file"
+        :text-button="true"
+      />
+    </div>
   </div>
   <div v-else>
     <v-card

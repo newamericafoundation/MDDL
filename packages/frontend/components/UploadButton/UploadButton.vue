@@ -1,11 +1,22 @@
 <template>
   <div>
-    <label class="upload-label v-btn">
-      <v-icon>mdi-plus</v-icon>
-      Upload
+    <label v-if="textButton" class="upload-label text">
+      <v-icon v-if="prependIcon" v-text="prependIcon" />
+      <p class="font-weight-bold">{{ label }}</p>
       <input
         type="file"
-        :multiple="false"
+        :multiple="multiple"
+        class="fileInput"
+        accept="application/pdf, image/jpeg, image/png, image/tiff"
+        @change="onFileInput"
+      />
+    </label>
+    <label v-else class="upload-label v-btn">
+      <v-icon v-if="prependIcon" v-text="prependIcon" />
+      {{ label }}
+      <input
+        type="file"
+        :multiple="multiple"
         class="fileInput"
         accept="application/pdf, image/jpeg, image/png, image/tiff"
         @change="onFileInput"
@@ -47,15 +58,25 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'nuxt-property-decorator'
+import { Vue, Component, Prop } from 'nuxt-property-decorator'
 
 @Component
 export default class UploadButton extends Vue {
+  @Prop({ default: 'Upload' })
+  label: string
+
+  @Prop({ default: null })
+  prependIcon: string
+
+  @Prop({ default: false })
+  textButton: boolean
+
   file: File | null = null
   uploadPercentage = 0
   showProgressDialog = false
   showSnackbar = false
   document: Document | null = null
+  multiple = false
 
   onFileInput(event: any) {
     if (event?.target?.files && event.target.files.length) {
@@ -81,17 +102,20 @@ export default class UploadButton extends Vue {
 <style scoped lang="scss">
 .upload-label {
   cursor: pointer;
-  padding: 0.5rem 0.7rem 0.5rem 0.5rem;
-  background-color: var(--primary);
+  &.v-btn {
+    padding: 0.5rem 0.7rem 0.5rem 0.5rem;
+    background-color: var(--primary);
+    color: var(--white);
+    & > .v-icon {
+      padding: 0;
+      color: var(--white);
+    }
+  }
+  &.text {
+    color: var(--primary);
+  }
   & > input {
     display: none;
   }
-  & > .v-icon {
-    padding: 0;
-  }
-}
-.upload-label,
-.upload-label .v-icon {
-  color: var(--white);
 }
 </style>

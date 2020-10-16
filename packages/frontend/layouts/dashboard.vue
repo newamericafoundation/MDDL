@@ -27,11 +27,11 @@
         <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
       </template>
       <template v-slot:actions>
-        <UploadButton />
+        <UploadButton prepend-icon="$plus" />
       </template>
     </AppBar>
     <v-main>
-      <v-container>
+      <v-container class="px-12">
         <nuxt />
       </v-container>
     </v-main>

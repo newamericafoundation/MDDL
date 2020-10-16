@@ -55,7 +55,10 @@ export default class User extends VuexModule {
     const addResponse: AxiosResponse<Document> = await api.user.addUserDocument(
       this._userId,
       {
-        name: files[0].name.split('.').slice(0, -1).join('.'),
+        name: files[0].name
+          .split('.')
+          .slice(0, -1)
+          .join('.'),
         files: files.map((file, i) => ({
           name: file.name,
           contentType: file.type as FileContentTypeEnum,
@@ -75,7 +78,7 @@ export default class User extends VuexModule {
     await Promise.all(
       addResponse.data.files.map((documentFile, i) => {
         const options: AxiosRequestConfig = {
-          onUploadProgress: (e) => {
+          onUploadProgress: e => {
             uploadProgress[i] = e.loaded
             onUploadProgress(
               new ProgressEvent('upload', {
@@ -87,7 +90,7 @@ export default class User extends VuexModule {
         }
 
         const uploadLink = (documentFile.links as any[]).find(
-          (l) => l.type === 'POST',
+          l => l.type === 'POST',
         )
 
         if (!uploadLink)
@@ -108,7 +111,7 @@ export default class User extends VuexModule {
           )
 
         const formData = new FormData()
-        Object.keys(uploadLink.includeFormData).forEach((key) =>
+        Object.keys(uploadLink.includeFormData).forEach(key =>
           formData.append(key, uploadLink.includeFormData[key]),
         )
         formData.append('file', file)
@@ -127,7 +130,7 @@ export default class User extends VuexModule {
   @Action({ rawError: true, commit: 'setDocuments' })
   getDocuments(): Promise<DocumentListItem[]> {
     if (!this._userId) return Promise.reject(new Error('UserID not set'))
-    return api.user.listUserDocuments(this._userId).then((response) => {
+    return api.user.listUserDocuments(this._userId).then(response => {
       return response.data.documents ? response.data.documents : []
     })
   }
