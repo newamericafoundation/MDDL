@@ -59,6 +59,15 @@ p.redirect-customizable > a {
   line-height: 3.8rem;
 }
 
+p.redirect-customizable > button {
+  width: calc(100% - 3rem);
+  padding: 0.75rem;
+  position: absolute;
+  left: 1.5rem;
+  right: 1.5rem;
+  bottom: 2.5rem;
+}
+
 .submitButton-customizable {
   border: none;
   font-weight: normal;
