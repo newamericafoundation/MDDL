@@ -41,7 +41,7 @@ export default class ViewDocument extends Vue {
 
   get documentDate() {
     if (this.document) {
-      return format(new Date(this.document.createdDate), 'do LLL yyyy')
+      return format(new Date(this.document.createdDate), 'LLL d, yyyy')
     }
     return new Date()
   }
@@ -49,7 +49,7 @@ export default class ViewDocument extends Vue {
   get documentContentSize() {
     if (!this.document) return ''
     const totalBytes = this.document.files
-      .map((f) => f.contentLength)
+      .map(f => f.contentLength)
       .reduce(
         (fileContentLength, documentContentLength) =>
           fileContentLength + documentContentLength,

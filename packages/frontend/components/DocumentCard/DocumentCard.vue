@@ -28,7 +28,7 @@ export default class DocumentCard extends Vue {
   @Prop({ required: true }) document!: DocumentListItem
 
   get documentDate() {
-    return format(new Date(this.document.createdDate), 'do LLL yyyy')
+    return format(new Date(this.document.createdDate), 'LLL d, yyyy')
   }
 }
 </script>
