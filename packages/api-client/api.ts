@@ -43,6 +43,12 @@ export interface Collection {
      * @memberof Collection
      */
     createdDate: string;
+    /**
+     * An array of Links
+     * @type {Array<Link>}
+     * @memberof Collection
+     */
+    links?: Array<Link>;
 }
 /**
  * Request data to create a collection
@@ -63,11 +69,11 @@ export interface CollectionCreate {
      */
     documentIds: Array<string>;
     /**
-     * The email addresses to grant access to this collection
+     * The email addresses of Agency Officers to grant access to this collection
      * @type {Array<string>}
      * @memberof CollectionCreate
      */
-    emailAddresses: Array<string>;
+    agencyOfficersEmailAddresses: Array<string>;
 }
 /**
  * A collection access grant
@@ -94,11 +100,11 @@ export interface CollectionGrant {
      */
     createdDate: string;
     /**
-     * The email address that has been granted access
+     * The agency officers email address that has been granted access
      * @type {string}
      * @memberof CollectionGrant
      */
-    emailAddress?: string;
+    agencyOfficerEmailAddress: string;
     /**
      * An array of Links
      * @type {Array<Link>}
@@ -113,11 +119,11 @@ export interface CollectionGrant {
  */
 export interface CollectionGrantCreate {
     /**
-     * The list of email addresses to allow access to the collection
+     * The email addresses of Agency Officers to grant access to this collection
      * @type {Array<string>}
      * @memberof CollectionGrantCreate
      */
-    emailAddresses: Array<string>;
+    agencyOfficersEmailAddresses: Array<string>;
 }
 /**
  * A result containing a list of access grants to a document
@@ -138,7 +144,7 @@ export interface CollectionGrantList {
  * @enum {string}
  */
 export enum CollectionGrantType {
-    EMAIL = 'EMAIL'
+    AGENCYOFFICEREMAIL = 'AGENCY_OFFICER_EMAIL'
 }
 
 /**
@@ -178,6 +184,12 @@ export interface CollectionListItem {
      * @memberof CollectionListItem
      */
     createdDate: string;
+    /**
+     * An array of Links
+     * @type {Array<Link>}
+     * @memberof CollectionListItem
+     */
+    links?: Array<Link>;
 }
 /**
  * A document

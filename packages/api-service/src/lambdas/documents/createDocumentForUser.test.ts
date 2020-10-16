@@ -1,9 +1,14 @@
 import createDocumentForUser from './createDocumentForUser'
 import { getPathParameter, getUserId } from '@/utils/api-gateway'
-import { createDocument, Document as DocumentModel } from '@/models/document'
+import {
+  countDocumentsByOwnerId,
+  createDocument,
+  Document as DocumentModel,
+} from '@/models/document'
 import {
   createMockContext,
   createMockEvent,
+  getObjectKeys,
   toMockedFunction,
 } from '@/utils/test'
 import { createFilePath } from '@/utils/s3'
@@ -49,6 +54,7 @@ jest.mock('@/models/document', () => {
   return {
     ...module,
     createDocument: jest.fn(),
+    countDocumentsByOwnerId: jest.fn(),
   }
 })
 
@@ -123,28 +129,63 @@ describe('createDocumentForUser', () => {
     )
   })
 
+  it('checks max count of documents', async () => {
+    toMockedFunction(countDocumentsByOwnerId).mockImplementationOnce(
+      async () => 100,
+    )
+    const event = createMockEvent()
+    event.body = JSON.stringify({
+      name: 'test',
+      files: [
+        {
+          name: 'MyFile1.jpg',
+          contentLength: 1000,
+          contentType: 'image/jpeg',
+          sha256Checksum: 'ABC123',
+        },
+      ],
+    })
+    const result = (await createDocumentForUser(
+      event,
+      createMockContext(),
+      jest.fn(),
+    )) as APIGatewayProxyStructuredResultV2
+    expect(result).toMatchInlineSnapshot(`
+      Object {
+        "body": "{\\"message\\":\\"validation error: maximum document count of 100 reached\\"}",
+        "cookies": Array [],
+        "headers": Object {
+          "Content-Type": "application/json",
+        },
+        "isBase64Encoded": false,
+        "statusCode": 400,
+      }
+    `)
+  })
+
   it('validation passes', async () => {
-    const ownerId = 'myOwnerId'
     const documentId = 'myDocumentId'
     const fileId = 'myFileId'
     toMockedFunction(createDocument).mockImplementationOnce(() =>
       Promise.resolve(
         DocumentModel.fromJson({
           id: documentId,
-          ownerId: documentId,
+          ownerId: userId,
           name: 'My First File',
           createdAt: new Date('2015-01-12T13:14:15Z'),
+          createdBy: userId,
+          updatedBy: userId,
           files: [
             {
               id: fileId,
               documentId,
               name: 'MyFile1.jpg',
-              path: createFilePath(ownerId, documentId, fileId),
+              path: createFilePath(userId, documentId, fileId),
               received: false,
               sha256Checksum: 'ABC123',
               contentType: 'image/jpeg',
               createdAt: new Date('2015-01-12T13:14:15Z'),
-              createdBy: ownerId,
+              createdBy: userId,
               contentLength: 1000,
             },
           ],
@@ -169,7 +210,8 @@ describe('createDocumentForUser', () => {
       jest.fn(),
     )) as APIGatewayProxyStructuredResultV2
     expect(result.statusCode).toEqual(200)
-    expect(JSON.parse(result.body as string)).toEqual(
+    const response = JSON.parse(result.body as string)
+    expect(response).toEqual(
       expect.objectContaining({
         createdDate: '2015-01-12T13:14:15.000Z',
         name: 'My First File',
@@ -181,7 +223,7 @@ describe('createDocumentForUser', () => {
             links: [
               {
                 href:
-                  'https://presigned-url.for/documents/myOwnerId/myDocumentId/myFileId+ABC123',
+                  'https://presigned-url.for/documents/myUserId/myDocumentId/myFileId+ABC123',
                 includeFormData: {
                   'Content-Length': 1000,
                   'Content-Type': 'image/jpeg',
@@ -198,5 +240,22 @@ describe('createDocumentForUser', () => {
         links: [],
       }),
     )
+    expect(getObjectKeys(response)).toMatchInlineSnapshot(`
+      Array [
+        "createdDate",
+        "name",
+        "id",
+        "files[0].id",
+        "files[0].createdDate",
+        "files[0].links[0].href",
+        "files[0].links[0].rel",
+        "files[0].links[0].type",
+        "files[0].links[0].includeFormData.Content-Type",
+        "files[0].links[0].includeFormData.Content-Length",
+        "files[0].name",
+        "files[0].sha256Checksum",
+        "files[0].contentLength",
+      ]
+    `)
   })
 })

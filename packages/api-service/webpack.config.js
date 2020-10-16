@@ -20,6 +20,13 @@ const lambdas = {
   documents_getFileDownloadLinkById: lambdaPath(
     'documents/getFileDownloadLinkById.ts',
   ),
+  collections_createCollectionForUser: lambdaPath(
+    'collections/createCollectionForUser.ts',
+  ),
+  collections_getByUserId: lambdaPath('collections/getByUserId.ts'),
+  collections_getDocumentsByCollectionId: lambdaPath(
+    'collections/getDocumentsByCollectionId.ts',
+  ),
 }
 
 const config = {

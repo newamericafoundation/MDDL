@@ -44,9 +44,11 @@ describe('getById', () => {
       Promise.resolve(
         DocumentModel.fromJson({
           id: documentId,
-          ownerId: documentId,
+          ownerId: userId,
           name: 'My First File',
           createdAt: new Date('2015-01-12T13:14:15Z'),
+          updatedBy: userId,
+          createdBy: userId,
         }),
       ),
     )

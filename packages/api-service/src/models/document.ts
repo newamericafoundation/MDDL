@@ -1,7 +1,8 @@
-import BaseModel from './base-model'
+import BaseModel from './baseModel'
 import { v4 as uuidv4 } from 'uuid'
 import { Model, QueryBuilder } from 'objection'
 import { File } from './file'
+import { CollectionDocument } from './collectionDocument'
 
 export class Document extends BaseModel {
   // columns
@@ -53,7 +54,7 @@ export class Document extends BaseModel {
   static get jsonSchema() {
     return {
       type: 'object',
-      required: ['ownerId'],
+      required: ['name', 'ownerId', 'createdBy', 'updatedBy'],
       properties: {
         id: { type: 'string', minLength: 1, maxLength: 40 },
         name: { type: 'string', maxLength: 255 },
@@ -68,15 +69,31 @@ export class Document extends BaseModel {
     }
   }
 
-  static relationMappings = {
-    files: {
-      relation: Model.HasManyRelation,
-      modelClass: File,
-      join: {
-        from: 'documents.id',
-        to: 'files.documentId',
+  static relationMappings() {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const Collection = require('./collection').Collection
+    return {
+      files: {
+        relation: Model.HasManyRelation,
+        modelClass: File,
+        join: {
+          from: `${Document.tableName}.id`,
+          to: `${File.tableName}.documentId`,
+        },
       },
-    },
+      collections: {
+        relation: Model.ManyToManyRelation,
+        modelClass: Collection,
+        join: {
+          from: `${Document.tableName}.id`,
+          through: {
+            from: `${CollectionDocument.tableName}.documentId`,
+            to: `${CollectionDocument.tableName}.collectionId`,
+          },
+          to: `${Collection.tableName}.id`,
+        },
+      },
+    }
   }
 
   async $beforeInsert() {
@@ -99,6 +116,14 @@ export const documentExistsById = async (
   return !!results.length
 }
 
+export const allDocumentsExistById = async (ids: string[], ownerId: string) => {
+  const results = await Document.query()
+    .count({ count: 'id' })
+    .whereIn('id', ids)
+    .andWhere('ownerId', ownerId)
+  return ((results[0] as unknown) as { count: number }).count == ids.length
+}
+
 export const getDocumentsByOwnerId = async (ownerId: string) => {
   const results = await Document.query()
     .modify('fieldsForList')
@@ -108,8 +133,10 @@ export const getDocumentsByOwnerId = async (ownerId: string) => {
 }
 
 export const countDocumentsByOwnerId = async (ownerId: string) => {
-  const results = await Document.query().modify('byOwnerId', ownerId).count()
-  return results
+  const results = await Document.query()
+    .count({ count: 'id' })
+    .modify('byOwnerId', ownerId)
+  return ((results[0] as unknown) as { count: number }).count
 }
 
 export interface CreateDocumentInput {

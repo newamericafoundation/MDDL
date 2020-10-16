@@ -37,3 +37,26 @@ export const createMockEvent = (): APIGatewayProxyEventV2 => {
 
 export const createMockContext = (): Context =>
   (jest.fn() as unknown) as Context
+
+export const getObjectKeys = (obj: any): string[] => {
+  return gatherKeysFromObject(obj)
+}
+
+const gatherKeysFromObject = (
+  obj: any,
+  keys: string[] = [],
+  prefix = '',
+): string[] => {
+  if (Array.isArray(obj)) {
+    const itemKeys = obj.map((item, index) =>
+      gatherKeysFromObject(item, keys, prefix + '[' + index + ']'),
+    )
+  } else if (obj.constructor === Object) {
+    Object.entries(obj).map(([key, value]) =>
+      gatherKeysFromObject(value, keys, prefix ? `${prefix}.${key}` : key),
+    )
+  } else if (prefix) {
+    keys.push(prefix)
+  }
+  return keys
+}

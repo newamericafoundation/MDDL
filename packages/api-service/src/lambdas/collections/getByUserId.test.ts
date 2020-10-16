@@ -1,9 +1,9 @@
 import getByUserId from './getByUserId'
 import { getPathParameter, getUserId } from '@/utils/api-gateway'
 import {
-  getDocumentsByOwnerId,
-  Document as DocumentModel,
-} from '@/models/document'
+  getCollectionsByOwnerId,
+  Collection as CollectionModel,
+} from '@/models/collection'
 import {
   createMockContext,
   createMockEvent,
@@ -25,11 +25,11 @@ jest.mock('@/utils/api-gateway', () => {
   }
 })
 
-jest.mock('@/models/document', () => {
-  const module = jest.requireActual('@/models/document')
+jest.mock('@/models/collection', () => {
+  const module = jest.requireActual('@/models/collection')
   return {
     ...module,
-    getDocumentsByOwnerId: jest.fn(),
+    getCollectionsByOwnerId: jest.fn(),
   }
 })
 
@@ -41,21 +41,21 @@ describe('getByUserId', () => {
     toMockedFunction(getUserId).mockImplementationOnce(() => userId)
   })
 
-  it('returns document', async () => {
-    toMockedFunction(getDocumentsByOwnerId).mockImplementationOnce(() =>
+  it('returns collections', async () => {
+    toMockedFunction(getCollectionsByOwnerId).mockImplementationOnce(() =>
       Promise.resolve([
-        DocumentModel.fromJson({
-          id: 'myDocumentId1',
+        CollectionModel.fromJson({
+          id: 'myCollectionId1',
           ownerId: userId,
-          name: 'My First File',
+          name: 'My First Collection',
           createdAt: new Date('2015-01-12T13:14:15Z'),
           createdBy: userId,
           updatedBy: userId,
         }),
-        DocumentModel.fromJson({
-          id: 'myDocumentId2',
+        CollectionModel.fromJson({
+          id: 'myCollectionId2',
           ownerId: userId,
-          name: 'My Second File',
+          name: 'My Second Collection',
           createdAt: new Date('2015-01-27T13:14:15Z'),
           createdBy: userId,
           updatedBy: userId,
@@ -65,7 +65,7 @@ describe('getByUserId', () => {
     expect(await getByUserId(createMockEvent(), createMockContext(), jest.fn()))
       .toMatchInlineSnapshot(`
       Object {
-        "body": "{\\"documents\\":[{\\"name\\":\\"My First File\\",\\"createdDate\\":\\"2015-01-12T13:14:15.000Z\\",\\"id\\":\\"myDocumentId1\\",\\"links\\":[{\\"href\\":\\"/documents/myDocumentId1\\",\\"rel\\":\\"self\\",\\"type\\":\\"GET\\"}]},{\\"name\\":\\"My Second File\\",\\"createdDate\\":\\"2015-01-27T13:14:15.000Z\\",\\"id\\":\\"myDocumentId2\\",\\"links\\":[{\\"href\\":\\"/documents/myDocumentId2\\",\\"rel\\":\\"self\\",\\"type\\":\\"GET\\"}]}]}",
+        "body": "{\\"collections\\":[{\\"name\\":\\"My First Collection\\",\\"createdDate\\":\\"2015-01-12T13:14:15.000Z\\",\\"id\\":\\"myCollectionId1\\",\\"links\\":[]},{\\"name\\":\\"My Second Collection\\",\\"createdDate\\":\\"2015-01-27T13:14:15.000Z\\",\\"id\\":\\"myCollectionId2\\",\\"links\\":[]}]}",
         "cookies": Array [],
         "headers": Object {
           "Content-Type": "application/json",
@@ -75,14 +75,34 @@ describe('getByUserId', () => {
       }
     `)
   })
-  it('returns empty when none found', async () => {
-    toMockedFunction(getDocumentsByOwnerId).mockImplementationOnce(() =>
+  it('returns 404 when user doesnt exist', async () => {
+    toMockedFunction(getUserId)
+      .mockReset()
+      .mockImplementationOnce(() => 'otherUserId')
+    toMockedFunction(getCollectionsByOwnerId).mockImplementationOnce(() =>
       Promise.resolve([]),
     )
     expect(await getByUserId(createMockEvent(), createMockContext(), jest.fn()))
       .toMatchInlineSnapshot(`
       Object {
-        "body": "{\\"documents\\":[]}",
+        "body": "{\\"message\\":\\"user not found\\"}",
+        "cookies": Array [],
+        "headers": Object {
+          "Content-Type": "application/json",
+        },
+        "isBase64Encoded": false,
+        "statusCode": 404,
+      }
+    `)
+  })
+  it('returns empty when none found', async () => {
+    toMockedFunction(getCollectionsByOwnerId).mockImplementationOnce(() =>
+      Promise.resolve([]),
+    )
+    expect(await getByUserId(createMockEvent(), createMockContext(), jest.fn()))
+      .toMatchInlineSnapshot(`
+      Object {
+        "body": "{\\"collections\\":[]}",
         "cookies": Array [],
         "headers": Object {
           "Content-Type": "application/json",

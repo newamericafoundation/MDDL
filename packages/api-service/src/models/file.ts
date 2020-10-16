@@ -1,4 +1,4 @@
-import BaseModel from './base-model'
+import BaseModel from './baseModel'
 import { v4 as uuidv4 } from 'uuid'
 import { Model, QueryBuilder } from 'objection'
 
@@ -16,10 +16,6 @@ export class File extends BaseModel {
 
   static get tableName() {
     return 'files'
-  }
-
-  static get maxFileSize() {
-    return 10000000
   }
 
   static get modifiers() {
@@ -78,8 +74,8 @@ export class File extends BaseModel {
         relation: Model.BelongsToOneRelation,
         modelClass: Document,
         join: {
-          from: 'files.documentId',
-          to: 'documents.id',
+          from: `${File.tableName}.documentId`,
+          to: `${Document.tableName}.id`,
         },
       },
     }

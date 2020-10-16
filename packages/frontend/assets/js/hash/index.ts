@@ -8,7 +8,7 @@ export function hashFile(file: File): Promise<string> {
   const fileReader = new FileReader()
 
   return new Promise((resolve, reject) => {
-    fileReader.onload = function(e: ProgressEvent<FileReader>) {
+    fileReader.onload = (e: ProgressEvent<FileReader>) => {
       if (!e.target) {
         reject(new Error('FileReader had no target'))
       } else if (e.target.error === null) {

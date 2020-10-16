@@ -1,12 +1,13 @@
 import {
   Document as DocumentContract,
+  DocumentList as DocumentListContract,
   DocumentFile as DocumentFileContract,
   FileContentTypeEnum,
 } from 'api-client'
 import { Document } from '@/models/document'
 import { File } from '@/models/file'
 import { createJsonResponse } from '@/utils/api-gateway'
-import { FILE_CONTENT_TYPE } from '@/lambdas/constants'
+import { FileContentTypeMap } from '@/constants'
 import { getPresignedUploadUrl } from '@/utils/s3'
 
 export const createLinksForFile = async (file: File) => {
@@ -34,6 +35,29 @@ export const createLinksForFile = async (file: File) => {
   return links
 }
 
+export const createDocumentListItem = (document: Document) => {
+  const { id, name, createdAt } = document
+
+  return {
+    name,
+    createdDate: createdAt.toISOString(),
+    id,
+    links: [
+      {
+        href: `/documents/${id}`,
+        rel: 'self',
+        type: 'GET',
+      },
+    ],
+  }
+}
+
+export const createDocumentListResult = (documents: Document[]) => {
+  return createJsonResponse<DocumentListContract>({
+    documents: documents.map(createDocumentListItem),
+  })
+}
+
 export const createSingleDocumentResult = async (document: Document) => {
   const { id, name, createdAt, files: baseFiles } = document
 
@@ -51,7 +75,7 @@ export const createSingleDocumentResult = async (document: Document) => {
           links: await createLinksForFile(f),
           name: f.name,
           sha256Checksum: f.sha256Checksum,
-          contentType: FILE_CONTENT_TYPE.get(
+          contentType: FileContentTypeMap.get(
             f.contentType,
           ) as FileContentTypeEnum,
           contentLength: f.contentLength,

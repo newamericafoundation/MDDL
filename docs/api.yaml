@@ -732,16 +732,16 @@ components:
       description: The valid types for access grants to a collection
       type: string
       enum:
-        - EMAIL
-      example: EMAIL
+        - AGENCY_OFFICER_EMAIL
+      example: AGENCY_OFFICER_EMAIL
     CollectionGrantCreate:
       description: Request data to create an access grant to a collection
       required:
-        - emailAddresses
+        - agencyOfficersEmailAddresses
       properties:
-        emailAddresses:
-          description: The list of email addresses to allow access to the collection
+        agencyOfficersEmailAddresses:
           type: array
+          description: The email addresses of Agency Officers to grant access to this collection
           items:
             type: string
       type: object
@@ -763,7 +763,7 @@ components:
         - type
         - createdDate
         - links
-        - agencyDetails
+        - agencyOfficerEmailAddress
       properties:
         id:
           type: string
@@ -776,8 +776,8 @@ components:
           format: date-time
           example: '2020-01-01T01:01:01Z'
           description: The date the grant was created
-        emailAddress:
-          description: The email address that has been granted access
+        agencyOfficerEmailAddress:
+          description: The agency officers email address that has been granted access
           type: string
         links:
           $ref: '#/components/schemas/Links'
@@ -814,6 +814,8 @@ components:
           format: date-time
           example: '2020-01-01T01:01:01Z'
           description: The date the collection was created
+        links:
+          $ref: '#/components/schemas/Links'
     Collection:
       type: object
       description: A collection of documents
@@ -835,13 +837,15 @@ components:
           format: date-time
           example: '2020-01-01T01:01:01Z'
           description: The date the collection was created
+        links:
+          $ref: '#/components/schemas/Links'
     CollectionCreate:
       type: object
       description: Request data to create a collection
       required:
         - name
         - documentIds
-        - emailAddresses
+        - agencyOfficersEmailAddresses
       properties:
         name:
           type: string
@@ -852,9 +856,9 @@ components:
           description: The ID's of the Documents to add to this collection
           items:
             type: string
-        emailAddresses:
+        agencyOfficersEmailAddresses:
           type: array
-          description: The email addresses to grant access to this collection
+          description: The email addresses of Agency Officers to grant access to this collection
           items:
             type: string
 

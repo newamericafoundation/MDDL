@@ -259,6 +259,9 @@ export class CityStack extends Stack {
     // add document routes
     this.addDocumentRoutes(apiProps, bucket)
 
+    // add collection routes
+    this.addCollectionRoutes(apiProps)
+
     // run database migrations
     this.runMigrations(secret, mySqlLayer)
   }
@@ -781,11 +784,41 @@ export class CityStack extends Stack {
       },
     )
 
-    // add route
+    // add route to submit a document
     this.addRoute(api, {
       name: 'PostUserDocuments',
       routeKey: 'POST /users/{userId}/documents',
       lambdaFunction: postUserDocumentsLambda,
+      authorizer,
+    })
+
+    // add route and lambda to list users collections
+    this.addRoute(api, {
+      name: 'GetUserCollections',
+      routeKey: 'GET /users/{userId}/collections',
+      lambdaFunction: this.createLambda(
+        'GetUserCollections',
+        pathToApiServiceLambda('collections/getByUserId'),
+        {
+          dbSecret,
+          layers: [mySqlLayer],
+        },
+      ),
+      authorizer,
+    })
+
+    // add route and lambda to submit a collection
+    this.addRoute(api, {
+      name: 'PostUserCollections',
+      routeKey: 'POST /users/{userId}/collections',
+      lambdaFunction: this.createLambda(
+        'PostUserCollections',
+        pathToApiServiceLambda('collections/createCollectionForUser'),
+        {
+          dbSecret,
+          layers: [mySqlLayer],
+        },
+      ),
       authorizer,
     })
   }
@@ -877,6 +910,29 @@ export class CityStack extends Stack {
   }
 
   /**
+   * Adds collection specific routes to the API
+   * @param apiProps Common properties for API functions
+   */
+  private addCollectionRoutes(apiProps: ApiProps) {
+    const { api, dbSecret, mySqlLayer, authorizer } = apiProps
+
+    // add route and lambda to list collections documents
+    this.addRoute(api, {
+      name: 'GetCollectionDocuments',
+      routeKey: 'GET /collections/{collectionId}/documents',
+      lambdaFunction: this.createLambda(
+        'GetCollectionDocuments',
+        pathToApiServiceLambda('collections/getDocumentsByCollectionId'),
+        {
+          dbSecret,
+          layers: [mySqlLayer],
+        },
+      ),
+      authorizer,
+    })
+  }
+
+  /**
    * Adds a route to the API
    * @param api The API to register the route with
    * @param props The props for the route
@@ -956,6 +1012,8 @@ export class CityStack extends Stack {
         ...dbParams,
         ...extraEnvironmentVariables,
       },
+      memorySize: 512,
+      timeout: Duration.seconds(60),
       layers,
       runtime: Runtime.NODEJS_12_X,
       vpc: requiresDbConnectivity ? this.lambdaVpc : undefined,
@@ -995,6 +1053,7 @@ export class CityStack extends Stack {
       securityGroups: this.lambdaSecurityGroups,
       layers: [mysqlLayer],
       timeout: Duration.seconds(60),
+      memorySize: 512,
       environment: {
         DB_HOST: this.rdsEndpoint,
         DB_USER: dbSecret.secretValueFromJson('username').toString(),

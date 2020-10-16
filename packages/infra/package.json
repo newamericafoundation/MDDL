@@ -3,6 +3,7 @@
   "description": "Cloud Infrastructure for the HDL project",
   "private": true,
   "version": "0.1.0",
+  "license": "MIT",
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",

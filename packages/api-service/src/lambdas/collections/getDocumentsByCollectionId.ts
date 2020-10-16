@@ -3,18 +3,17 @@ import {
   APIGatewayProxyHandlerV2,
   APIGatewayProxyResultV2,
 } from 'aws-lambda'
-import {
-  DocumentListItem,
-  DocumentList as DocumentListContract,
-} from 'api-client'
-import { getDocumentsByOwnerId } from '@/models/document'
+import { DocumentList as DocumentListContract } from 'api-client'
 import {
   createErrorResponse,
-  createJsonResponse,
   getPathParameter,
   getUserId,
 } from '@/utils/api-gateway'
 import { connectDatabase } from '@/utils/database'
+import {
+  collectionExists,
+  getDocumentsByCollectionId,
+} from '@/models/collection'
 import { createDocumentListResult } from '@/lambdas/documents'
 
 connectDatabase()
@@ -24,15 +23,19 @@ export const handler: APIGatewayProxyHandlerV2<APIGatewayProxyResultV2<
 >> = async (
   event: APIGatewayProxyEventV2,
 ): Promise<APIGatewayProxyResultV2<DocumentListContract>> => {
-  const ownerId = getPathParameter(event, 'userId')
+  const collectionId = getPathParameter(event, 'collectionId')
   const userId = getUserId(event)
-  if (!ownerId) {
-    return createErrorResponse('userId path parameter not found')
+  if (!collectionId) {
+    return createErrorResponse('collectionId path parameter not found')
   }
-  if (ownerId != userId) {
+  if (!userId) {
     return createErrorResponse('userId not found')
   }
-  const foundDocuments = await getDocumentsByOwnerId(ownerId)
+  const collectionExistsCheck = await collectionExists(collectionId, userId)
+  if (!collectionExistsCheck) {
+    return createErrorResponse('collection not found', 404)
+  }
+  const foundDocuments = await getDocumentsByCollectionId(collectionId)
   return createDocumentListResult(foundDocuments)
 }
 

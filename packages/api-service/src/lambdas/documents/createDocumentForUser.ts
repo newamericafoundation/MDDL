@@ -3,14 +3,13 @@ import {
   APIGatewayProxyHandlerV2,
   APIGatewayProxyResultV2,
 } from 'aws-lambda'
-import {
-  Document as DocumentContract,
-  DocumentCreate as DocumentCreateContract,
-} from 'api-client'
+import { Document as DocumentContract } from 'api-client'
 import {
   createDocument,
   CreateDocumentInput,
+  Document,
   CreateDocumentFileInput,
+  countDocumentsByOwnerId,
 } from '@/models/document'
 import {
   createErrorResponse,
@@ -22,11 +21,12 @@ import { createDocumentSchema } from './validation'
 import { createFilePath } from '@/utils/s3'
 import { v4 as uuidv4 } from 'uuid'
 import { createSingleDocumentResult } from '@/lambdas/documents'
+import { MaxDocumentsPerUser } from '@/constants'
 
 connectDatabase()
 
 export const handler: APIGatewayProxyHandlerV2<APIGatewayProxyResultV2<
-  DocumentCreateContract
+  DocumentContract
 >> = async (
   event: APIGatewayProxyEventV2,
 ): Promise<APIGatewayProxyResultV2<DocumentContract>> => {
@@ -45,6 +45,12 @@ export const handler: APIGatewayProxyHandlerV2<APIGatewayProxyResultV2<
   if (error) {
     return createErrorResponse(
       `validation error: ${error.details.map((x) => x.message).join(', ')}`,
+    )
+  }
+  const documentCount = await countDocumentsByOwnerId(ownerId)
+  if (documentCount >= MaxDocumentsPerUser) {
+    return createErrorResponse(
+      `validation error: maximum document count of ${MaxDocumentsPerUser} reached`,
     )
   }
 

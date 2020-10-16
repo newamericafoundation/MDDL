@@ -1,14 +1,15 @@
-import getByUserId from './getByUserId'
+import handler from './getDocumentsByCollectionId'
 import { getPathParameter, getUserId } from '@/utils/api-gateway'
 import {
-  getDocumentsByOwnerId,
-  Document as DocumentModel,
-} from '@/models/document'
+  getDocumentsByCollectionId,
+  collectionExists,
+} from '@/models/collection'
 import {
   createMockContext,
   createMockEvent,
   toMockedFunction,
 } from '@/utils/test'
+import { Document as DocumentModel } from '@/models/document'
 
 jest.mock('@/utils/database', () => {
   return {
@@ -25,15 +26,16 @@ jest.mock('@/utils/api-gateway', () => {
   }
 })
 
-jest.mock('@/models/document', () => {
-  const module = jest.requireActual('@/models/document')
+jest.mock('@/models/collection', () => {
+  const module = jest.requireActual('@/models/collection')
   return {
     ...module,
-    getDocumentsByOwnerId: jest.fn(),
+    collectionExists: jest.fn(),
+    getDocumentsByCollectionId: jest.fn(),
   }
 })
 
-describe('getByUserId', () => {
+describe('getDocumentsByCollectionId', () => {
   const userId = 'myUserId'
 
   beforeEach(() => {
@@ -41,8 +43,9 @@ describe('getByUserId', () => {
     toMockedFunction(getUserId).mockImplementationOnce(() => userId)
   })
 
-  it('returns document', async () => {
-    toMockedFunction(getDocumentsByOwnerId).mockImplementationOnce(() =>
+  it('returns documents', async () => {
+    toMockedFunction(collectionExists).mockImplementationOnce(async () => true)
+    toMockedFunction(getDocumentsByCollectionId).mockImplementationOnce(() =>
       Promise.resolve([
         DocumentModel.fromJson({
           id: 'myDocumentId1',
@@ -62,7 +65,7 @@ describe('getByUserId', () => {
         }),
       ]),
     )
-    expect(await getByUserId(createMockEvent(), createMockContext(), jest.fn()))
+    expect(await handler(createMockEvent(), createMockContext(), jest.fn()))
       .toMatchInlineSnapshot(`
       Object {
         "body": "{\\"documents\\":[{\\"name\\":\\"My First File\\",\\"createdDate\\":\\"2015-01-12T13:14:15.000Z\\",\\"id\\":\\"myDocumentId1\\",\\"links\\":[{\\"href\\":\\"/documents/myDocumentId1\\",\\"rel\\":\\"self\\",\\"type\\":\\"GET\\"}]},{\\"name\\":\\"My Second File\\",\\"createdDate\\":\\"2015-01-27T13:14:15.000Z\\",\\"id\\":\\"myDocumentId2\\",\\"links\\":[{\\"href\\":\\"/documents/myDocumentId2\\",\\"rel\\":\\"self\\",\\"type\\":\\"GET\\"}]}]}",
@@ -75,11 +78,12 @@ describe('getByUserId', () => {
       }
     `)
   })
-  it('returns empty when none found', async () => {
-    toMockedFunction(getDocumentsByOwnerId).mockImplementationOnce(() =>
+  it('returns empty when no documents found', async () => {
+    toMockedFunction(collectionExists).mockImplementationOnce(async () => true)
+    toMockedFunction(getDocumentsByCollectionId).mockImplementationOnce(() =>
       Promise.resolve([]),
     )
-    expect(await getByUserId(createMockEvent(), createMockContext(), jest.fn()))
+    expect(await handler(createMockEvent(), createMockContext(), jest.fn()))
       .toMatchInlineSnapshot(`
       Object {
         "body": "{\\"documents\\":[]}",
@@ -89,6 +93,21 @@ describe('getByUserId', () => {
         },
         "isBase64Encoded": false,
         "statusCode": 200,
+      }
+    `)
+  })
+  it('returns not found when collection doesnt exist', async () => {
+    toMockedFunction(collectionExists).mockImplementationOnce(async () => false)
+    expect(await handler(createMockEvent(), createMockContext(), jest.fn()))
+      .toMatchInlineSnapshot(`
+      Object {
+        "body": "{\\"message\\":\\"collection not found\\"}",
+        "cookies": Array [],
+        "headers": Object {
+          "Content-Type": "application/json",
+        },
+        "isBase64Encoded": false,
+        "statusCode": 404,
       }
     `)
   })

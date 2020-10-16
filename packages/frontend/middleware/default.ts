@@ -1,6 +1,6 @@
 import { Context } from '@nuxt/types'
 
-export default function({ store, route, redirect }: Context) {
+export default ({ store, route, redirect }: Context) => {
   if (store.state.auth.loggedIn) {
     if (route.path === '/') redirect('/dashboard')
   } else {

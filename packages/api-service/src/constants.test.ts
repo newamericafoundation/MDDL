@@ -1,8 +1,8 @@
-import { FILE_CONTENT_TYPE } from './constants'
+import { FileContentTypeMap } from './constants'
 
 describe('constants', () => {
-  it('has correct FILE_CONTENT_TYPE', () => {
-    expect(FILE_CONTENT_TYPE).toMatchInlineSnapshot(`
+  it('has correct FileContentTypeMap', () => {
+    expect(FileContentTypeMap).toMatchInlineSnapshot(`
       Map {
         "ApplicationPdf" => "application/pdf",
         "ImageJpeg" => "image/jpeg",

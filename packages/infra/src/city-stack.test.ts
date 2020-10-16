@@ -46,9 +46,11 @@ test('Default Stack', () => {
   // THEN
   expectCDK(stack).to(haveResource('AWS::IAM::Role'))
   expectCDK(stack).to(
-    countResourcesLike('AWS::Lambda::Function', 6, {
+    countResourcesLike('AWS::Lambda::Function', 9, {
       Handler: 'index.handler',
       Runtime: 'nodejs12.x',
+      MemorySize: 512,
+      Timeout: 60,
     }),
   )
 })
