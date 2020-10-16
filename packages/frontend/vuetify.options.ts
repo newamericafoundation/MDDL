@@ -16,7 +16,7 @@ import Send from '@/components/icons/send.vue'
 const vuetifyOptions = (ctx: Context): Options => {
   return {
     treeShake: true,
-    customVariables: ['@/assets/vuetifyVariables.scss'],
+    customVariables: ['@/assets/scss/vuetifyVariables.scss'],
     theme: {
       dark: false,
       disable: false,

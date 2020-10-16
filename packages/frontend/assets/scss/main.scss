@@ -8,24 +8,31 @@
   .v-alert {
     &.error {
       color: var(--white) !important;
-      border-color: var(--error-red) !important;
-      background-color: var(--error-red) !important;
+      border-color: var(--error) !important;
+      background-color: var(--error) !important;
     }
   }
 
   // Text
   .error--text,
   .red--text {
-    color: var(--error-red) !important;
+    color: var(--error) !important;
   }
   .secondary--text {
-    color: var(--indigo) !important;
-    &:hover {
-      color: var(--ny-blue) !important;
-    }
+    color: var(--blue) !important;
   }
   .v-sheet {
-    color: var(--dark-grey);
+    color: var(--grey-9);
+  }
+
+  .font-weight-medium {
+    font-weight: 500;
+  }
+  .font-weight-bold {
+    font-weight: 600;
+  }
+  .font-weight-black {
+    font-weight: 700;
   }
 
   // Disable Material Design Ripple Effect
@@ -49,7 +56,7 @@
   // App Bar
   .v-app-bar {
     background-color: var(--white);
-    border-bottom: 1px solid var(--light-grey);
+    border-bottom: 1px solid var(--grey-4);
     box-shadow: none;
   }
 
@@ -66,16 +73,13 @@
   // Card
   .v-card {
     box-shadow: none;
-    .v-card__text {
-      color: var(--dark-grey);
-    }
   }
 
   // Link
   a {
-    color: var(--indigo);
+    color: var(--blue);
     &:hover {
-      color: var(--ny-blue);
+      color: var(--blue-light);
     }
   }
 

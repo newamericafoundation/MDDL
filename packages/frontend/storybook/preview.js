@@ -27,7 +27,7 @@ Vue.use(Vuetify, {
 })
 
 const vuetify = new Vuetify({
-  customVariables: ['@/assets/vuetifyVariables.scss'],
+  customVariables: ['@/assets/scss/vuetifyVariables.scss'],
   theme: {
     dark: true,
     themes: {

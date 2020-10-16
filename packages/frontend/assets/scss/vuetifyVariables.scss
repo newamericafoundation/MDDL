@@ -1,3 +1,5 @@
+// Ref: https://github.com/nuxt-community/vuetify-module#customvariables
+
 $body-font-family: 'Noto', sans-serif;
 $heading-font-family: 'Noto', sans-serif;
 
@@ -39,7 +41,27 @@ $headings: map-deep-merge(
       (
         'size': 1.25rem,
         'weight': 600,
-        'line-height': auto,
+        'line-height': 135%,
+        'letter-spacing': 0,
+        'font-family': $heading-font-family,
+        'text-transform': false,
+      ),
+    // ---- Heading font ----
+    'h2':
+      (
+        'size': 1.0625rem,
+        'weight': 600,
+        'line-height': 135%,
+        'letter-spacing': 0,
+        'font-family': $heading-font-family,
+        'text-transform': false,
+      ),
+    // ---- Subheading font ----
+    'h3':
+      (
+        'size': 0.9375rem,
+        'weight': 600,
+        'line-height': 135%,
         'letter-spacing': 0,
         'font-family': $heading-font-family,
         'text-transform': false,
@@ -49,17 +71,17 @@ $headings: map-deep-merge(
       (
         'size': 1.0625rem,
         'weight': normal,
-        'line-height': auto,
+        'line-height': 135%,
         'letter-spacing': 0,
         'font-family': $body-font-family,
         'text-transform': false,
       ),
-    // ---- Menu font ----
+    // ---- Button font ----
     'button':
       (
         'size': 1.0625rem,
         'weight': normal,
-        'line-height': auto,
+        'line-height': 135%,
         'letter-spacing': 0,
         'font-family': $body-font-family,
         'text-transform': false,
@@ -68,8 +90,8 @@ $headings: map-deep-merge(
     'subtitle-1':
       (
         'size': 1.0625rem,
-        'weight': bold,
-        'line-height': auto,
+        'weight': 600,
+        'line-height': 135%,
         'letter-spacing': 0,
         'font-family': $body-font-family,
         'text-transform': false,
@@ -79,7 +101,7 @@ $headings: map-deep-merge(
       (
         'size': 0.875rem,
         'weight': normal,
-        'line-height': auto,
+        'line-height': 135%,
         'letter-spacing': 0,
         'font-family': $body-font-family,
         'text-transform': false,
@@ -87,6 +109,11 @@ $headings: map-deep-merge(
   ),
   $headings
 );
+
+// Note: the following font styles have been ommitted since they are achievable with the
+//       above font styles in combination with font weight helper classes:
+//  B2 - Body M
+//  BL - Body Link
 
 $material-light: (
   'background': #fff,

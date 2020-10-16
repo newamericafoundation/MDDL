@@ -82,7 +82,7 @@ export default class UploadButton extends Vue {
 .upload-label {
   cursor: pointer;
   padding: 0.5rem 0.7rem 0.5rem 0.5rem;
-  background-color: var(--indigo);
+  background-color: var(--primary);
   & > input {
     display: none;
   }
