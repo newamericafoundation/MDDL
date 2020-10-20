@@ -1,58 +1,49 @@
 <template>
   <div>
-    <label v-if="textButton" class="upload-label text">
+    <label
+      :class="[
+        'upload-label',
+        textButton ? 'text' : 'v-btn',
+        { disabled: isLoading },
+      ]"
+    >
       <v-icon v-if="prependIcon" v-text="prependIcon" />
-      <p class="font-weight-bold">{{ label }}</p>
+      <span :class="{ 'font-weight-bold': textButton }">{{ label }}</span>
       <input
         type="file"
         :multiple="multiple"
+        :disabled="isLoading"
         class="fileInput"
         accept="application/pdf, image/jpeg, image/png, image/tiff"
         @change="onFileInput"
       />
     </label>
-    <label v-else class="upload-label v-btn">
-      <v-icon v-if="prependIcon" v-text="prependIcon" />
-      {{ label }}
-      <input
-        type="file"
-        :multiple="multiple"
-        class="fileInput"
-        accept="application/pdf, image/jpeg, image/png, image/tiff"
-        @change="onFileInput"
-      />
-    </label>
-    <v-dialog v-model="showProgressDialog" hide-overlay persistent width="300">
-      <v-card color="primary" dark>
-        <v-card-text>
-          Uploading...
-          <v-progress-linear
-            :value="uploadPercentage"
-            color="white"
-            class="mb-0"
-          ></v-progress-linear>
-        </v-card-text>
-      </v-card>
-    </v-dialog>
-    <SnackBar v-model="showSnackbar">
-      Document Uploaded
+    <SnackBar v-model="showSnackbar" :dismissable="!isLoading">
+      <span class="body-1">{{ snackMessage }}</span>
       <!-- TODO: Show me once view document is finished -->
       <template v-show="false" v-slot:action="{ attrs }">
         <nuxt-link
           v-if="document"
           v-bind="attrs"
-          :to="`documents/${document.id}`"
+          :to="`/documents/${document.id}`"
+          class="font-weight-bold"
         >
           Rename
         </nuxt-link>
         <nuxt-link
           v-if="document"
           v-bind="attrs"
-          :to="`documents/${document.id}`"
+          :to="`/documents/${document.id}`"
+          class="font-weight-bold"
         >
           View
         </nuxt-link>
       </template>
+      <v-progress-linear
+        :value="uploadPercentage"
+        color="success"
+        class="mb-0"
+      ></v-progress-linear>
     </SnackBar>
   </div>
 </template>
@@ -73,14 +64,15 @@ export default class UploadButton extends Vue {
 
   file: File | null = null
   uploadPercentage = 0
-  showProgressDialog = false
   showSnackbar = false
   document: Document | null = null
   multiple = false
+  snackMessage = ''
 
   onFileInput(event: any) {
     if (event?.target?.files && event.target.files.length) {
-      this.showProgressDialog = true
+      this.showSnackbar = true
+      this.snackMessage = 'Uploading...'
       this.$store
         .dispatch('user/uploadDocument', {
           fileList: event.target.files,
@@ -90,32 +82,51 @@ export default class UploadButton extends Vue {
         })
         .then((document: Document) => {
           this.document = document
-          this.showProgressDialog = false
-          this.showSnackbar = true
+          this.snackMessage = 'Upload complete'
           return this.$store.dispatch('user/getDocuments')
         })
     }
+  }
+
+  get isLoading() {
+    return this.showSnackbar && this.uploadPercentage < 100
   }
 }
 </script>
 
 <style scoped lang="scss">
 .upload-label {
-  cursor: pointer;
+  &:not(.disabled) {
+    cursor: pointer;
+  }
   &.v-btn {
     padding: 0.5rem 0.7rem 0.5rem 0.5rem;
     background-color: var(--primary);
     color: var(--white);
-    & > .v-icon {
+    &.disabled {
+      background-color: var(--grey-3);
+      color: var(--grey-5);
+      .v-icon {
+        color: var(--grey-5);
+      }
+    }
+    .v-icon {
       padding: 0;
       color: var(--white);
     }
   }
   &.text {
     color: var(--primary);
+    &.disabled {
+      color: var(--grey-5);
+    }
   }
   & > input {
     display: none;
+  }
+
+  .v-snack__content {
+    padding-top: 0;
   }
 }
 </style>
