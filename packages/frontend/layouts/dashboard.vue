@@ -2,6 +2,22 @@
   <v-app>
     <v-navigation-drawer v-model="drawer" fixed temporary>
       <v-list>
+        <v-list-item
+          class="dashboardLink"
+          @click.stop="
+            () => {
+              if ($route.path !== '/dashboard') {
+                $router.push('/dashboard')
+              } else {
+                drawer = !drawer
+              }
+            }
+          "
+        >
+          <v-list-item-content>
+            <v-list-item-title>Dashboard</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
         <template v-for="(item, i) in navItems">
           <v-divider v-if="item.type === 'break'" :key="i" />
           <v-list-item
@@ -46,10 +62,6 @@ export default class ClientDashboard extends Vue {
   drawer = false
   navItems = [
     {
-      title: 'All files',
-      to: '/',
-    },
-    {
       type: 'break',
     },
     {
@@ -66,3 +78,9 @@ export default class ClientDashboard extends Vue {
   ]
 }
 </script>
+
+<style scoped lang="scss">
+.dashboardLink {
+  padding-bottom: 7px;
+}
+</style>
