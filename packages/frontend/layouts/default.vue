@@ -2,7 +2,7 @@
   <v-app>
     <AppBar>
       <template v-slot:nav-action>
-        <nuxt-link to="/">
+        <nuxt-link :to="localePath('/dashboard')">
           <v-icon>$chevron-left</v-icon>
         </nuxt-link>
       </template>

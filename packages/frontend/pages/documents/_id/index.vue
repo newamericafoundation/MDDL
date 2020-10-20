@@ -1,15 +1,19 @@
 <template>
   <div v-if="document">
-    <div>Document Name: {{ document.name }}</div>
-    <div>Created Date: {{ documentDate }}</div>
-    <div>Size: {{ documentContentSize }}MB</div>
+    <div class="capitalize">{{ $t('docName') }}: {{ document.name }}</div>
+    <div class="capitalize">{{ $t('createdDate') }}: {{ documentDate }}</div>
+    <div class="capitalize">
+      {{ $t('fileSize') }}: {{ documentContentSize }}MB
+    </div>
 
     <v-skeleton-loader
       class="my-4"
       type="image"
       boilerplate
     ></v-skeleton-loader>
-    <v-btn block :disabled="loading" @click="downloadFile"> Download </v-btn>
+    <v-btn block :disabled="loading" @click="downloadFile">
+      {{ $t('download') }}
+    </v-btn>
   </div>
   <div v-else>
     <v-skeleton-loader

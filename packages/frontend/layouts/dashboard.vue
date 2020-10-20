@@ -15,24 +15,44 @@
           "
         >
           <v-list-item-content>
-            <v-list-item-title>Dashboard</v-list-item-title>
+            <v-list-item-title class="capitalize">
+              {{ $t('dashboard') }}
+            </v-list-item-title>
           </v-list-item-content>
         </v-list-item>
         <template v-for="(item, i) in navItems">
           <v-divider v-if="item.type === 'break'" :key="i" />
+          <nuxt-link
+            v-else-if="item.to"
+            :key="i"
+            class="nuxt-link"
+            :to="localePath(item.to)"
+          >
+            <v-list-item
+              router
+              exact
+              @click.stop="item.click ? item.click : ''"
+            >
+              <v-list-item-action v-if="item.icon">
+                <v-icon>{{ item.icon }}</v-icon>
+              </v-list-item-action>
+              <v-list-item-content>
+                <v-list-item-title class="capitalize" v-text="item.title" />
+              </v-list-item-content>
+            </v-list-item>
+          </nuxt-link>
           <v-list-item
             v-else
             :key="i"
-            :to="item.to"
             router
             exact
-            @click.stop="item.click"
+            @click.stop="item.click ? item.click : ''"
           >
             <v-list-item-action v-if="item.icon">
               <v-icon>{{ item.icon }}</v-icon>
             </v-list-item-action>
             <v-list-item-content>
-              <v-list-item-title v-text="item.title" />
+              <v-list-item-title class="capitalize" v-text="item.title" />
             </v-list-item-content>
           </v-list-item>
         </template>
@@ -47,7 +67,7 @@
       </template>
     </AppBar>
     <v-main>
-      <v-container class="px-12">
+      <v-container class="px-0">
         <nuxt />
       </v-container>
     </v-main>
@@ -65,11 +85,11 @@ export default class ClientDashboard extends Vue {
       type: 'break',
     },
     {
-      title: 'Account',
+      title: this.$i18n.t('account'),
       to: '/account',
     },
     {
-      title: 'Sign out',
+      title: this.$i18n.t('signOut'),
       click: async () => {
         await this.$auth.logout()
         this.$router.push('/')

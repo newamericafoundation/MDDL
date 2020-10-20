@@ -41,6 +41,11 @@
     display: none !important;
   }
 
+  // input label
+  .v-input .v-label {
+    @extend .capitalize;
+  }
+
   // Text Field
   .v-text-field {
     .v-label,
@@ -83,6 +88,16 @@
     }
   }
 
+  // use this to remove nuxt-link styles
+  a.nuxt-link {
+    display: block;
+    text-decoration: none;
+    color: currentColor;
+    &:hover {
+      color: currentColor;
+    }
+  }
+
   // Button
   .v-btn--outlined {
     border: 2px solid currentColor;
@@ -91,6 +106,21 @@
     box-shadow: none;
     min-width: 4rem !important;
     text-transform: none;
+    @extend .capitalize;
+  }
+
+  // capitalize
+  // note: doesn't work on inline elements
+  @mixin capitalize() {
+    text-transform: lowercase;
+
+    &:first-letter {
+      text-transform: uppercase;
+    }
+  }
+
+  .capitalize {
+    @include capitalize();
   }
 
   .unselectable {

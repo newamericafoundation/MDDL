@@ -8,7 +8,9 @@
       ]"
     >
       <v-icon v-if="prependIcon" v-text="prependIcon" />
-      <span :class="{ 'font-weight-bold': textButton }">{{ label }}</span>
+      <p :class="[{ 'font-weight-bold': textButton }, 'capitalize', 'ma-0']">
+        {{ translatedLabel }}
+      </p>
       <input
         type="file"
         :multiple="multiple"
@@ -19,24 +21,24 @@
       />
     </label>
     <SnackBar v-model="showSnackbar" :dismissable="!isLoading">
-      <span class="body-1">{{ snackMessage }}</span>
+      <p class="ma-0">{{ $t(snackMessage) }}</p>
       <!-- TODO: Show me once view document is finished -->
       <template v-show="false" v-slot:action="{ attrs }">
         <nuxt-link
           v-if="document"
           v-bind="attrs"
-          :to="`/documents/${document.id}`"
-          class="font-weight-bold"
+          :to="localePath(`/documents/${document.id}`)"
+          class="font-weight-bold capitalize"
         >
-          Rename
+          {{ $t('rename') }}
         </nuxt-link>
         <nuxt-link
           v-if="document"
           v-bind="attrs"
-          :to="`/documents/${document.id}`"
-          class="font-weight-bold"
+          :to="localePath(`/documents/${document.id}`)"
+          class="font-weight-bold capitalize"
         >
-          View
+          {{ $t('view') }}
         </nuxt-link>
       </template>
       <v-progress-linear
@@ -53,7 +55,7 @@ import { Vue, Component, Prop } from 'nuxt-property-decorator'
 
 @Component
 export default class UploadButton extends Vue {
-  @Prop({ default: 'Upload' })
+  @Prop({ default: 'upload' })
   label: string
 
   @Prop({ default: null })
@@ -72,7 +74,7 @@ export default class UploadButton extends Vue {
   onFileInput(event: any) {
     if (event?.target?.files && event.target.files.length) {
       this.showSnackbar = true
-      this.snackMessage = 'Uploading...'
+      this.snackMessage = 'uploading'
       this.$store
         .dispatch('user/uploadDocument', {
           fileList: event.target.files,
@@ -82,7 +84,7 @@ export default class UploadButton extends Vue {
         })
         .then((document: Document) => {
           this.document = document
-          this.snackMessage = 'Upload complete'
+          this.snackMessage = 'uploadComplete'
           return this.$store.dispatch('user/getDocuments')
         })
     }
@@ -90,6 +92,10 @@ export default class UploadButton extends Vue {
 
   get isLoading() {
     return this.showSnackbar && this.uploadPercentage < 100
+  }
+
+  get translatedLabel() {
+    return this.$i18n.t(this.label)
   }
 }
 </script>
@@ -125,7 +131,7 @@ export default class UploadButton extends Vue {
     display: none;
   }
 
-  .v-snack__content {
+  .upload-text .v-snack__content {
     padding-top: 0;
   }
 }

@@ -5,22 +5,18 @@
         v-for="(document, i) in documents"
         :key="i"
         :document="document"
-        class="mb-4"
+        :class="{ 'mb-4': $vuetify.breakpoint.smAndUp }"
       />
     </template>
-    <div v-else>
+    <center v-else>
       <v-img
         max-width="30rem"
         class="mx-auto"
         :src="require('@/assets/images/upload.svg')"
       />
-      <p class="d-flex justify-center">There's nothing here yet</p>
-      <UploadButton
-        class="d-flex justify-center"
-        label="Upload your first file"
-        :text-button="true"
-      />
-    </div>
+      <p class="capitalize">{{ $t('nothingHere') }}</p>
+      <UploadButton label="firstFile" :text-button="true" />
+    </center>
   </div>
   <div v-else>
     <v-card

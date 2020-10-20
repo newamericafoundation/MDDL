@@ -1,4 +1,4 @@
-import messages from './locales/messages.ts'
+import messages from './assets/js/messages.ts'
 
 export default {
   ssr: false,
@@ -42,12 +42,13 @@ export default {
     'nuxt-i18n',
   ],
   i18n: {
-    locales: ['en', 'fr', 'es'],
+    locales: ['en', 'test'],
     defaultLocale: 'en',
     vueI18n: {
       fallbackLocale: 'en',
       messages,
     },
+    strategy: 'no_prefix',
   },
   axios: {},
   vuetify: {

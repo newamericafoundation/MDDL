@@ -3,8 +3,7 @@
     <v-select
       v-model="$i18n.locale"
       :items="$i18n.locales"
-      :value="$i18n.locales[0]"
-      label="Language"
+      :label="$t('language')"
       class="mt-4"
       dense
     />
