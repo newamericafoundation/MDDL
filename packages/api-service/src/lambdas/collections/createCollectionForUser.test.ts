@@ -12,7 +12,6 @@ import {
   Collection as CollectionModel,
 } from '@/models/collection'
 import { allDocumentsExistById } from '@/models/document'
-import { allAgencyGrantsExists } from '@/models/agencyGrant'
 
 jest.mock('@/utils/database', () => {
   return {
@@ -65,23 +64,12 @@ jest.mock('@/models/document', () => {
   }
 })
 
-jest.mock('@/models/agencyGrant', () => {
-  const module = jest.requireActual('@/models/agencyGrant')
-  return {
-    ...module,
-    allAgencyGrantsExists: jest.fn(),
-  }
-})
-
 describe('createCollectionForUser', () => {
   const userId = 'myUserId'
 
   beforeEach(() => {
     toMockedFunction(getPathParameter).mockImplementationOnce(() => userId)
     toMockedFunction(getUserId).mockImplementationOnce(() => userId)
-    toMockedFunction(allAgencyGrantsExists).mockImplementationOnce(
-      async () => true,
-    )
     toMockedFunction(allDocumentsExistById).mockImplementationOnce(
       async () => true,
     )
@@ -138,7 +126,7 @@ describe('createCollectionForUser', () => {
     )
   })
 
-  it('validation requires agencyOfficersEmailAddresses', async () => {
+  it('validation requires individualEmailAddresses', async () => {
     const event = createMockEvent()
     event.body = JSON.stringify({ name: 'test', documentIds: ['abc1234'] })
     expect(
@@ -146,7 +134,7 @@ describe('createCollectionForUser', () => {
     ).toEqual(
       expect.objectContaining({
         body:
-          '{"message":"validation error: \\"agencyOfficersEmailAddresses\\" is required"}',
+          '{"message":"validation error: \\"individualEmailAddresses\\" is required"}',
       }),
     )
   })
@@ -174,7 +162,7 @@ describe('createCollectionForUser', () => {
     event.body = JSON.stringify({
       name: 'test',
       documentIds: ['abc1234'],
-      agencyOfficersEmailAddresses: ['exampleagent@example.com'],
+      individualEmailAddresses: ['exampleagent@example.com'],
     })
     toMockedFunction(allDocumentsExistById)
       .mockReset()
@@ -184,25 +172,6 @@ describe('createCollectionForUser', () => {
     ).toEqual(
       expect.objectContaining({
         body: '{"message":"validation error: documents not found"}',
-      }),
-    )
-  })
-
-  it('fails if agency grants cannot be validated', async () => {
-    const event = createMockEvent()
-    event.body = JSON.stringify({
-      name: 'test',
-      documentIds: ['abc1234'],
-      agencyOfficersEmailAddresses: ['exampleagent@example.com'],
-    })
-    toMockedFunction(allAgencyGrantsExists)
-      .mockReset()
-      .mockImplementationOnce(async () => false)
-    expect(
-      await createCollectionForUser(event, createMockContext(), jest.fn()),
-    ).toEqual(
-      expect.objectContaining({
-        body: '{"message":"validation error: agency emails not found"}',
       }),
     )
   })
@@ -226,7 +195,7 @@ describe('createCollectionForUser', () => {
     event.body = JSON.stringify({
       name: 'test',
       documentIds: ['abc1234'],
-      agencyOfficersEmailAddresses: ['exampleagent@example.com'],
+      individualEmailAddresses: ['exampleagent@example.com'],
     })
     const result = (await createCollectionForUser(
       event,

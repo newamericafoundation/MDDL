@@ -5,7 +5,11 @@ describe.skip('s3', () => {
   describe('getPresignedDownloadUrl', () => {
     it('creates valid url', async () => {
       expect(
-        await getPresignedDownloadUrl('documents/my-test-document'),
+        await getPresignedDownloadUrl(
+          'documents/my-test-document',
+          'my-original-doc-name.pdf',
+          'attachment',
+        ),
       ).toBeTruthy()
     })
   })

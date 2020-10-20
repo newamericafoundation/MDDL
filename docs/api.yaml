@@ -344,6 +344,12 @@ paths:
           required: true
           schema:
             type: string
+        - name: disposition
+          in: query
+          description: Content Disposition for the file download. Will default to attachment if none given.
+          required: false
+          schema:
+            $ref: '#/components/schemas/FileDownloadDispositionTypeEnum'
       responses:
         '200':
           description: successful operation
@@ -509,13 +515,15 @@ components:
     DocumentUpdate:
       description: Request data to update a document
       type: object
-      required:
-        - name
       properties:
         name:
           type: string
-          description: Document description
+          description: Document name.
           example: Sam's SSN
+        description:
+          type: string
+          description: Document description or notes
+          example: Saved with help of my case manager, Charlie :)
     DocumentCreate:
       description: Request data to create a document
       required:
@@ -526,6 +534,10 @@ components:
           type: string
           description: Document name (system or user provided)
           example: Sam's SSN
+        description:
+          type: string
+          description: Document description or notes
+          example: Saved with help of my case manager, Charlie :)
         files:
           type: array
           description: The files that are part of the document
@@ -640,6 +652,10 @@ components:
           type: string
           description: Document name (system or user provided)
           example: Sam's SSN
+        description:
+          type: string
+          description: Document description or notes
+          example: Saved with help of my case manager, Charlie :)
         createdDate:
           type: string
           description: Date the document was created
@@ -653,6 +669,13 @@ components:
         links:
           $ref: '#/components/schemas/Links'
       type: object
+    FileDownloadDispositionTypeEnum:
+      description: The disposition type for the file download
+      type: string
+      enum:
+        - inline
+        - attachment
+      example: attachment
     FileDownload:
       description: A result containing a download link to a file
       type: object
@@ -732,16 +755,16 @@ components:
       description: The valid types for access grants to a collection
       type: string
       enum:
-        - AGENCY_OFFICER_EMAIL
-      example: AGENCY_OFFICER_EMAIL
+        - INDIVIDUAL_EMAIL
+      example: INDIVIDUAL_EMAIL
     CollectionGrantCreate:
       description: Request data to create an access grant to a collection
       required:
-        - agencyOfficersEmailAddresses
+        - individualEmailAddresses
       properties:
-        agencyOfficersEmailAddresses:
+        individualEmailAddresses:
           type: array
-          description: The email addresses of Agency Officers to grant access to this collection
+          description: The email addresses of individuals to grant access to this collection
           items:
             type: string
       type: object
@@ -763,7 +786,7 @@ components:
         - type
         - createdDate
         - links
-        - agencyOfficerEmailAddress
+        - individualEmailAddress
       properties:
         id:
           type: string
@@ -776,8 +799,8 @@ components:
           format: date-time
           example: '2020-01-01T01:01:01Z'
           description: The date the grant was created
-        agencyOfficerEmailAddress:
-          description: The agency officers email address that has been granted access
+        individualEmailAddress:
+          description: The email address that has been granted access
           type: string
         links:
           $ref: '#/components/schemas/Links'
@@ -845,7 +868,7 @@ components:
       required:
         - name
         - documentIds
-        - agencyOfficersEmailAddresses
+        - individualEmailAddresses
       properties:
         name:
           type: string
@@ -856,9 +879,9 @@ components:
           description: The ID's of the Documents to add to this collection
           items:
             type: string
-        agencyOfficersEmailAddresses:
+        individualEmailAddresses:
           type: array
-          description: The email addresses of Agency Officers to grant access to this collection
+          description: The email addresses of individuals to grant access to this collection
           items:
             type: string
 

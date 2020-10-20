@@ -3,7 +3,10 @@ import {
   APIGatewayProxyHandlerV2,
   APIGatewayProxyResultV2,
 } from 'aws-lambda'
-import { FileDownload as FileDownloadContract } from 'api-client'
+import {
+  FileDownload as FileDownloadContract,
+  FileDownloadDispositionTypeEnum,
+} from 'api-client'
 import { documentExistsById } from '@/models/document'
 import { getFileByIdAndDocumentId } from '@/models/file'
 import {
@@ -11,6 +14,7 @@ import {
   createJsonResponse,
   getPathParameter,
   getUserId,
+  getQueryStringParameter,
 } from '@/utils/api-gateway'
 import { connectDatabase } from '@/utils/database'
 import { getPresignedDownloadUrl } from '@/utils/s3'
@@ -24,6 +28,9 @@ export const handler: APIGatewayProxyHandlerV2<APIGatewayProxyResultV2<
 ): Promise<APIGatewayProxyResultV2<FileDownloadContract>> => {
   const documentId = getPathParameter(event, 'documentId')
   const fileId = getPathParameter(event, 'fileId')
+  const disposition =
+    getQueryStringParameter(event, 'disposition') ||
+    FileDownloadDispositionTypeEnum.Attachment
   const userId = getUserId(event)
   if (!documentId) {
     return createErrorResponse('documentId path parameter not found')
@@ -33,6 +40,13 @@ export const handler: APIGatewayProxyHandlerV2<APIGatewayProxyResultV2<
   }
   if (!userId) {
     return createErrorResponse('userId not found')
+  }
+  if (
+    !Object.values<string>(FileDownloadDispositionTypeEnum).includes(
+      disposition,
+    )
+  ) {
+    return createErrorResponse(`disposition type not found`)
   }
 
   const documentExists = await documentExistsById(documentId, userId)
@@ -46,7 +60,7 @@ export const handler: APIGatewayProxyHandlerV2<APIGatewayProxyResultV2<
   }
 
   return createJsonResponse<FileDownloadContract>({
-    href: await getPresignedDownloadUrl(file.path),
+    href: await getPresignedDownloadUrl(file.path, file.name, disposition),
   })
 }
 

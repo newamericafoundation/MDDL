@@ -1,6 +1,10 @@
 import getFileDownloadLinkById from './getFileDownloadLinkById'
 import { documentExistsById } from '@/models/document'
-import { getPathParameter, getUserId } from '@/utils/api-gateway'
+import {
+  getPathParameter,
+  getQueryStringParameter,
+  getUserId,
+} from '@/utils/api-gateway'
 import { File as FileModel } from '@/models/file'
 
 import {
@@ -22,6 +26,7 @@ jest.mock('@/utils/api-gateway', () => {
     ...module,
     getPathParameter: jest.fn(),
     getUserId: jest.fn(),
+    getQueryStringParameter: jest.fn(),
   }
 })
 
@@ -59,6 +64,9 @@ describe('getFileDownloadLinkById', () => {
     toMockedFunction(getPathParameter)
       .mockImplementationOnce(() => documentId)
       .mockImplementationOnce(() => fileId)
+    toMockedFunction(getQueryStringParameter).mockImplementationOnce(
+      () => 'attachment',
+    )
     toMockedFunction(getUserId).mockImplementationOnce(() => userId)
   })
 

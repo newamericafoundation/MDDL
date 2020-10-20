@@ -12,6 +12,16 @@ export const getPathParameter = (
     : undefined
 }
 
+export const getQueryStringParameter = (
+  event: APIGatewayProxyEventV2,
+  parameterName: string,
+): string | undefined => {
+  return event.queryStringParameters &&
+    event.queryStringParameters[parameterName]
+    ? event.queryStringParameters[parameterName]
+    : undefined
+}
+
 export const getUrl = (event: APIGatewayProxyEventV2): string => {
   return event.requestContext.domainName
 }

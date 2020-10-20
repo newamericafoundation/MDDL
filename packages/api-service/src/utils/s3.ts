@@ -40,10 +40,15 @@ export const getPresignedUploadUrl = async (
   )
 }
 
-export const getPresignedDownloadUrl = async (path: string) => {
+export const getPresignedDownloadUrl = async (
+  path: string,
+  filename: string,
+  disposition: string,
+) => {
   return await s3.getSignedUrlPromise('getObject', {
     Bucket: BUCKET,
     Key: path,
     Expires: 300,
+    ResponseContentDisposition: `${disposition}; filename=${filename}`,
   })
 }

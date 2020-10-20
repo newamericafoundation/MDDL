@@ -69,11 +69,11 @@ export interface CollectionCreate {
      */
     documentIds: Array<string>;
     /**
-     * The email addresses of Agency Officers to grant access to this collection
+     * The email addresses of individuals to grant access to this collection
      * @type {Array<string>}
      * @memberof CollectionCreate
      */
-    agencyOfficersEmailAddresses: Array<string>;
+    individualEmailAddresses: Array<string>;
 }
 /**
  * A collection access grant
@@ -100,11 +100,11 @@ export interface CollectionGrant {
      */
     createdDate: string;
     /**
-     * The agency officers email address that has been granted access
+     * The email address that has been granted access
      * @type {string}
      * @memberof CollectionGrant
      */
-    agencyOfficerEmailAddress: string;
+    individualEmailAddress: string;
     /**
      * An array of Links
      * @type {Array<Link>}
@@ -119,11 +119,11 @@ export interface CollectionGrant {
  */
 export interface CollectionGrantCreate {
     /**
-     * The email addresses of Agency Officers to grant access to this collection
+     * The email addresses of individuals to grant access to this collection
      * @type {Array<string>}
      * @memberof CollectionGrantCreate
      */
-    agencyOfficersEmailAddresses: Array<string>;
+    individualEmailAddresses: Array<string>;
 }
 /**
  * A result containing a list of access grants to a document
@@ -144,7 +144,7 @@ export interface CollectionGrantList {
  * @enum {string}
  */
 export enum CollectionGrantType {
-    AGENCYOFFICEREMAIL = 'AGENCY_OFFICER_EMAIL'
+    INDIVIDUALEMAIL = 'INDIVIDUAL_EMAIL'
 }
 
 /**
@@ -210,6 +210,12 @@ export interface Document {
      */
     name: string;
     /**
+     * Document description or notes
+     * @type {string}
+     * @memberof Document
+     */
+    description?: string;
+    /**
      * Date the document was created
      * @type {string}
      * @memberof Document
@@ -240,6 +246,12 @@ export interface DocumentCreate {
      * @memberof DocumentCreate
      */
     name: string;
+    /**
+     * Document description or notes
+     * @type {string}
+     * @memberof DocumentCreate
+     */
+    description?: string;
     /**
      * The files that are part of the document
      * @type {Array<DocumentCreateFile>}
@@ -378,11 +390,17 @@ export interface DocumentListItem {
  */
 export interface DocumentUpdate {
     /**
-     * Document description
+     * Document name.
      * @type {string}
      * @memberof DocumentUpdate
      */
-    name: string;
+    name?: string;
+    /**
+     * Document description or notes
+     * @type {string}
+     * @memberof DocumentUpdate
+     */
+    description?: string;
 }
 /**
  * The accepted content type for files
@@ -409,6 +427,16 @@ export interface FileDownload {
      */
     href: string;
 }
+/**
+ * The disposition type for the file download
+ * @export
+ * @enum {string}
+ */
+export enum FileDownloadDispositionTypeEnum {
+    Inline = 'inline',
+    Attachment = 'attachment'
+}
+
 /**
  * A HATEOS Link
  * @export
@@ -996,10 +1024,11 @@ export const DocumentApiAxiosParamCreator = function (configuration?: Configurat
          * @summary File download information
          * @param {string} documentId ID of document
          * @param {string} fileId ID of file in the document
+         * @param {FileDownloadDispositionTypeEnum} [disposition] Content Disposition for the file download. Will default to attachment if none given.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        downloadDocumentFileById: async (documentId: string, fileId: string, options: any = {}): Promise<RequestArgs> => {
+        downloadDocumentFileById: async (documentId: string, fileId: string, disposition?: FileDownloadDispositionTypeEnum, options: any = {}): Promise<RequestArgs> => {
             // verify required parameter 'documentId' is not null or undefined
             if (documentId === null || documentId === undefined) {
                 throw new RequiredError('documentId','Required parameter documentId was null or undefined when calling downloadDocumentFileById.');
@@ -1028,6 +1057,10 @@ export const DocumentApiAxiosParamCreator = function (configuration?: Configurat
                     ? await configuration.accessToken("datalocker_auth", [])
                     : await configuration.accessToken;
                 localVarHeaderParameter["Authorization"] = "Bearer " + localVarAccessTokenValue;
+            }
+
+            if (disposition !== undefined) {
+                localVarQueryParameter['disposition'] = disposition;
             }
 
 
@@ -1187,11 +1220,12 @@ export const DocumentApiFp = function(configuration?: Configuration) {
          * @summary File download information
          * @param {string} documentId ID of document
          * @param {string} fileId ID of file in the document
+         * @param {FileDownloadDispositionTypeEnum} [disposition] Content Disposition for the file download. Will default to attachment if none given.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async downloadDocumentFileById(documentId: string, fileId: string, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<FileDownload>> {
-            const localVarAxiosArgs = await DocumentApiAxiosParamCreator(configuration).downloadDocumentFileById(documentId, fileId, options);
+        async downloadDocumentFileById(documentId: string, fileId: string, disposition?: FileDownloadDispositionTypeEnum, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<FileDownload>> {
+            const localVarAxiosArgs = await DocumentApiAxiosParamCreator(configuration).downloadDocumentFileById(documentId, fileId, disposition, options);
             return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
                 const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
                 return axios.request(axiosRequestArgs);
@@ -1250,11 +1284,12 @@ export const DocumentApiFactory = function (configuration?: Configuration, baseP
          * @summary File download information
          * @param {string} documentId ID of document
          * @param {string} fileId ID of file in the document
+         * @param {FileDownloadDispositionTypeEnum} [disposition] Content Disposition for the file download. Will default to attachment if none given.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        downloadDocumentFileById(documentId: string, fileId: string, options?: any): AxiosPromise<FileDownload> {
-            return DocumentApiFp(configuration).downloadDocumentFileById(documentId, fileId, options).then((request) => request(axios, basePath));
+        downloadDocumentFileById(documentId: string, fileId: string, disposition?: FileDownloadDispositionTypeEnum, options?: any): AxiosPromise<FileDownload> {
+            return DocumentApiFp(configuration).downloadDocumentFileById(documentId, fileId, disposition, options).then((request) => request(axios, basePath));
         },
         /**
          * Returns a single document. This will be audited as a document view by the current user
@@ -1304,12 +1339,13 @@ export class DocumentApi extends BaseAPI {
      * @summary File download information
      * @param {string} documentId ID of document
      * @param {string} fileId ID of file in the document
+     * @param {FileDownloadDispositionTypeEnum} [disposition] Content Disposition for the file download. Will default to attachment if none given.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof DocumentApi
      */
-    public downloadDocumentFileById(documentId: string, fileId: string, options?: any) {
-        return DocumentApiFp(this.configuration).downloadDocumentFileById(documentId, fileId, options).then((request) => request(this.axios, this.basePath));
+    public downloadDocumentFileById(documentId: string, fileId: string, disposition?: FileDownloadDispositionTypeEnum, options?: any) {
+        return DocumentApiFp(this.configuration).downloadDocumentFileById(documentId, fileId, disposition, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

@@ -1,5 +1,5 @@
 import {
-  MaxAgencyOfficersEmailAddressesPerCollection,
+  MaxIndividualEmailAddressesPerCollection,
   MaxDocumentsPerUser,
 } from '@/constants'
 import Joi from 'joi'
@@ -12,9 +12,9 @@ export const createCollectionSchema = Joi.object({
     .max(MaxDocumentsPerUser)
     .unique()
     .required(),
-  agencyOfficersEmailAddresses: Joi.array()
+  individualEmailAddresses: Joi.array()
     .items(Joi.string().email().min(1).max(255))
-    .max(MaxAgencyOfficersEmailAddressesPerCollection)
+    .max(MaxIndividualEmailAddressesPerCollection)
     .unique()
     .required(),
 })

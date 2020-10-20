@@ -126,7 +126,7 @@ describe('CollectionModel', () => {
           ],
           grants: [
             {
-              requirementType: CollectionGrantType.AGENCYOFFICEREMAIL,
+              requirementType: CollectionGrantType.INDIVIDUALEMAIL,
               requirementValue: 'mytestemail@example.com',
               createdAt: new Date(),
               createdBy: userId,
@@ -149,7 +149,7 @@ describe('CollectionModel', () => {
             expect.objectContaining({
               createdBy: userId,
               collectionId,
-              requirementType: CollectionGrantType.AGENCYOFFICEREMAIL,
+              requirementType: CollectionGrantType.INDIVIDUALEMAIL,
               requirementValue: 'mytestemail@example.com',
             }),
           ]),

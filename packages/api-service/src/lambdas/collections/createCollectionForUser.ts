@@ -19,7 +19,6 @@ import { createCollectionSchema } from './validation'
 import { v4 as uuidv4 } from 'uuid'
 import { createCollection, CreateCollectionInput } from '@/models/collection'
 import { allDocumentsExistById } from '@/models/document'
-import { AgencyGrantTypes, allAgencyGrantsExists } from '@/models/agencyGrant'
 
 connectDatabase()
 
@@ -56,7 +55,7 @@ export const handler: APIGatewayProxyHandlerV2<APIGatewayProxyResultV2<
   const {
     name,
     documentIds,
-    agencyOfficersEmailAddresses,
+    individualEmailAddresses,
   } = value as CollectionCreateContract
 
   // extended validation - check documents exist for user
@@ -66,18 +65,6 @@ export const handler: APIGatewayProxyHandlerV2<APIGatewayProxyResultV2<
   )
   if (!allDocumentsBelongToUser) {
     return createErrorResponse(`validation error: documents not found`)
-  }
-
-  // extended validation - check documents exist for user
-  const agencyDomainGrants = [
-    ...new Set(agencyOfficersEmailAddresses.map((e) => e.split('@')[1])),
-  ].map((domain) => ({
-    requirementType: AgencyGrantTypes.DOMAIN,
-    requirementValue: domain,
-  }))
-  const allAgencyGrantsExist = await allAgencyGrantsExists(agencyDomainGrants)
-  if (!allAgencyGrantsExist) {
-    return createErrorResponse(`validation error: agency emails not found`)
   }
 
   // create model input
@@ -94,8 +81,8 @@ export const handler: APIGatewayProxyHandlerV2<APIGatewayProxyResultV2<
       createdBy,
       createdAt,
     })),
-    grants: agencyOfficersEmailAddresses.map((email) => ({
-      requirementType: CollectionGrantType.AGENCYOFFICEREMAIL,
+    grants: individualEmailAddresses.map((email) => ({
+      requirementType: CollectionGrantType.INDIVIDUALEMAIL,
       requirementValue: email,
       createdBy,
       createdAt,
