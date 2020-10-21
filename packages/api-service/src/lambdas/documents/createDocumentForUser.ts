@@ -3,11 +3,10 @@ import {
   APIGatewayProxyHandlerV2,
   APIGatewayProxyResultV2,
 } from 'aws-lambda'
-import { Document as DocumentContract } from 'api-client'
+import { Document as DocumentContract, DocumentCreate } from 'api-client'
 import {
   createDocument,
   CreateDocumentInput,
-  Document,
   CreateDocumentFileInput,
   countDocumentsByOwnerId,
 } from '@/models/document'
@@ -22,6 +21,7 @@ import { createFilePath } from '@/utils/s3'
 import { v4 as uuidv4 } from 'uuid'
 import { createSingleDocumentResult } from '@/lambdas/documents'
 import { MaxDocumentsPerUser } from '@/constants'
+import { parseAndValidate } from '@/utils/validation'
 
 connectDatabase()
 
@@ -41,7 +41,10 @@ export const handler: APIGatewayProxyHandlerV2<APIGatewayProxyResultV2<
   if (!event.body) {
     return createErrorResponse('body not supplied')
   }
-  const { error, value } = createDocumentSchema.validate(JSON.parse(event.body))
+  const { error, value } = parseAndValidate<DocumentCreate>(
+    event.body,
+    createDocumentSchema,
+  )
   if (error) {
     return createErrorResponse(
       `validation error: ${error.details.map((x) => x.message).join(', ')}`,
@@ -55,29 +58,32 @@ export const handler: APIGatewayProxyHandlerV2<APIGatewayProxyResultV2<
   }
 
   const createdDate = new Date()
+  const id = uuidv4()
+  const { name, description, files } = value
   const document: CreateDocumentInput = {
-    ...value,
-    id: uuidv4(),
+    name,
+    description,
+    id,
     ownerId: ownerId,
     createdBy: userId,
     createdAt: createdDate,
     updatedAt: createdDate,
     updatedBy: userId,
+    files: files.map(
+      (f: any, index: number): CreateDocumentFileInput => {
+        const fileId = uuidv4()
+        return {
+          ...f,
+          id: fileId,
+          path: createFilePath(ownerId, id, fileId),
+          order: index,
+          createdAt: createdDate,
+          createdBy: userId,
+          received: false,
+        }
+      },
+    ),
   }
-  document.files = value.files.map(
-    (f: any, index: number): CreateDocumentFileInput => {
-      const fileId = uuidv4()
-      return {
-        ...f,
-        id: fileId,
-        path: createFilePath(ownerId, document.id, fileId),
-        order: index,
-        createdAt: createdDate,
-        createdBy: userId,
-        received: false,
-      }
-    },
-  )
 
   const createdDocument = await createDocument(document)
   if (!createdDocument) {

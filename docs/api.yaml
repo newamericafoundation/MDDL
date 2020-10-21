@@ -294,7 +294,9 @@ paths:
           schema:
             type: string
       responses:
-        '405':
+        '204':
+          description: Completed, no content
+        '400':
           description: Invalid input
       security:
         - datalocker_auth: []

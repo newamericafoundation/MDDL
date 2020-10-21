@@ -907,6 +907,21 @@ export class CityStack extends Stack {
         ],
       }),
     )
+
+    // add route to update document by ID
+    this.addRoute(api, {
+      name: 'PutDocumentById',
+      routeKey: 'PUT /documents/{documentId}',
+      lambdaFunction: this.createLambda(
+        'PutDocumentById',
+        pathToApiServiceLambda('documents/putDocumentById'),
+        {
+          dbSecret,
+          layers: [mySqlLayer],
+        },
+      ),
+      authorizer,
+    })
   }
 
   /**

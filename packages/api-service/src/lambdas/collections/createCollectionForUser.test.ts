@@ -89,52 +89,32 @@ describe('createCollectionForUser', () => {
     )
   })
 
-  it('validation requires name', async () => {
+  it('validation is applied', async () => {
     const event = createMockEvent()
     event.body = JSON.stringify({})
     expect(
       await createCollectionForUser(event, createMockContext(), jest.fn()),
     ).toEqual(
       expect.objectContaining({
-        body: '{"message":"validation error: \\"name\\" is required"}',
-      }),
-    )
-  })
-
-  it('validation requires documentIds', async () => {
-    const event = createMockEvent()
-    event.body = JSON.stringify({ name: 'test' })
-    expect(
-      await createCollectionForUser(event, createMockContext(), jest.fn()),
-    ).toEqual(
-      expect.objectContaining({
-        body: '{"message":"validation error: \\"documentIds\\" is required"}',
+        body:
+          '{"message":"validation error: \\"name\\" is required, \\"documentIds\\" is required, \\"individualEmailAddresses\\" is required"}',
       }),
     )
   })
 
   it('validation requires documentIds to be populated', async () => {
     const event = createMockEvent()
-    event.body = JSON.stringify({ name: 'test', documentIds: [] })
+    event.body = JSON.stringify({
+      name: 'test',
+      documentIds: [],
+      individualEmailAddresses: [],
+    })
     expect(
       await createCollectionForUser(event, createMockContext(), jest.fn()),
     ).toEqual(
       expect.objectContaining({
         body:
           '{"message":"validation error: \\"documentIds\\" must contain at least 1 items"}',
-      }),
-    )
-  })
-
-  it('validation requires individualEmailAddresses', async () => {
-    const event = createMockEvent()
-    event.body = JSON.stringify({ name: 'test', documentIds: ['abc1234'] })
-    expect(
-      await createCollectionForUser(event, createMockContext(), jest.fn()),
-    ).toEqual(
-      expect.objectContaining({
-        body:
-          '{"message":"validation error: \\"individualEmailAddresses\\" is required"}',
       }),
     )
   })

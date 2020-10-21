@@ -2,18 +2,18 @@ import {
   MaxIndividualEmailAddressesPerCollection,
   MaxDocumentsPerUser,
 } from '@/constants'
-import Joi from 'joi'
+import { string, array, object } from 'joi'
 
-export const createCollectionSchema = Joi.object({
-  name: Joi.string().min(1).max(255).required(),
-  documentIds: Joi.array()
-    .items(Joi.string().min(1).max(40))
+export const createCollectionSchema = object({
+  name: string().min(1).max(255).required(),
+  documentIds: array()
+    .items(string().min(1).max(40))
     .min(1)
     .max(MaxDocumentsPerUser)
     .unique()
     .required(),
-  individualEmailAddresses: Joi.array()
-    .items(Joi.string().email().min(1).max(255))
+  individualEmailAddresses: array()
+    .items(string().email().min(1).max(255))
     .max(MaxIndividualEmailAddressesPerCollection)
     .unique()
     .required(),

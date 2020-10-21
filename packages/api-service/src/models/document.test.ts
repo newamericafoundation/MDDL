@@ -5,6 +5,7 @@ import {
   createDocument,
   Document as DocumentModel,
   allDocumentsExistById,
+  updateDocument,
 } from './document'
 import { v4 as uuidv4 } from 'uuid'
 import { connectDatabase } from '@/utils/database'
@@ -187,6 +188,40 @@ describe('DocumentModel', () => {
       expect(await allDocumentsExistById([id1, id2], userId)).toStrictEqual(
         true,
       )
+    })
+  })
+
+  describe('updateDocument', () => {
+    it('returns 0 if document not updated', async () => {
+      const id = uuidv4()
+      expect(
+        await updateDocument(id, {
+          updatedAt: new Date(),
+          updatedBy: id,
+          name: 'test updated',
+          description: 'test description',
+        }),
+      ).toStrictEqual(0)
+    })
+    it('returns 1 when document updated', async () => {
+      const id = uuidv4()
+      await DocumentModel.query().insert({
+        id,
+        createdBy: id,
+        ownerId: id,
+        name: '' + id,
+        updatedBy: id,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })
+      expect(
+        await updateDocument(id, {
+          updatedAt: new Date(),
+          updatedBy: id,
+          name: 'test updated',
+          description: 'test description',
+        }),
+      ).toStrictEqual(1)
     })
   })
 })

@@ -80,26 +80,15 @@ describe('createDocumentForUser', () => {
     )
   })
 
-  it('validation requires name', async () => {
+  it('validation is applied', async () => {
     const event = createMockEvent()
     event.body = JSON.stringify({})
     expect(
       await createDocumentForUser(event, createMockContext(), jest.fn()),
     ).toEqual(
       expect.objectContaining({
-        body: '{"message":"validation error: \\"name\\" is required"}',
-      }),
-    )
-  })
-
-  it('validation requires files', async () => {
-    const event = createMockEvent()
-    event.body = JSON.stringify({ name: 'test' })
-    expect(
-      await createDocumentForUser(event, createMockContext(), jest.fn()),
-    ).toEqual(
-      expect.objectContaining({
-        body: '{"message":"validation error: \\"files\\" is required"}',
+        body:
+          '{"message":"validation error: \\"name\\" is required, \\"files\\" is required"}',
       }),
     )
   })
@@ -124,7 +113,8 @@ describe('createDocumentForUser', () => {
       await createDocumentForUser(event, createMockContext(), jest.fn()),
     ).toEqual(
       expect.objectContaining({
-        body: '{"message":"validation error: \\"files[0].name\\" is required"}',
+        body:
+          '{"message":"validation error: \\"files[0].name\\" is required, \\"files[0].contentLength\\" is required, \\"files[0].contentType\\" is required, \\"files[0].sha256Checksum\\" is required"}',
       }),
     )
   })

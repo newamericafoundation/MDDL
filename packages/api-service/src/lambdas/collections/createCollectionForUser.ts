@@ -19,6 +19,7 @@ import { createCollectionSchema } from './validation'
 import { v4 as uuidv4 } from 'uuid'
 import { createCollection, CreateCollectionInput } from '@/models/collection'
 import { allDocumentsExistById } from '@/models/document'
+import { parseAndValidate } from '@/utils/validation'
 
 connectDatabase()
 
@@ -38,8 +39,9 @@ export const handler: APIGatewayProxyHandlerV2<APIGatewayProxyResultV2<
   if (!event.body) {
     return createErrorResponse('body not supplied')
   }
-  const { error, value } = createCollectionSchema.validate(
-    JSON.parse(event.body),
+  const { error, value } = parseAndValidate<CollectionCreateContract>(
+    event.body,
+    createCollectionSchema,
   )
   if (error) {
     return createErrorResponse(

@@ -47,5 +47,15 @@ export const createJsonResponse = <T = any>(
   }
 }
 
+export const createStatusCodeResponse = (
+  httpStatusCode = 200,
+): APIGatewayProxyStructuredResultV2 => {
+  return {
+    cookies: [],
+    isBase64Encoded: false,
+    statusCode: httpStatusCode,
+  }
+}
+
 export const createErrorResponse = (msg: string, httpStatusCode = 400) =>
   createJsonResponse({ message: msg }, httpStatusCode)
