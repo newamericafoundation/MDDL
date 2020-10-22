@@ -16,6 +16,7 @@
     "stop": "docker-compose down"
   },
   "devDependencies": {
+    "@types/http-errors": "^1.8.0",
     "@types/node": "10.17.27",
     "@typescript-eslint/eslint-plugin": "^4.1.1",
     "eslint-config-prettier": "^6.11.0",
@@ -38,10 +39,12 @@
     "api-client": "1.0.0",
     "aws-sdk": "^2.768.0",
     "cardinal": "^2.0.0",
+    "http-errors": "^1.8.0",
     "joi": "^17.2.1",
     "knex": "^0.21.6",
     "mysql2": "^2.2.5",
     "objection": "^2.2.3",
+    "p-pipe": "^3.1.0",
     "uuid": "^8.3.0"
   }
 }

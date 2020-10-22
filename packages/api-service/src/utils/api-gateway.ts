@@ -2,6 +2,20 @@ import {
   APIGatewayProxyEventV2,
   APIGatewayProxyStructuredResultV2,
 } from 'aws-lambda'
+import createError from 'http-errors'
+
+export const requirePathParameter = (
+  event: APIGatewayProxyEventV2,
+  parameterName: string,
+): string => {
+  const parameter = getPathParameter(event, parameterName)
+  if (!parameter) {
+    throw new createError.BadRequest(
+      `${parameterName} path parameter not found`,
+    )
+  }
+  return parameter
+}
 
 export const getPathParameter = (
   event: APIGatewayProxyEventV2,
@@ -10,6 +24,19 @@ export const getPathParameter = (
   return event.pathParameters && event.pathParameters[parameterName]
     ? event.pathParameters[parameterName]
     : undefined
+}
+
+export const requireQueryStringParameter = (
+  event: APIGatewayProxyEventV2,
+  parameterName: string,
+): string => {
+  const parameter = getQueryStringParameter(event, parameterName)
+  if (!parameter) {
+    throw new createError.BadRequest(
+      `${parameterName} query string parameter not found`,
+    )
+  }
+  return parameter
 }
 
 export const getQueryStringParameter = (
@@ -24,6 +51,16 @@ export const getQueryStringParameter = (
 
 export const getUrl = (event: APIGatewayProxyEventV2): string => {
   return event.requestContext.domainName
+}
+
+export const requireUserId = (
+  event: APIGatewayProxyEventV2,
+): string | undefined => {
+  const userId = getUserId(event)
+  if (!userId) {
+    throw new createError.BadRequest(`user id could not be determined`)
+  }
+  return userId
 }
 
 export const getUserId = (

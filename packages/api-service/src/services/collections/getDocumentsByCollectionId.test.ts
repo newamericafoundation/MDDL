@@ -1,28 +1,15 @@
 import handler from './getDocumentsByCollectionId'
-import { getPathParameter, getUserId } from '@/utils/api-gateway'
 import {
   getDocumentsByCollectionId,
   collectionExists,
 } from '@/models/collection'
-import {
-  createMockContext,
-  createMockEvent,
-  toMockedFunction,
-} from '@/utils/test'
+import { createMockEvent, setUserId, toMockedFunction } from '@/utils/test'
 import { Document as DocumentModel } from '@/models/document'
+import { APIGatewayProxyEventV2 } from 'aws-lambda'
 
 jest.mock('@/utils/database', () => {
   return {
     connectDatabase: jest.fn(),
-  }
-})
-
-jest.mock('@/utils/api-gateway', () => {
-  const module = jest.requireActual('@/utils/api-gateway')
-  return {
-    ...module,
-    getPathParameter: jest.fn(),
-    getUserId: jest.fn(),
   }
 })
 
@@ -37,10 +24,18 @@ jest.mock('@/models/collection', () => {
 
 describe('getDocumentsByCollectionId', () => {
   const userId = 'myUserId'
+  const collectionId = 'myCollectionId'
+  let event: APIGatewayProxyEventV2
 
   beforeEach(() => {
-    toMockedFunction(getPathParameter).mockImplementationOnce(() => userId)
-    toMockedFunction(getUserId).mockImplementationOnce(() => userId)
+    event = setUserId(
+      userId,
+      createMockEvent({
+        pathParameters: {
+          collectionId,
+        },
+      }),
+    )
   })
 
   it('returns documents', async () => {
@@ -65,8 +60,7 @@ describe('getDocumentsByCollectionId', () => {
         }),
       ]),
     )
-    expect(await handler(createMockEvent(), createMockContext(), jest.fn()))
-      .toMatchInlineSnapshot(`
+    expect(await handler(event)).toMatchInlineSnapshot(`
       Object {
         "body": "{\\"documents\\":[{\\"name\\":\\"My First File\\",\\"createdDate\\":\\"2015-01-12T13:14:15.000Z\\",\\"id\\":\\"myDocumentId1\\",\\"links\\":[{\\"href\\":\\"/documents/myDocumentId1\\",\\"rel\\":\\"self\\",\\"type\\":\\"GET\\"}]},{\\"name\\":\\"My Second File\\",\\"createdDate\\":\\"2015-01-27T13:14:15.000Z\\",\\"id\\":\\"myDocumentId2\\",\\"links\\":[{\\"href\\":\\"/documents/myDocumentId2\\",\\"rel\\":\\"self\\",\\"type\\":\\"GET\\"}]}]}",
         "cookies": Array [],
@@ -83,8 +77,7 @@ describe('getDocumentsByCollectionId', () => {
     toMockedFunction(getDocumentsByCollectionId).mockImplementationOnce(() =>
       Promise.resolve([]),
     )
-    expect(await handler(createMockEvent(), createMockContext(), jest.fn()))
-      .toMatchInlineSnapshot(`
+    expect(await handler(event)).toMatchInlineSnapshot(`
       Object {
         "body": "{\\"documents\\":[]}",
         "cookies": Array [],
@@ -98,8 +91,7 @@ describe('getDocumentsByCollectionId', () => {
   })
   it('returns not found when collection doesnt exist', async () => {
     toMockedFunction(collectionExists).mockImplementationOnce(async () => false)
-    expect(await handler(createMockEvent(), createMockContext(), jest.fn()))
-      .toMatchInlineSnapshot(`
+    expect(await handler(event)).toMatchInlineSnapshot(`
       Object {
         "body": "{\\"message\\":\\"collection not found\\"}",
         "cookies": Array [],

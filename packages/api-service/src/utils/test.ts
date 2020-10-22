@@ -6,7 +6,20 @@ export const toMockedFunction = <T extends (...args: any[]) => any>(
   return input as jest.MockedFunction<T>
 }
 
-export const createMockEvent = (): APIGatewayProxyEventV2 => {
+export const setUserId = (userId: string, event: APIGatewayProxyEventV2) => {
+  event.requestContext.authorizer = {
+    jwt: {
+      claims: {
+        sub: userId,
+      },
+      scopes: [],
+    },
+  }
+  return event
+}
+export const createMockEvent = (
+  data?: Partial<APIGatewayProxyEventV2>,
+): APIGatewayProxyEventV2 => {
   return {
     headers: {},
     isBase64Encoded: false,
@@ -32,6 +45,7 @@ export const createMockEvent = (): APIGatewayProxyEventV2 => {
     },
     routeKey: 'routeKey',
     version: '1',
+    ...data,
   }
 }
 

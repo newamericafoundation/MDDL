@@ -58,12 +58,14 @@ export const createDocumentListResult = (documents: Document[]) => {
   })
 }
 
-export const createSingleDocumentResult = async (document: Document) => {
+export const singleDocumentResult = async (
+  document: Document,
+): Promise<DocumentContract> => {
   const { id, name, createdAt, files: baseFiles } = document
 
   const files = baseFiles ? baseFiles : []
 
-  return createJsonResponse<DocumentContract>({
+  return {
     createdDate: createdAt.toISOString(),
     name,
     id,
@@ -83,5 +85,11 @@ export const createSingleDocumentResult = async (document: Document) => {
       ),
     ),
     links: [],
-  })
+  }
+}
+
+export const createSingleDocumentResult = async (document: Document) => {
+  return createJsonResponse<DocumentContract>(
+    await singleDocumentResult(document),
+  )
 }

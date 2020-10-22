@@ -8,7 +8,7 @@ const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
 
 const SRC_DIR = path.resolve(__dirname, 'src')
 const OUT_DIR = path.resolve(__dirname, 'build')
-const lambdaPath = (name) => path.resolve(SRC_DIR, 'lambdas', name)
+const lambdaPath = (name) => path.resolve(SRC_DIR, 'services', name)
 
 const lambdas = {
   documents_createDocumentForUser: lambdaPath(

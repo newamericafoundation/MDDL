@@ -1,27 +1,14 @@
 import getByUserId from './getByUserId'
-import { getPathParameter, getUserId } from '@/utils/api-gateway'
 import {
   getCollectionsByOwnerId,
   Collection as CollectionModel,
 } from '@/models/collection'
-import {
-  createMockContext,
-  createMockEvent,
-  toMockedFunction,
-} from '@/utils/test'
+import { createMockEvent, setUserId, toMockedFunction } from '@/utils/test'
+import { APIGatewayProxyEventV2 } from 'aws-lambda'
 
 jest.mock('@/utils/database', () => {
   return {
     connectDatabase: jest.fn(),
-  }
-})
-
-jest.mock('@/utils/api-gateway', () => {
-  const module = jest.requireActual('@/utils/api-gateway')
-  return {
-    ...module,
-    getPathParameter: jest.fn(),
-    getUserId: jest.fn(),
   }
 })
 
@@ -35,10 +22,17 @@ jest.mock('@/models/collection', () => {
 
 describe('getByUserId', () => {
   const userId = 'myUserId'
+  let event: APIGatewayProxyEventV2
 
   beforeEach(() => {
-    toMockedFunction(getPathParameter).mockImplementationOnce(() => userId)
-    toMockedFunction(getUserId).mockImplementationOnce(() => userId)
+    event = setUserId(
+      userId,
+      createMockEvent({
+        pathParameters: {
+          userId,
+        },
+      }),
+    )
   })
 
   it('returns collections', async () => {
@@ -62,8 +56,7 @@ describe('getByUserId', () => {
         }),
       ]),
     )
-    expect(await getByUserId(createMockEvent(), createMockContext(), jest.fn()))
-      .toMatchInlineSnapshot(`
+    expect(await getByUserId(event)).toMatchInlineSnapshot(`
       Object {
         "body": "{\\"collections\\":[{\\"name\\":\\"My First Collection\\",\\"createdDate\\":\\"2015-01-12T13:14:15.000Z\\",\\"id\\":\\"myCollectionId1\\",\\"links\\":[]},{\\"name\\":\\"My Second Collection\\",\\"createdDate\\":\\"2015-01-27T13:14:15.000Z\\",\\"id\\":\\"myCollectionId2\\",\\"links\\":[]}]}",
         "cookies": Array [],
@@ -76,16 +69,13 @@ describe('getByUserId', () => {
     `)
   })
   it('returns 404 when user doesnt exist', async () => {
-    toMockedFunction(getUserId)
-      .mockReset()
-      .mockImplementationOnce(() => 'otherUserId')
+    event = setUserId('otherUserId', event)
     toMockedFunction(getCollectionsByOwnerId).mockImplementationOnce(() =>
       Promise.resolve([]),
     )
-    expect(await getByUserId(createMockEvent(), createMockContext(), jest.fn()))
-      .toMatchInlineSnapshot(`
+    expect(await getByUserId(event)).toMatchInlineSnapshot(`
       Object {
-        "body": "{\\"message\\":\\"user not found\\"}",
+        "body": "{\\"message\\":\\"User not found\\"}",
         "cookies": Array [],
         "headers": Object {
           "Content-Type": "application/json",
@@ -99,8 +89,7 @@ describe('getByUserId', () => {
     toMockedFunction(getCollectionsByOwnerId).mockImplementationOnce(() =>
       Promise.resolve([]),
     )
-    expect(await getByUserId(createMockEvent(), createMockContext(), jest.fn()))
-      .toMatchInlineSnapshot(`
+    expect(await getByUserId(event)).toMatchInlineSnapshot(`
       Object {
         "body": "{\\"collections\\":[]}",
         "cookies": Array [],

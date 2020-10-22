@@ -1,12 +1,14 @@
 import createCollectionForUser from './createCollectionForUser'
-import { getPathParameter, getUserId } from '@/utils/api-gateway'
 import {
-  createMockContext,
   createMockEvent,
   getObjectKeys,
+  setUserId,
   toMockedFunction,
 } from '@/utils/test'
-import { APIGatewayProxyStructuredResultV2 } from 'aws-lambda'
+import {
+  APIGatewayProxyEventV2,
+  APIGatewayProxyStructuredResultV2,
+} from 'aws-lambda'
 import {
   createCollection,
   Collection as CollectionModel,
@@ -16,15 +18,6 @@ import { allDocumentsExistById } from '@/models/document'
 jest.mock('@/utils/database', () => {
   return {
     connectDatabase: jest.fn(),
-  }
-})
-
-jest.mock('@/utils/api-gateway', () => {
-  const module = jest.requireActual('@/utils/api-gateway')
-  return {
-    ...module,
-    getPathParameter: jest.fn(),
-    getUserId: jest.fn(),
   }
 })
 
@@ -66,35 +59,33 @@ jest.mock('@/models/document', () => {
 
 describe('createCollectionForUser', () => {
   const userId = 'myUserId'
+  let event: APIGatewayProxyEventV2
 
   beforeEach(() => {
-    toMockedFunction(getPathParameter).mockImplementationOnce(() => userId)
-    toMockedFunction(getUserId).mockImplementationOnce(() => userId)
     toMockedFunction(allDocumentsExistById).mockImplementationOnce(
       async () => true,
+    )
+    event = setUserId(
+      userId,
+      createMockEvent({
+        pathParameters: {
+          userId,
+        },
+      }),
     )
   })
 
   it('fails validation on no body', async () => {
-    expect(
-      await createCollectionForUser(
-        createMockEvent(),
-        createMockContext(),
-        jest.fn(),
-      ),
-    ).toEqual(
+    expect(await createCollectionForUser(event)).toEqual(
       expect.objectContaining({
-        body: '{"message":"body not supplied"}',
+        body: '{"message":"validation error: body was expected but empty"}',
       }),
     )
   })
 
   it('validation is applied', async () => {
-    const event = createMockEvent()
     event.body = JSON.stringify({})
-    expect(
-      await createCollectionForUser(event, createMockContext(), jest.fn()),
-    ).toEqual(
+    expect(await createCollectionForUser(event)).toEqual(
       expect.objectContaining({
         body:
           '{"message":"validation error: \\"name\\" is required, \\"documentIds\\" is required, \\"individualEmailAddresses\\" is required"}',
@@ -103,15 +94,12 @@ describe('createCollectionForUser', () => {
   })
 
   it('validation requires documentIds to be populated', async () => {
-    const event = createMockEvent()
     event.body = JSON.stringify({
       name: 'test',
       documentIds: [],
       individualEmailAddresses: [],
     })
-    expect(
-      await createCollectionForUser(event, createMockContext(), jest.fn()),
-    ).toEqual(
+    expect(await createCollectionForUser(event)).toEqual(
       expect.objectContaining({
         body:
           '{"message":"validation error: \\"documentIds\\" must contain at least 1 items"}',
@@ -121,7 +109,6 @@ describe('createCollectionForUser', () => {
 
   // relaxing this requirement for now till agency operations are completed
   // it('validation requires agencyOfficersEmailAddresses to be populated', async () => {
-  //   const event = createMockEvent()
   //   event.body = JSON.stringify({
   //     name: 'test',
   //     documentIds: ['abc1234'],
@@ -138,7 +125,6 @@ describe('createCollectionForUser', () => {
   // })
 
   it('fails if documents do not belong to user', async () => {
-    const event = createMockEvent()
     event.body = JSON.stringify({
       name: 'test',
       documentIds: ['abc1234'],
@@ -147,9 +133,7 @@ describe('createCollectionForUser', () => {
     toMockedFunction(allDocumentsExistById)
       .mockReset()
       .mockImplementationOnce(async () => false)
-    expect(
-      await createCollectionForUser(event, createMockContext(), jest.fn()),
-    ).toEqual(
+    expect(await createCollectionForUser(event)).toEqual(
       expect.objectContaining({
         body: '{"message":"validation error: documents not found"}',
       }),
@@ -171,7 +155,6 @@ describe('createCollectionForUser', () => {
         }),
       ),
     )
-    const event = createMockEvent()
     event.body = JSON.stringify({
       name: 'test',
       documentIds: ['abc1234'],
@@ -179,8 +162,6 @@ describe('createCollectionForUser', () => {
     })
     const result = (await createCollectionForUser(
       event,
-      createMockContext(),
-      jest.fn(),
     )) as APIGatewayProxyStructuredResultV2
     expect(result.statusCode).toEqual(200)
     const response = JSON.parse(result.body as string)

@@ -1,32 +1,13 @@
 import getFileDownloadLinkById from './getFileDownloadLinkById'
 import { documentExistsById } from '@/models/document'
-import {
-  getPathParameter,
-  getQueryStringParameter,
-  getUserId,
-} from '@/utils/api-gateway'
 import { File as FileModel } from '@/models/file'
-
-import {
-  createMockContext,
-  createMockEvent,
-  toMockedFunction,
-} from '@/utils/test'
+import { createMockEvent, setUserId, toMockedFunction } from '@/utils/test'
 import { getFileByIdAndDocumentId } from '@/models/file'
+import { APIGatewayProxyEventV2 } from 'aws-lambda'
 
 jest.mock('@/utils/database', () => {
   return {
     connectDatabase: jest.fn(),
-  }
-})
-
-jest.mock('@/utils/api-gateway', () => {
-  const module = jest.requireActual('@/utils/api-gateway')
-  return {
-    ...module,
-    getPathParameter: jest.fn(),
-    getUserId: jest.fn(),
-    getQueryStringParameter: jest.fn(),
   }
 })
 
@@ -59,21 +40,27 @@ describe('getFileDownloadLinkById', () => {
   const documentId = 'myDocumentId'
   const fileId = 'myFileId'
   const userId = 'myUserId'
+  let event: APIGatewayProxyEventV2
 
   beforeEach(() => {
-    toMockedFunction(getPathParameter)
-      .mockImplementationOnce(() => documentId)
-      .mockImplementationOnce(() => fileId)
-    toMockedFunction(getQueryStringParameter).mockImplementationOnce(
-      () => 'attachment',
+    toMockedFunction(documentExistsById).mockImplementationOnce(
+      async () => true,
     )
-    toMockedFunction(getUserId).mockImplementationOnce(() => userId)
+    event = setUserId(
+      userId,
+      createMockEvent({
+        pathParameters: {
+          documentId,
+          fileId,
+        },
+        queryStringParameters: {
+          disposition: 'attachment',
+        },
+      }),
+    )
   })
 
   it('returns file', async () => {
-    toMockedFunction(documentExistsById).mockImplementationOnce(() =>
-      Promise.resolve(true),
-    )
     toMockedFunction(getFileByIdAndDocumentId).mockImplementationOnce(() =>
       Promise.resolve(
         FileModel.fromJson({
@@ -90,13 +77,7 @@ describe('getFileDownloadLinkById', () => {
         }),
       ),
     )
-    expect(
-      await getFileDownloadLinkById(
-        createMockEvent(),
-        createMockContext(),
-        jest.fn(),
-      ),
-    ).toMatchInlineSnapshot(`
+    expect(await getFileDownloadLinkById(event)).toMatchInlineSnapshot(`
       Object {
         "body": "{\\"href\\":\\"https://presigned-url.for/path/to/file\\"}",
         "cookies": Array [],
@@ -109,19 +90,10 @@ describe('getFileDownloadLinkById', () => {
     `)
   })
   it('returns error when file not found', async () => {
-    toMockedFunction(documentExistsById).mockImplementationOnce(() =>
-      Promise.resolve(true),
-    )
     toMockedFunction(getFileByIdAndDocumentId).mockImplementationOnce(() =>
       Promise.resolve(null),
     )
-    expect(
-      await getFileDownloadLinkById(
-        createMockEvent(),
-        createMockContext(),
-        jest.fn(),
-      ),
-    ).toMatchInlineSnapshot(`
+    expect(await getFileDownloadLinkById(event)).toMatchInlineSnapshot(`
       Object {
         "body": "{\\"message\\":\\"file not found\\"}",
         "cookies": Array [],
@@ -134,16 +106,10 @@ describe('getFileDownloadLinkById', () => {
     `)
   })
   it('returns error when document not found', async () => {
-    toMockedFunction(documentExistsById).mockImplementationOnce(() =>
-      Promise.resolve(false),
-    )
-    expect(
-      await getFileDownloadLinkById(
-        createMockEvent(),
-        createMockContext(),
-        jest.fn(),
-      ),
-    ).toMatchInlineSnapshot(`
+    toMockedFunction(documentExistsById)
+      .mockReset()
+      .mockImplementationOnce(async () => false)
+    expect(await getFileDownloadLinkById(event)).toMatchInlineSnapshot(`
       Object {
         "body": "{\\"message\\":\\"document not found\\"}",
         "cookies": Array [],

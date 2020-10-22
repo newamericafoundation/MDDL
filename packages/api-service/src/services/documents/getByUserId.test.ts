@@ -1,27 +1,14 @@
 import getByUserId from './getByUserId'
-import { getPathParameter, getUserId } from '@/utils/api-gateway'
 import {
   getDocumentsByOwnerId,
   Document as DocumentModel,
 } from '@/models/document'
-import {
-  createMockContext,
-  createMockEvent,
-  toMockedFunction,
-} from '@/utils/test'
+import { createMockEvent, setUserId, toMockedFunction } from '@/utils/test'
+import { APIGatewayProxyEventV2 } from 'aws-lambda'
 
 jest.mock('@/utils/database', () => {
   return {
     connectDatabase: jest.fn(),
-  }
-})
-
-jest.mock('@/utils/api-gateway', () => {
-  const module = jest.requireActual('@/utils/api-gateway')
-  return {
-    ...module,
-    getPathParameter: jest.fn(),
-    getUserId: jest.fn(),
   }
 })
 
@@ -35,10 +22,17 @@ jest.mock('@/models/document', () => {
 
 describe('getByUserId', () => {
   const userId = 'myUserId'
+  let event: APIGatewayProxyEventV2
 
   beforeEach(() => {
-    toMockedFunction(getPathParameter).mockImplementationOnce(() => userId)
-    toMockedFunction(getUserId).mockImplementationOnce(() => userId)
+    event = setUserId(
+      userId,
+      createMockEvent({
+        pathParameters: {
+          userId,
+        },
+      }),
+    )
   })
 
   it('returns document', async () => {
@@ -62,8 +56,7 @@ describe('getByUserId', () => {
         }),
       ]),
     )
-    expect(await getByUserId(createMockEvent(), createMockContext(), jest.fn()))
-      .toMatchInlineSnapshot(`
+    expect(await getByUserId(event)).toMatchInlineSnapshot(`
       Object {
         "body": "{\\"documents\\":[{\\"name\\":\\"My First File\\",\\"createdDate\\":\\"2015-01-12T13:14:15.000Z\\",\\"id\\":\\"myDocumentId1\\",\\"links\\":[{\\"href\\":\\"/documents/myDocumentId1\\",\\"rel\\":\\"self\\",\\"type\\":\\"GET\\"}]},{\\"name\\":\\"My Second File\\",\\"createdDate\\":\\"2015-01-27T13:14:15.000Z\\",\\"id\\":\\"myDocumentId2\\",\\"links\\":[{\\"href\\":\\"/documents/myDocumentId2\\",\\"rel\\":\\"self\\",\\"type\\":\\"GET\\"}]}]}",
         "cookies": Array [],
@@ -79,8 +72,7 @@ describe('getByUserId', () => {
     toMockedFunction(getDocumentsByOwnerId).mockImplementationOnce(() =>
       Promise.resolve([]),
     )
-    expect(await getByUserId(createMockEvent(), createMockContext(), jest.fn()))
-      .toMatchInlineSnapshot(`
+    expect(await getByUserId(event)).toMatchInlineSnapshot(`
       Object {
         "body": "{\\"documents\\":[]}",
         "cookies": Array [],

@@ -1,25 +1,14 @@
 import putDocumentById from './putDocumentById'
-import { getPathParameter, getUserId } from '@/utils/api-gateway'
 import { documentExistsById, updateDocument } from '@/models/document'
+import { createMockEvent, setUserId, toMockedFunction } from '@/utils/test'
 import {
-  createMockContext,
-  createMockEvent,
-  toMockedFunction,
-} from '@/utils/test'
-import { APIGatewayProxyStructuredResultV2 } from 'aws-lambda'
+  APIGatewayProxyEventV2,
+  APIGatewayProxyStructuredResultV2,
+} from 'aws-lambda'
 
 jest.mock('@/utils/database', () => {
   return {
     connectDatabase: jest.fn(),
-  }
-})
-
-jest.mock('@/utils/api-gateway', () => {
-  const module = jest.requireActual('@/utils/api-gateway')
-  return {
-    ...module,
-    getPathParameter: jest.fn(),
-    getUserId: jest.fn(),
   }
 })
 
@@ -33,32 +22,35 @@ jest.mock('@/models/document', () => {
 })
 
 describe('putDocumentById', () => {
+  const documentId = 'myDocumentId'
   const userId = 'myUserId'
+  let event: APIGatewayProxyEventV2
 
   beforeEach(() => {
-    toMockedFunction(getPathParameter).mockImplementationOnce(() => userId)
-    toMockedFunction(getUserId).mockImplementationOnce(() => userId)
     toMockedFunction(documentExistsById).mockImplementationOnce(
       async () => true,
+    )
+    event = setUserId(
+      userId,
+      createMockEvent({
+        pathParameters: {
+          documentId,
+        },
+      }),
     )
   })
 
   it('fails validation on no body', async () => {
-    expect(
-      await putDocumentById(createMockEvent(), createMockContext(), jest.fn()),
-    ).toEqual(
+    expect(await putDocumentById(event)).toEqual(
       expect.objectContaining({
-        body: '{"message":"body not supplied"}',
+        body: '{"message":"validation error: body was expected but empty"}',
       }),
     )
   })
 
   it('validation requires name or description', async () => {
-    const event = createMockEvent()
     event.body = JSON.stringify({})
-    expect(
-      await putDocumentById(event, createMockContext(), jest.fn()),
-    ).toEqual(
+    expect(await putDocumentById(event)).toEqual(
       expect.objectContaining({
         body:
           '{"message":"validation error: \\"value\\" must contain at least one of [name, description]"}',
@@ -68,15 +60,12 @@ describe('putDocumentById', () => {
 
   it('updates name', async () => {
     toMockedFunction(updateDocument).mockImplementationOnce(async () => 1)
-    const event = createMockEvent()
     const body = {
       name: 'test update',
     }
     event.body = JSON.stringify(body)
     const result = (await putDocumentById(
       event,
-      createMockContext(),
-      jest.fn(),
     )) as APIGatewayProxyStructuredResultV2
     expect(result).toMatchInlineSnapshot(`
       Object {
@@ -86,22 +75,19 @@ describe('putDocumentById', () => {
       }
     `)
     expect(toMockedFunction(updateDocument)).toHaveBeenCalledWith(
-      userId,
+      documentId,
       expect.objectContaining(body),
     )
   })
 
   it('updates description', async () => {
     toMockedFunction(updateDocument).mockImplementationOnce(async () => 1)
-    const event = createMockEvent()
     const body = {
       description: 'test update',
     }
     event.body = JSON.stringify(body)
     const result = (await putDocumentById(
       event,
-      createMockContext(),
-      jest.fn(),
     )) as APIGatewayProxyStructuredResultV2
     expect(result).toMatchInlineSnapshot(`
       Object {
@@ -111,7 +97,7 @@ describe('putDocumentById', () => {
       }
     `)
     expect(toMockedFunction(updateDocument)).toHaveBeenCalledWith(
-      userId,
+      documentId,
       expect.objectContaining(body),
     )
   })

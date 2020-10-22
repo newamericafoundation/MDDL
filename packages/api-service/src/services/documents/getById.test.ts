@@ -1,24 +1,15 @@
 import getById from './getById'
-import { getPathParameter, getUserId } from '@/utils/api-gateway'
-import { getDocumentById, Document as DocumentModel } from '@/models/document'
 import {
-  createMockContext,
-  createMockEvent,
-  toMockedFunction,
-} from '@/utils/test'
+  getDocumentById,
+  documentExistsById,
+  Document as DocumentModel,
+} from '@/models/document'
+import { createMockEvent, setUserId, toMockedFunction } from '@/utils/test'
+import { APIGatewayProxyEventV2 } from 'aws-lambda'
 
 jest.mock('@/utils/database', () => {
   return {
     connectDatabase: jest.fn(),
-  }
-})
-
-jest.mock('@/utils/api-gateway', () => {
-  const module = jest.requireActual('@/utils/api-gateway')
-  return {
-    ...module,
-    getPathParameter: jest.fn(),
-    getUserId: jest.fn(),
   }
 })
 
@@ -27,16 +18,27 @@ jest.mock('@/models/document', () => {
   return {
     ...module,
     getDocumentById: jest.fn(),
+    documentExistsById: jest.fn(),
   }
 })
 
 describe('getById', () => {
   const documentId = 'myDocumentId'
   const userId = 'myUserId'
+  let event: APIGatewayProxyEventV2
 
   beforeEach(() => {
-    toMockedFunction(getPathParameter).mockImplementationOnce(() => documentId)
-    toMockedFunction(getUserId).mockImplementationOnce(() => userId)
+    toMockedFunction(documentExistsById).mockImplementationOnce(
+      async () => true,
+    )
+    event = setUserId(
+      userId,
+      createMockEvent({
+        pathParameters: {
+          documentId,
+        },
+      }),
+    )
   })
 
   it('returns document', async () => {
@@ -52,8 +54,7 @@ describe('getById', () => {
         }),
       ),
     )
-    expect(await getById(createMockEvent(), createMockContext(), jest.fn()))
-      .toMatchInlineSnapshot(`
+    expect(await getById(event)).toMatchInlineSnapshot(`
       Object {
         "body": "{\\"createdDate\\":\\"2015-01-12T13:14:15.000Z\\",\\"name\\":\\"My First File\\",\\"id\\":\\"myDocumentId\\",\\"files\\":[],\\"links\\":[]}",
         "cookies": Array [],
@@ -66,11 +67,10 @@ describe('getById', () => {
     `)
   })
   it('throws error when not found', async () => {
-    toMockedFunction(getDocumentById).mockImplementationOnce(() =>
-      Promise.resolve(null),
-    )
-    expect(await getById(createMockEvent(), createMockContext(), jest.fn()))
-      .toMatchInlineSnapshot(`
+    toMockedFunction(documentExistsById)
+      .mockReset()
+      .mockImplementationOnce(async () => false)
+    expect(await getById(event)).toMatchInlineSnapshot(`
       Object {
         "body": "{\\"message\\":\\"document not found\\"}",
         "cookies": Array [],

@@ -6,13 +6,16 @@ import {
   Document as DocumentModel,
 } from '@/models/document'
 import {
-  createMockContext,
   createMockEvent,
   getObjectKeys,
+  setUserId,
   toMockedFunction,
 } from '@/utils/test'
 import { createFilePath } from '@/utils/s3'
-import { APIGatewayProxyStructuredResultV2 } from 'aws-lambda'
+import {
+  APIGatewayProxyEventV2,
+  APIGatewayProxyStructuredResultV2,
+} from 'aws-lambda'
 
 jest.mock('@/utils/database', () => {
   return {
@@ -60,32 +63,32 @@ jest.mock('@/models/document', () => {
 
 describe('createDocumentForUser', () => {
   const userId = 'myUserId'
+  let event: APIGatewayProxyEventV2
 
   beforeEach(() => {
     toMockedFunction(getPathParameter).mockImplementationOnce(() => userId)
     toMockedFunction(getUserId).mockImplementationOnce(() => userId)
+    event = setUserId(
+      userId,
+      createMockEvent({
+        pathParameters: {
+          userId,
+        },
+      }),
+    )
   })
 
   it('fails validation on no body', async () => {
-    expect(
-      await createDocumentForUser(
-        createMockEvent(),
-        createMockContext(),
-        jest.fn(),
-      ),
-    ).toEqual(
+    expect(await createDocumentForUser(event)).toEqual(
       expect.objectContaining({
-        body: '{"message":"body not supplied"}',
+        body: '{"message":"validation error: body was expected but empty"}',
       }),
     )
   })
 
   it('validation is applied', async () => {
-    const event = createMockEvent()
     event.body = JSON.stringify({})
-    expect(
-      await createDocumentForUser(event, createMockContext(), jest.fn()),
-    ).toEqual(
+    expect(await createDocumentForUser(event)).toEqual(
       expect.objectContaining({
         body:
           '{"message":"validation error: \\"name\\" is required, \\"files\\" is required"}',
@@ -94,11 +97,8 @@ describe('createDocumentForUser', () => {
   })
 
   it('validation requires files to be populated', async () => {
-    const event = createMockEvent()
     event.body = JSON.stringify({ name: 'test', files: [] })
-    expect(
-      await createDocumentForUser(event, createMockContext(), jest.fn()),
-    ).toEqual(
+    expect(await createDocumentForUser(event)).toEqual(
       expect.objectContaining({
         body:
           '{"message":"validation error: \\"files\\" must contain at least 1 items"}',
@@ -107,11 +107,8 @@ describe('createDocumentForUser', () => {
   })
 
   it('validation requires file to populated correctly', async () => {
-    const event = createMockEvent()
     event.body = JSON.stringify({ name: 'test', files: [{}] })
-    expect(
-      await createDocumentForUser(event, createMockContext(), jest.fn()),
-    ).toEqual(
+    expect(await createDocumentForUser(event)).toEqual(
       expect.objectContaining({
         body:
           '{"message":"validation error: \\"files[0].name\\" is required, \\"files[0].contentLength\\" is required, \\"files[0].contentType\\" is required, \\"files[0].sha256Checksum\\" is required"}',
@@ -123,7 +120,6 @@ describe('createDocumentForUser', () => {
     toMockedFunction(countDocumentsByOwnerId).mockImplementationOnce(
       async () => 100,
     )
-    const event = createMockEvent()
     event.body = JSON.stringify({
       name: 'test',
       files: [
@@ -137,8 +133,6 @@ describe('createDocumentForUser', () => {
     })
     const result = (await createDocumentForUser(
       event,
-      createMockContext(),
-      jest.fn(),
     )) as APIGatewayProxyStructuredResultV2
     expect(result).toMatchInlineSnapshot(`
       Object {
@@ -182,7 +176,6 @@ describe('createDocumentForUser', () => {
         }),
       ),
     )
-    const event = createMockEvent()
     event.body = JSON.stringify({
       name: 'test',
       files: [
@@ -196,8 +189,6 @@ describe('createDocumentForUser', () => {
     })
     const result = (await createDocumentForUser(
       event,
-      createMockContext(),
-      jest.fn(),
     )) as APIGatewayProxyStructuredResultV2
     expect(result.statusCode).toEqual(200)
     const response = JSON.parse(result.body as string)
