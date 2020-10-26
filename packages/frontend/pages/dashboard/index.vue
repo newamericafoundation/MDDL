@@ -2,7 +2,7 @@
   <div>
     <AppBar>
       <template v-slot:nav-action>
-        <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
+        <v-app-bar-nav-icon @click.stop="toggleNav" />
       </template>
       <template v-slot:actions>
         <UploadButton prepend-icon="$plus" />
@@ -110,6 +110,13 @@ export default class Documents extends Vue {
 
   get collections() {
     return userStore.collections
+  }
+
+  toggleNav() {
+    console.log(
+      (this.$parent.$parent.$parent.$data.drawer = !this.$parent.$parent.$parent
+        .$data.drawer),
+    )
   }
 }
 </script>

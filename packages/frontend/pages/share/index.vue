@@ -1,7 +1,7 @@
 <template>
   <v-window v-model="step">
     <v-window-item>
-      <v-toolbar class="mb-8" flat>
+      <v-toolbar v-model="step" app flat>
         <nuxt-link class="mr-2" :to="localePath('/dashboard')">
           <v-icon>$chevron-left</v-icon>
         </nuxt-link>
@@ -16,7 +16,9 @@
           {{ $t('next') }}
         </v-btn>
       </v-toolbar>
-      <DocumentList v-model="selectedDocs" :selectable="true" />
+      <div class="window-container">
+        <DocumentList v-model="selectedDocs" :selectable="true" />
+      </div>
     </v-window-item>
     <v-window-item>
       <v-toolbar class="mb-2" flat>
@@ -191,7 +193,6 @@ export default class Share extends Vue {
     // Referencing this.recompute forces this.$refs.observer to be updated
     // eslint-disable-next-line no-unused-expressions
     this.recompute
-    // TODO: this is broken - condition is always true for some reason
     return this.$refs.observer instanceof ValidationObserver
       ? (this.$refs.observer as any).fields.email.valid || this.email === ''
       : false
@@ -215,7 +216,7 @@ export default class Share extends Vue {
     this.isLoading = true
     const collection = await this.$store.dispatch('user/createCollection', {
       name: this.name,
-      documentIds: this.selectedDocs.map((d) => d.id),
+      documentIds: this.selectedDocs.map(d => d.id),
       individualEmailAddresses: this.individualEmailAddresses,
       agencyOfficersEmailAddresses: [], // TODO: implement
     })
@@ -225,11 +226,10 @@ export default class Share extends Vue {
         this.$t('collection') as string,
       )} "${this.name}" ${this.$t('created')}`,
       actions: [
-        // TODO: uncomment once view collection is complete
-        // {
-        //   name: 'view',
-        //   to: `/collection/${collection.id}`,
-        // },
+        {
+          name: 'view',
+          to: `/collection/${collection.id}`,
+        },
       ],
     })
 
@@ -259,22 +259,23 @@ export default class Share extends Vue {
 <style lang="scss">
 .v-window {
   height: 100vh;
+  .v-toolbar {
+    position: fixed;
+    width: 100vw;
+    z-index: 2;
+  }
   .v-footer {
     background-color: var(--white);
     border-bottom: none;
     border-left: none;
     border-right: none;
-  }
-  .window-container {
-    padding: 0 2rem;
-    margin-bottom: 12rem;
-    max-width: 40rem;
-    margin-left: auto;
-    margin-right: auto;
-  }
-  .v-footer {
     max-width: 40rem;
     margin: 0 auto;
+  }
+  .window-container {
+    padding: 5rem 2rem 0 2rem;
+    margin: 0 auto 12rem auto;
+    max-width: 40rem;
   }
 }
 .v-card.invitee {

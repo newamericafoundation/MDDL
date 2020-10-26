@@ -1,7 +1,11 @@
 <template>
   <v-card
     outlined
-    :class="['mx-auto', { mobile: $vuetify.breakpoint.xs }]"
+    :class="[
+      'mx-auto',
+      { 'pr-8': selectable },
+      { mobile: $vuetify.breakpoint.xs },
+    ]"
     @click.native="onClick"
   >
     <v-checkbox
