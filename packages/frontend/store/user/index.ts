@@ -2,6 +2,8 @@ import { Module, VuexModule, Action, Mutation } from 'vuex-module-decorators'
 import { api } from '@/plugins/api-accessor'
 import {
   Collection,
+  SharedCollectionList,
+  SharedCollectionListItem,
   CollectionCreate,
   CollectionListItem,
   Document,
@@ -20,6 +22,7 @@ export default class User extends VuexModule {
   _userId: string | null = null
   _documents: DocumentListItem[] = []
   _collections: CollectionListItem[] = []
+  _sharedCollections: SharedCollectionListItem[] = []
 
   get documents() {
     return this._documents
@@ -27,6 +30,10 @@ export default class User extends VuexModule {
 
   get collections() {
     return this._collections
+  }
+
+  get sharedCollections() {
+    return this._sharedCollections
   }
 
   @Mutation
@@ -141,6 +148,11 @@ export default class User extends VuexModule {
     this._collections = collections
   }
 
+  @Mutation
+  setSharedCollections(collections: SharedCollectionListItem[]) {
+    this._sharedCollections = collections
+  }
+
   @Action({ rawError: true, commit: 'setDocuments' })
   getDocuments(): Promise<DocumentListItem[]> {
     if (!this._userId) return Promise.reject(new Error('UserID not set'))
@@ -154,6 +166,16 @@ export default class User extends VuexModule {
     if (!this._userId) return Promise.reject(new Error('UserID not set'))
     return api.user.listUserCollections(this._userId).then((response) => {
       return response.data.collections ? response.data.collections : []
+    })
+  }
+
+  @Action({ rawError: true, commit: 'setSharedCollections' })
+  getSharedCollections(): Promise<SharedCollectionListItem[]> {
+    if (!this._userId) return Promise.reject(new Error('UserID not set'))
+    return api.user.listUserCollectionsShared(this._userId).then((response) => {
+      return response.data.sharedCollections
+        ? response.data.sharedCollections
+        : []
     })
   }
 
