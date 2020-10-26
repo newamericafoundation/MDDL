@@ -7,6 +7,9 @@
     </template>
     <v-spacer />
     <slot name="actions" />
+    <template v-slot:extension>
+      <slot name="extension" />
+    </template>
   </v-app-bar>
 </template>
 

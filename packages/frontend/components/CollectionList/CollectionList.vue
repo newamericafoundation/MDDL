@@ -6,7 +6,6 @@
         :key="i"
         v-model="selected[i]"
         :collection="collection"
-        class="mb-4"
         :selectable="selectable"
       />
     </template>

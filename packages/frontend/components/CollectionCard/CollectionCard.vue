@@ -12,11 +12,11 @@
       @change="emitChange"
     />
     <v-row align="center" no-gutters>
-      <v-col class="py-0" xs="6" sm="5">
+      <v-col class="py-0 mx-8" cols="auto">
         <v-icon>$folder</v-icon>
       </v-col>
       <v-col>
-        <v-card-title class="headline">{{ collection.name }}</v-card-title>
+        <v-card-title>{{ collection.name }}</v-card-title>
 
         <v-card-subtitle>{{ collectionDate }}</v-card-subtitle>
       </v-col>

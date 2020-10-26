@@ -58,25 +58,7 @@
         </template>
       </v-list>
     </v-navigation-drawer>
-    <AppBar>
-      <template v-slot:nav-action>
-        <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
-      </template>
-      <template v-slot:actions>
-        <UploadButton prepend-icon="$plus" />
-        <nuxt-link :to="localePath('/share')" class="nuxt-link">
-          <v-btn class="ml-4 text-body-1 font-weight-medium" color="primary">
-            <v-icon>$send</v-icon>
-            {{ $t('share') }}
-          </v-btn>
-        </nuxt-link>
-      </template>
-    </AppBar>
-    <v-main>
-      <v-container class="px-0">
-        <nuxt />
-      </v-container>
-    </v-main>
+    <nuxt />
     <SnackBar />
   </v-app>
 </template>
