@@ -10,12 +10,13 @@ module.exports = {
     '^.+\\.ts$': 'ts-jest',
     '^.+\\.js$': 'babel-jest',
     '^.+\\.vue$': 'vue-jest',
+    '^.+\\.svg$': '<rootDir>/assets/js/svgTransform.js',
   },
   collectCoverage: true,
   collectCoverageFrom: [
     '<rootDir>/components/**/*.vue',
     '<rootDir>/pages/**/*.vue',
   ],
-  setupFilesAfterEnv: ['./assets/js/jest.setup.ts'],
+  setupFilesAfterEnv: ['./assets/js/jest.setup.js'],
   // snapshotSerializers: ["<rootDir>/node_modules/jest-serializer-vue"],
 }

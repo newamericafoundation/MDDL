@@ -64,6 +64,12 @@
       </template>
       <template v-slot:actions>
         <UploadButton prepend-icon="$plus" />
+        <nuxt-link :to="localePath('/share')" class="nuxt-link">
+          <v-btn class="ml-4 text-body-1 font-weight-medium" color="primary">
+            <v-icon>$send</v-icon>
+            {{ $t('share') }}
+          </v-btn>
+        </nuxt-link>
       </template>
     </AppBar>
     <v-main>
@@ -71,6 +77,7 @@
         <nuxt />
       </v-container>
     </v-main>
+    <SnackBar />
   </v-app>
 </template>
 
@@ -80,6 +87,7 @@ import { Vue, Component } from 'vue-property-decorator'
 @Component
 export default class ClientDashboard extends Vue {
   drawer = false
+
   navItems = [
     {
       type: 'break',
@@ -96,6 +104,12 @@ export default class ClientDashboard extends Vue {
       },
     },
   ]
+
+  mounted() {
+    if (this.$route.params.showSnack) {
+      this.$store.dispatch('snackbar/show')
+    }
+  }
 }
 </script>
 

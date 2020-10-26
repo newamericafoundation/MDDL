@@ -1,9 +1,10 @@
 import { NuxtAxiosInstance } from '@nuxtjs/axios'
-import { DocumentApi, UserApi, Configuration } from 'api-client'
+import { DocumentApi, UserApi, CollectionsApi, Configuration } from 'api-client'
 
 const initialisedAPIs = {
   document: null as DocumentApi | null,
   user: null as UserApi | null,
+  collection: null as CollectionsApi | null,
 }
 
 export class ApiService {
@@ -39,6 +40,17 @@ export class ApiService {
       )
     }
     return initialisedAPIs.user
+  }
+
+  get collection(): CollectionsApi {
+    if (initialisedAPIs.collection === null) {
+      initialisedAPIs.collection = new CollectionsApi(
+        this.config,
+        process.env.API_URL,
+        this.axios,
+      )
+    }
+    return initialisedAPIs.collection
   }
 }
 

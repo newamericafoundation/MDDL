@@ -34,9 +34,13 @@ describe('Page/Dashboard', () => {
       store,
       stubs: { Layout },
       mocks: {
-        $auth: {
-          user: {
-            username: 'test',
+        $route: {
+          query: {},
+        },
+        $store: {
+          dispatch: () => [],
+          commit: () => {
+            // empty
           },
         },
       },

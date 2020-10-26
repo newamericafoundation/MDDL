@@ -1,0 +1,21 @@
+<template>
+  <svg
+    width="21"
+    height="21"
+    viewBox="0 0 21 21"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M16.6295 3.43188L10.7389 9.32246L4.84834 3.43188L3.73926 4.54096L9.62983 10.4315L3.73926 16.3221L4.84834 17.4312L10.7389 11.5406L16.6295 17.4312L17.7386 16.3221L11.848 10.4315L17.7386 4.54096L16.6295 3.43188Z"
+      fill="currentColor"
+    />
+  </svg>
+</template>
+
+<script lang="ts">
+import { Vue, Component } from 'nuxt-property-decorator'
+
+@Component
+export default class Close extends Vue {}
+</script>

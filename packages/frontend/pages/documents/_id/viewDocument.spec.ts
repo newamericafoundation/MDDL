@@ -41,6 +41,9 @@ describe('Documents component', () => {
             id: '1',
           },
         },
+        $store: {
+          dispatch: () => '',
+        },
       },
     })
     await flushPromises()

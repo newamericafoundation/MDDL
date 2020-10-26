@@ -13,36 +13,31 @@
     />
     <v-row align="center" no-gutters>
       <v-col class="py-0" xs="6" sm="5">
-        <v-skeleton-loader
-          class="pa-4"
-          boilerplate
-          type="image"
-          tile
-        ></v-skeleton-loader>
+        <v-icon>$folder</v-icon>
       </v-col>
       <v-col>
-        <v-card-title class="headline">{{ document.name }}</v-card-title>
+        <v-card-title class="headline">{{ collection.name }}</v-card-title>
 
-        <v-card-subtitle>{{ documentDate }}</v-card-subtitle>
+        <v-card-subtitle>{{ collectionDate }}</v-card-subtitle>
       </v-col>
     </v-row>
   </v-card>
 </template>
 
 <script lang="ts">
-import { DocumentListItem } from 'api-client'
+import { CollectionListItem } from 'api-client'
 import { Vue, Component, Prop } from 'nuxt-property-decorator'
 import { format } from 'date-fns'
 
 @Component
-export default class DocumentCard extends Vue {
-  @Prop({ required: true }) document: DocumentListItem
+export default class CollectionCard extends Vue {
+  @Prop({ required: true }) collection: CollectionListItem
   @Prop({ default: false }) selectable: boolean
   @Prop({ default: null }) value: boolean
   checked = false
 
-  get documentDate() {
-    return format(new Date(this.document.createdDate), 'LLL d, yyyy')
+  get collectionDate() {
+    return format(new Date(this.collection.createdDate), 'LLL d, yyyy')
   }
 
   onClick() {
@@ -50,7 +45,7 @@ export default class DocumentCard extends Vue {
       this.checked = !this.checked
       this.emitChange(this.checked)
     } else {
-      this.$router.push(this.localePath(`/documents/${this.document.id}`))
+      this.$router.push(this.localePath(`/collections/${this.collection.id}`))
     }
   }
 

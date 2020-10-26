@@ -1,42 +1,95 @@
 <template>
   <v-snackbar
-    v-model="value"
-    class="snackbar"
+    v-model="isVisible"
     :color="color"
-    :timeout="timeout"
+    :timeout="-1"
+    class="snackbar"
     elevation="0"
     vertical
   >
-    <slot />
-    <template v-show="false" v-slot:action="{ attrs }">
-      <slot name="action" v-bind="attrs" />
+    {{ $t(message) }}
+
+    <template v-slot:action="{ attrs }">
+      <nuxt-link
+        v-for="(action, i) in linkActions"
+        :key="`link-${i}`"
+        v-bind="attrs"
+        :to="localePath(action.to)"
+        class="font-weight-bold capitalize"
+      >
+        {{ $t(action.name) }}
+      </nuxt-link>
+
       <v-btn
-        v-if="dismissable"
+        v-for="(action, i) in clickActions"
+        :key="`click-${i}`"
+        v-bind="attrs"
+        right
+        class="font-weight-bold capitalize"
+        text
+        @click="action.do"
+      >
+        <v-icon>$close</v-icon>
+      </v-btn>
+
+      <v-btn
+        v-if="isDismissable"
         v-bind="attrs"
         absolute
         right
         class="px-0 py-3"
         text
-        @click="value = false"
+        @click="close"
       >
-        <v-icon>mdi-close</v-icon>
+        <v-icon>$close</v-icon>
       </v-btn>
+      <v-progress-linear
+        v-if="progress !== null"
+        :value="progress"
+        color="success"
+        class="mb-0"
+      ></v-progress-linear>
     </template>
   </v-snackbar>
 </template>
 
 <script lang="ts">
 import { Vue, Component, Prop } from 'nuxt-property-decorator'
-import { ThemeColor } from '@/types/theme'
+import { snackbarStore } from '@/plugins/store-accessor'
 
 @Component
 export default class SnackBar extends Vue {
-  @Prop({ required: true }) value!: boolean
-  @Prop({ default: -1 }) timeout!: number
-  @Prop({ default: true }) dismissable!: boolean
-  @Prop({ default: ThemeColor.PRIMARY }) color!: ThemeColor
+  get isVisible() {
+    return snackbarStore.isVisible
+  }
 
-  ThemeColor = ThemeColor
+  get message() {
+    return snackbarStore.message
+  }
+
+  get linkActions() {
+    return snackbarStore.linkActions
+  }
+
+  get clickActions() {
+    return snackbarStore.clickActions
+  }
+
+  get isDismissable() {
+    return snackbarStore.isDismissable
+  }
+
+  get color() {
+    return snackbarStore.color
+  }
+
+  get progress() {
+    return snackbarStore.progress
+  }
+
+  close() {
+    snackbarStore.setVisible(false)
+  }
 }
 </script>
 
@@ -50,6 +103,7 @@ export default class SnackBar extends Vue {
   padding: 0rem 1rem;
   .v-snack__content {
     color: var(--white);
+    margin-right: 2rem;
   }
 
   .v-snack__action {

@@ -3,14 +3,19 @@ import { Context } from '@nuxt/types'
 import { Options } from '@nuxtjs/vuetify'
 import colors from 'vuetify/es5/util/colors'
 
+import Agency from '@/components/icons/agency.vue'
 import Alert from '@/components/icons/alert.vue'
 import ChevronLeft from '@/components/icons/chevron-left.vue'
+import Close from '@/components/icons/close.vue'
 import CloseCircleOutline from '@/components/icons/close-circle-outline.vue'
+import Document from '@/components/icons/document.vue'
 import DotsHorizontal from '@/components/icons/dots-horizontal.vue'
 import Download from '@/components/icons/download.vue'
+import Folder from '@/components/icons/folder.vue'
 import HomeOutline from '@/components/icons/home-outline.vue'
 import Menu from '@/components/icons/menu.vue'
 import Plus from '@/components/icons/plus.vue'
+import Profile from '@/components/icons/profile.vue'
 import Send from '@/components/icons/send.vue'
 
 const vuetifyOptions = (ctx: Context): Options => {
@@ -46,23 +51,32 @@ const vuetifyOptions = (ctx: Context): Options => {
     icons: {
       iconfont: 'mdi',
       values: {
-        chevronLeft: {
-          component: ChevronLeft,
-        },
         alert: {
           component: Alert,
+        },
+        agency: {
+          component: Agency,
         },
         'chevron-left': {
           component: ChevronLeft,
         },
+        close: {
+          component: Close,
+        },
         'close-circle-outline': {
           component: CloseCircleOutline,
+        },
+        document: {
+          component: Document,
         },
         'dots-horizontal': {
           component: DotsHorizontal,
         },
         download: {
           component: Download,
+        },
+        folder: {
+          component: Folder,
         },
         'home-outline': {
           component: HomeOutline,
@@ -72,6 +86,9 @@ const vuetifyOptions = (ctx: Context): Options => {
         },
         plus: {
           component: Plus,
+        },
+        profile: {
+          component: Profile,
         },
         send: {
           component: Send,

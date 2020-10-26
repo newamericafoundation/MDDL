@@ -3,7 +3,7 @@
     <label
       :class="[
         'upload-label',
-        textButton ? 'text' : 'v-btn',
+        textButton ? 'text' : 'v-btn capitalize',
         { disabled: isLoading },
       ]"
     >
@@ -20,38 +20,13 @@
         @change="onFileInput"
       />
     </label>
-    <SnackBar v-model="showSnackbar" :dismissable="!isLoading">
-      <p class="ma-0">{{ $t(snackMessage) }}</p>
-      <!-- TODO: Show me once view document is finished -->
-      <template v-show="false" v-slot:action="{ attrs }">
-        <nuxt-link
-          v-if="document"
-          v-bind="attrs"
-          :to="localePath(`/documents/${document.id}`)"
-          class="font-weight-bold capitalize"
-        >
-          {{ $t('rename') }}
-        </nuxt-link>
-        <nuxt-link
-          v-if="document"
-          v-bind="attrs"
-          :to="localePath(`/documents/${document.id}`)"
-          class="font-weight-bold capitalize"
-        >
-          {{ $t('view') }}
-        </nuxt-link>
-      </template>
-      <v-progress-linear
-        :value="uploadPercentage"
-        color="success"
-        class="mb-0"
-      ></v-progress-linear>
-    </SnackBar>
   </div>
 </template>
 
 <script lang="ts">
 import { Vue, Component, Prop } from 'nuxt-property-decorator'
+import { snackbarStore } from '@/plugins/store-accessor'
+import { Document } from 'api-client'
 
 @Component
 export default class UploadButton extends Vue {
@@ -65,33 +40,47 @@ export default class UploadButton extends Vue {
   textButton: boolean
 
   file: File | null = null
-  uploadPercentage = 0
-  showSnackbar = false
-  document: Document | null = null
   multiple = false
   snackMessage = ''
 
   onFileInput(event: any) {
     if (event?.target?.files && event.target.files.length) {
-      this.showSnackbar = true
-      this.snackMessage = 'uploading'
+      snackbarStore.setParams({
+        message: 'uploading',
+        dismissable: false,
+      })
+      snackbarStore.setProgress(0)
+      snackbarStore.setVisible(true)
+
       this.$store
         .dispatch('user/uploadDocument', {
           fileList: event.target.files,
           onUploadProgress: (e: ProgressEvent) => {
-            this.uploadPercentage = Math.round((e.loaded / e.total) * 100)
+            snackbarStore.setProgress(Math.round((e.loaded / e.total) * 100))
           },
         })
         .then((document: Document) => {
-          this.document = document
-          this.snackMessage = 'uploadComplete'
+          snackbarStore.setParams({
+            message: 'uploadComplete',
+            actions: [
+              {
+                name: 'rename',
+                to: `/documents/${document.id}`,
+              },
+              {
+                name: 'view',
+                to: `/documents/${document.id}`,
+              },
+            ],
+          })
+
           return this.$store.dispatch('user/getDocuments')
         })
     }
   }
 
   get isLoading() {
-    return this.showSnackbar && this.uploadPercentage < 100
+    return snackbarStore.isVisible && snackbarStore.progress !== null
   }
 
   get translatedLabel() {
@@ -109,6 +98,7 @@ export default class UploadButton extends Vue {
     padding: 0.5rem 0.7rem 0.5rem 0.5rem;
     background-color: var(--primary);
     color: var(--white);
+    height: 36px;
     &.disabled {
       background-color: var(--grey-3);
       color: var(--grey-5);

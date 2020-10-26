@@ -53,7 +53,7 @@ export default class ViewDocument extends Vue {
   get documentContentSize() {
     if (!this.document) return ''
     const totalBytes = this.document.files
-      .map(f => f.contentLength)
+      .map((f) => f.contentLength)
       .reduce(
         (fileContentLength, documentContentLength) =>
           fileContentLength + documentContentLength,

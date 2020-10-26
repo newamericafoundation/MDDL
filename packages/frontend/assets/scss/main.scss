@@ -65,6 +65,33 @@
     box-shadow: none;
   }
 
+  // Toolbar
+  .v-toolbar {
+    &.v-toolbar--flat {
+      background-color: var(--white);
+      border-bottom: 1px solid var(--grey-4);
+    }
+    .v-toolbar__title {
+      @extend .capitalize;
+      font-weight: 600;
+    }
+  }
+
+  // Tabs
+  .v-tabs {
+    .v-tab span {
+      @extend .capitalize;
+    }
+    .v-tabs-slider-wrapper {
+      padding: 0 1rem;
+      height: 4pt !important;
+      .v-tabs-slider {
+        border-top-left-radius: 2pt;
+        border-top-right-radius: 2pt;
+      }
+    }
+  }
+
   // Main
   .v-main {
     background-color: var(--white);
@@ -81,7 +108,7 @@
   }
 
   // Link
-  a {
+  a:not(.v-tab) {
     color: var(--blue);
     &:hover {
       color: var(--blue-light);
@@ -99,21 +126,49 @@
   }
 
   // Button
-  .v-btn--outlined {
-    border: 2px solid currentColor;
-  }
   .v-btn {
+    text-transform: initial;
     box-shadow: none;
     min-width: 4rem !important;
-    text-transform: none;
-    @extend .capitalize;
+    &.v-btn--outlined {
+      border: 2px solid currentColor;
+    }
+    &.v-btn--icon {
+      min-width: 1.5rem !important;
+    }
+    .v-btn__content {
+      text-transform: capitalize;
+    }
+  }
+
+  .v-input--checkbox {
+    .v-icon.mdi-checkbox-marked::before {
+      content: '\F0131';
+    }
+    .v-icon.mdi-checkbox-blank-outline {
+      color: var(--primary);
+    }
+    &.v-input--is-label-active .v-input--selection-controls__input::before {
+      content: '■';
+      position: absolute;
+      left: 0.18rem;
+      top: -0.8rem;
+      font-size: 2rem;
+      border-radius: 1rem;
+    }
+  }
+
+  .v-snack {
+    .v-snack__wrapper {
+      .v-snack__content {
+        @extend .capitalize;
+      }
+    }
   }
 
   // capitalize
   // note: doesn't work on inline elements
   @mixin capitalize() {
-    text-transform: lowercase;
-
     &:first-letter {
       text-transform: uppercase;
     }

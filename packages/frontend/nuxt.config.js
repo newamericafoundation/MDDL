@@ -31,7 +31,7 @@ export default {
   styleResources: {
     scss: ['@/assets/scss/colors.scss'],
   },
-  plugins: ['@/plugins/api-accessor.ts'],
+  plugins: ['@/plugins/api-accessor.ts', '@/plugins/vee-validate.js'],
   components: true,
   buildModules: ['@nuxt/typescript-build', '@nuxtjs/vuetify', '@nuxtjs/dotenv'],
   modules: [
@@ -54,14 +54,16 @@ export default {
   vuetify: {
     optionsPath: './vuetify.options.ts',
   },
-  build: {
-    extractCSS: true,
-  },
   env: {
     apiUrl: process.env.API_URL,
     debugToken: process.env.DEBUG_TOKEN,
     buildNumber: process.env.CODEBUILD_BUILD_NUMBER,
     buildTime: process.env.CODEBUILD_START_TIME,
+  },
+  build: {
+    // TODO: disabled due to issues with hot reloading
+    //   extractCSS: true,
+    transpile: ['vee-validate/dist/rules'],
   },
   generate: {
     dir: 'dist/' + process.env.OUTPUT_DIR,
