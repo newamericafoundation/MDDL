@@ -2,6 +2,7 @@ import createCollectionForUser from './createCollectionForUser'
 import {
   createMockEvent,
   getObjectKeys,
+  mockUserData,
   setUserId,
   toMockedFunction,
 } from '@/utils/test'
@@ -15,53 +16,18 @@ import {
 } from '@/models/collection'
 import { allDocumentsExistById } from '@/models/document'
 
-jest.mock('@/utils/database', () => {
-  return {
-    connectDatabase: jest.fn(),
-  }
-})
-
-jest.mock('@/utils/s3', () => {
-  const module = jest.requireActual('@/utils/s3')
-  return {
-    ...module,
-    getPresignedUploadUrl: (
-      path: string,
-      contentType: string,
-      contentLength: number,
-      sha256Checksum: string,
-    ) =>
-      Promise.resolve({
-        url: `https://presigned-url.for/${path}+${sha256Checksum}`,
-        fields: {
-          'Content-Type': contentType,
-          'Content-Length': contentLength,
-        },
-      }),
-  }
-})
-
-jest.mock('@/models/collection', () => {
-  const module = jest.requireActual('@/models/collection')
-  return {
-    ...module,
-    createCollection: jest.fn(),
-  }
-})
-
-jest.mock('@/models/document', () => {
-  const module = jest.requireActual('@/models/document')
-  return {
-    ...module,
-    allDocumentsExistById: jest.fn(),
-  }
-})
+jest.mock('@/utils/database')
+jest.mock('@/utils/s3')
+jest.mock('@/models/collection')
+jest.mock('@/models/document')
+jest.mock('@/services/user')
 
 describe('createCollectionForUser', () => {
   const userId = 'myUserId'
   let event: APIGatewayProxyEventV2
 
   beforeEach(() => {
+    mockUserData(userId)
     toMockedFunction(allDocumentsExistById).mockImplementationOnce(
       async () => true,
     )
@@ -178,9 +144,9 @@ describe('createCollectionForUser', () => {
     )
     expect(getObjectKeys(response)).toMatchInlineSnapshot(`
       Array [
+        "name",
         "createdDate",
         "id",
-        "name",
         "links[0].href",
         "links[0].rel",
         "links[0].type",

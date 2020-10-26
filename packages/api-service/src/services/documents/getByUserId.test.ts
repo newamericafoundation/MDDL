@@ -6,19 +6,8 @@ import {
 import { createMockEvent, setUserId, toMockedFunction } from '@/utils/test'
 import { APIGatewayProxyEventV2 } from 'aws-lambda'
 
-jest.mock('@/utils/database', () => {
-  return {
-    connectDatabase: jest.fn(),
-  }
-})
-
-jest.mock('@/models/document', () => {
-  const module = jest.requireActual('@/models/document')
-  return {
-    ...module,
-    getDocumentsByOwnerId: jest.fn(),
-  }
-})
+jest.mock('@/utils/database')
+jest.mock('@/models/document')
 
 describe('getByUserId', () => {
   const userId = 'myUserId'

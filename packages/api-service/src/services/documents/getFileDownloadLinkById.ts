@@ -20,6 +20,9 @@ import {
   DocumentPermission,
   requirePermissionToDocument,
 } from './authorization'
+import { getDocumentById } from '@/models/document'
+import { validateDisposition } from './validation'
+import { requireUserData } from '@/services/user'
 
 connectDatabase()
 
@@ -33,17 +36,9 @@ export const handler = createApiGatewayHandler(
       getQueryStringParameter(r.event, 'disposition') ||
       FileDownloadDispositionTypeEnum.Attachment,
   ),
-  (request: APIGatewayRequest): APIGatewayRequest => {
-    const { disposition } = request
-    if (
-      !Object.values<string>(FileDownloadDispositionTypeEnum).includes(
-        disposition,
-      )
-    ) {
-      throw new createError.BadRequest('disposition type not found')
-    }
-    return request
-  },
+  validateDisposition(),
+  setContext('user', async (r) => await requireUserData(r)),
+  setContext('document', async (r) => await getDocumentById(r.documentId)),
   requirePermissionToDocument(DocumentPermission.GetDocument),
   async (request: APIGatewayRequest): Promise<FileDownloadContract> => {
     const { documentId, fileId, disposition } = request

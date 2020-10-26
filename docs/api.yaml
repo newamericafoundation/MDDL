@@ -247,7 +247,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CollectionList'
+                $ref: '#/components/schemas/SharedCollectionList'
         '404':
           description: User not found
       security:
@@ -688,6 +688,21 @@ components:
           type: string
           description: The web address (relative or absolute) for the linked resource
           example: 'https://my-download-link.com'
+    Owner:
+      description: A record owner
+      required:
+        - givenName
+        - familyName
+      properties:
+        givenName:
+          type: string
+          example: Sam
+          description: The users given name
+        familyName:
+          type: string
+          description: The users family name
+          example: Citizen
+      type: object
     User:
       description: A user
       required:
@@ -818,6 +833,28 @@ components:
           description: The collections list
           items:
             $ref: '#/components/schemas/CollectionListItem'
+    SharedCollectionList:
+      type: object
+      description: A result containing a list of shared collections
+      required:
+        - sharedCollections
+      properties:
+        sharedCollections:
+          type: array
+          description: The collections list
+          items:
+            $ref: '#/components/schemas/SharedCollectionListItem'
+    SharedCollectionListItem:
+      type: object
+      description: Basic details for listing a shared collection
+      required:
+        - owner
+        - collection
+      properties:
+        owner:
+          $ref: '#/components/schemas/Owner'
+        collection:
+          $ref: '#/components/schemas/CollectionListItem'
     CollectionListItem:
       type: object
       description: Basic details for listing a collection

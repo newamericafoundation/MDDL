@@ -1,5 +1,4 @@
 import { Document as DocumentContract } from 'api-client'
-import { getDocumentById } from '@/models/document'
 import { requirePathParameter, requireUserId } from '@/utils/api-gateway'
 import { connectDatabase } from '@/utils/database'
 import { singleDocumentResult } from '@/services/documents'
@@ -12,22 +11,18 @@ import {
   requirePermissionToDocument,
   DocumentPermission,
 } from '@/services/documents/authorization'
-import createError from 'http-errors'
+import { getSingleDocumentById } from '@/models/document'
 
 connectDatabase()
 
 export const handler = createApiGatewayHandler(
   setContext('documentId', (r) => requirePathParameter(r.event, 'documentId')),
   setContext('userId', (r) => requireUserId(r.event)),
+  setContext('document', (r) => getSingleDocumentById(r.documentId)),
   requirePermissionToDocument(DocumentPermission.GetDocument),
   async (request: APIGatewayRequest): Promise<DocumentContract> => {
-    const { documentId, userId } = request
-    const foundDocument = await getDocumentById(documentId, userId)
-    if (!foundDocument) {
-      throw new createError.InternalServerError('document not found')
-    }
-
-    return await singleDocumentResult(foundDocument)
+    const { document } = request
+    return await singleDocumentResult(document)
   },
 )
 

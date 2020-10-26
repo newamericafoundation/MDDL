@@ -76,7 +76,15 @@ export interface Props extends StackProps {
 }
 
 export class AuthStack extends Stack {
+  /**
+   * The ID of the User Pool
+   */
   public userPoolId: string
+
+  /**
+   * The URL of the hosted authentication pages
+   */
+  public authUrl: string
   constructor(scope: Construct, id: string, props: Props) {
     super(scope, id, props)
     const { userPoolName, emailSender, customDomain } = props
@@ -88,6 +96,9 @@ export class AuthStack extends Stack {
     // attach the custom domain
     if (customDomain) {
       this.addCustomDomain(userPool, customDomain)
+      this.authUrl = `https://${customDomain.domain}`
+    } else {
+      this.authUrl = userPool.userPoolProviderUrl
     }
 
     // SNS Topics for SES Bounce Event

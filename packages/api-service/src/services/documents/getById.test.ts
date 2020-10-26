@@ -1,26 +1,19 @@
 import getById from './getById'
 import {
-  getDocumentById,
-  documentExistsById,
+  getSingleDocumentById,
   Document as DocumentModel,
 } from '@/models/document'
-import { createMockEvent, setUserId, toMockedFunction } from '@/utils/test'
+import {
+  createMockEvent,
+  mockUserData,
+  setUserId,
+  toMockedFunction,
+} from '@/utils/test'
 import { APIGatewayProxyEventV2 } from 'aws-lambda'
 
-jest.mock('@/utils/database', () => {
-  return {
-    connectDatabase: jest.fn(),
-  }
-})
-
-jest.mock('@/models/document', () => {
-  const module = jest.requireActual('@/models/document')
-  return {
-    ...module,
-    getDocumentById: jest.fn(),
-    documentExistsById: jest.fn(),
-  }
-})
+jest.mock('@/utils/database')
+jest.mock('@/services/user')
+jest.mock('@/models/document')
 
 describe('getById', () => {
   const documentId = 'myDocumentId'
@@ -28,9 +21,7 @@ describe('getById', () => {
   let event: APIGatewayProxyEventV2
 
   beforeEach(() => {
-    toMockedFunction(documentExistsById).mockImplementationOnce(
-      async () => true,
-    )
+    mockUserData(userId)
     event = setUserId(
       userId,
       createMockEvent({
@@ -42,7 +33,7 @@ describe('getById', () => {
   })
 
   it('returns document', async () => {
-    toMockedFunction(getDocumentById).mockImplementationOnce(() =>
+    toMockedFunction(getSingleDocumentById).mockImplementationOnce(() =>
       Promise.resolve(
         DocumentModel.fromJson({
           id: documentId,
@@ -67,9 +58,9 @@ describe('getById', () => {
     `)
   })
   it('throws error when not found', async () => {
-    toMockedFunction(documentExistsById)
-      .mockReset()
-      .mockImplementationOnce(async () => false)
+    toMockedFunction(getSingleDocumentById).mockImplementationOnce(
+      async () => null,
+    )
     expect(await getById(event)).toMatchInlineSnapshot(`
       Object {
         "body": "{\\"message\\":\\"document not found\\"}",

@@ -41,12 +41,13 @@ test('Default Stack', () => {
     jwtAuth: {
       audience: ['https://my-audience.com'],
       issuer: 'https://my-audience.com',
+      userInfoEndpoint: 'https://my-auth-endpoint/oauth/userinfo',
     },
   })
   // THEN
   expectCDK(stack).to(haveResource('AWS::IAM::Role'))
   expectCDK(stack).to(
-    countResourcesLike('AWS::Lambda::Function', 10, {
+    countResourcesLike('AWS::Lambda::Function', 11, {
       Handler: 'index.handler',
       Runtime: 'nodejs12.x',
       MemorySize: 512,

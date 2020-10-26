@@ -1,25 +1,19 @@
 import putDocumentById from './putDocumentById'
-import { documentExistsById, updateDocument } from '@/models/document'
-import { createMockEvent, setUserId, toMockedFunction } from '@/utils/test'
+import { Document, getDocumentById, updateDocument } from '@/models/document'
+import {
+  createMockEvent,
+  mockUserData,
+  setUserId,
+  toMockedFunction,
+} from '@/utils/test'
 import {
   APIGatewayProxyEventV2,
   APIGatewayProxyStructuredResultV2,
 } from 'aws-lambda'
 
-jest.mock('@/utils/database', () => {
-  return {
-    connectDatabase: jest.fn(),
-  }
-})
-
-jest.mock('@/models/document', () => {
-  const module = jest.requireActual('@/models/document')
-  return {
-    ...module,
-    documentExistsById: jest.fn(),
-    updateDocument: jest.fn(),
-  }
-})
+jest.mock('@/utils/database')
+jest.mock('@/models/document')
+jest.mock('@/services/user')
 
 describe('putDocumentById', () => {
   const documentId = 'myDocumentId'
@@ -27,8 +21,12 @@ describe('putDocumentById', () => {
   let event: APIGatewayProxyEventV2
 
   beforeEach(() => {
-    toMockedFunction(documentExistsById).mockImplementationOnce(
-      async () => true,
+    mockUserData(userId)
+    toMockedFunction(getDocumentById).mockImplementationOnce(async () =>
+      Document.fromDatabaseJson({
+        id: documentId,
+        ownerId: userId,
+      }),
     )
     event = setUserId(
       userId,

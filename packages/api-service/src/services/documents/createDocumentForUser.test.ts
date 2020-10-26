@@ -1,5 +1,5 @@
 import createDocumentForUser from './createDocumentForUser'
-import { getPathParameter, getUserId } from '@/utils/api-gateway'
+import { getPathParameter, requireUserId } from '@/utils/api-gateway'
 import {
   countDocumentsByOwnerId,
   createDocument,
@@ -17,57 +17,15 @@ import {
   APIGatewayProxyStructuredResultV2,
 } from 'aws-lambda'
 
-jest.mock('@/utils/database', () => {
-  return {
-    connectDatabase: jest.fn(),
-  }
-})
-
-jest.mock('@/utils/api-gateway', () => {
-  const module = jest.requireActual('@/utils/api-gateway')
-  return {
-    ...module,
-    getPathParameter: jest.fn(),
-    getUserId: jest.fn(),
-  }
-})
-
-jest.mock('@/utils/s3', () => {
-  const module = jest.requireActual('@/utils/s3')
-  return {
-    ...module,
-    getPresignedUploadUrl: (
-      path: string,
-      contentType: string,
-      contentLength: number,
-      sha256Checksum: string,
-    ) =>
-      Promise.resolve({
-        url: `https://presigned-url.for/${path}+${sha256Checksum}`,
-        fields: {
-          'Content-Type': contentType,
-          'Content-Length': contentLength,
-        },
-      }),
-  }
-})
-
-jest.mock('@/models/document', () => {
-  const module = jest.requireActual('@/models/document')
-  return {
-    ...module,
-    createDocument: jest.fn(),
-    countDocumentsByOwnerId: jest.fn(),
-  }
-})
+jest.mock('@/utils/database')
+jest.mock('@/utils/s3')
+jest.mock('@/models/document')
 
 describe('createDocumentForUser', () => {
   const userId = 'myUserId'
   let event: APIGatewayProxyEventV2
 
   beforeEach(() => {
-    toMockedFunction(getPathParameter).mockImplementationOnce(() => userId)
-    toMockedFunction(getUserId).mockImplementationOnce(() => userId)
     event = setUserId(
       userId,
       createMockEvent({

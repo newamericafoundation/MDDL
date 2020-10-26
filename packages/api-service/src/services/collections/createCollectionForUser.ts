@@ -20,12 +20,15 @@ import {
   UserPermission,
 } from '@/services/user/authorization'
 import createError from 'http-errors'
+import { requireUserData } from '@/services/user'
+import { formatCollectionListItem } from '.'
 
 connectDatabase()
 
 export const handler = createApiGatewayHandler(
   setContext('ownerId', (r) => requirePathParameter(r.event, 'userId')),
   setContext('userId', (r) => requireUserId(r.event)),
+  setContext('user', async (r) => await requireUserData(r)),
   requirePermissionToUser(UserPermission.WriteCollection),
   requireValidBody<CollectionCreateContract>(createCollectionSchema),
   async (
@@ -83,24 +86,7 @@ export const handler = createApiGatewayHandler(
     }
 
     // return response
-    const { id, name: createdName, createdAt: createdDate } = createdCollection
-    return {
-      createdDate: createdDate.toISOString(),
-      id,
-      name: createdName,
-      links: [
-        {
-          href: '/collections/{collectionId}/grants',
-          rel: 'grants',
-          type: 'GET',
-        },
-        {
-          href: '/collections/{collectionId}/documents',
-          rel: 'documents',
-          type: 'GET',
-        },
-      ],
-    }
+    return formatCollectionListItem(createdCollection)
   },
 )
 

@@ -65,9 +65,9 @@ const combineRequest = (event: APIGatewayProxyEventV2): APIGatewayRequest => {
 
 export const setContext = (
   key: string,
-  valueResolver: (e: APIGatewayRequest) => any,
-) => (request: APIGatewayRequest): APIGatewayRequest => {
-  request[key] = valueResolver(request)
+  valueResolver: (e: APIGatewayRequest) => any | Promise<any>,
+) => async (request: APIGatewayRequest): Promise<APIGatewayRequest> => {
+  request[key] = await valueResolver(request)
   return request
 }
 

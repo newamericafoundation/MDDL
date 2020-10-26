@@ -49,26 +49,59 @@ export const getQueryStringParameter = (
     : undefined
 }
 
+export const requireToken = (event: APIGatewayProxyEventV2) =>
+  requireHeader(event, 'authorization')
+
+export const requireHeader = (
+  event: APIGatewayProxyEventV2,
+  headerName: string,
+): string => {
+  const parameter = getHeader(event, headerName)
+  if (!parameter) {
+    throw new createError.BadRequest(`${headerName} header not found`)
+  }
+  return parameter
+}
+
+export const getHeader = (
+  event: APIGatewayProxyEventV2,
+  headerName: string,
+): string | undefined => {
+  return event.headers && event.headers[headerName]
+    ? event.headers[headerName]
+    : undefined
+}
+
 export const getUrl = (event: APIGatewayProxyEventV2): string => {
   return event.requestContext.domainName
 }
 
-export const requireUserId = (
+export const requireUserId = (event: APIGatewayProxyEventV2): string =>
+  requireTokenClaim(event, 'sub') as string
+
+export const requireTokenIssuedAt = (event: APIGatewayProxyEventV2): string =>
+  requireTokenClaim(event, 'iat') as string
+
+export const requireTokenClaim = (
   event: APIGatewayProxyEventV2,
-): string | undefined => {
-  const userId = getUserId(event)
-  if (!userId) {
-    throw new createError.BadRequest(`user id could not be determined`)
-  }
-  return userId
+  claimName: string,
+): string | number | boolean | string[] => {
+  const claim = getTokenClaim(event, claimName)
+  if (!claim) throw new createError.BadRequest(`${claimName} claim not found`)
+  return claim
 }
 
-export const getUserId = (
+export const getTokenClaim = (
   event: APIGatewayProxyEventV2,
-): string | undefined => {
-  if (!event.requestContext.authorizer || !event.requestContext.authorizer.jwt)
+  claimName: string,
+): string | number | boolean | string[] | undefined => {
+  if (
+    !event.requestContext.authorizer ||
+    !event.requestContext.authorizer.jwt ||
+    !event.requestContext.authorizer.jwt.claims[claimName]
+  )
     return undefined
-  return event.requestContext.authorizer.jwt.claims['sub'] as string
+  return event.requestContext.authorizer.jwt.claims[claimName]
 }
 
 export const createJsonResponse = <T = any>(

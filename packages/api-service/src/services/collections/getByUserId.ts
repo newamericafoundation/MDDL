@@ -11,6 +11,7 @@ import {
   setContext,
 } from '@/utils/middleware'
 import { requirePermissionToUser, UserPermission } from '../user/authorization'
+import { formatCollections } from '@/services/collections'
 
 connectDatabase()
 
@@ -21,19 +22,7 @@ export const handler = createApiGatewayHandler(
   async (request: APIGatewayRequest): Promise<CollectionListContract> => {
     const { ownerId } = request
     const foundCollections = await getCollectionsByOwnerId(ownerId)
-    return {
-      collections: foundCollections.map(
-        (collection): CollectionListItem => {
-          const { id, name, createdAt } = collection
-          return {
-            name,
-            createdDate: createdAt.toISOString(),
-            id,
-            links: [],
-          }
-        },
-      ),
-    }
+    return formatCollections(foundCollections)
   },
 )
 

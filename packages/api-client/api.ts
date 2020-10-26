@@ -469,6 +469,57 @@ export interface Link {
     includeFormData?: { [key: string]: string; };
 }
 /**
+ * A record owner
+ * @export
+ * @interface Owner
+ */
+export interface Owner {
+    /**
+     * The users given name
+     * @type {string}
+     * @memberof Owner
+     */
+    givenName: string;
+    /**
+     * The users family name
+     * @type {string}
+     * @memberof Owner
+     */
+    familyName: string;
+}
+/**
+ * A result containing a list of shared collections
+ * @export
+ * @interface SharedCollectionList
+ */
+export interface SharedCollectionList {
+    /**
+     * The collections list
+     * @type {Array<SharedCollectionListItem>}
+     * @memberof SharedCollectionList
+     */
+    sharedCollections: Array<SharedCollectionListItem>;
+}
+/**
+ * Basic details for listing a shared collection
+ * @export
+ * @interface SharedCollectionListItem
+ */
+export interface SharedCollectionListItem {
+    /**
+     * 
+     * @type {Owner}
+     * @memberof SharedCollectionListItem
+     */
+    owner: Owner;
+    /**
+     * 
+     * @type {CollectionListItem}
+     * @memberof SharedCollectionListItem
+     */
+    collection: CollectionListItem;
+}
+/**
  * A user
  * @export
  * @interface User
@@ -1936,7 +1987,7 @@ export const UserApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async listUserCollectionsShared(userId: string, search?: string, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionList>> {
+        async listUserCollectionsShared(userId: string, search?: string, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SharedCollectionList>> {
             const localVarAxiosArgs = await UserApiAxiosParamCreator(configuration).listUserCollectionsShared(userId, search, options);
             return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
                 const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
@@ -2039,7 +2090,7 @@ export const UserApiFactory = function (configuration?: Configuration, basePath?
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listUserCollectionsShared(userId: string, search?: string, options?: any): AxiosPromise<CollectionList> {
+        listUserCollectionsShared(userId: string, search?: string, options?: any): AxiosPromise<SharedCollectionList> {
             return UserApiFp(configuration).listUserCollectionsShared(userId, search, options).then((request) => request(axios, basePath));
         },
         /**

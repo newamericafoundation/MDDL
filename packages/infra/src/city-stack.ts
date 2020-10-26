@@ -82,6 +82,11 @@ interface JwtConfiguration {
    * The issuer (iss) of the JWT token
    */
   issuer: string
+
+  /**
+   * The URL for User Info for this service
+   */
+  userInfoEndpoint: string
 }
 
 export interface Props extends StackProps {
@@ -130,6 +135,7 @@ interface ApiProps {
   dbSecret: ISecret
   mySqlLayer: ILayerVersion
   authorizer: CfnAuthorizer
+  jwtConfiguration: JwtConfiguration
 }
 
 const pathToApiServiceLambda = (name: string) =>
@@ -248,6 +254,7 @@ export class CityStack extends Stack {
       authorizer,
       dbSecret: secret,
       mySqlLayer,
+      jwtConfiguration,
     }
 
     // create uploads bucket
@@ -356,6 +363,7 @@ export class CityStack extends Stack {
       jwtConfiguration: {
         audience: [client.userPoolClientId],
         issuer: `https://cognito-idp.${this.region}.amazonaws.com/${userPool.userPoolId}`,
+        userInfoEndpoint: `${authStack.authUrl}/oauth2/userInfo`,
       },
     }
   }
@@ -746,7 +754,7 @@ export class CityStack extends Stack {
    * @param uploadsBucket The bucket with document uploads
    */
   private addUserRoutes(apiProps: ApiProps, uploadsBucket: IBucket) {
-    const { api, dbSecret, mySqlLayer, authorizer } = apiProps
+    const { api, dbSecret, mySqlLayer, authorizer, jwtConfiguration } = apiProps
 
     // add route and lambda to list users documents
     this.addRoute(api, {
@@ -758,6 +766,9 @@ export class CityStack extends Stack {
         {
           dbSecret,
           layers: [mySqlLayer],
+          extraEnvironmentVariables: {
+            USERINFO_ENDPOINT: jwtConfiguration.userInfoEndpoint,
+          },
         },
       ),
       authorizer,
@@ -772,6 +783,7 @@ export class CityStack extends Stack {
         layers: [mySqlLayer],
         extraEnvironmentVariables: {
           DOCUMENTS_BUCKET: uploadsBucket.bucketName,
+          USERINFO_ENDPOINT: jwtConfiguration.userInfoEndpoint,
         },
       },
     )
@@ -802,6 +814,27 @@ export class CityStack extends Stack {
         {
           dbSecret,
           layers: [mySqlLayer],
+          extraEnvironmentVariables: {
+            USERINFO_ENDPOINT: jwtConfiguration.userInfoEndpoint,
+          },
+        },
+      ),
+      authorizer,
+    })
+
+    // add route and lambda to list collections shared to user
+    this.addRoute(api, {
+      name: 'GetSharedCollectionsToUser',
+      routeKey: 'GET /users/{userId}/collections/shared',
+      lambdaFunction: this.createLambda(
+        'GetSharedCollectionsToUser',
+        pathToApiServiceLambda('collections/getSharedToUserId'),
+        {
+          dbSecret,
+          layers: [mySqlLayer],
+          extraEnvironmentVariables: {
+            USERINFO_ENDPOINT: jwtConfiguration.userInfoEndpoint,
+          },
         },
       ),
       authorizer,
@@ -817,6 +850,9 @@ export class CityStack extends Stack {
         {
           dbSecret,
           layers: [mySqlLayer],
+          extraEnvironmentVariables: {
+            USERINFO_ENDPOINT: jwtConfiguration.userInfoEndpoint,
+          },
         },
       ),
       authorizer,
@@ -829,7 +865,7 @@ export class CityStack extends Stack {
    * @param uploadsBucket The bucket with document uploads
    */
   private addDocumentRoutes(apiProps: ApiProps, uploadsBucket: Bucket) {
-    const { api, dbSecret, mySqlLayer, authorizer } = apiProps
+    const { api, dbSecret, mySqlLayer, authorizer, jwtConfiguration } = apiProps
 
     // create lambda to fetch a document
     const getDocumentByIdLambda = this.createLambda(
@@ -840,6 +876,7 @@ export class CityStack extends Stack {
         layers: [mySqlLayer],
         extraEnvironmentVariables: {
           DOCUMENTS_BUCKET: uploadsBucket.bucketName,
+          USERINFO_ENDPOINT: jwtConfiguration.userInfoEndpoint,
         },
       },
     )
@@ -867,6 +904,7 @@ export class CityStack extends Stack {
         layers: [mySqlLayer],
         extraEnvironmentVariables: {
           DOCUMENTS_BUCKET: uploadsBucket.bucketName,
+          USERINFO_ENDPOINT: jwtConfiguration.userInfoEndpoint,
         },
       },
     )
@@ -918,6 +956,9 @@ export class CityStack extends Stack {
         {
           dbSecret,
           layers: [mySqlLayer],
+          extraEnvironmentVariables: {
+            USERINFO_ENDPOINT: jwtConfiguration.userInfoEndpoint,
+          },
         },
       ),
       authorizer,
@@ -929,7 +970,7 @@ export class CityStack extends Stack {
    * @param apiProps Common properties for API functions
    */
   private addCollectionRoutes(apiProps: ApiProps) {
-    const { api, dbSecret, mySqlLayer, authorizer } = apiProps
+    const { api, dbSecret, mySqlLayer, authorizer, jwtConfiguration } = apiProps
 
     // add route and lambda to list collections documents
     this.addRoute(api, {
@@ -941,6 +982,9 @@ export class CityStack extends Stack {
         {
           dbSecret,
           layers: [mySqlLayer],
+          extraEnvironmentVariables: {
+            USERINFO_ENDPOINT: jwtConfiguration.userInfoEndpoint,
+          },
         },
       ),
       authorizer,

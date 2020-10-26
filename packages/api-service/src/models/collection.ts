@@ -42,7 +42,7 @@ export class Collection extends BaseModel {
   static get modifiers() {
     return {
       fieldsForList(query: QueryBuilder<Collection>) {
-        const fields = ['id', 'name', 'createdAt']
+        const fields = ['id', 'name', 'createdAt', 'ownerId']
         return query.select(...fields.map((f) => Collection.ref(f)))
       },
       byOwnerId(query: QueryBuilder<Document>, userId: string) {
@@ -50,10 +50,9 @@ export class Collection extends BaseModel {
           ownerId: userId,
         })
       },
-      byId(query: QueryBuilder<Document>, id: string, userId: string) {
+      byId(query: QueryBuilder<Document>, id: string) {
         return query.where({
           id: id,
-          ownerId: userId,
         }).first
       },
     }
@@ -135,10 +134,32 @@ export const getCollectionsByOwnerId = async (ownerId: string) => {
     .orderBy('createdAt', 'DESC')
 }
 
+export const getCollectionsByGrantType = async (
+  collectionGrantType: string,
+  collectionGrantValue: string,
+) => {
+  return await Collection.query()
+    .modify('fieldsForList')
+    .whereIn(
+      'id',
+      CollectionGrant.query().select('collectionId').where({
+        requirementType: collectionGrantType,
+        requirementValue: collectionGrantValue,
+      }),
+    )
+    .orderBy('createdAt', 'DESC')
+}
+
 export const getDocumentsByCollectionId = async (collectionId: string) => {
   return await Collection.relatedQuery('documents')
     .for(collectionId)
     .modify('fieldsForList')
+}
+
+export const getCollectionById = async (
+  id: string,
+): Promise<Collection | null> => {
+  return (await Collection.query().modify('byId', id).first()) || null
 }
 
 export const collectionExists = async (

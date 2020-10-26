@@ -3,11 +3,13 @@ import {
   Collection as CollectionModel,
   getCollectionsByOwnerId,
   getDocumentsByCollectionId,
+  getCollectionsByGrantType,
 } from './collection'
 import { v4 as uuidv4 } from 'uuid'
 import { connectDatabase } from '@/utils/database'
 import { Document as DocumentModel } from './document'
 import { CollectionGrantType } from 'api-client'
+import { CollectionGrant } from './collectionGrant'
 
 describe('CollectionModel', () => {
   beforeAll(async () => {
@@ -37,6 +39,65 @@ describe('CollectionModel', () => {
       )
     })
   })
+  describe('getCollectionsByGrantType', () => {
+    it('returns empty when there is no collection', async () => {
+      const id = uuidv4()
+      expect(await getCollectionsByGrantType('test', 'test')).toStrictEqual([])
+    })
+    it('returns collections when they are found', async () => {
+      const userId = uuidv4()
+      const collectionId1 = uuidv4()
+      const collectionId2 = uuidv4()
+      await createCollection({
+        id: collectionId1,
+        name: 'Collection 1',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        ownerId: userId,
+        createdBy: userId,
+        updatedBy: userId,
+        collectionDocuments: [],
+        grants: [
+          {
+            requirementType: CollectionGrantType.INDIVIDUALEMAIL,
+            requirementValue: userId,
+            createdAt: new Date(),
+            createdBy: userId,
+          },
+        ],
+      })
+      await createCollection({
+        id: collectionId2,
+        name: 'Collection 2',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        ownerId: userId,
+        createdBy: userId,
+        updatedBy: userId,
+        collectionDocuments: [],
+        grants: [
+          {
+            requirementType: CollectionGrantType.INDIVIDUALEMAIL,
+            requirementValue: userId,
+            createdAt: new Date(),
+            createdBy: userId,
+          },
+        ],
+      })
+      const results = await getCollectionsByGrantType(
+        CollectionGrantType.INDIVIDUALEMAIL,
+        userId,
+      )
+      expect(results).toHaveLength(2)
+      expect(results).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ id: collectionId1 }),
+          expect.objectContaining({ id: collectionId2 }),
+        ]),
+      )
+    })
+  })
+
   describe('getDocumentsByCollectionId', () => {
     it('returns empty when there is no collection', async () => {
       const id = uuidv4()

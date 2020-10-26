@@ -1,3 +1,5 @@
+import { User } from '@/models/user'
+import { requireUserData } from '@/services/user'
 import { APIGatewayProxyEventV2, Context } from 'aws-lambda'
 
 export const toMockedFunction = <T extends (...args: any[]) => any>(
@@ -21,7 +23,9 @@ export const createMockEvent = (
   data?: Partial<APIGatewayProxyEventV2>,
 ): APIGatewayProxyEventV2 => {
   return {
-    headers: {},
+    headers: {
+      authorization: 'my-token',
+    },
     isBase64Encoded: false,
     rawPath: 'test',
     rawQueryString: 'test',
@@ -73,4 +77,15 @@ const gatherKeysFromObject = (
     keys.push(prefix)
   }
   return keys
+}
+
+export const mockUserData = (userId: string) => {
+  toMockedFunction(requireUserData).mockImplementationOnce(async () =>
+    User.fromJson({
+      id: userId,
+      givenName: 'Jane',
+      familyName: 'Citizen',
+      email: 'jcitizen@example.com',
+    }),
+  )
 }

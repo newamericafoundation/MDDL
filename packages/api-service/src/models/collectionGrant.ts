@@ -38,13 +38,13 @@ export class CollectionGrant extends BaseModel {
   }
 }
 
-// TODO write tests for this function if needs to be used
-// export const collectionGrantExists = async (
-//   requirementType: string,
-//   requirementValue: string,
-// ) => {
-//   return await CollectionGrant.query()
-//     .where({ requirementType, requirementValue })
-//     .select(`id`)
-//     .first()
-// }
+export const collectionGrantExists = async (
+  collectionId: string,
+  requirementType: string,
+  requirementValue: string,
+) => {
+  return !!(await CollectionGrant.query()
+    .where({ collectionId, requirementType, requirementValue })
+    .select(`id`)
+    .first())
+}

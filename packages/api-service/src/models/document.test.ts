@@ -6,9 +6,13 @@ import {
   Document as DocumentModel,
   allDocumentsExistById,
   updateDocument,
+  getSingleDocumentById,
+  documentIsInCollectionWithGrant,
 } from './document'
 import { v4 as uuidv4 } from 'uuid'
 import { connectDatabase } from '@/utils/database'
+import { CollectionGrantType } from 'api-client'
+import { createCollection } from './collection'
 
 describe('DocumentModel', () => {
   beforeAll(async () => {
@@ -40,10 +44,54 @@ describe('DocumentModel', () => {
     })
   })
 
+  describe('getSingleDocumentById', () => {
+    it('returns null when no document found', async () => {
+      const id = uuidv4()
+      expect(await getSingleDocumentById(id)).toBeNull()
+    })
+    it('returns a document when there is one found', async () => {
+      const userId = uuidv4()
+      const documentId = uuidv4()
+      const name = 'my test document'
+      const path = `uploads/my-id/${userId}.png`
+      const doc = await createDocument({
+        id: documentId,
+        name,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        ownerId: userId,
+        createdBy: userId,
+        updatedBy: userId,
+        files: [
+          {
+            id: uuidv4(),
+            contentType: 'image/png',
+            createdAt: new Date(),
+            createdBy: userId,
+            name: 'document 1',
+            path,
+            sha256Checksum: 'ABC123',
+            contentLength: 1000,
+            received: false,
+          },
+        ],
+      })
+      const results = await getSingleDocumentById(doc.id)
+      expect(results).toEqual(
+        expect.objectContaining({
+          name,
+          files: expect.arrayContaining([
+            expect.objectContaining({ createdBy: userId, path }),
+          ]),
+        }),
+      )
+    })
+  })
+
   describe('getDocumentById', () => {
     it('returns null when no document found', async () => {
       const id = uuidv4()
-      expect(await getDocumentById(id, id)).toBeNull()
+      expect(await getDocumentById(id)).toBeNull()
     })
     it('returns a document when there is one found', async () => {
       const id = uuidv4()
@@ -55,7 +103,7 @@ describe('DocumentModel', () => {
         createdAt: new Date(),
         updatedAt: new Date(),
       })
-      const results = await getDocumentById(doc.id, id)
+      const results = await getDocumentById(doc.id)
       expect(results).toEqual(
         expect.objectContaining({
           name: id,
@@ -222,6 +270,89 @@ describe('DocumentModel', () => {
           description: 'test description',
         }),
       ).toStrictEqual(1)
+    })
+  })
+
+  describe.only('documentIsInCollectionWithGrant', () => {
+    const userId = uuidv4()
+    const collectionId = uuidv4()
+    const userEmail = 'testgrantemail'
+    let document1: DocumentModel
+    let document2: DocumentModel
+    beforeAll(async () => {
+      document1 = await DocumentModel.query().insertAndFetch({
+        name: 'My Test Document 1',
+        ownerId: userId,
+        createdBy: userId,
+        createdAt: new Date(),
+        updatedBy: userId,
+        updatedAt: new Date(),
+      })
+      document2 = await DocumentModel.query().insertAndFetch({
+        name: 'My Test Document 2',
+        ownerId: userId,
+        createdBy: userId,
+        createdAt: new Date(),
+        updatedBy: userId,
+        updatedAt: new Date(),
+      })
+      await createCollection({
+        id: collectionId,
+        name,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        ownerId: userId,
+        createdBy: userId,
+        updatedBy: userId,
+        collectionDocuments: [
+          {
+            documentId: document1.id,
+            createdAt: new Date(),
+            createdBy: userId,
+          },
+          {
+            documentId: document2.id,
+            createdAt: new Date(),
+            createdBy: userId,
+          },
+        ],
+        grants: [
+          {
+            requirementType: CollectionGrantType.INDIVIDUALEMAIL,
+            requirementValue: userEmail,
+            createdAt: new Date(),
+            createdBy: userId,
+          },
+        ],
+      })
+    })
+    it('returns false if document not found', async () => {
+      const id = uuidv4()
+      expect(
+        await documentIsInCollectionWithGrant(
+          id,
+          CollectionGrantType.INDIVIDUALEMAIL,
+          userEmail,
+        ),
+      ).toStrictEqual(false)
+    })
+    it('returns false if grant not found', async () => {
+      expect(
+        await documentIsInCollectionWithGrant(
+          document1.id,
+          CollectionGrantType.INDIVIDUALEMAIL,
+          'test',
+        ),
+      ).toStrictEqual(false)
+    })
+    it('returns true if document and grant are found', async () => {
+      expect(
+        await documentIsInCollectionWithGrant(
+          document1.id,
+          CollectionGrantType.INDIVIDUALEMAIL,
+          userEmail,
+        ),
+      ).toStrictEqual(true)
     })
   })
 })

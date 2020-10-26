@@ -1,26 +1,21 @@
 import handler from './getDocumentsByCollectionId'
 import {
   getDocumentsByCollectionId,
-  collectionExists,
+  getCollectionById,
+  Collection,
 } from '@/models/collection'
-import { createMockEvent, setUserId, toMockedFunction } from '@/utils/test'
+import {
+  createMockEvent,
+  mockUserData,
+  setUserId,
+  toMockedFunction,
+} from '@/utils/test'
 import { Document as DocumentModel } from '@/models/document'
 import { APIGatewayProxyEventV2 } from 'aws-lambda'
 
-jest.mock('@/utils/database', () => {
-  return {
-    connectDatabase: jest.fn(),
-  }
-})
-
-jest.mock('@/models/collection', () => {
-  const module = jest.requireActual('@/models/collection')
-  return {
-    ...module,
-    collectionExists: jest.fn(),
-    getDocumentsByCollectionId: jest.fn(),
-  }
-})
+jest.mock('@/utils/database')
+jest.mock('@/models/collection')
+jest.mock('@/services/user')
 
 describe('getDocumentsByCollectionId', () => {
   const userId = 'myUserId'
@@ -28,6 +23,12 @@ describe('getDocumentsByCollectionId', () => {
   let event: APIGatewayProxyEventV2
 
   beforeEach(() => {
+    mockUserData(userId)
+    toMockedFunction(getCollectionById).mockImplementationOnce(async () =>
+      Collection.fromDatabaseJson({
+        ownerId: userId,
+      }),
+    )
     event = setUserId(
       userId,
       createMockEvent({
@@ -39,7 +40,6 @@ describe('getDocumentsByCollectionId', () => {
   })
 
   it('returns documents', async () => {
-    toMockedFunction(collectionExists).mockImplementationOnce(async () => true)
     toMockedFunction(getDocumentsByCollectionId).mockImplementationOnce(() =>
       Promise.resolve([
         DocumentModel.fromJson({
@@ -73,7 +73,6 @@ describe('getDocumentsByCollectionId', () => {
     `)
   })
   it('returns empty when no documents found', async () => {
-    toMockedFunction(collectionExists).mockImplementationOnce(async () => true)
     toMockedFunction(getDocumentsByCollectionId).mockImplementationOnce(() =>
       Promise.resolve([]),
     )
@@ -90,7 +89,9 @@ describe('getDocumentsByCollectionId', () => {
     `)
   })
   it('returns not found when collection doesnt exist', async () => {
-    toMockedFunction(collectionExists).mockImplementationOnce(async () => false)
+    toMockedFunction(getCollectionById)
+      .mockReset()
+      .mockImplementationOnce(async () => null)
     expect(await handler(event)).toMatchInlineSnapshot(`
       Object {
         "body": "{\\"message\\":\\"collection not found\\"}",

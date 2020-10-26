@@ -1,5 +1,8 @@
 import { string, array, object, number } from 'joi'
 import { MaxFileSize, MaxFilesPerDocument } from '@/constants'
+import { APIGatewayRequest } from '@/utils/middleware'
+import { FileDownloadDispositionTypeEnum } from 'api-client'
+import createError from 'http-errors'
 
 export const createFileSchema = object({
   name: string().min(1).max(255).required(),
@@ -24,3 +27,17 @@ export const putDocumentSchema = object({
   name: string().max(255),
   description: string().max(500),
 }).or('name', 'description')
+
+export const validateDisposition = () => (
+  request: APIGatewayRequest,
+): APIGatewayRequest => {
+  const { disposition } = request
+  if (
+    !Object.values<string>(FileDownloadDispositionTypeEnum).includes(
+      disposition,
+    )
+  ) {
+    throw new createError.BadRequest('disposition type not found')
+  }
+  return request
+}

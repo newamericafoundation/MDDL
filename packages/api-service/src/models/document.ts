@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { Model, QueryBuilder } from 'objection'
 import { File } from './file'
 import { CollectionDocument } from './collectionDocument'
+import { CollectionGrant } from './collectionGrant'
 
 export class Document extends BaseModel {
   // columns
@@ -33,7 +34,7 @@ export class Document extends BaseModel {
         return query.select(...fields.map((f) => Document.ref(f)))
       },
       fieldsForSingle(query: QueryBuilder<Document>) {
-        const fields = ['id', 'name', 'createdAt']
+        const fields = ['id', 'name', 'description', 'createdAt', 'ownerId']
         return query
           .select(...fields.map((f) => Document.ref(f)))
           .withGraphFetched('files')
@@ -43,10 +44,9 @@ export class Document extends BaseModel {
           ownerId: userId,
         })
       },
-      byId(query: QueryBuilder<Document>, id: string, userId: string) {
+      byId(query: QueryBuilder<Document>, id: string) {
         return query.where({
           id: id,
-          ownerId: userId,
         }).first
       },
     }
@@ -103,19 +103,19 @@ export class Document extends BaseModel {
   }
 }
 
-export const getDocumentById = async (id: string, accessingUserId: string) => {
-  const results = await Document.query()
-    .modify('fieldsForSingle')
-    .modify('byId', id, accessingUserId)
-  return results.length ? results[0] : null
+export const getDocumentById = async (id: string): Promise<Document | null> => {
+  return (await Document.query().modify('byId', id).first()) || null
 }
 
-export const documentExistsById = async (
+export const getSingleDocumentById = async (
   id: string,
-  accessingUserId: string,
-) => {
-  const results = await Document.query().modify('byId', id, accessingUserId)
-  return !!results.length
+): Promise<Document | null> => {
+  return (
+    (await Document.query()
+      .modify('fieldsForSingle')
+      .modify('byId', id)
+      .first()) || null
+  )
 }
 
 export const allDocumentsExistById = async (ids: string[], ownerId: string) => {
@@ -139,6 +139,20 @@ export const countDocumentsByOwnerId = async (ownerId: string) => {
     .count({ count: 'id' })
     .modify('byOwnerId', ownerId)
   return ((results[0] as unknown) as { count: number }).count
+}
+
+export const documentIsInCollectionWithGrant = async (
+  documentId: string,
+  requirementType: string,
+  requirementValue: string,
+): Promise<boolean> => {
+  return !!(await CollectionGrant.query()
+    .where({ requirementType, requirementValue })
+    .whereIn(
+      'collectionId',
+      CollectionDocument.query().select('collectionId').where({ documentId }),
+    )
+    .first())
 }
 
 export interface CreateDocumentInput {
