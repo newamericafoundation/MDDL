@@ -15,12 +15,14 @@ import {
   Collection as CollectionModel,
 } from '@/models/collection'
 import { allDocumentsExistById } from '@/models/document'
+import { sendSharedCollectionNotification } from '../emails'
 
 jest.mock('@/utils/database')
 jest.mock('@/utils/s3')
 jest.mock('@/models/collection')
 jest.mock('@/models/document')
 jest.mock('@/services/user')
+jest.mock('@/services/emails')
 
 describe('createCollectionForUser', () => {
   const userId = 'myUserId'

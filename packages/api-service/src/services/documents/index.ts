@@ -14,8 +14,13 @@ export const createLinksForFile = async (file: File) => {
   const links: any[] = []
   if (file.received) {
     links.push({
-      href: `/documents/${file.documentId}/files/${file.id}/download`,
+      href: `/documents/${file.documentId}/files/${file.id}/download?disposition=attachment`,
       rel: 'download',
+      type: 'GET',
+    })
+    links.push({
+      href: `/documents/${file.documentId}/files/${file.id}/download?disposition=inline`,
+      rel: 'preview',
       type: 'GET',
     })
   } else {

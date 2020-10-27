@@ -19,6 +19,10 @@ test('Fails validation for auth stack', () => {
     new CityStack(app, 'MyTestStack1', {
       dataStoreStack,
       expectsAuthStack: true,
+      emailSender: {
+        address: 'myemail',
+        name: 'Me',
+      },
     })
   }).toThrowError(/authStack must be provided when expectsAuthStack is true/)
   expect(() => {
@@ -26,6 +30,10 @@ test('Fails validation for auth stack', () => {
       dataStoreStack,
       authStack,
       expectsAuthStack: false,
+      emailSender: {
+        address: 'myemail',
+        name: 'Me',
+      },
     })
   }).toThrowError(
     /authStack should not be provided when expectsAuthStack is false/,
@@ -42,6 +50,10 @@ test('Default Stack', () => {
       audience: ['https://my-audience.com'],
       issuer: 'https://my-audience.com',
       userInfoEndpoint: 'https://my-auth-endpoint/oauth/userinfo',
+    },
+    emailSender: {
+      address: 'myemail',
+      name: 'Me',
     },
   })
   // THEN

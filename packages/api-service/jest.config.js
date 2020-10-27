@@ -1,5 +1,6 @@
 module.exports = {
   moduleNameMapper: {
+    '\\.(mustache)$': '<rootDir>/fileStub.js',
     '^@/(.*)$': '<rootDir>/src/$1',
   },
   roots: ['<rootDir>/src/'],

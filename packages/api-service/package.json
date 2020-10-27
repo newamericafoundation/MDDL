@@ -16,8 +16,11 @@
     "stop": "docker-compose down"
   },
   "devDependencies": {
+    "@types/aws-lambda": "^8.10.62",
     "@types/http-errors": "^1.8.0",
+    "@types/mustache": "^4.0.1",
     "@types/node": "10.17.27",
+    "@types/uuid": "^8.3.0",
     "@typescript-eslint/eslint-plugin": "^4.1.1",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-prettier": "^3.1.4",
@@ -25,6 +28,7 @@
     "lint-staged": "^10.4.0",
     "noop2": "^2.0.0",
     "prettier": "^2.1.1",
+    "raw-loader": "^4.0.2",
     "ts-loader": "^8.0.4",
     "tsconfig-paths-webpack-plugin": "^3.3.0",
     "typescript": "~3.9.7",
@@ -34,14 +38,13 @@
     "zip-webpack-plugin": "^3.0.0"
   },
   "dependencies": {
-    "@types/aws-lambda": "^8.10.62",
-    "@types/uuid": "^8.3.0",
     "api-client": "1.0.0",
     "aws-sdk": "^2.768.0",
     "cardinal": "^2.0.0",
     "http-errors": "^1.8.0",
     "joi": "^17.2.1",
     "knex": "^0.21.6",
+    "mustache": "^4.0.1",
     "mysql2": "^2.2.5",
     "node-fetch": "^2.6.1",
     "objection": "^2.2.3",

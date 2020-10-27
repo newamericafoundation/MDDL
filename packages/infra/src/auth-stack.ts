@@ -27,6 +27,7 @@ import { BucketWebsiteTarget } from '@aws-cdk/aws-route53-targets'
 import { MinimalCloudFrontTarget } from './minimal-cloudfront-target'
 import path = require('path')
 import fs = require('fs')
+import { EmailSender } from './email-sender'
 
 interface CustomHostedDomain extends HostedDomain {
   /**
@@ -39,27 +40,6 @@ interface CustomHostedDomain extends HostedDomain {
   hostedZoneAttributes: HostedZoneAttributes
 }
 
-interface EmailSenderProps {
-  /**
-   * The name of the email sender, e.g "Data Locker"
-   */
-  name: string
-  /**
-   * The address of the email sender, e.g "notifications@datalocker.com"
-   */
-  address: string
-  /**
-   * The account the SES identity is located in, e.g. "111111111111"
-   * Defaults to current account
-   */
-  accountId?: string
-  /**
-   * The region the SES identity is located in, e.g. "us-east-1"
-   * Defaults to current region
-   */
-  region?: string
-}
-
 export interface Props extends StackProps {
   /**
    * The name of the user pool
@@ -68,7 +48,7 @@ export interface Props extends StackProps {
   /**
    * Details for how to send emails - this will resolve to an SES identity and must be preconfigured
    */
-  emailSender?: EmailSenderProps
+  emailSender?: EmailSender
   /**
    * Configuration for the custom domain for Cognito Hosted UI
    */
@@ -122,7 +102,7 @@ export class AuthStack extends Stack {
    * @param userPoolName The name of the user pool
    * @param emailSender Details on how to send emails (optional)
    */
-  private addUserPool(userPoolName: string, emailSender?: EmailSenderProps) {
+  private addUserPool(userPoolName: string, emailSender?: EmailSender) {
     const userPool = new UserPool(this, 'UserPool', {
       accountRecovery: AccountRecovery.EMAIL_ONLY,
       signInAliases: {
@@ -184,18 +164,14 @@ export class AuthStack extends Stack {
 
     // manual overrides to set the config to use a specific identity for sending emails
     if (emailSender) {
-      const {
-        region = this.region,
-        address,
-        accountId = this.account,
-      } = emailSender
+      const { address } = emailSender
       cfnUserPool.addPropertyOverride(
         'EmailConfiguration.EmailSendingAccount',
         'DEVELOPER',
       )
       cfnUserPool.addPropertyOverride(
         'EmailConfiguration.SourceArn',
-        `arn:aws:ses:${region}:${accountId}:identity/${address}`,
+        `arn:aws:ses:${this.region}:${this.account}:identity/${address}`,
       )
     }
 

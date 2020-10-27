@@ -62,6 +62,7 @@ import {
 import { HostedDomain } from './hosted-domain'
 import { ISecurityGroup, IVpc } from '@aws-cdk/aws-ec2'
 import { MinimalCloudFrontTarget } from './minimal-cloudfront-target'
+import { EmailSender } from './email-sender'
 
 interface ApiHostedDomain extends HostedDomain {
   /**
@@ -128,14 +129,20 @@ export interface Props extends StackProps {
    * @default false
    */
   additionalCallbackUrls?: string[]
+  /**
+   * Details for how to send emails - this will resolve to an SES identity and must be preconfigured
+   */
+  emailSender: EmailSender
 }
 
 interface ApiProps {
   api: HttpApi
+  webAppDomain: string
   dbSecret: ISecret
   mySqlLayer: ILayerVersion
   authorizer: CfnAuthorizer
   jwtConfiguration: JwtConfiguration
+  emailSender: EmailSender
 }
 
 const pathToApiServiceLambda = (name: string) =>
@@ -163,6 +170,7 @@ export class CityStack extends Stack {
       hostedZoneAttributes,
       jwtAuth,
       additionalCallbackUrls = [],
+      emailSender,
     } = props
 
     // check auth stack is given if this stack expects it
@@ -251,10 +259,12 @@ export class CityStack extends Stack {
     )
     const apiProps: ApiProps = {
       api,
+      webAppDomain,
       authorizer,
       dbSecret: secret,
       mySqlLayer,
       jwtConfiguration,
+      emailSender,
     }
 
     // create uploads bucket
@@ -754,7 +764,15 @@ export class CityStack extends Stack {
    * @param uploadsBucket The bucket with document uploads
    */
   private addUserRoutes(apiProps: ApiProps, uploadsBucket: IBucket) {
-    const { api, dbSecret, mySqlLayer, authorizer, jwtConfiguration } = apiProps
+    const {
+      api,
+      dbSecret,
+      mySqlLayer,
+      authorizer,
+      jwtConfiguration,
+      webAppDomain,
+      emailSender,
+    } = apiProps
 
     // add route and lambda to list users documents
     this.addRoute(api, {
@@ -841,20 +859,29 @@ export class CityStack extends Stack {
     })
 
     // add route and lambda to submit a collection
+    const createCollectionFunction = this.createLambda(
+      'PostUserCollections',
+      pathToApiServiceLambda('collections/createCollectionForUser'),
+      {
+        dbSecret,
+        layers: [mySqlLayer],
+        extraEnvironmentVariables: {
+          USERINFO_ENDPOINT: jwtConfiguration.userInfoEndpoint,
+          WEB_APP_DOMAIN: webAppDomain,
+          EMAIL_SENDER: `${emailSender.name} <${emailSender.address}>`,
+        },
+      },
+    )
+    createCollectionFunction.addToRolePolicy(
+      new PolicyStatement({
+        actions: ['ses:SendEmail'],
+        resources: ['*'],
+      }),
+    )
     this.addRoute(api, {
       name: 'PostUserCollections',
       routeKey: 'POST /users/{userId}/collections',
-      lambdaFunction: this.createLambda(
-        'PostUserCollections',
-        pathToApiServiceLambda('collections/createCollectionForUser'),
-        {
-          dbSecret,
-          layers: [mySqlLayer],
-          extraEnvironmentVariables: {
-            USERINFO_ENDPOINT: jwtConfiguration.userInfoEndpoint,
-          },
-        },
-      ),
+      lambdaFunction: createCollectionFunction,
       authorizer,
     })
   }

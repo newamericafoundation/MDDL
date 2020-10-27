@@ -22,19 +22,21 @@ import {
 import createError from 'http-errors'
 import { requireUserData } from '@/services/user'
 import { formatCollectionListItem } from '.'
+import { sendSharedCollectionNotification } from '../emails/sendSharedCollectionNotification'
 
 connectDatabase()
 
 export const handler = createApiGatewayHandler(
   setContext('ownerId', (r) => requirePathParameter(r.event, 'userId')),
   setContext('userId', (r) => requireUserId(r.event)),
+  setContext('webAppDomain', () => process.env.WEB_APP_DOMAIN),
   setContext('user', async (r) => await requireUserData(r)),
   requirePermissionToUser(UserPermission.WriteCollection),
   requireValidBody<CollectionCreateContract>(createCollectionSchema),
   async (
     request: APIGatewayRequestBody<CollectionCreateContract>,
   ): Promise<CollectionContract> => {
-    const { ownerId, userId, body } = request
+    const { ownerId, userId, user, body, webAppDomain } = request
     // prepare values
     const createdAt = new Date()
     const updatedAt = createdAt
@@ -83,6 +85,18 @@ export const handler = createApiGatewayHandler(
       throw new createError.InternalServerError(
         'collection could not be created',
       )
+    }
+
+    try {
+      await sendSharedCollectionNotification({
+        collection: {
+          link: `https://${webAppDomain}/collections/shared`,
+          name: `${user.givenName} ${user.familyName}`,
+        },
+        emails: individualEmailAddresses,
+      })
+    } catch (err) {
+      console.error('An error occurred sending email: ', err)
     }
 
     // return response

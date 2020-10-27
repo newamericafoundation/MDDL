@@ -35,10 +35,15 @@ const config = {
   entry: lambdas,
   module: {
     rules: [{
-      test: /\.ts$/,
-      use: 'ts-loader',
-      exclude: /node_modules/,
-    }, ],
+        test: /\.ts$/,
+        loader: 'ts-loader',
+        exclude: /node_modules/,
+      },
+      {
+        test: /\.mustache$/i,
+        use: 'raw-loader',
+      },
+    ],
   },
   resolve: {
     extensions: ['.ts', '.tsx', '.js'],
