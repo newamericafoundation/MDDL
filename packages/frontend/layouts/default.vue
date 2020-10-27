@@ -2,9 +2,9 @@
   <v-app>
     <AppBar>
       <template v-slot:nav-action>
-        <nuxt-link :to="localePath('/dashboard')">
+        <v-btn icon @click="back">
           <v-icon>$chevron-left</v-icon>
-        </nuxt-link>
+        </v-btn>
       </template>
     </AppBar>
     <v-main>
@@ -19,5 +19,13 @@
 import { Vue, Component } from 'vue-property-decorator'
 
 @Component
-export default class DefaultLayout extends Vue {}
+export default class DefaultLayout extends Vue {
+  back() {
+    if (window.history.length) {
+      this.$router.back()
+    } else {
+      this.$router.push(this.localePath('/dashboard'))
+    }
+  }
+}
 </script>
