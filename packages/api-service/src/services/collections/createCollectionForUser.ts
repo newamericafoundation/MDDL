@@ -22,6 +22,7 @@ import {
 import createError from 'http-errors'
 import { requireUserData } from '@/services/user'
 import { formatCollectionListItem } from '.'
+import { CollectionPermission } from './authorization'
 import { sendSharedCollectionNotification } from '../emails/sendSharedCollectionNotification'
 
 connectDatabase()
@@ -100,7 +101,10 @@ export const handler = createApiGatewayHandler(
     }
 
     // return response
-    return formatCollectionListItem(createdCollection)
+    return formatCollectionListItem(createdCollection, [
+      CollectionPermission.ListDocuments,
+      CollectionPermission.ListGrants,
+    ])
   },
 )
 

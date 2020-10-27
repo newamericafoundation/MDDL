@@ -156,6 +156,10 @@ export const getDocumentsByCollectionId = async (collectionId: string) => {
     .modify('fieldsForList')
 }
 
+export const getGrantsByCollectionId = async (collectionId: string) => {
+  return await Collection.relatedQuery('grants').for(collectionId)
+}
+
 export const getCollectionById = async (
   id: string,
 ): Promise<Collection | null> => {

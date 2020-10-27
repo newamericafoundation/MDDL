@@ -4,6 +4,7 @@ import {
   getCollectionsByOwnerId,
   getDocumentsByCollectionId,
   getCollectionsByGrantType,
+  getGrantsByCollectionId,
 } from './collection'
 import { v4 as uuidv4 } from 'uuid'
 import { connectDatabase } from '@/utils/database'
@@ -93,6 +94,51 @@ describe('CollectionModel', () => {
         expect.arrayContaining([
           expect.objectContaining({ id: collectionId1 }),
           expect.objectContaining({ id: collectionId2 }),
+        ]),
+      )
+    })
+  })
+
+  describe('getGrantsByCollectionId', () => {
+    it('returns empty when there is no collection', async () => {
+      const id = uuidv4()
+      expect(await getGrantsByCollectionId(id)).toStrictEqual([])
+    })
+    it('returns grants when they are found', async () => {
+      const userId = uuidv4()
+      const grant1Value = uuidv4()
+      const grant2Value = uuidv4()
+      const collectionId = uuidv4()
+      await createCollection({
+        id: collectionId,
+        name,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        ownerId: userId,
+        createdBy: userId,
+        updatedBy: userId,
+        collectionDocuments: [],
+        grants: [
+          {
+            requirementType: CollectionGrantType.INDIVIDUALEMAIL,
+            requirementValue: grant1Value,
+            createdBy: userId,
+            createdAt: new Date(),
+          },
+          {
+            requirementType: CollectionGrantType.INDIVIDUALEMAIL,
+            requirementValue: grant2Value,
+            createdBy: userId,
+            createdAt: new Date(),
+          },
+        ],
+      })
+      const results = await getGrantsByCollectionId(collectionId)
+      expect(results).toHaveLength(2)
+      expect(results).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ requirementValue: grant1Value }),
+          expect.objectContaining({ requirementValue: grant2Value }),
         ]),
       )
     })

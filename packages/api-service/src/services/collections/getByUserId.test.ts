@@ -47,7 +47,7 @@ describe('getByUserId', () => {
     )
     expect(await getByUserId(event)).toMatchInlineSnapshot(`
       Object {
-        "body": "{\\"collections\\":[{\\"name\\":\\"My First Collection\\",\\"createdDate\\":\\"2015-01-12T13:14:15.000Z\\",\\"id\\":\\"myCollectionId1\\",\\"links\\":[{\\"href\\":\\"/collections/myCollectionId1/grants\\",\\"rel\\":\\"grants\\",\\"type\\":\\"GET\\"},{\\"href\\":\\"/collections/myCollectionId1/documents\\",\\"rel\\":\\"documents\\",\\"type\\":\\"GET\\"}]},{\\"name\\":\\"My Second Collection\\",\\"createdDate\\":\\"2015-01-27T13:14:15.000Z\\",\\"id\\":\\"myCollectionId2\\",\\"links\\":[{\\"href\\":\\"/collections/myCollectionId2/grants\\",\\"rel\\":\\"grants\\",\\"type\\":\\"GET\\"},{\\"href\\":\\"/collections/myCollectionId2/documents\\",\\"rel\\":\\"documents\\",\\"type\\":\\"GET\\"}]}]}",
+        "body": "{\\"collections\\":[{\\"name\\":\\"My First Collection\\",\\"createdDate\\":\\"2015-01-12T13:14:15.000Z\\",\\"id\\":\\"myCollectionId1\\",\\"links\\":[{\\"href\\":\\"/collections/myCollectionId1/documents\\",\\"rel\\":\\"documents\\",\\"type\\":\\"GET\\"},{\\"href\\":\\"/collections/myCollectionId1/grants\\",\\"rel\\":\\"grants\\",\\"type\\":\\"GET\\"}]},{\\"name\\":\\"My Second Collection\\",\\"createdDate\\":\\"2015-01-27T13:14:15.000Z\\",\\"id\\":\\"myCollectionId2\\",\\"links\\":[{\\"href\\":\\"/collections/myCollectionId2/documents\\",\\"rel\\":\\"documents\\",\\"type\\":\\"GET\\"},{\\"href\\":\\"/collections/myCollectionId2/grants\\",\\"rel\\":\\"grants\\",\\"type\\":\\"GET\\"}]}]}",
         "cookies": Array [],
         "headers": Object {
           "Content-Type": "application/json",

@@ -17,6 +17,7 @@ import {
 import { requireUserData } from '@/services/user'
 import { getUsersById, User } from '@/models/user'
 import { formatSharedCollections } from '@/services/collections'
+import { CollectionPermission } from './authorization'
 
 connectDatabase()
 
@@ -36,7 +37,9 @@ export const handler = createApiGatewayHandler(
     if (userIds.length) {
       foundOwners = await getUsersById(userIds)
     }
-    return formatSharedCollections(foundCollections, foundOwners)
+    return formatSharedCollections(foundCollections, foundOwners, [
+      CollectionPermission.ListDocuments,
+    ])
   },
 )
 

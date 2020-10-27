@@ -8,6 +8,7 @@ import { requireUserData } from '../user'
 
 export enum CollectionPermission {
   ListDocuments = 'list:documents',
+  ListGrants = 'list:grants',
 }
 
 const getPermissionsToCollection = async (

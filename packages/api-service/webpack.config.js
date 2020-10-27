@@ -29,6 +29,9 @@ const lambdas = {
     'collections/getDocumentsByCollectionId.ts',
   ),
   collections_getSharedToUserId: lambdaPath('collections/getSharedToUserId.ts'),
+  collections_getGrantsByCollectionId: lambdaPath(
+    'collections/getGrantsByCollectionId.ts',
+  ),
 }
 
 const config = {

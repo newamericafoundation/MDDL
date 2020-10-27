@@ -1016,6 +1016,24 @@ export class CityStack extends Stack {
       ),
       authorizer,
     })
+
+    // add route and lambda to list collections grants
+    this.addRoute(api, {
+      name: 'GetCollectionGrants',
+      routeKey: 'GET /collections/{collectionId}/grants',
+      lambdaFunction: this.createLambda(
+        'GetCollectionGrants',
+        pathToApiServiceLambda('collections/getGrantsByCollectionId'),
+        {
+          dbSecret,
+          layers: [mySqlLayer],
+          extraEnvironmentVariables: {
+            USERINFO_ENDPOINT: jwtConfiguration.userInfoEndpoint,
+          },
+        },
+      ),
+      authorizer,
+    })
   }
 
   /**
