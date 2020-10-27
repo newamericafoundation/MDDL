@@ -8,4 +8,5 @@ module.exports = {
   transform: {
     '^.+\\.tsx?$': 'ts-jest',
   },
+  modulePathIgnorePatterns: ['<rootDir>/.*/__mocks__'],
 }
