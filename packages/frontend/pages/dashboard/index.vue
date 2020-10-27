@@ -113,10 +113,8 @@ export default class Documents extends Vue {
   }
 
   toggleNav() {
-    console.log(
-      (this.$parent.$parent.$parent.$data.drawer = !this.$parent.$parent.$parent
-        .$data.drawer),
-    )
+    this.$parent.$parent.$parent.$data.drawer = !this.$parent.$parent.$parent
+      .$data.drawer
   }
 }
 </script>

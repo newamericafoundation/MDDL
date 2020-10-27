@@ -28,11 +28,7 @@
             class="nuxt-link"
             :to="localePath(item.to)"
           >
-            <v-list-item
-              router
-              exact
-              @click.stop="item.click ? item.click : ''"
-            >
+            <v-list-item router exact>
               <v-list-item-action v-if="item.icon">
                 <v-icon>{{ item.icon }}</v-icon>
               </v-list-item-action>
@@ -42,11 +38,9 @@
             </v-list-item>
           </nuxt-link>
           <v-list-item
-            v-else
+            v-else-if="item.click !== null"
             :key="i"
-            router
-            exact
-            @click.stop="item.click ? item.click : ''"
+            @click.stop="item.click"
           >
             <v-list-item-action v-if="item.icon">
               <v-icon>{{ item.icon }}</v-icon>
