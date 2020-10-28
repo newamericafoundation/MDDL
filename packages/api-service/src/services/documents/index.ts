@@ -7,7 +7,6 @@ import {
 import { Document } from '@/models/document'
 import { File } from '@/models/file'
 import { createJsonResponse } from '@/utils/api-gateway'
-import { FileContentTypeMap } from '@/constants'
 import { getPresignedUploadUrl } from '@/utils/s3'
 
 export const createLinksForFile = async (file: File) => {
@@ -82,9 +81,7 @@ export const singleDocumentResult = async (
           links: await createLinksForFile(f),
           name: f.name,
           sha256Checksum: f.sha256Checksum,
-          contentType: FileContentTypeMap.get(
-            f.contentType,
-          ) as FileContentTypeEnum,
+          contentType: f.contentType as FileContentTypeEnum,
           contentLength: f.contentLength,
         }),
       ),

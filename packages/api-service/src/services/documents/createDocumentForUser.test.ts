@@ -1,5 +1,4 @@
 import createDocumentForUser from './createDocumentForUser'
-import { getPathParameter, requireUserId } from '@/utils/api-gateway'
 import {
   countDocumentsByOwnerId,
   createDocument,
@@ -174,6 +173,7 @@ describe('createDocumentForUser', () => {
             name: 'MyFile1.jpg',
             sha256Checksum: 'ABC123',
             contentLength: 1000,
+            contentType: 'image/jpeg',
           },
         ],
         links: [],
@@ -193,6 +193,7 @@ describe('createDocumentForUser', () => {
         "files[0].links[0].includeFormData.Content-Length",
         "files[0].name",
         "files[0].sha256Checksum",
+        "files[0].contentType",
         "files[0].contentLength",
       ]
     `)

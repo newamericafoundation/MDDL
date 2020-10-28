@@ -17,6 +17,7 @@ jest.mock('@/models/document')
 
 describe('getById', () => {
   const documentId = 'myDocumentId'
+  const fileId = 'myFileId'
   const userId = 'myUserId'
   let event: APIGatewayProxyEventV2
 
@@ -42,12 +43,26 @@ describe('getById', () => {
           createdAt: new Date('2015-01-12T13:14:15Z'),
           updatedBy: userId,
           createdBy: userId,
+          files: [
+            {
+              id: fileId,
+              documentId,
+              path: 'myFile/path',
+              received: true,
+              createdBy: userId,
+              createdAt: new Date('2015-01-12T13:14:15Z'),
+              name: 'myFile',
+              sha256Checksum: 'checksum',
+              contentType: 'image/jpeg',
+              contentLength: 10000,
+            },
+          ],
         }),
       ),
     )
     expect(await getById(event)).toMatchInlineSnapshot(`
       Object {
-        "body": "{\\"createdDate\\":\\"2015-01-12T13:14:15.000Z\\",\\"name\\":\\"My First File\\",\\"id\\":\\"myDocumentId\\",\\"files\\":[],\\"links\\":[]}",
+        "body": "{\\"createdDate\\":\\"2015-01-12T13:14:15.000Z\\",\\"name\\":\\"My First File\\",\\"id\\":\\"myDocumentId\\",\\"files\\":[{\\"id\\":\\"myFileId\\",\\"createdDate\\":\\"2015-01-12T13:14:15.000Z\\",\\"links\\":[{\\"href\\":\\"/documents/myDocumentId/files/myFileId/download?disposition=attachment\\",\\"rel\\":\\"download\\",\\"type\\":\\"GET\\"},{\\"href\\":\\"/documents/myDocumentId/files/myFileId/download?disposition=inline\\",\\"rel\\":\\"preview\\",\\"type\\":\\"GET\\"}],\\"name\\":\\"myFile\\",\\"sha256Checksum\\":\\"checksum\\",\\"contentType\\":\\"image/jpeg\\",\\"contentLength\\":10000}],\\"links\\":[]}",
         "cookies": Array [],
         "headers": Object {
           "Content-Type": "application/json",
