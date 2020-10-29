@@ -691,9 +691,14 @@ components:
     Owner:
       description: A record owner
       required:
+        - id
         - givenName
         - familyName
       properties:
+        id:
+          type: string
+          example: 2D3D5CF7-ED9D-48F1-8A14-12B0C1114B64
+          description: The user id
         givenName:
           type: string
           example: Sam

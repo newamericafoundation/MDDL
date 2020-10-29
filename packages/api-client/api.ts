@@ -475,6 +475,12 @@ export interface Link {
  */
 export interface Owner {
     /**
+     * The user id
+     * @type {string}
+     * @memberof Owner
+     */
+    id: string;
+    /**
      * The users given name
      * @type {string}
      * @memberof Owner

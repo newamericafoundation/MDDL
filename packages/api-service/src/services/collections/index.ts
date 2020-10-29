@@ -49,8 +49,9 @@ export const formatSharedCollections = (
       return {
         collection: formatCollectionListItem(collection, permissions),
         owner: {
-          givenName: owner && owner.givenName ? owner.givenName : 'Unknown',
-          familyName: owner && owner.familyName ? owner.familyName : 'Unknown',
+          id: ownerId,
+          givenName: owner?.givenName ?? 'Unknown',
+          familyName: owner?.familyName ?? 'Unknown',
         },
       }
     },
