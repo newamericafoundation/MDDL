@@ -20,7 +20,7 @@ export const handler = createApiGatewayHandler(
     const { ownerId } = request
     const foundDocuments = await getDocumentsByOwnerId(ownerId)
     return {
-      documents: foundDocuments.map(createDocumentListItem),
+      documents: await Promise.all(foundDocuments.map(createDocumentListItem)),
     }
   },
 )

@@ -17,7 +17,16 @@
     />
     <v-row align="center" no-gutters>
       <v-col class="py-0" xs="6" sm="5">
+        <v-img
+          v-if="thumbnail"
+          :src="thumbnail"
+          max-height="200"
+          max-width="200"
+          contain
+          class="pa-4"
+        ></v-img>
         <v-skeleton-loader
+          v-else
           class="pa-4"
           boilerplate
           type="image"
@@ -51,6 +60,13 @@ export default class DocumentCard extends Vue {
 
   get documentDate() {
     return format(new Date(this.document.createdDate), 'LLL d, yyyy')
+  }
+
+  get thumbnail() {
+    return (
+      this.document &&
+      this.document.links.find((l) => l.rel === 'thumbnail')?.href
+    )
   }
 
   onClick() {

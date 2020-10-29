@@ -21,6 +21,10 @@ const lambdas = {
     'documents/getFileDownloadLinkById.ts',
   ),
   documents_putDocumentById: lambdaPath('documents/putDocumentById.ts'),
+  documents_createThumbnail: lambdaPath('documents/createThumbnail.ts'),
+  documents_attachThumbnailToDocument: lambdaPath(
+    'documents/attachThumbnailToDocument.ts',
+  ),
   collections_createCollectionForUser: lambdaPath(
     'collections/createCollectionForUser.ts',
   ),

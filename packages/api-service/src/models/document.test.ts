@@ -8,6 +8,7 @@ import {
   updateDocument,
   getSingleDocumentById,
   documentIsInCollectionWithGrant,
+  setDocumentThumbnailPath,
 } from './document'
 import { v4 as uuidv4 } from 'uuid'
 import { connectDatabase } from '@/utils/database'
@@ -273,7 +274,27 @@ describe('DocumentModel', () => {
     })
   })
 
-  describe.only('documentIsInCollectionWithGrant', () => {
+  describe('setDocumentThumbnailPath', () => {
+    it('returns 0 if document not updated', async () => {
+      const id = uuidv4()
+      expect(await setDocumentThumbnailPath(id, 'newPath')).toStrictEqual(0)
+    })
+    it('returns 1 when document updated', async () => {
+      const id = uuidv4()
+      await DocumentModel.query().insert({
+        id,
+        createdBy: id,
+        ownerId: id,
+        name: '' + id,
+        updatedBy: id,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })
+      expect(await setDocumentThumbnailPath(id, 'newPath')).toStrictEqual(1)
+    })
+  })
+
+  describe('documentIsInCollectionWithGrant', () => {
     const userId = uuidv4()
     const collectionId = uuidv4()
     const userEmail = 'testgrantemail'

@@ -19,6 +19,7 @@ export class Document extends BaseModel {
   public createdAt: Date
   public updatedAt: Date
   public updatedBy: string
+  public thumbnailPath?: string
 
   // navigation property
   public files?: File[]
@@ -30,7 +31,7 @@ export class Document extends BaseModel {
   static get modifiers() {
     return {
       fieldsForList(query: QueryBuilder<Document>) {
-        const fields = ['id', 'name', 'createdAt']
+        const fields = ['id', 'name', 'createdAt', 'thumbnailPath']
         return query.select(...fields.map((f) => Document.ref(f)))
       },
       fieldsForSingle(query: QueryBuilder<Document>) {
@@ -67,6 +68,7 @@ export class Document extends BaseModel {
         expiryDate: { type: 'date-time' },
         updatedBy: { type: 'string', minLength: 1, maxLength: 255 },
         createdBy: { type: 'string', minLength: 1, maxLength: 255 },
+        thumbnailPath: { type: 'string', maxLength: 500 },
       },
     }
   }
@@ -153,6 +155,10 @@ export const documentIsInCollectionWithGrant = async (
       CollectionDocument.query().select('collectionId').where({ documentId }),
     )
     .first())
+}
+
+export const setDocumentThumbnailPath = async (id: string, path: string) => {
+  return await Document.query().patch({ thumbnailPath: path }).where({ id })
 }
 
 export interface CreateDocumentInput {

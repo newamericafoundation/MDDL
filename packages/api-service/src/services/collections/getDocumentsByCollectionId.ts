@@ -25,7 +25,7 @@ export const handler = createApiGatewayHandler(
     const { collectionId } = request
     const foundDocuments = await getDocumentsByCollectionId(collectionId)
     return {
-      documents: foundDocuments.map(createDocumentListItem),
+      documents: await Promise.all(foundDocuments.map(createDocumentListItem)),
     }
   },
 )

@@ -1,15 +1,27 @@
-import { S3Event, S3Handler } from 'aws-lambda'
+import { S3Event } from 'aws-lambda'
 import { markFileReceived } from '@/models/file'
 import { connectDatabase } from '@/utils/database'
+import { File } from '@/models/file'
 
 connectDatabase()
 
-export const handler: S3Handler = async (event: S3Event): Promise<void> => {
-  console.log('Received: ', event)
+export interface FilesReceivedResponse {
+  files: File[]
+}
+
+export const handler = async (
+  event: S3Event,
+): Promise<FilesReceivedResponse> => {
+  console.log('Received: ', JSON.stringify(event))
+  const files: File[] = []
   for (const record of event.Records) {
     const filePath = record.s3.object.key
-    await markFileReceived(filePath)
+    const file = await markFileReceived(filePath)
+    if (file) {
+      files.push(file)
+    }
   }
+  return { files }
 }
 
 export default handler

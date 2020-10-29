@@ -1,11 +1,7 @@
 import { CollectionGrantList, CollectionGrantType } from 'api-client'
 import { requirePathParameter, requireUserId } from '@/utils/api-gateway'
 import { connectDatabase } from '@/utils/database'
-import {
-  getDocumentsByCollectionId,
-  getGrantsByCollectionId,
-} from '@/models/collection'
-import { createDocumentListItem } from '@/services/documents'
+import { getGrantsByCollectionId } from '@/models/collection'
 import {
   APIGatewayRequest,
   createApiGatewayHandler,

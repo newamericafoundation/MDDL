@@ -3,11 +3,12 @@ import {
   DocumentList as DocumentListContract,
   DocumentFile as DocumentFileContract,
   FileContentTypeEnum,
+  FileDownloadDispositionTypeEnum,
 } from 'api-client'
 import { Document } from '@/models/document'
 import { File } from '@/models/file'
 import { createJsonResponse } from '@/utils/api-gateway'
-import { getPresignedUploadUrl } from '@/utils/s3'
+import { getPresignedDownloadUrl, getPresignedUploadUrl } from '@/utils/s3'
 
 export const createLinksForFile = async (file: File) => {
   const links: any[] = []
@@ -39,27 +40,37 @@ export const createLinksForFile = async (file: File) => {
   return links
 }
 
-export const createDocumentListItem = (document: Document) => {
-  const { id, name, createdAt } = document
+export const createDocumentListItem = async (document: Document) => {
+  const { id, name, createdAt, thumbnailPath } = document
+
+  const links = [
+    {
+      href: `/documents/${id}`,
+      rel: 'self',
+      type: 'GET',
+    },
+  ]
+
+  if (thumbnailPath) {
+    const thumbnailLink = await getPresignedDownloadUrl(
+      thumbnailPath,
+      'thumbnail.png',
+      FileDownloadDispositionTypeEnum.Attachment,
+      600, // 10 minute expiry
+    )
+    links.push({
+      href: thumbnailLink,
+      rel: 'thumbnail',
+      type: 'GET',
+    })
+  }
 
   return {
     name,
     createdDate: createdAt.toISOString(),
     id,
-    links: [
-      {
-        href: `/documents/${id}`,
-        rel: 'self',
-        type: 'GET',
-      },
-    ],
+    links,
   }
-}
-
-export const createDocumentListResult = (documents: Document[]) => {
-  return createJsonResponse<DocumentListContract>({
-    documents: documents.map(createDocumentListItem),
-  })
 }
 
 export const singleDocumentResult = async (

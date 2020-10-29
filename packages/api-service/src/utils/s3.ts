@@ -1,9 +1,10 @@
 import S3 from 'aws-sdk/clients/s3'
+import { readFileSync, writeFileSync } from 'fs'
 const s3 = new S3({
   signatureVersion: 'v4',
   region: process.env.AWS_REGION || undefined,
 })
-const BUCKET = process.env.DOCUMENTS_BUCKET
+const BUCKET = process.env.DOCUMENTS_BUCKET as string
 
 export const createFilePath = (
   ownerId: string,
@@ -44,11 +45,41 @@ export const getPresignedDownloadUrl = async (
   path: string,
   filename: string,
   disposition: string,
+  expires = 300,
 ) => {
   return await s3.getSignedUrlPromise('getObject', {
     Bucket: BUCKET,
     Key: path,
-    Expires: 300,
+    Expires: expires,
     ResponseContentDisposition: `${disposition}; filename=${filename}`,
   })
+}
+
+export const downloadFile = async (key: string, outputPath: string) => {
+  const result = await s3
+    .getObject(
+      {
+        Bucket: BUCKET,
+        Key: key,
+      },
+      undefined,
+    )
+    .promise()
+  writeFileSync(outputPath, result.Body)
+}
+
+export const uploadFile = async (
+  filePath: string,
+  key: string,
+  otherParams: Partial<S3.PutObjectRequest> = {},
+) => {
+  const data = readFileSync(filePath)
+  const base64data = data
+  const params = {
+    ...otherParams,
+    Bucket: BUCKET,
+    Key: key,
+    Body: data,
+  }
+  await s3.upload(params).promise()
 }

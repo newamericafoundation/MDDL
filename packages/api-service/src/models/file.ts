@@ -7,6 +7,7 @@ export class File extends BaseModel {
   public documentId: string
   public name: string
   public path: string
+  public order: number
   public received: boolean
   public contentType: string
   public contentLength: number
@@ -52,6 +53,7 @@ export class File extends BaseModel {
         documentId: { type: 'string', minLength: 1, maxLength: 40 },
         name: { type: 'string', maxLength: 255 },
         path: { type: 'string', maxLength: 500 },
+        order: { type: 'number' },
         received: { type: 'boolean' },
         contentType: { type: 'string', maxLength: 255 },
         contentLength: {

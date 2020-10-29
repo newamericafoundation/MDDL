@@ -14,6 +14,7 @@ import {
   ILayerVersion,
   Runtime,
   Code,
+  FunctionProps,
 } from '@aws-cdk/aws-lambda'
 import { S3EventSource } from '@aws-cdk/aws-lambda-event-sources'
 import { Bucket, IBucket, HttpMethods, EventType } from '@aws-cdk/aws-s3'
@@ -61,6 +62,7 @@ import {
 } from '@aws-cdk/aws-cognito'
 import { HostedDomain } from './hosted-domain'
 import { ISecurityGroup, IVpc } from '@aws-cdk/aws-ec2'
+import { LambdaDestination } from '@aws-cdk/aws-lambda-destinations'
 import { MinimalCloudFrontTarget } from './minimal-cloudfront-target'
 import { EmailSender } from './email-sender'
 
@@ -140,6 +142,7 @@ interface ApiProps {
   webAppDomain: string
   dbSecret: ISecret
   mySqlLayer: ILayerVersion
+  gmLayer: ILayerVersion
   authorizer: CfnAuthorizer
   jwtConfiguration: JwtConfiguration
   emailSender: EmailSender
@@ -250,6 +253,9 @@ export class CityStack extends Stack {
     // create the mysql lambda layer
     const { layer: mySqlLayer } = this.addMysqlLayer()
 
+    // create the graphics magick lambda layer
+    const { layer: gmLayer } = this.addGraphicsMagickLayer()
+
     // add api
     const { api, authorizer, corsOrigins } = this.addApi(
       webAppDomain,
@@ -263,6 +269,7 @@ export class CityStack extends Stack {
       authorizer,
       dbSecret: secret,
       mySqlLayer,
+      gmLayer,
       jwtConfiguration,
       emailSender,
     }
@@ -277,7 +284,7 @@ export class CityStack extends Stack {
     this.addDocumentRoutes(apiProps, bucket)
 
     // add collection routes
-    this.addCollectionRoutes(apiProps)
+    this.addCollectionRoutes(apiProps, bucket)
 
     // run database migrations
     this.runMigrations(secret, mySqlLayer)
@@ -774,21 +781,30 @@ export class CityStack extends Stack {
       emailSender,
     } = apiProps
 
-    // add route and lambda to list users documents
+    // add lambda to list users documents
+    const getUserDocumentsLambda = this.createLambda(
+      'GetUserDocuments',
+      pathToApiServiceLambda('documents/getByUserId'),
+      {
+        dbSecret,
+        layers: [mySqlLayer],
+        extraEnvironmentVariables: {
+          DOCUMENTS_BUCKET: uploadsBucket.bucketName,
+          USERINFO_ENDPOINT: jwtConfiguration.userInfoEndpoint,
+        },
+      },
+    )
+
+    // permission needed to create presigned urls for thumbnails
+    this.addPermissionsToDocumentBucket(getUserDocumentsLambda, uploadsBucket, {
+      includeRead: true,
+    })
+
+    // add route to list users documents
     this.addRoute(api, {
       name: 'GetUserDocuments',
       routeKey: 'GET /users/{userId}/documents',
-      lambdaFunction: this.createLambda(
-        'GetUserDocuments',
-        pathToApiServiceLambda('documents/getByUserId'),
-        {
-          dbSecret,
-          layers: [mySqlLayer],
-          extraEnvironmentVariables: {
-            USERINFO_ENDPOINT: jwtConfiguration.userInfoEndpoint,
-          },
-        },
-      ),
+      lambdaFunction: getUserDocumentsLambda,
       authorizer,
     })
 
@@ -892,7 +908,14 @@ export class CityStack extends Stack {
    * @param uploadsBucket The bucket with document uploads
    */
   private addDocumentRoutes(apiProps: ApiProps, uploadsBucket: Bucket) {
-    const { api, dbSecret, mySqlLayer, authorizer, jwtConfiguration } = apiProps
+    const {
+      api,
+      dbSecret,
+      mySqlLayer,
+      authorizer,
+      jwtConfiguration,
+      gmLayer,
+    } = apiProps
 
     // create lambda to fetch a document
     const getDocumentByIdLambda = this.createLambda(
@@ -953,6 +976,43 @@ export class CityStack extends Stack {
       authorizer,
     })
 
+    // update thumbnail path for document
+    const attachThumbnailToDocument = this.createLambda(
+      'AttachThumbnailToDocument',
+      pathToApiServiceLambda('documents/attachThumbnailToDocument'),
+      {
+        dbSecret,
+        layers: [mySqlLayer],
+      },
+    )
+
+    // create lambda to create thumbnail for document
+    const createDocumentThumbnail = this.createLambda(
+      'CreateDocumentThumbnail',
+      pathToApiServiceLambda('documents/createThumbnail'),
+      {
+        layers: [gmLayer],
+        extraEnvironmentVariables: {
+          DOCUMENTS_BUCKET: uploadsBucket.bucketName,
+        },
+        extraFunctionProps: {
+          onSuccess: new LambdaDestination(attachThumbnailToDocument, {
+            responseOnly: true,
+          }),
+        },
+      },
+    )
+
+    // permission needed to upload and download files
+    this.addPermissionsToDocumentBucket(
+      createDocumentThumbnail,
+      uploadsBucket,
+      {
+        includeRead: true,
+        includeWrite: true,
+      },
+    )
+
     // create lambda to mark document as received
     const markFileAsReceived = this.createLambda(
       'MarkFileAsReceived',
@@ -960,6 +1020,11 @@ export class CityStack extends Stack {
       {
         dbSecret,
         layers: [mySqlLayer],
+        extraFunctionProps: {
+          onSuccess: new LambdaDestination(createDocumentThumbnail, {
+            responseOnly: true,
+          }),
+        },
       },
     )
     markFileAsReceived.addEventSource(
@@ -996,24 +1061,32 @@ export class CityStack extends Stack {
    * Adds collection specific routes to the API
    * @param apiProps Common properties for API functions
    */
-  private addCollectionRoutes(apiProps: ApiProps) {
+  private addCollectionRoutes(apiProps: ApiProps, uploadsBucket: Bucket) {
     const { api, dbSecret, mySqlLayer, authorizer, jwtConfiguration } = apiProps
+
+    const getCollectionDocuments = this.createLambda(
+      'GetCollectionDocuments',
+      pathToApiServiceLambda('collections/getDocumentsByCollectionId'),
+      {
+        dbSecret,
+        layers: [mySqlLayer],
+        extraEnvironmentVariables: {
+          USERINFO_ENDPOINT: jwtConfiguration.userInfoEndpoint,
+          DOCUMENTS_BUCKET: uploadsBucket.bucketName,
+        },
+      },
+    )
+
+    // permission needed to create presigned urls for thumbnails
+    this.addPermissionsToDocumentBucket(getCollectionDocuments, uploadsBucket, {
+      includeRead: true,
+    })
 
     // add route and lambda to list collections documents
     this.addRoute(api, {
       name: 'GetCollectionDocuments',
       routeKey: 'GET /collections/{collectionId}/documents',
-      lambdaFunction: this.createLambda(
-        'GetCollectionDocuments',
-        pathToApiServiceLambda('collections/getDocumentsByCollectionId'),
-        {
-          dbSecret,
-          layers: [mySqlLayer],
-          extraEnvironmentVariables: {
-            USERINFO_ENDPOINT: jwtConfiguration.userInfoEndpoint,
-          },
-        },
-      ),
+      lambdaFunction: getCollectionDocuments,
       authorizer,
     })
 
@@ -1091,12 +1164,14 @@ export class CityStack extends Stack {
       dbSecret?: ISecret
       extraEnvironmentVariables?: { [key: string]: string }
       layers?: ILayerVersion[]
+      extraFunctionProps?: Partial<FunctionProps>
     },
   ) {
     const {
       handler = 'index.handler',
       dbSecret,
       extraEnvironmentVariables = {},
+      extraFunctionProps = {},
       layers,
     } = props
     const requiresDbConnectivity = !!dbSecret
@@ -1109,6 +1184,7 @@ export class CityStack extends Stack {
         }
       : {}
     return new Function(this, name, {
+      ...extraFunctionProps,
       code: Code.fromAsset(path),
       handler,
       environment: {
@@ -1135,6 +1211,20 @@ export class CityStack extends Stack {
       layer: new LayerVersion(this, 'MysqlLayer', {
         code: Code.fromAsset(
           path.join(__dirname, 'lambdas', 'sql-layer', 'layer.zip'),
+        ),
+        compatibleRuntimes: [Runtime.NODEJS_12_X],
+      }),
+    }
+  }
+
+  /**
+   * Adds the graphics magick lambda layer to the stack
+   */
+  private addGraphicsMagickLayer() {
+    return {
+      layer: new LayerVersion(this, 'GraphicsMagickLayer', {
+        code: Code.fromAsset(
+          path.join(__dirname, 'lambdas', 'gm-layer', 'layer.zip'),
         ),
         compatibleRuntimes: [Runtime.NODEJS_12_X],
       }),
