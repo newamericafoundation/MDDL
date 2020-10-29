@@ -76,13 +76,14 @@ export const createDocumentListItem = async (document: Document) => {
 export const singleDocumentResult = async (
   document: Document,
 ): Promise<DocumentContract> => {
-  const { id, name, createdAt, files: baseFiles } = document
+  const { id, name, createdAt, description, files: baseFiles } = document
 
   const files = baseFiles ? baseFiles : []
 
   return {
     createdDate: createdAt.toISOString(),
     name,
+    description,
     id,
     files: await Promise.all(
       files.map(

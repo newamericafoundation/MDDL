@@ -40,6 +40,7 @@ describe('getById', () => {
           id: documentId,
           ownerId: userId,
           name: 'My First File',
+          description: 'My First File Description',
           createdAt: new Date('2015-01-12T13:14:15Z'),
           updatedBy: userId,
           createdBy: userId,
@@ -62,7 +63,7 @@ describe('getById', () => {
     )
     expect(await getById(event)).toMatchInlineSnapshot(`
       Object {
-        "body": "{\\"createdDate\\":\\"2015-01-12T13:14:15.000Z\\",\\"name\\":\\"My First File\\",\\"id\\":\\"myDocumentId\\",\\"files\\":[{\\"id\\":\\"myFileId\\",\\"createdDate\\":\\"2015-01-12T13:14:15.000Z\\",\\"links\\":[{\\"href\\":\\"/documents/myDocumentId/files/myFileId/download?disposition=attachment\\",\\"rel\\":\\"download\\",\\"type\\":\\"GET\\"},{\\"href\\":\\"/documents/myDocumentId/files/myFileId/download?disposition=inline\\",\\"rel\\":\\"preview\\",\\"type\\":\\"GET\\"}],\\"name\\":\\"myFile\\",\\"sha256Checksum\\":\\"checksum\\",\\"contentType\\":\\"image/jpeg\\",\\"contentLength\\":10000}],\\"links\\":[]}",
+        "body": "{\\"createdDate\\":\\"2015-01-12T13:14:15.000Z\\",\\"name\\":\\"My First File\\",\\"description\\":\\"My First File Description\\",\\"id\\":\\"myDocumentId\\",\\"files\\":[{\\"id\\":\\"myFileId\\",\\"createdDate\\":\\"2015-01-12T13:14:15.000Z\\",\\"links\\":[{\\"href\\":\\"/documents/myDocumentId/files/myFileId/download?disposition=attachment\\",\\"rel\\":\\"download\\",\\"type\\":\\"GET\\"},{\\"href\\":\\"/documents/myDocumentId/files/myFileId/download?disposition=inline\\",\\"rel\\":\\"preview\\",\\"type\\":\\"GET\\"}],\\"name\\":\\"myFile\\",\\"sha256Checksum\\":\\"checksum\\",\\"contentType\\":\\"image/jpeg\\",\\"contentLength\\":10000}],\\"links\\":[]}",
         "cookies": Array [],
         "headers": Object {
           "Content-Type": "application/json",
