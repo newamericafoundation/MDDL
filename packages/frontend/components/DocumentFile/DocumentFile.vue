@@ -59,9 +59,9 @@ export default class DocumentFile extends Vue {
 
 <style scoped lang="scss">
 .viewer {
-  height: calc(100vh - 5.5rem);
   &.pdf {
     width: 100%;
+    height: calc(100vh - 10.5rem);
   }
   &.image {
     img {

@@ -5,6 +5,7 @@ import { AxiosResponse } from 'axios'
 import {
   Document,
   DocumentFile,
+  DocumentUpdate,
   FileDownloadDispositionTypeEnum,
 } from 'api-client'
 
@@ -22,9 +23,10 @@ export default class DocumentStore extends VuexModule {
   }
 
   @Action
-  update(document: Document) {
-    api.document.updateDocumentById(document.id!, {
+  update(document: Document): Promise<AxiosResponse<void>> {
+    return api.document.updateDocumentById(document.id, {
       name: document.name,
+      description: document.description,
     })
   }
 

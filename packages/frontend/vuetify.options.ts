@@ -14,6 +14,7 @@ import Download from '@/components/icons/download.vue'
 import Folder from '@/components/icons/folder.vue'
 import HomeOutline from '@/components/icons/home-outline.vue'
 import Menu from '@/components/icons/menu.vue'
+import Pencil from '@/components/icons/pencil.vue'
 import Plus from '@/components/icons/plus.vue'
 import Profile from '@/components/icons/profile.vue'
 import Send from '@/components/icons/send.vue'
@@ -21,7 +22,6 @@ import Send from '@/components/icons/send.vue'
 const vuetifyOptions = (ctx: Context): Options => {
   return {
     treeShake: true,
-    customVariables: ['@/assets/scss/vuetifyVariables.scss'],
     theme: {
       dark: false,
       disable: false,
@@ -83,6 +83,9 @@ const vuetifyOptions = (ctx: Context): Options => {
         },
         menu: {
           component: Menu,
+        },
+        pencil: {
+          component: Pencil,
         },
         plus: {
           component: Plus,

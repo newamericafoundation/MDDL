@@ -23,7 +23,7 @@
           max-height="200"
           max-width="200"
           contain
-          class="pa-4"
+          class="ma-4"
         ></v-img>
         <v-skeleton-loader
           v-else

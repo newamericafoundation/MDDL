@@ -1,5 +1,5 @@
 import { extend, configure } from 'vee-validate'
-import { required, email } from 'vee-validate/dist/rules'
+import { required, email, max } from 'vee-validate/dist/rules'
 import VueI18n from 'vue-i18n'
 import validationMessages from 'vee-validate/dist/locale/en'
 
@@ -13,6 +13,7 @@ const i18n = new VueI18n({
       validations: {
         email: 'res fi si xsisev irsies sivvliss',
         required: 'mes heisv es liweeliv',
+        max: 'heisv sihsiehs ii rsihith smsilsisils',
       },
     },
   },
@@ -33,4 +34,8 @@ extend('required', {
 extend('email', {
   ...email,
   message: (_, values) => i18n.t('validations.email', values),
+})
+extend('max', {
+  ...max,
+  message: (_, values) => i18n.t('validations.max', values),
 })

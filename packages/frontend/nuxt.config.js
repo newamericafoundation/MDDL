@@ -53,6 +53,7 @@ export default {
   axios: {},
   vuetify: {
     optionsPath: './vuetify.options.ts',
+    customVariables: ['./assets/scss/vuetifyVariables.scss'],
   },
   env: {
     apiUrl: process.env.API_URL,

@@ -20,6 +20,12 @@
 
           <v-list>
             <v-list-item>
+              <v-btn @click="showDetails">
+                <v-icon small class="mr-2" color="primary">$pencil</v-icon>
+                {{ $t('editDetails') }}
+              </v-btn>
+            </v-list-item>
+            <v-list-item>
               <v-btn text :disabled="loading" @click="download">
                 <v-icon small class="mr-2" color="primary">$download</v-icon>
                 {{ $t('download') }}
@@ -48,7 +54,7 @@
       </template>
     </AppBar>
     <v-main>
-      <v-container v-if="document" class="px-0">
+      <v-container v-if="document" class="px-2">
         <template v-if="document.files.length === 1">
           <DocumentFile :document="document" :file="document.files[0]" />
         </template>
@@ -60,6 +66,22 @@
             <DocumentFile :document="document" :file="file" />
           </v-carousel-item>
         </v-carousel>
+        <template v-if="document.description">
+          <v-expansion-panels class="mt-4 px-2">
+            <v-expansion-panel>
+              <v-expansion-panel-header
+                class="body-1 font-weight-medium"
+                expand-icon="mdi-menu-down"
+              >
+                {{ capitalize($t('description')) }}
+              </v-expansion-panel-header>
+              <v-expansion-panel-content class="pt-4 body-1">
+                {{ document.description }}
+              </v-expansion-panel-content>
+            </v-expansion-panel>
+          </v-expansion-panels>
+          <div class="vertical-space" />
+        </template>
       </v-container>
       <div v-else>
         <v-skeleton-loader
@@ -68,12 +90,77 @@
         ></v-skeleton-loader>
       </div>
     </v-main>
+
+    <v-dialog
+      v-if="document"
+      v-model="showDialog"
+      fullscreen
+      hide-overlay
+      transition="dialog-bottom-transition"
+    >
+      <v-card>
+        <v-toolbar flat>
+          <v-btn
+            class="mr-2"
+            icon
+            :disabled="loading"
+            @click.stop="closeDetails"
+          >
+            <v-icon>$chevron-left</v-icon>
+          </v-btn>
+          <v-toolbar-title>{{ $t('editDetails') }}</v-toolbar-title>
+          <v-spacer />
+          <v-btn
+            color="primary"
+            text
+            :disabled="!valid || loading"
+            @click="editDetails"
+          >
+            {{ $t('done') }}
+          </v-btn>
+        </v-toolbar>
+        <v-container class="pa-8">
+          <ValidationObserver ref="observer">
+            <v-form @submit.prevent>
+              <p class="subtitle-1 capitalize">{{ $t('name') }}</p>
+              <ValidationProvider
+                v-slot="{ errors }"
+                name="name"
+                rules="required"
+              >
+                <v-text-field
+                  v-model="newName"
+                  :error-messages="errors"
+                  outlined
+                  :placeholder="capitalize($t('enterDocumentNamePlaceholder'))"
+                />
+              </ValidationProvider>
+              <p class="subtitle-1 capitalize">{{ $t('description') }}</p>
+              <ValidationProvider
+                v-slot="{ errors }"
+                name="description"
+                rules="max:500"
+              >
+                <v-textarea
+                  v-model="newDescription"
+                  :error-messages="errors"
+                  outlined
+                  :placeholder="
+                    capitalize($t('enterDocumentDescriptionPlaceholder'))
+                  "
+                />
+              </ValidationProvider>
+            </v-form>
+          </ValidationObserver>
+        </v-container>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
 <script lang="ts">
 import fs from 'fs'
-import { Vue, Component } from 'nuxt-property-decorator'
+import { Vue, Component, Watch } from 'nuxt-property-decorator'
 import {
   Document,
   DocumentFile,
@@ -81,23 +168,36 @@ import {
   FileDownloadDispositionTypeEnum,
 } from 'api-client'
 import { format } from 'date-fns'
+import { ValidationObserver, ValidationProvider } from 'vee-validate'
+import { capitalize } from '@/assets/js/stringUtils'
 
 @Component({
   layout: 'empty',
+  components: {
+    ValidationObserver,
+    ValidationProvider,
+  },
 })
 export default class ViewDocument extends Vue {
+  capitalize = capitalize
   showMenu = false
   loading = true
   document: Document | null = null
   currentPage = 'page-0'
+  showDialog = false
+  newName = ''
+  newDescription = ''
+  recompute = false
 
   async mounted() {
-    const data = await this.$store.dispatch(
+    const data: Document = await this.$store.dispatch(
       'document/getById',
       this.$route.params.id,
     )
 
     this.document = data
+    this.newName = data.name
+    this.newDescription = data.description ?? ''
 
     this.loading = false
   }
@@ -112,7 +212,7 @@ export default class ViewDocument extends Vue {
   get documentContentSize() {
     if (!this.document) return ''
     const totalBytes = this.document.files
-      .map(f => f.contentLength)
+      .map((f) => f.contentLength)
       .reduce(
         (fileContentLength, documentContentLength) =>
           fileContentLength + documentContentLength,
@@ -139,11 +239,55 @@ export default class ViewDocument extends Vue {
     link.remove()
     this.loading = false
   }
+
+  showDetails() {
+    this.showDialog = true
+  }
+
+  async editDetails() {
+    this.loading = true
+    this.document!.name = this.newName
+    this.document!.description = this.newDescription.length
+      ? this.newDescription
+      : undefined
+    await this.$store.dispatch('document/update', this.document)
+    this.closeDetails()
+    this.loading = false
+  }
+
+  closeDetails() {
+    this.newName = this.document!.name
+    this.newDescription = this.document!.description ?? ''
+    this.showDialog = false
+  }
+
+  get valid() {
+    // Referencing this.recompute forces this.$refs.observer to be updated
+    // eslint-disable-next-line no-unused-expressions
+    this.recompute
+    return this.$refs.observer instanceof ValidationObserver
+      ? (this.$refs.observer as any).flags.valid
+      : false
+  }
+
+  /**
+   * Unfortunately we need this little hack to get Vue to
+   * recognise when ValidationObserver is added to the DOM
+   */
+  @Watch('showDialog')
+  recomputer() {
+    setTimeout(() => {
+      this.recompute = !this.recompute
+    }, 100)
+  }
 }
 </script>
 
 <style lang="scss">
 .container {
   min-height: calc(100vh - 4rem);
+  .vertical-space {
+    min-height: 20rem;
+  }
 }
 </style>

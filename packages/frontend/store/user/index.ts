@@ -45,18 +45,17 @@ export default class User extends VuexModule {
   @Action
   async uploadDocument({
     fileList,
+    name,
     onUploadProgress = () => {
       // default empty function
     },
   }: {
     fileList: FileList
+    name: string
     onUploadProgress?: (e: ProgressEvent) => void
   }): Promise<Document> {
-    // FileList has a weird spec, with no iterator. This gets around it.
-    const files = new Array(fileList.length)
-    for (let i = 0; i < fileList.length; i++) {
-      files[i] = fileList[i]
-    }
+    // FileList has a weird spec, with no iterator. This converts it to an array
+    const files = Array.from(fileList)
 
     if (!files.length)
       return Promise.reject(new Error('Files must not be an empty list'))
@@ -74,7 +73,7 @@ export default class User extends VuexModule {
     const addResponse: AxiosResponse<Document> = await api.user.addUserDocument(
       this._userId,
       {
-        name: files[0].name.split('.').slice(0, -1).join('.'),
+        name,
         files: files.map((file, i) => ({
           name: file.name,
           contentType: file.type as FileContentTypeEnum,
@@ -130,7 +129,7 @@ export default class User extends VuexModule {
         Object.keys(uploadLink.includeFormData).forEach((key) =>
           formData.append(key, uploadLink.includeFormData[key]),
         )
-        formData.append('file', file)
+        formData.append('file', file!)
         return axiosInstance.post(uploadLink.href, formData, options)
       }),
     )
