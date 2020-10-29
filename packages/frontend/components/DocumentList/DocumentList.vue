@@ -49,6 +49,7 @@ import { userStore } from '@/plugins/store-accessor'
 export default class Documents extends Vue {
   @Prop({ default: false }) selectable: boolean
   @Prop({ default: null }) value: any
+  @Prop({ default: [] }) preSelected: any
 
   loading = true
   selected: boolean[] = []
@@ -57,6 +58,16 @@ export default class Documents extends Vue {
     this.$store.commit('user/setUserId', this.$auth.user.username)
     await this.$store.dispatch('user/getDocuments')
     this.selected = new Array(userStore.documents.length)
+    if (this.preSelected) {
+      for (const id of this.preSelected) {
+        const index = userStore.documents.findIndex(
+          (d: DocumentListItem) => d.id === id,
+        )
+        if (index >= 0) {
+          this.$set(this.selected, index, true)
+        }
+      }
+    }
     this.loading = false
   }
 

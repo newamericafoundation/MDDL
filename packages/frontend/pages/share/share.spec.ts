@@ -11,6 +11,9 @@ describe('Share component', () => {
           params: {
             id: '1',
           },
+          query: {
+            selected: [],
+          },
         },
         $store: {
           dispatch: () => '',

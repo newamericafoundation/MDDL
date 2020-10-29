@@ -2,7 +2,11 @@
 import { Module, VuexModule, Action } from 'vuex-module-decorators'
 import { api } from '@/plugins/api-accessor'
 import { AxiosResponse } from 'axios'
-import { Document } from 'api-client'
+import {
+  Document,
+  DocumentFile,
+  FileDownloadDispositionTypeEnum,
+} from 'api-client'
 
 @Module({
   name: 'document',
@@ -25,9 +29,37 @@ export default class DocumentStore extends VuexModule {
   }
 
   @Action
-  download(document: Document): Promise<string> {
+  download(payload: {
+    document: Document
+    disposition: FileDownloadDispositionTypeEnum | undefined
+  }): Promise<string[]> {
+    const { document, disposition } = payload
+    return Promise.all(
+      document.files.map((file) =>
+        api.document
+          .downloadDocumentFileById(
+            document.id,
+            file.id,
+            disposition ?? FileDownloadDispositionTypeEnum.Attachment,
+          )
+          .then((r) => r.data.href),
+      ),
+    )
+  }
+
+  @Action
+  downloadFile(payload: {
+    document: Document
+    file: DocumentFile
+    disposition: FileDownloadDispositionTypeEnum | undefined
+  }): Promise<string> {
+    const { document, file, disposition } = payload
     return api.document
-      .downloadDocumentFileById(document.id, document.files[0].id)
+      .downloadDocumentFileById(
+        document.id,
+        file.id,
+        disposition ?? FileDownloadDispositionTypeEnum.Attachment,
+      )
       .then((r) => r.data.href)
   }
 }

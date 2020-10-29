@@ -28,6 +28,7 @@
     "@storybook/addon-knobs": "^6.0.22",
     "@storybook/addon-viewport": "^6.0.22",
     "@types/nuxtjs__auth": "^4.8.5",
+    "@types/utif": "^3.0.1",
     "api-client": "1.0.0",
     "asmcrypto.js": "^2.3.2",
     "babel-core": "^7.0.0-bridge.0",
@@ -38,6 +39,7 @@
     "nuxt": "^2.14.6",
     "nuxt-i18n": "^6.15.1",
     "nuxt-property-decorator": "^2.8.8",
+    "utif": "^3.1.0",
     "vee-validate": "^3.4.2",
     "vue-class-component": "^7.2.6",
     "vuex-module-decorators": "^0.17.0"

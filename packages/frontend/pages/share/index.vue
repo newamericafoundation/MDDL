@@ -17,7 +17,11 @@
         </v-btn>
       </v-toolbar>
       <div class="window-container">
-        <DocumentList v-model="selectedDocs" :selectable="true" />
+        <DocumentList
+          v-model="selectedDocs"
+          :selectable="true"
+          :pre-selected="preSelected"
+        />
       </div>
     </v-window-item>
     <v-window-item>
@@ -196,6 +200,13 @@ export default class Share extends Vue {
     return this.$refs.observer instanceof ValidationObserver
       ? (this.$refs.observer as any).fields.email.valid || this.email === ''
       : false
+  }
+
+  get preSelected() {
+    if (!this.$route.query.selected) return []
+    if (!Array.isArray(this.$route.query.selected))
+      return [this.$route.query.selected]
+    return this.$route.query.selected
   }
 
   addEmail(evt: KeyboardEvent | FocusEvent) {

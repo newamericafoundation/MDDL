@@ -103,7 +103,7 @@ export default class SnackBar extends Vue {
   padding: 0rem 1rem;
   .v-snack__content {
     color: var(--white);
-    margin-right: 2rem;
+    padding-right: 3rem;
   }
 
   .v-snack__action {

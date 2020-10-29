@@ -3,11 +3,10 @@
     <slot name="nav-action" />
     <template v-if="$vuetify.breakpoint.smAndUp">
       <v-spacer />
-      <v-toolbar-title>Data Locker</v-toolbar-title>
     </template>
     <v-spacer />
     <slot name="actions" />
-    <template v-slot:extension>
+    <template v-if="!!this.$slots.extension" v-slot:extension>
       <slot name="extension" />
     </template>
   </v-app-bar>

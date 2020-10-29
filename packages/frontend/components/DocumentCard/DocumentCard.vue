@@ -45,6 +45,10 @@ export default class DocumentCard extends Vue {
   @Prop({ default: null }) value: boolean
   checked = false
 
+  mounted() {
+    if (this.value) this.checked = true
+  }
+
   get documentDate() {
     return format(new Date(this.document.createdDate), 'LLL d, yyyy')
   }
