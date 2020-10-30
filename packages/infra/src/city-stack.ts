@@ -722,10 +722,11 @@ export class CityStack extends Stack {
     permissions: {
       includeRead?: boolean
       includeWrite?: boolean
+      includeDelete?: boolean
     },
   ) {
     // set up constants
-    const { includeRead, includeWrite } = permissions
+    const { includeRead, includeWrite, includeDelete } = permissions
     const { encryptionKey } = uploadsBucket
     const bucketActions = []
     const keyActions = []
@@ -742,6 +743,11 @@ export class CityStack extends Stack {
       keyActions.push('kms:GenerateDataKey')
     }
 
+    // determine delete permissions needed
+    if (includeDelete) {
+      bucketActions.push('s3:DeleteObject')
+    }
+
     // add bucket permissions
     lambdaFunction.addToRolePolicy(
       new PolicyStatement({
@@ -755,7 +761,7 @@ export class CityStack extends Stack {
     )
 
     // add key permissions
-    if (encryptionKey) {
+    if (encryptionKey && keyActions.length) {
       lambdaFunction.addToRolePolicy(
         new PolicyStatement({
           actions: keyActions,
@@ -1053,6 +1059,37 @@ export class CityStack extends Stack {
           },
         },
       ),
+      authorizer,
+    })
+
+    // create lambda to delete a document
+    const deleteDocumentByIdLambda = this.createLambda(
+      'DeleteDocumentById',
+      pathToApiServiceLambda('documents/deleteDocumentById'),
+      {
+        dbSecret,
+        layers: [mySqlLayer],
+        extraEnvironmentVariables: {
+          DOCUMENTS_BUCKET: uploadsBucket.bucketName,
+          USERINFO_ENDPOINT: jwtConfiguration.userInfoEndpoint,
+        },
+      },
+    )
+
+    // permission needed to create presigned urls (for get and put)
+    this.addPermissionsToDocumentBucket(
+      deleteDocumentByIdLambda,
+      uploadsBucket,
+      {
+        includeDelete: true,
+      },
+    )
+
+    // add route
+    this.addRoute(api, {
+      name: 'DeleteDocumentById',
+      routeKey: 'DELETE /documents/{documentId}',
+      lambdaFunction: deleteDocumentByIdLambda,
       authorizer,
     })
   }

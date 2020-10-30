@@ -55,7 +55,7 @@ export const getPresignedDownloadUrl = async (
   })
 }
 
-export const downloadFile = async (key: string, outputPath: string) => {
+export const downloadObject = async (key: string, outputPath: string) => {
   const result = await s3
     .getObject(
       {
@@ -68,13 +68,12 @@ export const downloadFile = async (key: string, outputPath: string) => {
   writeFileSync(outputPath, result.Body)
 }
 
-export const uploadFile = async (
+export const uploadObject = async (
   filePath: string,
   key: string,
   otherParams: Partial<S3.PutObjectRequest> = {},
 ) => {
   const data = readFileSync(filePath)
-  const base64data = data
   const params = {
     ...otherParams,
     Bucket: BUCKET,
@@ -82,4 +81,16 @@ export const uploadFile = async (
     Body: data,
   }
   await s3.upload(params).promise()
+}
+
+export const deleteObject = async (key: string) => {
+  return await s3
+    .deleteObject(
+      {
+        Bucket: BUCKET,
+        Key: key,
+      },
+      undefined,
+    )
+    .promise()
 }

@@ -1,4 +1,4 @@
-import { getPresignedDownloadUrl } from './s3'
+import { deleteObject, getPresignedDownloadUrl } from './s3'
 
 // this is an integration test so is skipped but checked in to validate behaviour if needed
 describe.skip('s3', () => {
@@ -11,6 +11,13 @@ describe.skip('s3', () => {
           'attachment',
         ),
       ).toBeTruthy()
+    })
+  })
+  describe('deleteObject', () => {
+    it('deletes the file', async () => {
+      expect(await deleteObject('myfile.txt')).toMatchInlineSnapshot(
+        `Object {}`,
+      )
     })
   })
 })

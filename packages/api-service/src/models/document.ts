@@ -203,3 +203,9 @@ export const updateDocument = async (
 ) => {
   return await Document.query().patch(documentDetails).where({ id })
 }
+
+export const deleteDocument = async (id: string) => {
+  await File.query().delete().where({ documentId: id })
+  await CollectionDocument.query().delete().where({ documentId: id })
+  return await Document.query().delete().where({ id })
+}

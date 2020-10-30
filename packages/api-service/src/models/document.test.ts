@@ -9,6 +9,7 @@ import {
   getSingleDocumentById,
   documentIsInCollectionWithGrant,
   setDocumentThumbnailPath,
+  deleteDocument,
 } from './document'
 import { v4 as uuidv4 } from 'uuid'
 import { connectDatabase } from '@/utils/database'
@@ -374,6 +375,69 @@ describe('DocumentModel', () => {
           userEmail,
         ),
       ).toStrictEqual(true)
+    })
+  })
+
+  describe('deleteDocument', () => {
+    const userId = uuidv4()
+    const documentId = uuidv4()
+    const collectionId = uuidv4()
+    const userEmail = 'testgrantemail'
+    let document: DocumentModel
+    beforeAll(async () => {
+      document = await createDocument({
+        id: documentId,
+        name,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        ownerId: userId,
+        createdBy: userId,
+        updatedBy: userId,
+        files: [
+          {
+            id: uuidv4(),
+            contentType: 'image/png',
+            createdAt: new Date(),
+            createdBy: userId,
+            name: 'document 1',
+            path: 'filePath',
+            sha256Checksum: 'ABC123',
+            contentLength: 1000,
+            received: false,
+          },
+        ],
+      })
+      await createCollection({
+        id: collectionId,
+        name,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        ownerId: userId,
+        createdBy: userId,
+        updatedBy: userId,
+        collectionDocuments: [
+          {
+            documentId: document.id,
+            createdAt: new Date(),
+            createdBy: userId,
+          },
+        ],
+        grants: [
+          {
+            requirementType: CollectionGrantType.INDIVIDUALEMAIL,
+            requirementValue: userEmail,
+            createdAt: new Date(),
+            createdBy: userId,
+          },
+        ],
+      })
+    })
+    it('returns 0 if document not found', async () => {
+      const id = uuidv4()
+      expect(await deleteDocument(id)).toStrictEqual(0)
+    })
+    it('returns 1 if document found', async () => {
+      expect(await deleteDocument(documentId)).toStrictEqual(1)
     })
   })
 })

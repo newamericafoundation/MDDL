@@ -17,3 +17,9 @@ export const getPresignedUploadUrl = async (
     'Content-Length': contentLength,
   },
 })
+
+export const downloadObject = jest.fn()
+
+export const uploadObject = jest.fn()
+
+export const deleteObject = jest.fn()

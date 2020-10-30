@@ -1,6 +1,6 @@
 import gm from 'gm'
 import { FileContentTypeEnum } from 'api-client'
-import { downloadFile, uploadFile } from '@/utils/s3'
+import { downloadObject, uploadObject } from '@/utils/s3'
 import { unlinkSync } from 'fs'
 import { FilesReceivedResponse } from './markFileReceived'
 
@@ -24,13 +24,13 @@ export const handler = async (
     const downloadLocation = `/tmp/${file.id}`
     const thumbnailLocation = `/tmp/thumbnail-${file.id}`
     const thumbnailKey = `${file.path}-thumbnail`
-    await downloadFile(file.path, downloadLocation)
+    await downloadObject(file.path, downloadLocation)
     await createThumbnail(
       file.contentType as FileContentTypeEnum,
       downloadLocation,
       thumbnailLocation,
     )
-    await uploadFile(thumbnailLocation, thumbnailKey, {
+    await uploadObject(thumbnailLocation, thumbnailKey, {
       ContentType: FileContentTypeEnum.ImagePng,
     })
     documentLinks.push({
