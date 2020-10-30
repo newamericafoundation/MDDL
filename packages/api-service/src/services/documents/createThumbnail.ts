@@ -21,12 +21,13 @@ export const handler = async (
   const files = rawFiles.filter((f) => f.order === 0)
   const documentLinks: DocumentThumbnailLink[] = []
   for (const file of files) {
-    const downloadLocation = `/tmp/${file.id}`
-    const thumbnailLocation = `/tmp/thumbnail-${file.id}`
-    const thumbnailKey = `${file.path}-thumbnail`
-    await downloadObject(file.path, downloadLocation)
+    const { id, path, documentId, contentType } = file
+    const downloadLocation = `/tmp/${id}`
+    const thumbnailLocation = `/tmp/thumbnail-${id}.png`
+    const thumbnailKey = `${path}-thumbnail`
+    await downloadObject(path, downloadLocation)
     await createThumbnail(
-      file.contentType as FileContentTypeEnum,
+      contentType as FileContentTypeEnum,
       downloadLocation,
       thumbnailLocation,
     )
@@ -34,7 +35,7 @@ export const handler = async (
       ContentType: FileContentTypeEnum.ImagePng,
     })
     documentLinks.push({
-      documentId: file.documentId,
+      documentId,
       thumbnailKey,
     })
     unlinkSync(downloadLocation)

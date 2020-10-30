@@ -44,13 +44,4 @@ describe.skip('createThumbnail', () => {
       ),
     ).toBeTruthy()
   })
-  it('can create thumbnail of tiff 2', async () => {
-    expect(
-      await createThumbnail(
-        FileContentTypeEnum.ImageTiff,
-        createPath('user_experience_style_guide.tiff'),
-        createPath('output/user_experience_style_guide-thumbnail-tiff.png'),
-      ),
-    ).toBeTruthy()
-  })
 })
