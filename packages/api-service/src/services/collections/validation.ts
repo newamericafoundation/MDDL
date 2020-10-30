@@ -2,7 +2,15 @@ import {
   MaxIndividualEmailAddressesPerCollection,
   MaxDocumentsPerUser,
 } from '@/constants'
+import { emailIsWhitelisted } from '@/utils/whitelist'
 import { string, array, object } from 'joi'
+
+const validateEmailIsWhitelisted = (value: string) => {
+  if (!emailIsWhitelisted(value)) {
+    throw new Error(`${value} is not a whitelisted email address`)
+  }
+  return value
+}
 
 export const createCollectionSchema = object({
   name: string().min(1).max(255).required(),
@@ -13,7 +21,7 @@ export const createCollectionSchema = object({
     .unique()
     .required(),
   individualEmailAddresses: array()
-    .items(string().email().min(1).max(255))
+    .items(string().email().min(1).max(255).custom(validateEmailIsWhitelisted))
     .max(MaxIndividualEmailAddressesPerCollection)
     .unique()
     .required(),

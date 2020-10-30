@@ -9,8 +9,9 @@ import { Document } from '@/models/document'
 import { File } from '@/models/file'
 import { createJsonResponse } from '@/utils/api-gateway'
 import { getPresignedDownloadUrl, getPresignedUploadUrl } from '@/utils/s3'
+import { DocumentPermission } from './authorization'
 
-export const createLinksForFile = async (file: File) => {
+export const createLinksForFile = (file: File) => {
   const links: any[] = []
   if (file.received) {
     links.push({
@@ -24,7 +25,7 @@ export const createLinksForFile = async (file: File) => {
       type: 'GET',
     })
   } else {
-    const uploadData = await getPresignedUploadUrl(
+    const uploadData = getPresignedUploadUrl(
       file.path,
       file.contentType,
       file.contentLength,
@@ -40,7 +41,7 @@ export const createLinksForFile = async (file: File) => {
   return links
 }
 
-export const createDocumentListItem = async (document: Document) => {
+export const createDocumentListItem = (document: Document) => {
   const { id, name, createdAt, thumbnailPath } = document
 
   const links = [
@@ -52,7 +53,7 @@ export const createDocumentListItem = async (document: Document) => {
   ]
 
   if (thumbnailPath) {
-    const thumbnailLink = await getPresignedDownloadUrl(
+    const thumbnailLink = getPresignedDownloadUrl(
       thumbnailPath,
       'thumbnail.png',
       FileDownloadDispositionTypeEnum.Attachment,
@@ -73,10 +74,33 @@ export const createDocumentListItem = async (document: Document) => {
   }
 }
 
-export const singleDocumentResult = async (
+export const singleDocumentResult = (
   document: Document,
-): Promise<DocumentContract> => {
+  permissions: DocumentPermission[],
+): DocumentContract => {
   const { id, name, createdAt, description, files: baseFiles } = document
+
+  const links = [
+    {
+      href: `/documents/${id}`,
+      rel: 'self',
+      type: 'GET',
+    },
+  ]
+  if (permissions.includes(DocumentPermission.WriteDocument)) {
+    links.push({
+      href: `/documents/${id}`,
+      rel: 'update',
+      type: 'PUT',
+    })
+  }
+  if (permissions.includes(DocumentPermission.DeleteDocument)) {
+    links.push({
+      href: `/documents/${id}`,
+      rel: 'delete',
+      type: 'DELETE',
+    })
+  }
 
   const files = baseFiles ? baseFiles : []
 
@@ -85,25 +109,17 @@ export const singleDocumentResult = async (
     name,
     description,
     id,
-    files: await Promise.all(
-      files.map(
-        async (f): Promise<DocumentFileContract> => ({
-          id: f.id,
-          createdDate: f.createdAt.toISOString(),
-          links: await createLinksForFile(f),
-          name: f.name,
-          sha256Checksum: f.sha256Checksum,
-          contentType: f.contentType as FileContentTypeEnum,
-          contentLength: f.contentLength,
-        }),
-      ),
+    files: files.map(
+      (f): DocumentFileContract => ({
+        id: f.id,
+        createdDate: f.createdAt.toISOString(),
+        links: createLinksForFile(f),
+        name: f.name,
+        sha256Checksum: f.sha256Checksum,
+        contentType: f.contentType as FileContentTypeEnum,
+        contentLength: f.contentLength,
+      }),
     ),
-    links: [],
+    links: links,
   }
-}
-
-export const createSingleDocumentResult = async (document: Document) => {
-  return createJsonResponse<DocumentContract>(
-    await singleDocumentResult(document),
-  )
 }

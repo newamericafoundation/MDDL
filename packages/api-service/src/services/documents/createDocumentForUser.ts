@@ -20,6 +20,7 @@ import {
 } from '@/utils/middleware'
 import { requirePermissionToUser, UserPermission } from '../user/authorization'
 import createError from 'http-errors'
+import { DocumentPermission } from './authorization'
 
 connectDatabase()
 
@@ -31,7 +32,7 @@ export const handler = createApiGatewayHandler(
   async (
     request: APIGatewayRequestBody<DocumentCreate>,
   ): Promise<DocumentContract> => {
-    const { ownerId, userId, body } = request
+    const { ownerId, userId, body, userPermissions } = request
 
     const documentCount = await countDocumentsByOwnerId(ownerId)
     if (documentCount >= MaxDocumentsPerUser) {
@@ -73,7 +74,14 @@ export const handler = createApiGatewayHandler(
       throw new createError.InternalServerError('document could not be created')
     }
 
-    return await singleDocumentResult(createdDocument)
+    const permissions = userPermissions.includes(UserPermission.WriteUser)
+      ? [
+          DocumentPermission.DeleteDocument,
+          DocumentPermission.WriteDocument,
+          DocumentPermission.GetDocument,
+        ]
+      : [DocumentPermission.WriteDocument, DocumentPermission.GetDocument]
+    return singleDocumentResult(createdDocument, permissions)
   },
 )
 

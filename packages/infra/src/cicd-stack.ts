@@ -398,7 +398,11 @@ export class CiCdStack extends Stack {
     const cityStacks = CiCdStack.getCityStacksProps(props)
     const cityBuildArgs = cityStacks.map((cs) => ({
       name: cs.name,
-      env: cs.props.webAppBuildVariables || {},
+      env: {
+        ...cs.props.webAppBuildVariables,
+        AGENCY_EMAIL_DOMAINS_WHITELIST:
+          cs.props.agencyEmailDomainsWhitelist?.join(',') ?? '',
+      },
     }))
 
     // create artifacts for each one

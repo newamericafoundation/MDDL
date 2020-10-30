@@ -48,7 +48,7 @@ export const handler = createApiGatewayHandler(
     }
 
     return {
-      href: await getPresignedDownloadUrl(file.path, file.name, disposition),
+      href: getPresignedDownloadUrl(file.path, file.name, disposition),
     }
   },
 )

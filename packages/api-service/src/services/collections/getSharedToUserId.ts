@@ -10,10 +10,7 @@ import {
   createApiGatewayHandler,
   setContext,
 } from '@/utils/middleware'
-import {
-  requirePermissionToUserEmail,
-  UserPermission,
-} from '../user/authorization'
+import { requirePermissionToAgent, UserPermission } from '../user/authorization'
 import { requireUserData } from '@/services/user'
 import { getUsersById, User } from '@/models/user'
 import { formatSharedCollections } from '@/services/collections'
@@ -25,7 +22,7 @@ export const handler = createApiGatewayHandler(
   setContext('ownerId', (r) => requirePathParameter(r.event, 'userId')),
   setContext('userId', (r) => requireUserId(r.event)),
   setContext('user', async (r) => await requireUserData(r)),
-  requirePermissionToUserEmail(UserPermission.ListCollections),
+  requirePermissionToAgent(UserPermission.ListCollections),
   async (request: APIGatewayRequest): Promise<SharedCollectionListContract> => {
     const { user } = (request as unknown) as APIGatewayRequest & { user: User }
     const foundCollections = await getCollectionsByGrantType(

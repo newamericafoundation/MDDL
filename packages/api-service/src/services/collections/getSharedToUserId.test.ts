@@ -11,8 +11,10 @@ import {
 } from '@/utils/test'
 import { APIGatewayProxyEventV2 } from 'aws-lambda'
 import { getUsersById, User } from '@/models/user'
+import { emailIsWhitelisted } from '@/utils/whitelist'
 
 jest.mock('@/utils/database')
+jest.mock('@/utils/whitelist')
 jest.mock('@/models/collection')
 jest.mock('@/models/user')
 jest.mock('@/services/user')
@@ -23,6 +25,7 @@ describe('getSharedToUserId', () => {
 
   beforeEach(() => {
     mockUserData(userId)
+    toMockedFunction(emailIsWhitelisted).mockImplementationOnce(() => true)
     event = setUserId(
       userId,
       createMockEvent({
@@ -86,13 +89,29 @@ describe('getSharedToUserId', () => {
     toMockedFunction(getUsersById).mockImplementationOnce(async () => [])
     expect(await getSharedToUserId(event)).toMatchInlineSnapshot(`
       Object {
-        "body": "{\\"message\\":\\"User not found\\"}",
+        "body": "{\\"message\\":\\"user not found\\"}",
         "cookies": Array [],
         "headers": Object {
           "Content-Type": "application/json",
         },
         "isBase64Encoded": false,
         "statusCode": 404,
+      }
+    `)
+  })
+  it('returns forbidden when user not whitelisted', async () => {
+    toMockedFunction(emailIsWhitelisted)
+      .mockReset()
+      .mockImplementationOnce(() => false)
+    expect(await getSharedToUserId(event)).toMatchInlineSnapshot(`
+      Object {
+        "body": "{\\"message\\":\\"Forbidden\\"}",
+        "cookies": Array [],
+        "headers": Object {
+          "Content-Type": "application/json",
+        },
+        "isBase64Encoded": false,
+        "statusCode": 403,
       }
     `)
   })

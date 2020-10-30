@@ -21,8 +21,8 @@ export const handler = createApiGatewayHandler(
   setContext('document', (r) => getSingleDocumentById(r.documentId)),
   requirePermissionToDocument(DocumentPermission.GetDocument),
   async (request: APIGatewayRequest): Promise<DocumentContract> => {
-    const { document } = request
-    return await singleDocumentResult(document)
+    const { document, documentPermissions } = request
+    return singleDocumentResult(document, documentPermissions)
   },
 )
 

@@ -64,7 +64,7 @@ describe('getByUserId', () => {
     )
     expect(await getByUserId(event)).toMatchInlineSnapshot(`
       Object {
-        "body": "{\\"message\\":\\"User not found\\"}",
+        "body": "{\\"message\\":\\"user not found\\"}",
         "cookies": Array [],
         "headers": Object {
           "Content-Type": "application/json",

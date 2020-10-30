@@ -2,6 +2,7 @@ import { Collection, getCollectionById } from '@/models/collection'
 import { collectionGrantExists } from '@/models/collectionGrant'
 import { User } from '@/models/user'
 import { APIGatewayRequest, setContext } from '@/utils/middleware'
+import { emailIsWhitelisted } from '@/utils/whitelist'
 import { CollectionGrantType } from 'api-client'
 import createError from 'http-errors'
 import { requireUserData } from '../user'
@@ -22,6 +23,7 @@ const getPermissionsToCollection = async (
   // check if this is a shared collection to this individual
   if (
     user.email &&
+    emailIsWhitelisted(user.email) &&
     (await collectionGrantExists(
       collection.id,
       CollectionGrantType.INDIVIDUALEMAIL,

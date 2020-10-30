@@ -5,6 +5,7 @@ import {
 } from '@/models/document'
 import { User } from '@/models/user'
 import { APIGatewayRequest, setContext } from '@/utils/middleware'
+import { emailIsWhitelisted } from '@/utils/whitelist'
 import { CollectionGrantType } from 'api-client'
 import createError from 'http-errors'
 import { requireUserData } from '../user'
@@ -26,6 +27,7 @@ const getPermissionsToDocument = async (
   // check if in a shared collection to this individual
   if (
     user.email &&
+    emailIsWhitelisted(user.email) &&
     (await documentIsInCollectionWithGrant(
       document.id,
       CollectionGrantType.INDIVIDUALEMAIL,

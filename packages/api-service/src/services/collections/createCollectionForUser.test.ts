@@ -15,10 +15,11 @@ import {
   Collection as CollectionModel,
 } from '@/models/collection'
 import { allDocumentsExistById } from '@/models/document'
-import { sendSharedCollectionNotification } from '../emails'
+import { emailIsWhitelisted } from '@/utils/whitelist'
 
 jest.mock('@/utils/database')
 jest.mock('@/utils/s3')
+jest.mock('@/utils/whitelist')
 jest.mock('@/models/collection')
 jest.mock('@/models/document')
 jest.mock('@/services/user')
@@ -30,6 +31,7 @@ describe('createCollectionForUser', () => {
 
   beforeEach(() => {
     mockUserData(userId)
+    toMockedFunction(emailIsWhitelisted).mockImplementationOnce(() => true)
     toMockedFunction(allDocumentsExistById).mockImplementationOnce(
       async () => true,
     )
@@ -61,6 +63,28 @@ describe('createCollectionForUser', () => {
     )
   })
 
+  it('fails validation with unwhitelisted email address', async () => {
+    toMockedFunction(emailIsWhitelisted)
+      .mockReset()
+      .mockImplementationOnce(() => false)
+    event.body = JSON.stringify({
+      name: 'test',
+      documentIds: ['abc1234'],
+      individualEmailAddresses: ['exampleagent@example.com'],
+    })
+    expect(await createCollectionForUser(event)).toMatchInlineSnapshot(`
+      Object {
+        "body": "{\\"message\\":\\"validation error: \\\\\\"individualEmailAddresses[0]\\\\\\" failed custom validation because exampleagent@example.com is not a whitelisted email address\\"}",
+        "cookies": Array [],
+        "headers": Object {
+          "Content-Type": "application/json",
+        },
+        "isBase64Encoded": false,
+        "statusCode": 400,
+      }
+    `)
+  })
+
   it('validation requires documentIds to be populated', async () => {
     event.body = JSON.stringify({
       name: 'test',
@@ -74,23 +98,6 @@ describe('createCollectionForUser', () => {
       }),
     )
   })
-
-  // relaxing this requirement for now till agency operations are completed
-  // it('validation requires agencyOfficersEmailAddresses to be populated', async () => {
-  //   event.body = JSON.stringify({
-  //     name: 'test',
-  //     documentIds: ['abc1234'],
-  //     agencyOfficersEmailAddresses: [],
-  //   })
-  //   expect(
-  //     await createCollectionForUser(event, createMockContext(), jest.fn()),
-  //   ).toEqual(
-  //     expect.objectContaining({
-  //       body:
-  //         '{"message":"validation error: \\"agencyOfficersEmailAddresses\\" must contain at least 1 items"}',
-  //     }),
-  //   )
-  // })
 
   it('fails if documents do not belong to user', async () => {
     event.body = JSON.stringify({

@@ -12,42 +12,34 @@ export const createFilePath = (
   fileId: string,
 ) => `documents/${ownerId}/${documentId}/${fileId}`
 
-export const getPresignedUploadUrl = async (
+export const getPresignedUploadUrl = (
   path: string,
   contentType: string,
   contentLength: number,
   sha256Checksum: string,
-): Promise<{
+): {
   url: string
   fields: { [index: string]: string }
-}> => {
-  return new Promise((resolve, reject) =>
-    s3.createPresignedPost(
-      {
-        Bucket: BUCKET,
-        Fields: {
-          key: path,
-          'x-amz-content-sha256': sha256Checksum,
-          'Content-Type': contentType,
-          'Content-Length': contentLength.toString(),
-        },
-        Expires: 300,
-      },
-      (err, data) => {
-        if (err) reject(err)
-        else resolve(data)
-      },
-    ),
-  )
+} => {
+  return s3.createPresignedPost({
+    Bucket: BUCKET,
+    Fields: {
+      key: path,
+      'x-amz-content-sha256': sha256Checksum,
+      'Content-Type': contentType,
+      'Content-Length': contentLength.toString(),
+    },
+    Expires: 300,
+  })
 }
 
-export const getPresignedDownloadUrl = async (
+export const getPresignedDownloadUrl = (
   path: string,
   filename: string,
   disposition: string,
   expires = 300,
 ) => {
-  return await s3.getSignedUrlPromise('getObject', {
+  return s3.getSignedUrl('getObject', {
     Bucket: BUCKET,
     Key: path,
     Expires: expires,

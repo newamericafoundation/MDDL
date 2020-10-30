@@ -135,6 +135,13 @@ export interface Props extends StackProps {
    * Details for how to send emails - this will resolve to an SES identity and must be preconfigured
    */
   emailSender: EmailSender
+  /**
+   * Agency Whitelisted Domains.
+   * Restricts email addresses that collections can be shared to and accessed from.
+   * If an explicit match is required, include the '@' at the start of the entry.
+   * For example, if the list is '@myspecificdomain.com','partialdomain.net' it will match 'name@myspecificdomain.com', 'name@partialdomain.com', 'name@mypartialdomain.com', 'name@my.partialdomain.com' but not match 'name@sub.myspecificdomain.com'
+   */
+  agencyEmailDomainsWhitelist?: string[]
 }
 
 interface ApiProps {
@@ -146,6 +153,7 @@ interface ApiProps {
   authorizer: CfnAuthorizer
   jwtConfiguration: JwtConfiguration
   emailSender: EmailSender
+  agencyEmailDomainsWhitelist: string
 }
 
 const pathToApiServiceLambda = (name: string) =>
@@ -174,6 +182,7 @@ export class CityStack extends Stack {
       jwtAuth,
       additionalCallbackUrls = [],
       emailSender,
+      agencyEmailDomainsWhitelist = [],
     } = props
 
     // check auth stack is given if this stack expects it
@@ -272,6 +281,7 @@ export class CityStack extends Stack {
       gmLayer,
       jwtConfiguration,
       emailSender,
+      agencyEmailDomainsWhitelist: agencyEmailDomainsWhitelist.join(','),
     }
 
     // create uploads bucket
@@ -785,6 +795,7 @@ export class CityStack extends Stack {
       jwtConfiguration,
       webAppDomain,
       emailSender,
+      agencyEmailDomainsWhitelist,
     } = apiProps
 
     // add lambda to list users documents
@@ -874,6 +885,7 @@ export class CityStack extends Stack {
           layers: [mySqlLayer],
           extraEnvironmentVariables: {
             USERINFO_ENDPOINT: jwtConfiguration.userInfoEndpoint,
+            AGENCY_EMAIL_DOMAINS_WHITELIST: agencyEmailDomainsWhitelist,
           },
         },
       ),
@@ -921,6 +933,7 @@ export class CityStack extends Stack {
       authorizer,
       jwtConfiguration,
       gmLayer,
+      agencyEmailDomainsWhitelist,
     } = apiProps
 
     // create lambda to fetch a document
@@ -933,6 +946,7 @@ export class CityStack extends Stack {
         extraEnvironmentVariables: {
           DOCUMENTS_BUCKET: uploadsBucket.bucketName,
           USERINFO_ENDPOINT: jwtConfiguration.userInfoEndpoint,
+          AGENCY_EMAIL_DOMAINS_WHITELIST: agencyEmailDomainsWhitelist,
         },
       },
     )
@@ -961,6 +975,7 @@ export class CityStack extends Stack {
         extraEnvironmentVariables: {
           DOCUMENTS_BUCKET: uploadsBucket.bucketName,
           USERINFO_ENDPOINT: jwtConfiguration.userInfoEndpoint,
+          AGENCY_EMAIL_DOMAINS_WHITELIST: agencyEmailDomainsWhitelist,
         },
       },
     )
@@ -1099,7 +1114,14 @@ export class CityStack extends Stack {
    * @param apiProps Common properties for API functions
    */
   private addCollectionRoutes(apiProps: ApiProps, uploadsBucket: Bucket) {
-    const { api, dbSecret, mySqlLayer, authorizer, jwtConfiguration } = apiProps
+    const {
+      api,
+      dbSecret,
+      mySqlLayer,
+      authorizer,
+      jwtConfiguration,
+      agencyEmailDomainsWhitelist,
+    } = apiProps
 
     const getCollectionDocuments = this.createLambda(
       'GetCollectionDocuments',
@@ -1110,6 +1132,7 @@ export class CityStack extends Stack {
         extraEnvironmentVariables: {
           USERINFO_ENDPOINT: jwtConfiguration.userInfoEndpoint,
           DOCUMENTS_BUCKET: uploadsBucket.bucketName,
+          AGENCY_EMAIL_DOMAINS_WHITELIST: agencyEmailDomainsWhitelist,
         },
       },
     )

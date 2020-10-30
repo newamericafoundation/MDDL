@@ -195,6 +195,15 @@ describe('createDocumentForUser', () => {
         "files[0].sha256Checksum",
         "files[0].contentType",
         "files[0].contentLength",
+        "links[0].href",
+        "links[0].rel",
+        "links[0].type",
+        "links[1].href",
+        "links[1].rel",
+        "links[1].type",
+        "links[2].href",
+        "links[2].rel",
+        "links[2].type",
       ]
     `)
   })

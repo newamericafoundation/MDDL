@@ -1,38 +1,78 @@
 import { User } from '@/models/user'
-import { APIGatewayRequest } from '@/utils/middleware'
+import { APIGatewayRequest, setContext } from '@/utils/middleware'
+import { emailIsWhitelisted } from '@/utils/whitelist'
 import createError from 'http-errors'
 
 export enum UserPermission {
+  WriteUser = 'write:user',
   WriteCollection = 'write:collection',
   ListCollections = 'list:collection',
   WriteDocument = 'write:document',
   ListDocuments = 'list:document',
 }
 
-export const requirePermissionToUser = (permission: UserPermission) => (
-  request: APIGatewayRequest,
-): APIGatewayRequest => {
-  const { ownerId, userId } = request
-
-  // placeholder - run permissions checks here
-  if (!ownerId || !userId || ownerId !== userId) {
-    throw new createError.NotFound('User not found')
+const getPermissionsToUser = async (
+  userId: string,
+  ownerId: string,
+): Promise<UserPermission[]> => {
+  // check if owner
+  if (userId === ownerId) {
+    return Object.values(UserPermission)
   }
-  return request
+  // can't find any permissions
+  return []
 }
 
-export const requirePermissionToUserEmail = (permission: UserPermission) => (
+const getPermissionsToAgent = async (
+  userId: string,
+  ownerId: string,
+  user: User,
+): Promise<UserPermission[]> => {
+  // check that user is found, has an email, and that the calling user is the user in question
+  if (!user || !user.email || !ownerId || !userId || ownerId !== userId) {
+    return []
+  }
+
+  if (!emailIsWhitelisted(user.email)) {
+    throw new createError.Forbidden()
+  }
+
+  // can list shared collections for current user
+  return [UserPermission.ListCollections]
+}
+
+export const requirePermissionToUser = (permission: UserPermission) => async (
   request: APIGatewayRequest,
-): APIGatewayRequest => {
+): Promise<APIGatewayRequest> => {
+  const { ownerId, userId } = request
+
+  // resolve permissions
+  const permissions = await getPermissionsToUser(userId, ownerId)
+  await setContext('userPermissions', () => permissions)(request)
+
+  // determine access to permissions
+  if (permissions.includes(permission)) {
+    return request
+  }
+  throw new createError.NotFound('user not found')
+}
+
+export const requirePermissionToAgent = (permission: UserPermission) => async (
+  request: APIGatewayRequest,
+): Promise<APIGatewayRequest> => {
   const { ownerId, userId, user } = (request as unknown) as {
     user: User
     ownerId: string
     userId: string
   }
 
-  if (!user || !user.email || !ownerId || !userId || ownerId !== userId) {
-    throw new createError.NotFound('User not found')
-  }
+  // resolve permissions
+  const permissions = await getPermissionsToAgent(userId, ownerId, user)
+  await setContext('userPermissions', () => permissions)(request)
 
-  return request
+  // determine access to permissions
+  if (permissions.includes(permission)) {
+    return request
+  }
+  throw new createError.NotFound('user not found')
 }
