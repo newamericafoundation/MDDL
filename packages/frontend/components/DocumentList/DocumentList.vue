@@ -8,16 +8,17 @@
         :document="document"
         class="mb-4"
         :selectable="selectable"
+        :reload="reload"
       />
     </template>
     <div v-else>
-      <p class="d-flex justify-center">{{ $t('nothingHere') }}</p>
-      <nuxt-link
-        class="body-1 font-weight-medium dashboard-link d-flex justify-center"
-        :to="localePath('/dashboard')"
-      >
-        {{ $t('returnDashboard') }}
-      </nuxt-link>
+      <v-img
+        max-width="30rem"
+        class="mx-auto"
+        :src="require('@/assets/images/upload.svg')"
+      />
+      <p class="capitalize text-center">{{ $t('nothingHere') }}</p>
+      <UploadButton class="text-center" label="firstFile" :text-button="true" />
     </div>
   </div>
   <div v-else>
@@ -49,13 +50,32 @@ import { userStore } from '@/plugins/store-accessor'
 export default class Documents extends Vue {
   @Prop({ default: false }) selectable: boolean
   @Prop({ default: null }) value: any
-  @Prop({ default: [] }) preSelected: any
+  @Prop({ default: () => [] }) preSelected: any
 
   loading = true
   selected: boolean[] = []
 
   async mounted() {
-    this.$store.commit('user/setUserId', this.$auth.user.username)
+    await this.$store.commit('user/setUserId', this.$auth.user.username)
+    await this.reload()
+  }
+
+  get documents() {
+    // eslint-disable-next-line no-unused-expressions
+    return userStore.documents
+  }
+
+  @Watch('selected')
+  emitSelect() {
+    this.$emit(
+      'input',
+      this.documents.filter(
+        (_: DocumentListItem, i: number) => this.selected[i],
+      ),
+    )
+  }
+
+  async reload() {
     await this.$store.dispatch('user/getDocuments')
     this.selected = new Array(userStore.documents.length)
     if (this.preSelected) {
@@ -69,20 +89,6 @@ export default class Documents extends Vue {
       }
     }
     this.loading = false
-  }
-
-  get documents() {
-    return userStore.documents
-  }
-
-  @Watch('selected')
-  emitSelect() {
-    this.$emit(
-      'input',
-      this.documents.filter(
-        (_: DocumentListItem, i: number) => this.selected[i],
-      ),
-    )
   }
 }
 </script>

@@ -29,23 +29,7 @@
         <template v-if="!loading">
           <v-tabs-items v-model="currentTab">
             <v-tab-item value="tab-docs">
-              <template v-if="documents.length">
-                <DocumentCard
-                  v-for="(document, i) in documents"
-                  :key="i"
-                  :document="document"
-                  :class="{ 'mb-4': $vuetify.breakpoint.smAndUp }"
-                />
-              </template>
-              <center v-else>
-                <v-img
-                  max-width="30rem"
-                  class="mx-auto"
-                  :src="require('@/assets/images/upload.svg')"
-                />
-                <p class="capitalize">{{ $t('nothingHere') }}</p>
-                <UploadButton label="firstFile" :text-button="true" />
-              </center>
+              <DocumentList />
             </v-tab-item>
             <v-tab-item value="tab-collections">
               <CollectionList v-model="collections" />

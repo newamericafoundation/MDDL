@@ -8,6 +8,7 @@ import Alert from '@/components/icons/alert.vue'
 import ChevronLeft from '@/components/icons/chevron-left.vue'
 import Close from '@/components/icons/close.vue'
 import CloseCircleOutline from '@/components/icons/close-circle-outline.vue'
+import Delete from '@/components/icons/delete.vue'
 import Document from '@/components/icons/document.vue'
 import DotsHorizontal from '@/components/icons/dots-horizontal.vue'
 import Download from '@/components/icons/download.vue'
@@ -65,6 +66,9 @@ const vuetifyOptions = (ctx: Context): Options => {
         },
         'close-circle-outline': {
           component: CloseCircleOutline,
+        },
+        delete: {
+          component: Delete,
         },
         document: {
           component: Document,

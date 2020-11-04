@@ -15,6 +15,12 @@
       class="check"
       @change="emitChange"
     />
+    <DocumentMenu
+      v-else
+      :download="download"
+      :delete-doc="deleteDoc"
+      :edit-details="showDetails"
+    />
     <v-row align="center" no-gutters>
       <v-col class="py-0" xs="6" sm="5">
         <v-img
@@ -43,15 +49,22 @@
 </template>
 
 <script lang="ts">
-import { DocumentListItem } from 'api-client'
+import { DocumentListItem, FileDownloadDispositionTypeEnum } from 'api-client'
 import { Vue, Component, Prop } from 'nuxt-property-decorator'
-import { format } from 'date-fns'
+import { format, roundToNearestMinutes } from 'date-fns'
 
 @Component
 export default class DocumentCard extends Vue {
   @Prop({ required: true }) document: DocumentListItem
   @Prop({ default: false }) selectable: boolean
   @Prop({ default: null }) value: boolean
+  @Prop({
+    default: async () => {
+      // do nothing
+    },
+  })
+  reload: () => void
+
   checked = false
 
   mounted() {
@@ -65,7 +78,7 @@ export default class DocumentCard extends Vue {
   get thumbnail() {
     return (
       this.document &&
-      this.document.links.find((l) => l.rel === 'thumbnail')?.href
+      this.document.links.find(l => l.rel === 'thumbnail')?.href
     )
   }
 
@@ -80,6 +93,41 @@ export default class DocumentCard extends Vue {
 
   emitChange(val: any) {
     this.$emit('input', val)
+  }
+
+  async download() {
+    const fullDocument = await this.$store.dispatch(
+      'document/getById',
+      this.document.id,
+    )
+    const urls = await this.$store.dispatch('document/download', {
+      document: fullDocument,
+      disposition: FileDownloadDispositionTypeEnum.Attachment,
+    })
+    const link = document.createElement('a')
+    for (let i = 0; i < fullDocument.files.length; i++) {
+      link.href = urls[i]
+      link.download = fullDocument.files[i].name
+      link.click()
+      URL.revokeObjectURL(link.href)
+    }
+    link.remove()
+  }
+
+  showDetails() {
+    this.$router.push(
+      this.localePath({
+        path: `documents/${this.document.id}`,
+        query: {
+          showDetails: 'true',
+        },
+      }),
+    )
+  }
+
+  async deleteDoc() {
+    await this.$store.dispatch('document/delete', this.document)
+    this.reload()
   }
 }
 </script>
@@ -103,6 +151,11 @@ export default class DocumentCard extends Vue {
     .v-input--selection-controls__input {
       margin-right: 0;
     }
+  }
+  .documentMenu {
+    position: absolute;
+    right: 1rem;
+    top: 0.5rem;
   }
 }
 </style>

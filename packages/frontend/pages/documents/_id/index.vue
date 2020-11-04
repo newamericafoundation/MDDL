@@ -5,34 +5,11 @@
         <BackButton />
       </template>
       <template v-slot:actions>
-        <v-menu v-model="showMenu" absolute offset-y style="max-width: 600px">
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              v-bind="attrs"
-              icon
-              class="ml-4 text-body-1 font-weight-medium"
-              color="primary"
-              v-on="on"
-            >
-              <v-icon>$dots-horizontal</v-icon>
-            </v-btn>
-          </template>
-
-          <v-list>
-            <v-list-item>
-              <v-btn @click="showDetails">
-                <v-icon small class="mr-2" color="primary">$pencil</v-icon>
-                {{ $t('editDetails') }}
-              </v-btn>
-            </v-list-item>
-            <v-list-item>
-              <v-btn text :disabled="loading" @click="download">
-                <v-icon small class="mr-2" color="primary">$download</v-icon>
-                {{ $t('download') }}
-              </v-btn>
-            </v-list-item>
-          </v-list>
-        </v-menu>
+        <DocumentMenu
+          :download="download"
+          :delete-doc="deleteDoc"
+          :edit-details="showDetails"
+        />
 
         <nuxt-link
           v-if="document"
@@ -200,6 +177,8 @@ export default class ViewDocument extends Vue {
     this.newDescription = data.description ?? ''
 
     this.loading = false
+
+    if (this.$route.query.showDetails) this.showDialog = true
   }
 
   get documentDate() {
@@ -212,7 +191,7 @@ export default class ViewDocument extends Vue {
   get documentContentSize() {
     if (!this.document) return ''
     const totalBytes = this.document.files
-      .map((f) => f.contentLength)
+      .map(f => f.contentLength)
       .reduce(
         (fileContentLength, documentContentLength) =>
           fileContentLength + documentContentLength,
@@ -252,6 +231,13 @@ export default class ViewDocument extends Vue {
       : undefined
     await this.$store.dispatch('document/update', this.document)
     this.closeDetails()
+    this.loading = false
+  }
+
+  async deleteDoc() {
+    this.loading = true
+    await this.$store.dispatch('document/delete', this.document)
+    this.$router.push(this.localePath('/'))
     this.loading = false
   }
 
