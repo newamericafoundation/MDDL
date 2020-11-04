@@ -12,6 +12,7 @@ module.exports = {
     '^.+\\.vue$': 'vue-jest',
     '^.+\\.svg$': '<rootDir>/assets/js/svgTransform.js',
   },
+  transformIgnorePatterns: ['node_modules/vuetify/src/locale/.*'],
   collectCoverage: true,
   collectCoverageFrom: [
     '<rootDir>/components/**/*.vue',

@@ -1,6 +1,7 @@
 <template>
   <div>
     <v-select
+      v-if="$i18n"
       v-model="$i18n.locale"
       :items="$i18n.locales"
       :label="$t('language')"

@@ -17,8 +17,9 @@
 
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator'
-import { DocumentListItem } from 'api-client'
+import { DocumentListItem, SharedCollectionListItem } from 'api-client'
 import { format } from 'date-fns'
+import { userStore } from '@/plugins/store-accessor'
 
 @Component
 export default class ViewCollection extends Vue {

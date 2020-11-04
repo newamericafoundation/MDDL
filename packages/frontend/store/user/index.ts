@@ -3,13 +3,14 @@ import { api } from '@/plugins/api-accessor'
 import {
   Collection,
   SharedCollectionList,
-  SharedCollectionListItem,
+  SharedCollectionListItem as ClientSharedCollectionListItem,
   CollectionCreate,
   CollectionListItem,
   Document,
   DocumentListItem,
   FileContentTypeEnum,
 } from 'api-client'
+import { SharedCollectionListItem } from '@/types/transformed'
 import axios, { AxiosResponse, AxiosRequestConfig } from 'axios'
 import { hashFile } from '@/assets/js/hash/'
 
@@ -93,7 +94,7 @@ export default class User extends VuexModule {
     await Promise.all(
       addResponse.data.files.map((documentFile, i) => {
         const options: AxiosRequestConfig = {
-          onUploadProgress: (e) => {
+          onUploadProgress: e => {
             uploadProgress[i] = e.loaded
             onUploadProgress(
               new ProgressEvent('upload', {
@@ -105,7 +106,7 @@ export default class User extends VuexModule {
         }
 
         const uploadLink = (documentFile.links as any[]).find(
-          (l) => l.type === 'POST',
+          l => l.type === 'POST',
         )
 
         if (!uploadLink)
@@ -126,7 +127,7 @@ export default class User extends VuexModule {
           )
 
         const formData = new FormData()
-        Object.keys(uploadLink.includeFormData).forEach((key) =>
+        Object.keys(uploadLink.includeFormData).forEach(key =>
           formData.append(key, uploadLink.includeFormData[key]),
         )
         formData.append('file', file!)
@@ -155,7 +156,7 @@ export default class User extends VuexModule {
   @Action({ rawError: true, commit: 'setDocuments' })
   getDocuments(): Promise<DocumentListItem[]> {
     if (!this._userId) return Promise.reject(new Error('UserID not set'))
-    return api.user.listUserDocuments(this._userId).then((response) => {
+    return api.user.listUserDocuments(this._userId).then(response => {
       return response.data.documents ? response.data.documents : []
     })
   }
@@ -163,7 +164,7 @@ export default class User extends VuexModule {
   @Action({ rawError: true, commit: 'setCollections' })
   getCollections(): Promise<CollectionListItem[]> {
     if (!this._userId) return Promise.reject(new Error('UserID not set'))
-    return api.user.listUserCollections(this._userId).then((response) => {
+    return api.user.listUserCollections(this._userId).then(response => {
       return response.data.collections ? response.data.collections : []
     })
   }
@@ -171,10 +172,19 @@ export default class User extends VuexModule {
   @Action({ rawError: true, commit: 'setSharedCollections' })
   getSharedCollections(): Promise<SharedCollectionListItem[]> {
     if (!this._userId) return Promise.reject(new Error('UserID not set'))
-    return api.user.listUserCollectionsShared(this._userId).then((response) => {
-      return response.data.sharedCollections
+    return api.user.listUserCollectionsShared(this._userId).then(response => {
+      return (response.data.sharedCollections
         ? response.data.sharedCollections
         : []
+      ).map(
+        (c: ClientSharedCollectionListItem) =>
+          (Object.assign({}, c, {
+            collection: {
+              ...c.collection,
+              createdDate: new Date(c.collection.createdDate),
+            },
+          }) as unknown) as SharedCollectionListItem,
+      )
     })
   }
 

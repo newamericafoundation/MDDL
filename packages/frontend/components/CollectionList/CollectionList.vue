@@ -7,6 +7,7 @@
         v-model="selected[i]"
         :collection="collection"
         :selectable="selectable"
+        :class="{ 'mb-4': $vuetify.breakpoint.smAndUp }"
       />
     </template>
     <div v-else>

@@ -5,8 +5,6 @@
     @click.native="onClick"
   >
     <v-card-title class="headline">
-      {{ collectionListItem.owner.familyName }}
-      {{ collectionListItem.owner.givenName }} /
       {{ collectionListItem.collection.name }}
     </v-card-title>
   </v-card>

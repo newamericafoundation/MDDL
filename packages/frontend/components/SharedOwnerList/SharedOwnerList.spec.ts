@@ -1,5 +1,5 @@
 import { shallowMount } from '@vue/test-utils'
-import SharedCollectionList from '@/components/SharedCollectionList/SharedCollectionList.vue'
+import SharedOwnerList from '@/components/SharedOwnerList/SharedOwnerList.vue'
 
 jest.mock('@/plugins/store-accessor', () => ({
   userStore: {
@@ -7,9 +7,9 @@ jest.mock('@/plugins/store-accessor', () => ({
   },
 }))
 
-describe('SharedCollectionList component', () => {
+describe('SharedOwnerList component', () => {
   it('exports a valid component', () => {
-    const wrapper = shallowMount(SharedCollectionList, {
+    const wrapper = shallowMount(SharedOwnerList, {
       mocks: {
         $store: {
           dispatch: () => [],

@@ -21,7 +21,7 @@ Vue.use(VueI18n)
 const translationMock = (key) => messages.en[key]
 
 config.mocks.$t = translationMock
-config.mocks._i18n = {
+config.mocks.$i18n = {
   locale: 'en',
   locales: ['en'],
   t: translationMock,

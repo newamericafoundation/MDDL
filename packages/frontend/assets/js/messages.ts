@@ -1,3 +1,9 @@
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const en: any = require('vuetify/lib/locale/en')
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const es: any = require('vuetify/lib/locale/es')
+// import es from 'vuetify/lib/locale/es'
+
 export default {
   en: {
     account: 'account',
@@ -46,6 +52,7 @@ export default {
     uploadComplete: 'upload complete',
     uploading: 'uploading...',
     view: 'view',
+    $vuetify: en,
   },
 
   // Special test language iso code
@@ -97,5 +104,6 @@ export default {
     uploadComplete: 'ephsisiv sirphsii',
     uploading: 'ephsisivehsh...',
     view: 'xeiz',
+    $vuetify: es, // idk, just use spanish for the test language vuetify translations lol
   },
 }

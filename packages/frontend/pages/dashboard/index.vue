@@ -54,7 +54,7 @@
         </template>
         <template v-else>
           <v-card
-            v-for="i in [0, 1, 2, 3, 4]"
+            v-for="i in new Array(5)"
             :key="i"
             class="mx-auto mb-4"
             max-width="700"

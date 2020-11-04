@@ -166,10 +166,28 @@
     }
   }
 
+  // Snackbar
   .v-snack {
     .v-snack__wrapper {
       .v-snack__content {
         @extend .capitalize;
+      }
+    }
+  }
+
+  // Data Table
+  .v-data-table {
+    tbody tr.clickable {
+      cursor: pointer;
+    }
+    .v-data-table-header {
+      th.text-start {
+        @extend .capitalize;
+        &.sortable {
+          span {
+            margin-right: 0.5rem;
+          }
+        }
       }
     }
   }
