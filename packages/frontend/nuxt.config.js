@@ -61,6 +61,9 @@ export default {
     buildNumber: process.env.CODEBUILD_BUILD_NUMBER,
     buildTime: process.env.CODEBUILD_START_TIME,
   },
+  publicRuntimeConfig: {
+    agencyEmailDomainsWhitelist: process.env.AGENCY_EMAIL_DOMAINS_WHITELIST,
+  },
   build: {
     // TODO: disabled due to issues with hot reloading
     //   extractCSS: true,

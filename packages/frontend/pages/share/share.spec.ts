@@ -7,6 +7,10 @@ describe('Share component', () => {
     const wrapper = shallowMount(Share, {
       stubs: { Layout },
       mocks: {
+        $config: {
+          agencyEmailDomainsWhitelist:
+            '@myspecificdomain.com,partialdomain.net',
+        },
         $route: {
           params: {
             id: '1',

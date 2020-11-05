@@ -52,7 +52,7 @@
             <ValidationProvider
               v-slot="{ errors }"
               name="email"
-              rules="required|email"
+              :rules="`required|email|emailWhitelist:${$config.agencyEmailDomainsWhitelist}`"
             >
               <v-text-field
                 v-model="email"
