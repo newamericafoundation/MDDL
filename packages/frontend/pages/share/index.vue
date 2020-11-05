@@ -44,7 +44,7 @@
             <v-icon v-if="true" class="mb-2">$profile</v-icon>
           </v-col>
           <v-col class="capitalize font-weight-medium">
-            {{ $t('individuals') }}
+            {{ $t('recipients') }}
           </v-col>
         </v-row>
         <ValidationObserver ref="observer">
@@ -103,7 +103,9 @@
         </v-btn>
       </v-toolbar>
       <div class="window-container">
-        <p class="capitalize font-weight-medium">{{ $t('filesToShare') }}:</p>
+        <p class="capitalize font-weight-medium">
+          {{ $t('confirmSharedFiles') }}:
+        </p>
         <v-card
           v-for="(doc, i) in selectedDocs.slice(0, 5)"
           :key="`file-${i}`"
@@ -122,7 +124,9 @@
         <p v-if="selectedDocs.length > 5" class="d-flex justify-end">
           + {{ selectedDocs.length - 5 }} {{ $t('more') }}
         </p>
-        <p class="capitalize font-weight-medium">{{ $t('recipients') }}:</p>
+        <p class="capitalize font-weight-medium">
+          {{ $t('confirmSharedRecipients') }}:
+        </p>
         <v-card
           v-for="(email, i) in individualEmailAddresses.slice(0, 5)"
           :key="`recipient-${i}`"
@@ -227,15 +231,15 @@ export default class Share extends Vue {
     this.isLoading = true
     const collection = await this.$store.dispatch('user/createCollection', {
       name: this.name,
-      documentIds: this.selectedDocs.map((d) => d.id),
+      documentIds: this.selectedDocs.map(d => d.id),
       individualEmailAddresses: this.individualEmailAddresses,
       agencyOfficersEmailAddresses: [], // TODO: implement
     })
 
     await snackbarStore.setParams({
-      message: `${this.$t('sharingComplete')}. ${capitalize(
-        this.$t('collection') as string,
-      )} "${this.name}" ${this.$t('created')}`,
+      message: `${this.$t('sharingComplete')}.\n${capitalize(
+        this.$t('collectionCreatedConfirmation') as string,
+      )}`,
       actions: [
         {
           name: 'view',

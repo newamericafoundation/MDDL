@@ -41,7 +41,7 @@
         </v-card-title>
 
         <v-card-text class="mt-2">
-          {{ $t('deleteConfirmation') }}
+          {{ $t('deleteDocumentConfirmation') }}
         </v-card-text>
 
         <v-divider></v-divider>

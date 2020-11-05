@@ -19,7 +19,7 @@
             <span>{{ $t('allFiles') }}</span>
           </v-tab>
           <v-tab href="#tab-collections">
-            <span>{{ $t('collections') }}</span>
+            <span>{{ $t('shared') }}</span>
           </v-tab>
         </v-tabs>
       </template>

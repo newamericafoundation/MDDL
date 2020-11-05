@@ -11,7 +11,7 @@
       />
     </template>
     <div v-else>
-      <p class="d-flex justify-center capitalize">{{ $t('nothingHere') }}</p>
+      <p class="d-flex justify-center capitalize">{{ $t('noDocuments') }}</p>
       <nuxt-link
         class="body-1 font-weight-medium dashboard-link d-flex justify-center capitalize"
         :to="localePath('/dashboard')"

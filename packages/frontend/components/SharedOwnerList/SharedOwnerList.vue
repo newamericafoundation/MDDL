@@ -15,7 +15,7 @@
     </template>
     <div v-else>
       <!-- TODO: proper empty state -->
-      <p class="d-flex justify-center capitalize">{{ $t('nothingHere') }}</p>
+      <p class="d-flex justify-center capitalize">{{ $t('noDocuments') }}</p>
     </div>
   </div>
   <div v-else>
