@@ -1,7 +1,10 @@
 <template>
   <v-card
     outlined
-    :class="['mx-auto', { mobile: $vuetify.breakpoint.xs }]"
+    :class="[
+      { 'mx-4': $vuetify.breakpoint.smAndUp },
+      { mobile: $vuetify.breakpoint.xs },
+    ]"
     @click.native="onClick"
   >
     <v-checkbox
@@ -65,6 +68,8 @@ export default class CollectionCard extends Vue {
     }
     border-radius: 0;
     border-bottom: none;
+    border-left: none;
+    border-right: none;
   }
   .check {
     position: absolute;

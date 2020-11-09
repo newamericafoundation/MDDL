@@ -3,6 +3,7 @@
     <label
       :class="[
         'upload-label',
+        'font-weight-medium',
         'px-4',
         textButton ? 'text' : 'v-btn',
         { disabled: isLoading },

@@ -9,9 +9,8 @@
     :right="$vuetify.breakpoint.smAndUp"
   >
     <v-row>
-      <v-col class="message">
-        {{ $t(message) }}
-      </v-col>
+      <!-- Whitespace matters next line, using white-space: pre-line -->
+      <v-col class="message">{{ $t(message) }}</v-col>
       <v-col cols="auto">
         <v-row justify="end">
           <v-btn
@@ -103,6 +102,7 @@ export default class SnackBar extends Vue {
     margin-bottom: 0;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
+    box-shadow: 0px 0px 8.51385px rgba(0, 0, 0, 0.21) !important;
 
     .v-snack__content {
       color: var(--white);
@@ -111,6 +111,7 @@ export default class SnackBar extends Vue {
       width: 100%;
       .message {
         padding-top: 1rem;
+        white-space: pre-line;
       }
       a {
         text-decoration: none;

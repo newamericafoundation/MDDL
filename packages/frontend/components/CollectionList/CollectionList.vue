@@ -11,14 +11,12 @@
       />
     </template>
     <div v-else>
-      <p class="d-flex justify-center capitalize">{{ $t('noDocuments') }}</p>
+      <p class="d-flex justify-center capitalize">{{ $t('noCollections') }}</p>
       <nuxt-link
-        class="d-flex justify-center nuxt-link"
-        :to="localePath('/dashboard')"
+        class="body-1 font-weight-medium share-link d-flex justify-center"
+        :to="localePath('/share')"
       >
-        <v-btn text color="primary" class="body-1 font-weight-bold">
-          {{ capitalize($t('returnDashboard')) }}
-        </v-btn>
+        {{ capitalize($t('shareFirstDocument')) }}
       </nuxt-link>
     </div>
   </div>
@@ -81,7 +79,7 @@ export default class CollectionList extends Vue {
 </script>
 
 <style scoped lang="scss">
-a.dashboard-link {
+a.share-link {
   text-decoration: none;
 }
 </style>

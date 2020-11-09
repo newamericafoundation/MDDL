@@ -1,7 +1,7 @@
 <template>
   <v-window v-model="step">
-    <v-window-item>
-      <v-toolbar v-model="step" app flat>
+    <v-window-item :class="{ mobile: $vuetify.breakpoint.xs }">
+      <v-toolbar v-model="step" flat>
         <nuxt-link class="mr-2" :to="localePath('/dashboard')">
           <v-icon small>$chevron-left</v-icon>
         </nuxt-link>
@@ -10,6 +10,7 @@
         <v-btn
           color="primary"
           text
+          class="font-weight-bold body-1"
           :disabled="selectedDocs.length === 0"
           @click="next"
         >
@@ -33,6 +34,7 @@
           color="primary"
           text
           :disabled="!emailInputValid || !individualEmailAddresses.length"
+          class="font-weight-bold body-1"
           @click="next"
         >
           {{ $t('next') }}
@@ -51,17 +53,21 @@
           <v-form @submit.prevent>
             <ValidationProvider
               v-slot="{ errors }"
+              mode="eager"
               name="email"
-              :rules="
-                `required|email|emailWhitelist:${$config.agencyEmailDomainsWhitelist}`
-              "
+              :rules="emailValidationRules"
             >
               <v-text-field
                 v-model="email"
-                :error-messages="errors"
+                :error-messages="
+                  individualEmailAddresses.length >= 10
+                    ? [capitalize($t('tooManyRecipients'))]
+                    : errors
+                "
                 outlined
                 :placeholder="capitalize($t('enterEmailPlaceholder'))"
                 type="email"
+                :disabled="individualEmailAddresses.length >= 10"
                 @keydown.enter="addEmail"
                 @blur="addEmail"
               />
@@ -79,14 +85,14 @@
               <span>{{ email }}</span>
             </v-col>
             <v-col cols="auto">
-              <v-btn text icon @click="removeEmail(i)">
+              <v-btn icon @click="removeEmail(i)">
                 <v-icon>$close</v-icon>
               </v-btn>
             </v-col>
           </v-row>
         </v-card>
       </div>
-      <v-footer outlined fixed class="pa-8 d-flex">
+      <v-footer outlined class="pa-8 d-flex">
         <span class="font-weight-medium capitalize">
           {{ $t('disclaimer') }}:&nbsp;
         </span>
@@ -100,16 +106,22 @@
         </v-icon>
         <v-toolbar-title>{{ $t('confirmSharing') }}</v-toolbar-title>
         <v-spacer />
-        <v-btn color="primary" text :disabled="isLoading" @click="submit">
+        <v-btn
+          class="font-weight-bold body-1"
+          color="primary"
+          text
+          :disabled="isLoading"
+          @click="submit"
+        >
           {{ $t('done') }}
         </v-btn>
       </v-toolbar>
       <div class="window-container">
-        <p class="capitalize font-weight-medium">
+        <p class="capitalize font-weight-medium pt-4">
           {{ $tc('confirmSharedFiles', selectedDocs.length) }}:
         </p>
         <v-card
-          v-for="(doc, i) in selectedDocs.slice(0, 5)"
+          v-for="(doc, i) in selectedDocs.slice(0, sliceFiles)"
           :key="`file-${i}`"
           rounded
           class="invitee px-4 py-4 mb-2"
@@ -123,10 +135,15 @@
             </v-col>
           </v-row>
         </v-card>
-        <p v-if="selectedDocs.length > 5" class="d-flex justify-end">
-          + {{ selectedDocs.length - 5 }} {{ $t('more') }}
-        </p>
-        <p class="capitalize font-weight-medium">
+        <v-btn
+          v-if="selectedDocs.length > sliceFiles"
+          class="float-right"
+          text
+          @click="sliceFiles = 10"
+        >
+          {{ $tc('plusNMore', selectedDocs.length - sliceFiles) }}
+        </v-btn>
+        <p class="capitalize font-weight-medium pt-8">
           {{ $tc('confirmSharedRecipients', individualEmailAddresses.length) }}:
         </p>
         <v-card
@@ -144,14 +161,18 @@
             </v-col>
           </v-row>
         </v-card>
-        <p
-          v-if="individualEmailAddresses.length > 5"
-          class="d-flex justify-end"
+        <v-btn
+          v-if="individualEmailAddresses.length > sliceRecipients"
+          class="float-right"
+          text
+          @click="sliceRecipients = 10"
         >
-          + {{ individualEmailAddresses.length - 5 }} {{ $t('more') }}
-        </p>
+          {{
+            $tc('plusNMore', individualEmailAddresses.length - sliceRecipients)
+          }}
+        </v-btn>
       </div>
-      <v-footer outlined fixed class="pa-8">
+      <v-footer outlined class="pa-8">
         {{ capitalize($t('shareSettingsDisclaimer')) }}
       </v-footer>
     </v-window-item>
@@ -160,11 +181,13 @@
 
 <script lang="ts">
 import { Vue, Component, Watch } from 'nuxt-property-decorator'
-import { ValidationObserver, ValidationProvider } from 'vee-validate'
+import { validate, ValidationObserver, ValidationProvider } from 'vee-validate'
 import { capitalize } from '@/assets/js/stringUtils'
 import { Document } from 'api-client'
 import SnackParams from '@/types/snackbar'
 import { RawLocation } from 'vue-router'
+import { VeeObserver } from 'vee-validate/dist/types/types'
+import { ValidationContext } from 'vee-validate/dist/types/components/common'
 import { snackbarStore } from '../../plugins/store-accessor'
 
 @Component({
@@ -190,6 +213,9 @@ export default class Share extends Vue {
   recompute = false
   isLoading = false
   name = ''
+  sliceFiles = 5
+  sliceRecipients = 5
+  emailValidationRules = `required|email|emailWhitelist:${this.$config.agencyEmailDomainsWhitelist}`
 
   async mounted() {
     const collections = await this.$store.dispatch('user/getCollections')
@@ -220,11 +246,12 @@ export default class Share extends Vue {
     return this.$route.query.selected
   }
 
-  addEmail(evt: KeyboardEvent | FocusEvent) {
+  async addEmail(evt: KeyboardEvent | FocusEvent) {
+    await (this.$refs.observer as any).validate()
     if (this.emailInputValid && this.email.length) {
       const email = this.email
       this.email = ''
-      ;(this.$refs.observer as any).reset()
+      this.$nextTick(() => (this.$refs.observer as any).reset())
       if (!this.individualEmailAddresses.includes(email))
         this.individualEmailAddresses.push(email)
     }
@@ -238,15 +265,15 @@ export default class Share extends Vue {
     this.isLoading = true
     const collection = await this.$store.dispatch('user/createCollection', {
       name: this.name,
-      documentIds: this.selectedDocs.map((d) => d.id),
+      documentIds: this.selectedDocs.map(d => d.id),
       individualEmailAddresses: this.individualEmailAddresses,
       agencyOfficersEmailAddresses: [], // TODO: implement
     })
 
     await snackbarStore.setParams({
-      message: `${this.$t('sharingComplete')}.\n${capitalize(
-        this.$t('collectionCreatedConfirmation') as string,
-      )}`,
+      message: `${capitalize(
+        this.$t('sharingComplete') as string,
+      )}.\n${capitalize(this.$t('collectionCreatedConfirmation') as string)}`,
       actions: [
         {
           name: 'view',
@@ -296,8 +323,11 @@ export default class Share extends Vue {
   }
   .window-container {
     padding: 5rem 2rem 0 2rem;
-    margin: 0 auto 12rem auto;
+    margin: 0 auto 6rem auto;
     max-width: 40rem;
+  }
+  .v-window-item.mobile .window-container {
+    padding: 5rem 0 0 0;
   }
 }
 .v-card.invitee {

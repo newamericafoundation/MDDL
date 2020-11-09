@@ -146,6 +146,8 @@ export default class DocumentCard extends Vue {
     }
     border-radius: 0;
     border-bottom: none;
+    border-left: none;
+    border-right: none;
   }
   .check {
     position: absolute;
