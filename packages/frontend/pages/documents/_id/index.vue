@@ -83,7 +83,7 @@
             :disabled="loading"
             @click.stop="closeDetails"
           >
-            <v-icon>$chevron-left</v-icon>
+            <v-icon small>$chevron-left</v-icon>
           </v-btn>
           <v-toolbar-title>{{ $t('editDetails') }}</v-toolbar-title>
           <v-spacer />
@@ -154,6 +154,11 @@ import { capitalize } from '@/assets/js/stringUtils'
     ValidationObserver,
     ValidationProvider,
   },
+  head() {
+    return {
+      title: (this as ViewDocument).title,
+    }
+  },
 })
 export default class ViewDocument extends Vue {
   capitalize = capitalize
@@ -165,8 +170,10 @@ export default class ViewDocument extends Vue {
   newName = ''
   newDescription = ''
   recompute = false
+  title = ''
 
   async mounted() {
+    this.title = capitalize(this.$t('document') as string)
     const data: Document = await this.$store.dispatch(
       'document/getById',
       this.$route.params.id,
@@ -179,6 +186,7 @@ export default class ViewDocument extends Vue {
     this.loading = false
 
     if (this.$route.query.showDetails) this.showDialog = true
+    this.title = this.document.name
   }
 
   get documentDate() {

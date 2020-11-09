@@ -19,12 +19,15 @@ Vue.use(Vuetify)
 Vue.use(VueI18n)
 
 const translationMock = (key) => messages.en[key]
+const countTranslationMock = (key, count) => messages.en[key]
 
 config.mocks.$t = translationMock
+config.mocks.$tc = countTranslationMock
 config.mocks.$i18n = {
   locale: 'en',
   locales: ['en'],
   t: translationMock,
+  tc: countTranslationMock,
 }
 config.mocks.$store = {
   commit: () => {

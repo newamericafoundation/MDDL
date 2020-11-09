@@ -3,7 +3,7 @@
     <v-window-item>
       <v-toolbar v-model="step" app flat>
         <nuxt-link class="mr-2" :to="localePath('/dashboard')">
-          <v-icon>$chevron-left</v-icon>
+          <v-icon small>$chevron-left</v-icon>
         </nuxt-link>
         <v-toolbar-title>{{ $t('selectFiles') }}</v-toolbar-title>
         <v-spacer />
@@ -52,7 +52,9 @@
             <ValidationProvider
               v-slot="{ errors }"
               name="email"
-              :rules="`required|email|emailWhitelist:${$config.agencyEmailDomainsWhitelist}`"
+              :rules="
+                `required|email|emailWhitelist:${$config.agencyEmailDomainsWhitelist}`
+              "
             >
               <v-text-field
                 v-model="email"
@@ -104,7 +106,7 @@
       </v-toolbar>
       <div class="window-container">
         <p class="capitalize font-weight-medium">
-          {{ $t('confirmSharedFiles') }}:
+          {{ $tc('confirmSharedFiles', selectedDocs.length) }}:
         </p>
         <v-card
           v-for="(doc, i) in selectedDocs.slice(0, 5)"
@@ -125,7 +127,7 @@
           + {{ selectedDocs.length - 5 }} {{ $t('more') }}
         </p>
         <p class="capitalize font-weight-medium">
-          {{ $t('confirmSharedRecipients') }}:
+          {{ $tc('confirmSharedRecipients', individualEmailAddresses.length) }}:
         </p>
         <v-card
           v-for="(email, i) in individualEmailAddresses.slice(0, 5)"
@@ -170,6 +172,11 @@ import { snackbarStore } from '../../plugins/store-accessor'
   components: {
     ValidationObserver,
     ValidationProvider,
+  },
+  head() {
+    return {
+      title: capitalize(this.$t('share') as string),
+    }
   },
 })
 export default class Share extends Vue {

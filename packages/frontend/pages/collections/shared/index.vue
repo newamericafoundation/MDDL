@@ -6,7 +6,14 @@
 
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator'
+import { capitalize } from '@/assets/js/stringUtils'
 
-@Component
+@Component({
+  head() {
+    return {
+      title: capitalize(this.$t('shared') as string),
+    }
+  },
+})
 export default class SharedCollections extends Vue {}
 </script>

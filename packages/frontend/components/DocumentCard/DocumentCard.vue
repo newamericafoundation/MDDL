@@ -2,9 +2,9 @@
   <v-card
     outlined
     :class="[
-      'mx-auto',
       { 'pr-8': selectable },
       { mobile: $vuetify.breakpoint.xs },
+      { 'mx-4': $vuetify.breakpoint.smAndUp },
     ]"
     @click.native="onClick"
   >
@@ -22,14 +22,14 @@
       :edit-details="showDetails"
     />
     <v-row align="center" no-gutters>
-      <v-col class="py-0" xs="6" sm="5">
+      <v-col class="py-0" cols="auto">
         <v-img
           v-if="thumbnail"
           :src="thumbnail"
-          max-height="200"
-          max-width="200"
+          max-height="112"
+          max-width="112"
           contain
-          class="ma-4"
+          class="ma-4 thumbnail"
         ></v-img>
         <v-skeleton-loader
           v-else
@@ -39,8 +39,8 @@
           tile
         ></v-skeleton-loader>
       </v-col>
-      <v-col>
-        <v-card-title class="headline">{{ document.name }}</v-card-title>
+      <v-col cols="6">
+        <v-card-title class="body-1">{{ document.name }}</v-card-title>
 
         <v-card-subtitle>{{ documentDate }}</v-card-subtitle>
       </v-col>
@@ -134,11 +134,14 @@ export default class DocumentCard extends Vue {
 
 <style lang="scss">
 .v-card {
-  max-width: 40rem;
+  max-width: none !important;
   cursor: pointer;
+  .thumbnail {
+    border-radius: 0.4rem;
+  }
   &.mobile {
-    &:first-of-type {
-      border-bottom: initial;
+    &:last-of-type {
+      border-bottom: thin solid rgba(0, 0, 0, 0.12);
     }
     border-radius: 0;
     border-bottom: none;

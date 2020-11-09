@@ -1,7 +1,7 @@
 // Ref: https://github.com/nuxt-community/vuetify-module#customvariables
 
-$body-font-family: 'Noto', sans-serif;
-$heading-font-family: 'Noto', sans-serif;
+$body-font-family: 'Noto Sans', sans-serif;
+$heading-font-family: 'Noto Sans', sans-serif;
 
 // Breakpoints
 $grid-breakpoints: (
@@ -26,10 +26,6 @@ $border-radius-root: 0.4rem;
 
 // Card
 $card-btn-padding: 0 1rem;
-
-// Toolbar
-$toolbar-content-padding-y: 0;
-$toolbar-content-padding-x: 0;
 
 // See https://vuetifyjs.com/en/styles/text-and-typography/#typography
 

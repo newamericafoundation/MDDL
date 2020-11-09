@@ -12,6 +12,12 @@
 
 <script>
 import { Vue, Component } from 'nuxt-property-decorator'
-@Component
+@Component({
+  head() {
+    return {
+      title: '',
+    }
+  },
+})
 export default class Index extends Vue {}
 </script>

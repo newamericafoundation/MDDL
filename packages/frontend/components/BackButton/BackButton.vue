@@ -1,6 +1,6 @@
 <template>
   <v-btn icon @click="back">
-    <v-icon>$chevron-left</v-icon>
+    <v-icon small>$chevron-left</v-icon>
   </v-btn>
 </template>
 

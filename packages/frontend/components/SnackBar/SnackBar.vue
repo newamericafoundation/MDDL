@@ -3,53 +3,53 @@
     v-model="isVisible"
     :color="color"
     :timeout="-1"
-    class="snackbar"
+    :class="['snackbar', { mobile: $vuetify.breakpoint.xs }]"
     elevation="0"
     vertical
+    :right="$vuetify.breakpoint.smAndUp"
   >
-    {{ $t(message) }}
+    <v-row>
+      <v-col class="message">
+        {{ $t(message) }}
+      </v-col>
+      <v-col cols="auto">
+        <v-row justify="end">
+          <v-btn
+            v-if="isDismissable"
+            class="px-0 close-button"
+            text
+            @click="close"
+          >
+            <v-icon small>$closeBold</v-icon>
+          </v-btn>
+        </v-row>
+        <v-row
+          v-for="(action, i) in linkActions"
+          :key="`link-${i}`"
+          justify="end"
+          class="mr-1"
+        >
+          <nuxt-link
+            :to="localePath(action.to)"
+            class="font-weight-bold capitalize"
+          >
+            {{ $t(action.name) }}
+          </nuxt-link>
+        </v-row>
 
-    <template v-slot:action="{ attrs }">
-      <nuxt-link
-        v-for="(action, i) in linkActions"
-        :key="`link-${i}`"
-        v-bind="attrs"
-        :to="localePath(action.to)"
-        class="font-weight-bold capitalize"
-      >
-        {{ $t(action.name) }}
-      </nuxt-link>
-
-      <v-btn
-        v-for="(action, i) in clickActions"
-        :key="`click-${i}`"
-        v-bind="attrs"
-        right
-        class="font-weight-bold capitalize"
-        text
-        @click="action.do"
-      >
-        <v-icon>$close</v-icon>
-      </v-btn>
-
-      <v-btn
-        v-if="isDismissable"
-        v-bind="attrs"
-        absolute
-        right
-        class="px-0 py-3"
-        text
-        @click="close"
-      >
-        <v-icon>$close</v-icon>
-      </v-btn>
-      <v-progress-linear
-        v-if="progress !== null"
-        :value="progress"
-        color="success"
-        class="mb-0"
-      ></v-progress-linear>
-    </template>
+        <v-row v-for="(action, i) in clickActions" :key="`click-${i}`">
+          <v-btn class="font-weight-bold capitalize" text @click="action.do">
+            {{ $t(action.name) }}
+          </v-btn>
+        </v-row>
+      </v-col>
+    </v-row>
+    <v-progress-linear
+      v-if="progress !== null"
+      :value="progress"
+      color="success"
+      class="mb-0"
+    ></v-progress-linear>
   </v-snackbar>
 </template>
 
@@ -94,45 +94,55 @@ export default class SnackBar extends Vue {
 </script>
 
 <style lang="scss">
-#__nuxt .v-application .snackbar .v-snack__wrapper {
-  margin-bottom: 0;
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
-  border-top-left-radius: 1rem;
-  border-top-right-radius: 1rem;
-  padding: 0rem 1rem;
-  .v-snack__content {
-    color: var(--white);
-    padding-right: 3rem;
+#__nuxt .v-application .snackbar {
+  &.mobile .v-snack__wrapper {
+    width: 100vw;
+    margin: 0;
   }
+  .v-snack__wrapper {
+    margin-bottom: 0;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
 
-  .v-snack__action {
-    margin-bottom: 1rem;
-    & > *:not(:last-child) {
-      padding-right: 1rem;
-    }
-    a {
-      text-decoration: none;
-      &:hover {
-        color: var(--white);
-        opacity: 0.8;
-      }
+    .v-snack__content {
       color: var(--white);
+      margin-right: 0;
+      padding: 0rem 1.5rem 0 1.5rem !important;
+      width: 100%;
+      .message {
+        padding-top: 1rem;
+      }
+      a {
+        text-decoration: none;
+        &:hover {
+          color: var(--white);
+          opacity: 0.8;
+        }
+        color: var(--white);
+      }
     }
-  }
 
-  .v-btn.v-snack__btn.v-btn--absolute {
-    height: 1rem;
-    min-width: 1.5rem !important;
-    position: absolute;
-    top: 0.75rem;
-    right: 2rem;
-  }
+    .v-snack__action {
+      display: none;
+    }
+    .v-btn {
+      min-height: 0.4rem;
+      height: 2rem;
+      min-width: 2rem !important;
+      &.close-button {
+        padding: 0 0;
+        margin-right: 0.5rem;
+        .v-btn__content {
+          margin-left: 0.5rem;
+        }
+      }
+    }
 
-  .v-progress-linear {
-    position: absolute;
-    left: 0;
-    bottom: 0;
+    .v-progress-linear {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+    }
   }
 }
 </style>

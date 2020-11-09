@@ -15,7 +15,7 @@
 
       <v-list>
         <v-list-item>
-          <v-btn @click="editDetails">
+          <v-btn text @click="editDetails">
             <v-icon small class="mr-2" color="primary">$pencil</v-icon>
             {{ $t('editDetails') }}
           </v-btn>

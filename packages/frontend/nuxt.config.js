@@ -4,7 +4,7 @@ export default {
   ssr: false,
   target: 'static',
   head: {
-    titleTemplate: '%s - Homeless Data Locker',
+    titleTemplate: '%s - Datalocker',
     meta: [
       {
         charset: 'utf-8',
@@ -29,11 +29,16 @@ export default {
   },
   css: ['@/assets/scss/main.scss'],
   styleResources: {
-    scss: ['@/assets/scss/colors.scss'],
+    scss: ['@/assets/scss/colors.scss', '@/assets/scss/variables.scss'],
   },
   plugins: ['@/plugins/api-accessor.ts', '@/plugins/vee-validate.js'],
   components: true,
-  buildModules: ['@nuxt/typescript-build', '@nuxtjs/vuetify', '@nuxtjs/dotenv'],
+  buildModules: [
+    '@nuxt/typescript-build',
+    '@nuxtjs/vuetify',
+    '@nuxtjs/dotenv',
+    '@nuxtjs/google-fonts',
+  ],
   modules: [
     '@nuxtjs/style-resources',
     '@nuxtjs/axios',
@@ -50,10 +55,15 @@ export default {
     },
     strategy: 'no_prefix',
   },
-  axios: {},
+  googleFonts: {
+    families: {
+      'Noto Sans': [300, 400, 500, 600, 700],
+    },
+  },
   vuetify: {
+    treeShake: true,
+    customVariables: ['@/assets/scss/vuetifyVariables.scss'],
     optionsPath: './vuetify.options.ts',
-    customVariables: ['./assets/scss/vuetifyVariables.scss'],
   },
   env: {
     apiUrl: process.env.API_URL,

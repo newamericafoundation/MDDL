@@ -1,16 +1,16 @@
 <template>
-  <div>
+  <div class="upload-container">
     <label
       :class="[
         'upload-label',
-        textButton ? 'text' : 'v-btn capitalize',
+        'px-4',
+        textButton ? 'text' : 'v-btn',
         { disabled: isLoading },
+        { 'font-weight-bold': textButton },
       ]"
     >
-      <v-icon v-if="prependIcon" v-text="prependIcon" />
-      <p :class="[{ 'font-weight-bold': textButton }, 'capitalize', 'ma-0']">
-        {{ $t(label) }}
-      </p>
+      <v-icon v-if="prependIcon" class="mr-4" small v-text="prependIcon" />
+      {{ capitalize($t(label)) }}
       <input
         type="file"
         :multiple="multiple"
@@ -166,6 +166,9 @@ export default class UploadButton extends Vue {
 
 <style scoped lang="scss">
 .upload-label {
+  min-width: $button-min-width;
+  justify-content: start;
+
   &:not(.disabled) {
     cursor: pointer;
   }

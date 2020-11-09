@@ -21,5 +21,5 @@
 import { Vue, Component } from 'nuxt-property-decorator'
 
 @Component
-export default class ChevronLeft extends Vue {}
+export default class Close extends Vue {}
 </script>

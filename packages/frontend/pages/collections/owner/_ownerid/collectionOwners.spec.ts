@@ -4,7 +4,13 @@ import ViewCollection from '@/pages/collections/_id/index.vue'
 import Layout from '@/layouts/default.vue'
 import flushPromises from 'flush-promises'
 
-describe('Documents component', () => {
+jest.mock('@/plugins/store-accessor', () => ({
+  userStore: {
+    collections: [],
+  },
+}))
+
+describe('Collections by owner', () => {
   let store: any
   beforeEach(() => {
     store = new Vuex.Store({

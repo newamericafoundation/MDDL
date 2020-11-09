@@ -13,7 +13,14 @@
 
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator'
+import { capitalize } from '../../assets/js/stringUtils'
 
-@Component
+@Component({
+  head() {
+    return {
+      title: capitalize(this.$t('account') as string),
+    }
+  },
+})
 export default class Account extends Vue {}
 </script>

@@ -2,7 +2,7 @@
   <div>
     <AppBar>
       <template v-slot:nav-action>
-        <v-app-bar-nav-icon @click.stop="toggleNav" />
+        <v-app-bar-nav-icon color="grey8" @click.stop="toggleNav" />
       </template>
       <template v-slot:actions>
         <UploadButton prepend-icon="$plus" />
@@ -25,38 +25,34 @@
       </template>
     </AppBar>
     <v-main>
-      <v-container class="px-0">
-        <template v-if="!loading">
-          <v-tabs-items v-model="currentTab">
-            <v-tab-item value="tab-docs">
-              <DocumentList />
-            </v-tab-item>
-            <v-tab-item value="tab-collections">
-              <CollectionList v-model="collections" />
-            </v-tab-item>
-          </v-tabs-items>
-        </template>
-        <template v-else>
-          <v-card
-            v-for="i in new Array(5)"
-            :key="i"
-            class="mx-auto mb-4"
-            max-width="700"
-            outlined
-          >
-            <v-row align="center">
-              <v-col class="py-0" xs="6" sm="4">
-                <v-skeleton-loader type="image"></v-skeleton-loader>
-              </v-col>
-              <v-col>
-                <v-skeleton-loader
-                  type="list-item-two-line"
-                ></v-skeleton-loader>
-              </v-col>
-            </v-row>
-          </v-card>
-        </template>
-      </v-container>
+      <template v-if="!loading">
+        <v-tabs-items v-model="currentTab">
+          <v-tab-item value="tab-docs">
+            <DocumentList />
+          </v-tab-item>
+          <v-tab-item value="tab-collections">
+            <CollectionList v-model="collections" />
+          </v-tab-item>
+        </v-tabs-items>
+      </template>
+      <template v-else>
+        <v-card
+          v-for="i in new Array(5)"
+          :key="i"
+          class="mx-auto mb-4"
+          max-width="700"
+          outlined
+        >
+          <v-row align="center">
+            <v-col class="py-0" xs="6" sm="4">
+              <v-skeleton-loader type="image"></v-skeleton-loader>
+            </v-col>
+            <v-col>
+              <v-skeleton-loader type="list-item-two-line"></v-skeleton-loader>
+            </v-col>
+          </v-row>
+        </v-card>
+      </template>
     </v-main>
   </div>
 </template>
@@ -67,9 +63,15 @@ import { DocumentListItem } from 'api-client'
 import { userStore, snackbarStore } from '@/plugins/store-accessor'
 import SnackParams from '@/types/snackbar'
 import ClientDashboard from '@/layouts/dashboard.vue'
+import { capitalize } from '@/assets/js/stringUtils'
 
 @Component({
   layout: 'dashboard',
+  head() {
+    return {
+      title: capitalize(this.$t('dashboard') as string),
+    }
+  },
 })
 export default class Documents extends Vue {
   loading = true
@@ -103,4 +105,15 @@ export default class Documents extends Vue {
 }
 </script>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+#__nuxt {
+  .v-main {
+    padding-top: 1rem;
+  }
+  .v-window.v-tabs-items .v-window-item {
+    padding: 1rem 0 6rem 0;
+    background-color: var(--blue-super-light);
+    min-height: 100vh;
+  }
+}
+</style>

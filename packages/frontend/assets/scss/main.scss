@@ -79,8 +79,14 @@
 
   // Tabs
   .v-tabs {
-    .v-tab span {
-      @extend .capitalize;
+    .v-tab {
+      &.v-tab--active:hover::before {
+        opacity: 0.04;
+      }
+      span {
+        @extend .capitalize;
+        text-transform: initial;
+      }
     }
     .v-tabs-slider-wrapper {
       padding: 0 1rem;
@@ -137,12 +143,22 @@
   .v-btn {
     text-transform: initial;
     box-shadow: none;
-    min-width: 4rem !important;
+    min-width: $button-min-width !important;
+    min-height: $button-min-height;
     &.v-btn--outlined {
       border: 2px solid currentColor;
     }
     &.v-btn--icon {
       min-width: 1.5rem !important;
+    }
+    &:not(.v-btn--icon) {
+      .v-btn__content {
+        display: block;
+      }
+      .v-icon {
+        float: left;
+      }
+      filter: drop-shadow(0px 3px 3px rgba(0, 0, 0, 0.13));
     }
     .v-btn__content {
       text-transform: capitalize;
@@ -169,8 +185,10 @@
   // Snackbar
   .v-snack {
     .v-snack__wrapper {
+      border-radius: 0.4rem;
       .v-snack__content {
         @extend .capitalize;
+        @extend .font-weight-bold;
       }
     }
   }

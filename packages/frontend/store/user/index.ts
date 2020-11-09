@@ -2,13 +2,13 @@ import { Module, VuexModule, Action, Mutation } from 'vuex-module-decorators'
 import { api } from '@/plugins/api-accessor'
 import {
   Collection,
-  SharedCollectionList,
   SharedCollectionListItem as ClientSharedCollectionListItem,
   CollectionCreate,
   CollectionListItem,
   Document,
   DocumentListItem,
   FileContentTypeEnum,
+  User as ApiUser,
 } from 'api-client'
 import { SharedCollectionListItem } from '@/types/transformed'
 import axios, { AxiosResponse, AxiosRequestConfig } from 'axios'
@@ -151,6 +151,13 @@ export default class User extends VuexModule {
   @Mutation
   setSharedCollections(collections: SharedCollectionListItem[]) {
     this._sharedCollections = collections
+  }
+
+  @Action({ rawError: true })
+  getUser(id: string): Promise<ApiUser> {
+    return api.user.getUser(id).then(response => {
+      return response.data
+    })
   }
 
   @Action({ rawError: true, commit: 'setDocuments' })

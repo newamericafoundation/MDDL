@@ -7,6 +7,7 @@ import Agency from '@/components/icons/agency.vue'
 import Alert from '@/components/icons/alert.vue'
 import ChevronLeft from '@/components/icons/chevron-left.vue'
 import Close from '@/components/icons/close.vue'
+import CloseBold from '@/components/icons/close-bold.vue'
 import CloseCircleOutline from '@/components/icons/close-circle-outline.vue'
 import Delete from '@/components/icons/delete.vue'
 import Document from '@/components/icons/document.vue'
@@ -22,7 +23,6 @@ import Send from '@/components/icons/send.vue'
 
 const vuetifyOptions = (ctx: Context): Options => {
   return {
-    treeShake: true,
     theme: {
       dark: false,
       disable: false,
@@ -37,6 +37,7 @@ const vuetifyOptions = (ctx: Context): Options => {
           warning: colors.amber.base,
           error: '#ff5c62',
           success: '#2affb8',
+          grey8: '#55585e',
         },
         dark: {
           primary: colors.blue.darken2,
@@ -47,6 +48,11 @@ const vuetifyOptions = (ctx: Context): Options => {
           error: colors.deepOrange.accent4,
           success: colors.green.accent3,
         },
+      },
+    },
+    defaultAssets: {
+      font: {
+        family: 'Noto Sans',
       },
     },
     icons: {
@@ -63,6 +69,9 @@ const vuetifyOptions = (ctx: Context): Options => {
         },
         close: {
           component: Close,
+        },
+        closeBold: {
+          component: CloseBold,
         },
         'close-circle-outline': {
           component: CloseCircleOutline,

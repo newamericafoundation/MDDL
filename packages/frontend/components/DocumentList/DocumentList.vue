@@ -6,7 +6,7 @@
         :key="i"
         v-model="selected[i]"
         :document="document"
-        class="mb-4"
+        :class="{ 'mb-4': $vuetify.breakpoint.smAndUp }"
         :selectable="selectable"
         :reload="reload"
       />
