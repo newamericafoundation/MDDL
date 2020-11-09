@@ -1,5 +1,7 @@
 import { NuxtAxiosInstance } from '@nuxtjs/axios'
 import { DocumentApi, UserApi, CollectionsApi, Configuration } from 'api-client'
+import { AxiosResponse } from 'axios'
+import { Auth } from '@nuxtjs/auth'
 
 const initialisedAPIs = {
   document: null as DocumentApi | null,
@@ -15,8 +17,6 @@ export class ApiService {
     this.axios = axiosInstance
     this.config = {
       basePath: process.env.API_URL,
-      // TODO: add access token
-      // accessToken: '',
     }
   }
 
@@ -58,9 +58,23 @@ export class ApiService {
 export let api: ApiService
 
 export default (
-  { $axios }: { $axios: NuxtAxiosInstance },
+  {
+    $axios,
+    $auth,
+  }: {
+    $axios: NuxtAxiosInstance
+    $auth: Auth
+  },
   inject: (s: string, o: any) => void,
 ) => {
   api = new ApiService($axios)
   inject('api', api)
+  const unauthorizedResponseInterceptor = (res: AxiosResponse) => {
+    if (res.status === 401) {
+      $auth.login()
+    }
+    return res
+  }
+
+  $axios.interceptors.response.use(unauthorizedResponseInterceptor)
 }

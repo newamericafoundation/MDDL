@@ -1,4 +1,4 @@
-import { Module, VuexModule, Mutation, Action } from 'vuex-module-decorators'
+import { Module, VuexModule, Action } from 'vuex-module-decorators'
 import { api } from '@/plugins/api-accessor'
 import { DocumentListItem } from 'api-client'
 
@@ -12,7 +12,7 @@ export default class Collection extends VuexModule {
   getDocuments(collectionId: string): Promise<DocumentListItem[]> {
     return api.collection
       .getCollectionDocuments(collectionId)
-      .then((response) => {
+      .then(response => {
         return response.data.documents ? response.data.documents : []
       })
   }
