@@ -16,7 +16,7 @@
       @change="emitChange"
     />
     <DocumentMenu
-      v-else
+      v-else-if="showActions"
       :download="download"
       :delete-doc="deleteDoc"
       :edit-details="showDetails"
@@ -58,6 +58,7 @@ export default class DocumentCard extends Vue {
   @Prop({ required: true }) document: DocumentListItem
   @Prop({ default: false }) selectable: boolean
   @Prop({ default: null }) value: boolean
+  @Prop({ default: true }) showActions: boolean
   @Prop({
     default: async () => {
       // do nothing

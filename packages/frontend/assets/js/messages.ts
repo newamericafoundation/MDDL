@@ -44,6 +44,7 @@ export default {
     downloadPdf: 'download PDF',
     editDetails: 'edit details',
     editInformation: 'edit information',
+    emptyCollection: 'there are no documents in this collection.',
     enterEmailPlaceholder: 'enter email address',
     enterDocumentDescriptionPlaceholder: 'enter description',
     enterDocumentNamePlaceholder: 'enter new document name',

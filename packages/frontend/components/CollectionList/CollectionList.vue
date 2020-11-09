@@ -13,10 +13,12 @@
     <div v-else>
       <p class="d-flex justify-center capitalize">{{ $t('noDocuments') }}</p>
       <nuxt-link
-        class="body-1 font-weight-medium dashboard-link d-flex justify-center capitalize"
+        class="d-flex justify-center nuxt-link"
         :to="localePath('/dashboard')"
       >
-        {{ $t('returnDashboard') }}
+        <v-btn text color="primary" class="body-1 font-weight-bold">
+          {{ capitalize($t('returnDashboard')) }}
+        </v-btn>
       </nuxt-link>
     </div>
   </div>
@@ -44,6 +46,7 @@
 import { Vue, Component, Prop, Watch } from 'nuxt-property-decorator'
 import { userStore } from '@/plugins/store-accessor'
 import { CollectionListItem } from 'api-client'
+import { capitalize } from '@/assets/js/stringUtils'
 
 @Component
 export default class CollectionList extends Vue {
@@ -52,6 +55,7 @@ export default class CollectionList extends Vue {
 
   loading = true
   selected: boolean[] = []
+  capitalize = capitalize
 
   async mounted() {
     this.$store.commit('user/setUserId', this.$auth.user.username)

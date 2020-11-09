@@ -1,17 +1,33 @@
 <template>
-  <div v-if="documents.length">
-    <DocumentCard
-      v-for="(document, i) in documents"
-      :key="i"
-      :document="document"
-      class="mb-2"
-    />
-  </div>
-  <div v-else>
+  <div v-if="loading">
     <v-skeleton-loader
       class="my-2"
       type="list-item-three-line, image, list-item"
     ></v-skeleton-loader>
+  </div>
+  <div v-else>
+    <template v-if="documents.length">
+      <DocumentCard
+        v-for="(document, i) in documents"
+        :key="i"
+        :document="document"
+        :show-actions="false"
+        class="mb-2"
+      />
+    </template>
+    <template v-else>
+      <p class="d-flex justify-center">
+        {{ capitalize($t('emptyCollection')) }}
+      </p>
+      <nuxt-link
+        class="d-flex justify-center nuxt-link"
+        :to="localePath('/dashboard')"
+      >
+        <v-btn text color="primary" class="body-1 font-weight-bold">
+          {{ capitalize($t('returnDashboard')) }}
+        </v-btn>
+      </nuxt-link>
+    </template>
   </div>
 </template>
 
@@ -23,6 +39,7 @@ import {
   SharedCollectionListItem,
 } from 'api-client'
 import { userStore } from '@/plugins/store-accessor'
+import { capitalize } from '@/assets/js/stringUtils'
 
 @Component({
   head() {
@@ -35,6 +52,7 @@ export default class ViewCollection extends Vue {
   loading = true
   documents: DocumentListItem[] = []
   title = ''
+  capitalize = capitalize
 
   mounted() {
     this.title = this.$t('shared') as string
@@ -53,5 +71,3 @@ export default class ViewCollection extends Vue {
   }
 }
 </script>
-
-<style scoped lang="scss"></style>
