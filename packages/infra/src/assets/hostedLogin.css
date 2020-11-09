@@ -148,3 +148,26 @@ p.redirect-customizable > a {
   margin-top: 30px;
   text-align: center;
 }
+/* Replace sign-up form labels */
+form[name='signupform'] > div:nth-child(4) .label-customizable {
+  visibility: hidden;
+}
+form[name='signupform'] > div:nth-child(4):before {
+  content: 'First name';
+  margin-top: 20px;
+  font-weight: 500;
+  font-size: 15px;
+  line-height: 20px;
+  color: #000000;
+}
+form[name='signupform'] > div:nth-child(5) .label-customizable {
+  visibility: hidden;
+}
+form[name='signupform'] > div:nth-child(5):before {
+  content: 'Last name';
+  margin-top: 20px;
+  font-weight: 500;
+  font-size: 15px;
+  line-height: 20px;
+  color: #000000;
+}
