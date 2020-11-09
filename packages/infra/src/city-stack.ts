@@ -146,25 +146,30 @@ export interface Props extends StackProps {
 
 interface ApiProps {
   api: HttpApi
-  webAppDomain: string
   dbSecret: ISecret
   mySqlLayer: ILayerVersion
   gmLayer: ILayerVersion
   authorizer: CfnAuthorizer
-  jwtConfiguration: JwtConfiguration
-  emailSender: EmailSender
-  agencyEmailDomainsWhitelist: string
+}
+
+enum EnvironmentVariables {
+  DOCUMENTS_BUCKET = 'DOCUMENTS_BUCKET',
+  USERINFO_ENDPOINT = 'USERINFO_ENDPOINT',
+  WEB_APP_DOMAIN = 'WEB_APP_DOMAIN',
+  EMAIL_SENDER = 'EMAIL_SENDER',
+  AGENCY_EMAIL_DOMAINS_WHITELIST = 'AGENCY_EMAIL_DOMAINS_WHITELIST',
 }
 
 const pathToApiServiceLambda = (name: string) =>
   path.join(__dirname, '..', '..', 'api-service', 'build', `${name}.zip`)
 
 export class CityStack extends Stack {
+  public bucketNames: { [index: string]: string }
   private static documentsBucketUploadsPrefix = 'documents/'
   private lambdaVpc: IVpc
   private lambdaSecurityGroups: ISecurityGroup[]
   private rdsEndpoint: string
-  public bucketNames: { [index: string]: string }
+  private environmentVariables: { [key: string]: string }
   constructor(scope: Construct, id: string, props: Props) {
     super(scope, id, props)
 
@@ -274,18 +279,25 @@ export class CityStack extends Stack {
     )
     const apiProps: ApiProps = {
       api,
-      webAppDomain,
       authorizer,
       dbSecret: secret,
       mySqlLayer,
       gmLayer,
-      jwtConfiguration,
-      emailSender,
-      agencyEmailDomainsWhitelist: agencyEmailDomainsWhitelist.join(','),
     }
 
     // create uploads bucket
     const { bucket } = this.createUploadsBucket(kmsKey, corsOrigins)
+
+    this.environmentVariables = {
+      [EnvironmentVariables.DOCUMENTS_BUCKET]: bucket.bucketName,
+      [EnvironmentVariables.USERINFO_ENDPOINT]:
+        jwtConfiguration.userInfoEndpoint,
+      [EnvironmentVariables.WEB_APP_DOMAIN]: webAppDomain,
+      [EnvironmentVariables.EMAIL_SENDER]: `${emailSender.name} <${emailSender.address}>`,
+      [EnvironmentVariables.AGENCY_EMAIL_DOMAINS_WHITELIST]: agencyEmailDomainsWhitelist.join(
+        ',',
+      ),
+    }
 
     // add user routes
     this.addUserRoutes(apiProps, bucket)
@@ -787,16 +799,7 @@ export class CityStack extends Stack {
    * @param uploadsBucket The bucket with document uploads
    */
   private addUserRoutes(apiProps: ApiProps, uploadsBucket: IBucket) {
-    const {
-      api,
-      dbSecret,
-      mySqlLayer,
-      authorizer,
-      jwtConfiguration,
-      webAppDomain,
-      emailSender,
-      agencyEmailDomainsWhitelist,
-    } = apiProps
+    const { api, dbSecret, mySqlLayer, authorizer } = apiProps
 
     // add lambda to list users documents
     const getUserDocumentsLambda = this.createLambda(
@@ -805,10 +808,10 @@ export class CityStack extends Stack {
       {
         dbSecret,
         layers: [mySqlLayer],
-        extraEnvironmentVariables: {
-          DOCUMENTS_BUCKET: uploadsBucket.bucketName,
-          USERINFO_ENDPOINT: jwtConfiguration.userInfoEndpoint,
-        },
+        extraEnvironmentVariables: [
+          EnvironmentVariables.DOCUMENTS_BUCKET,
+          EnvironmentVariables.USERINFO_ENDPOINT,
+        ],
       },
     )
 
@@ -832,10 +835,10 @@ export class CityStack extends Stack {
       {
         dbSecret,
         layers: [mySqlLayer],
-        extraEnvironmentVariables: {
-          DOCUMENTS_BUCKET: uploadsBucket.bucketName,
-          USERINFO_ENDPOINT: jwtConfiguration.userInfoEndpoint,
-        },
+        extraEnvironmentVariables: [
+          EnvironmentVariables.DOCUMENTS_BUCKET,
+          EnvironmentVariables.USERINFO_ENDPOINT,
+        ],
       },
     )
     // permission needed to create presigned url
@@ -865,9 +868,7 @@ export class CityStack extends Stack {
         {
           dbSecret,
           layers: [mySqlLayer],
-          extraEnvironmentVariables: {
-            USERINFO_ENDPOINT: jwtConfiguration.userInfoEndpoint,
-          },
+          extraEnvironmentVariables: [EnvironmentVariables.USERINFO_ENDPOINT],
         },
       ),
       authorizer,
@@ -883,10 +884,10 @@ export class CityStack extends Stack {
         {
           dbSecret,
           layers: [mySqlLayer],
-          extraEnvironmentVariables: {
-            USERINFO_ENDPOINT: jwtConfiguration.userInfoEndpoint,
-            AGENCY_EMAIL_DOMAINS_WHITELIST: agencyEmailDomainsWhitelist,
-          },
+          extraEnvironmentVariables: [
+            EnvironmentVariables.USERINFO_ENDPOINT,
+            EnvironmentVariables.AGENCY_EMAIL_DOMAINS_WHITELIST,
+          ],
         },
       ),
       authorizer,
@@ -899,11 +900,12 @@ export class CityStack extends Stack {
       {
         dbSecret,
         layers: [mySqlLayer],
-        extraEnvironmentVariables: {
-          USERINFO_ENDPOINT: jwtConfiguration.userInfoEndpoint,
-          WEB_APP_DOMAIN: webAppDomain,
-          EMAIL_SENDER: `${emailSender.name} <${emailSender.address}>`,
-        },
+        extraEnvironmentVariables: [
+          EnvironmentVariables.USERINFO_ENDPOINT,
+          EnvironmentVariables.WEB_APP_DOMAIN,
+          EnvironmentVariables.EMAIL_SENDER,
+          EnvironmentVariables.AGENCY_EMAIL_DOMAINS_WHITELIST,
+        ],
       },
     )
     createCollectionFunction.addToRolePolicy(
@@ -926,15 +928,7 @@ export class CityStack extends Stack {
    * @param uploadsBucket The bucket with document uploads
    */
   private addDocumentRoutes(apiProps: ApiProps, uploadsBucket: Bucket) {
-    const {
-      api,
-      dbSecret,
-      mySqlLayer,
-      authorizer,
-      jwtConfiguration,
-      gmLayer,
-      agencyEmailDomainsWhitelist,
-    } = apiProps
+    const { api, dbSecret, mySqlLayer, authorizer, gmLayer } = apiProps
 
     // create lambda to fetch a document
     const getDocumentByIdLambda = this.createLambda(
@@ -943,11 +937,11 @@ export class CityStack extends Stack {
       {
         dbSecret,
         layers: [mySqlLayer],
-        extraEnvironmentVariables: {
-          DOCUMENTS_BUCKET: uploadsBucket.bucketName,
-          USERINFO_ENDPOINT: jwtConfiguration.userInfoEndpoint,
-          AGENCY_EMAIL_DOMAINS_WHITELIST: agencyEmailDomainsWhitelist,
-        },
+        extraEnvironmentVariables: [
+          EnvironmentVariables.DOCUMENTS_BUCKET,
+          EnvironmentVariables.USERINFO_ENDPOINT,
+          EnvironmentVariables.AGENCY_EMAIL_DOMAINS_WHITELIST,
+        ],
       },
     )
 
@@ -972,11 +966,11 @@ export class CityStack extends Stack {
       {
         dbSecret,
         layers: [mySqlLayer],
-        extraEnvironmentVariables: {
-          DOCUMENTS_BUCKET: uploadsBucket.bucketName,
-          USERINFO_ENDPOINT: jwtConfiguration.userInfoEndpoint,
-          AGENCY_EMAIL_DOMAINS_WHITELIST: agencyEmailDomainsWhitelist,
-        },
+        extraEnvironmentVariables: [
+          EnvironmentVariables.DOCUMENTS_BUCKET,
+          EnvironmentVariables.USERINFO_ENDPOINT,
+          EnvironmentVariables.AGENCY_EMAIL_DOMAINS_WHITELIST,
+        ],
       },
     )
 
@@ -1013,9 +1007,7 @@ export class CityStack extends Stack {
       pathToApiServiceLambda('documents/createThumbnail'),
       {
         layers: [gmLayer],
-        extraEnvironmentVariables: {
-          DOCUMENTS_BUCKET: uploadsBucket.bucketName,
-        },
+        extraEnvironmentVariables: [EnvironmentVariables.DOCUMENTS_BUCKET],
         extraFunctionProps: {
           onSuccess: new LambdaDestination(attachThumbnailToDocument, {
             responseOnly: true,
@@ -1069,9 +1061,7 @@ export class CityStack extends Stack {
         {
           dbSecret,
           layers: [mySqlLayer],
-          extraEnvironmentVariables: {
-            USERINFO_ENDPOINT: jwtConfiguration.userInfoEndpoint,
-          },
+          extraEnvironmentVariables: [EnvironmentVariables.USERINFO_ENDPOINT],
         },
       ),
       authorizer,
@@ -1084,10 +1074,10 @@ export class CityStack extends Stack {
       {
         dbSecret,
         layers: [mySqlLayer],
-        extraEnvironmentVariables: {
-          DOCUMENTS_BUCKET: uploadsBucket.bucketName,
-          USERINFO_ENDPOINT: jwtConfiguration.userInfoEndpoint,
-        },
+        extraEnvironmentVariables: [
+          EnvironmentVariables.DOCUMENTS_BUCKET,
+          EnvironmentVariables.USERINFO_ENDPOINT,
+        ],
       },
     )
 
@@ -1114,14 +1104,7 @@ export class CityStack extends Stack {
    * @param apiProps Common properties for API functions
    */
   private addCollectionRoutes(apiProps: ApiProps, uploadsBucket: Bucket) {
-    const {
-      api,
-      dbSecret,
-      mySqlLayer,
-      authorizer,
-      jwtConfiguration,
-      agencyEmailDomainsWhitelist,
-    } = apiProps
+    const { api, dbSecret, mySqlLayer, authorizer } = apiProps
 
     const getCollectionDocuments = this.createLambda(
       'GetCollectionDocuments',
@@ -1129,11 +1112,11 @@ export class CityStack extends Stack {
       {
         dbSecret,
         layers: [mySqlLayer],
-        extraEnvironmentVariables: {
-          USERINFO_ENDPOINT: jwtConfiguration.userInfoEndpoint,
-          DOCUMENTS_BUCKET: uploadsBucket.bucketName,
-          AGENCY_EMAIL_DOMAINS_WHITELIST: agencyEmailDomainsWhitelist,
-        },
+        extraEnvironmentVariables: [
+          EnvironmentVariables.USERINFO_ENDPOINT,
+          EnvironmentVariables.DOCUMENTS_BUCKET,
+          EnvironmentVariables.AGENCY_EMAIL_DOMAINS_WHITELIST,
+        ],
       },
     )
 
@@ -1160,9 +1143,7 @@ export class CityStack extends Stack {
         {
           dbSecret,
           layers: [mySqlLayer],
-          extraEnvironmentVariables: {
-            USERINFO_ENDPOINT: jwtConfiguration.userInfoEndpoint,
-          },
+          extraEnvironmentVariables: [EnvironmentVariables.USERINFO_ENDPOINT],
         },
       ),
       authorizer,
@@ -1222,7 +1203,7 @@ export class CityStack extends Stack {
     props: {
       handler?: string
       dbSecret?: ISecret
-      extraEnvironmentVariables?: { [key: string]: string }
+      extraEnvironmentVariables?: EnvironmentVariables[]
       layers?: ILayerVersion[]
       extraFunctionProps?: Partial<FunctionProps>
     },
@@ -1230,7 +1211,7 @@ export class CityStack extends Stack {
     const {
       handler = 'index.handler',
       dbSecret,
-      extraEnvironmentVariables = {},
+      extraEnvironmentVariables = [],
       extraFunctionProps = {},
       layers,
     } = props
@@ -1243,15 +1224,20 @@ export class CityStack extends Stack {
           DB_NAME: dbSecret.secretValueFromJson('username').toString(),
         }
       : {}
+    const environment: {
+      [key: string]: string
+    } = {
+      NODE_ENV: 'production',
+      ...dbParams,
+    }
+    extraEnvironmentVariables.forEach((e) => {
+      environment[e] = this.environmentVariables[e]
+    })
     return new Function(this, name, {
       ...extraFunctionProps,
       code: Code.fromAsset(path),
       handler,
-      environment: {
-        NODE_ENV: 'production',
-        ...dbParams,
-        ...extraEnvironmentVariables,
-      },
+      environment,
       memorySize: 512,
       timeout: Duration.seconds(60),
       layers,
