@@ -136,10 +136,14 @@ export default class UploadButton extends Vue {
         snackbarStore.setParams({
           message: 'uploadComplete',
           actions: [
-            {
-              name: 'rename',
-              to: `/documents/${document.id}/edit`,
-            },
+            // TODO: removed for now pending design discussion
+            // {
+            //   name: 'rename',
+            //   to: `/documents/${document.id}`,
+            //   query: {
+            //     showDetails: 'true',
+            //   },
+            // },
             {
               name: 'view',
               to: `/documents/${document.id}`,
