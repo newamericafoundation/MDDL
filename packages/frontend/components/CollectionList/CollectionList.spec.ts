@@ -1,5 +1,6 @@
-import { shallowMount } from '@vue/test-utils'
+import { createLocalVue, mount } from '@vue/test-utils'
 import CollectionList from '@/components/CollectionList/CollectionList.vue'
+import Vuetify from 'vuetify'
 
 jest.mock('@/plugins/store-accessor', () => ({
   userStore: {
@@ -7,9 +8,18 @@ jest.mock('@/plugins/store-accessor', () => ({
   },
 }))
 
+const localVue = createLocalVue()
+
 describe('CollectionList component', () => {
+  let vuetify: Vuetify
+
+  beforeEach(() => {
+    vuetify = new Vuetify()
+  })
+
   it('exports a valid component', () => {
-    const wrapper = shallowMount(CollectionList, {
+    const wrapper = mount(CollectionList, {
+      vuetify,
       mocks: {
         $store: {
           dispatch: () => [],
@@ -18,6 +28,7 @@ describe('CollectionList component', () => {
           },
         },
       },
+      localVue,
     })
     expect(wrapper.html()).toBeTruthy()
   })

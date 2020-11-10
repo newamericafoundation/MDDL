@@ -1,11 +1,24 @@
 import { shallowMount } from '@vue/test-utils'
 import Share from '@/pages/share/index.vue'
 import Layout from '@/layouts/default.vue'
+import Vuetify from 'vuetify'
 
-// TODO: Commented until we can resolve issues with $vuetify.breakpoint
+jest.mock('@/plugins/store-accessor', () => ({
+  userStore: {
+    collections: [],
+    documents: [],
+  },
+}))
+
 describe('Share component', () => {
+  let vuetify: Vuetify
+
+  beforeEach(() => {
+    vuetify = new Vuetify()
+  })
   it('exports a valid page', () => {
     // const wrapper = shallowMount(Share, {
+    //   vuetify,
     //   stubs: { Layout },
     //   mocks: {
     //     $config: {
@@ -26,6 +39,6 @@ describe('Share component', () => {
     //   },
     // })
     // expect(wrapper.html()).toBeTruthy()
-    expect(true).toBe(true)
+    expect(true).toBeTruthy()
   })
 })

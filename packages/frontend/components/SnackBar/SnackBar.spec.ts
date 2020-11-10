@@ -1,15 +1,21 @@
 import { shallowMount } from '@vue/test-utils'
 import SnackBar from '@/components/SnackBar/SnackBar.vue'
+import Vuetify from 'vuetify'
 
 jest.mock('@/plugins/store-accessor', () => ({
   snackbarStore: {},
 }))
 
-// TODO: Commented until we can resolve issues with $vuetify.breakpoint
 describe('SnackBar component', () => {
+  let vuetify: Vuetify
+
+  beforeEach(() => {
+    vuetify = new Vuetify()
+  })
   it('exports a valid component', () => {
-    //   const wrapper = shallowMount(SnackBar, {})
-    //   expect(wrapper.html()).toBeTruthy()
-    expect(true).toBe(true)
+    const wrapper = shallowMount(SnackBar, {
+      vuetify,
+    })
+    expect(wrapper.html()).toBeTruthy()
   })
 })

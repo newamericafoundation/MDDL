@@ -23,21 +23,23 @@
     />
     <v-row align="center" no-gutters>
       <v-col class="py-0" cols="auto">
-        <v-img
-          v-if="thumbnail"
-          :src="thumbnail"
-          max-height="112"
-          max-width="112"
-          contain
-          class="ma-4 thumbnail"
-        ></v-img>
-        <v-skeleton-loader
-          v-else
-          class="pa-4"
-          boilerplate
-          type="image"
-          tile
-        ></v-skeleton-loader>
+        <v-lazy height="100" width="100" class="ma-4">
+          <v-img
+            v-if="thumbnail"
+            max-height="112"
+            max-width="112"
+            contain
+            class="thumbnail"
+            :src="thumbnail"
+          ></v-img>
+          <v-skeleton-loader
+            v-else
+            class="pa-4"
+            boilerplate
+            type="image"
+            tile
+          ></v-skeleton-loader>
+        </v-lazy>
       </v-col>
       <v-col cols="6">
         <v-card-title class="body-1">{{ document.name }}</v-card-title>
@@ -79,7 +81,7 @@ export default class DocumentCard extends Vue {
   get thumbnail() {
     return (
       this.document &&
-      this.document.links.find(l => l.rel === 'thumbnail')?.href
+      this.document.links.find((l) => l.rel === 'thumbnail')?.href
     )
   }
 

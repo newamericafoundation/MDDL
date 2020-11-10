@@ -1,23 +1,28 @@
 import { shallowMount } from '@vue/test-utils'
 import SharedCollectionCard from '@/components/SharedCollectionCard/SharedCollectionCard.vue'
+import Vuetify from 'vuetify'
 
-// TODO: Commented until we can resolve issues with $vuetify.breakpoint
 describe('SharedCollectionCard component', () => {
+  let vuetify: Vuetify
+
+  beforeEach(() => {
+    vuetify = new Vuetify()
+  })
   it('exports a valid component', () => {
-    // const wrapper = shallowMount(SharedCollectionCard, {
-    //   propsData: {
-    //     collectionListItem: {
-    //       collection: {
-    //         name: 'test',
-    //       },
-    //       owner: {
-    //         familyName: 'Testman',
-    //         givenName: 'Testy',
-    //       },
-    //     },
-    //   },
-    // })
-    // expect(wrapper.html()).toBeTruthy()
-    expect(true).toBe(true)
+    const wrapper = shallowMount(SharedCollectionCard, {
+      vuetify,
+      propsData: {
+        collectionListItem: {
+          collection: {
+            name: 'test',
+          },
+          owner: {
+            familyName: 'Testman',
+            givenName: 'Testy',
+          },
+        },
+      },
+    })
+    expect(wrapper.html()).toBeTruthy()
   })
 })

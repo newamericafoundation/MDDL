@@ -29,13 +29,20 @@
     <v-card
       v-for="i in new Array(5)"
       :key="i"
-      class="mx-auto mb-4"
-      max-width="700"
       outlined
+      :class="[
+        { 'mx-4': $vuetify.breakpoint.smAndUp },
+        { 'mb-4': $vuetify.breakpoint.smAndUp },
+      ]"
     >
-      <v-row align="center">
-        <v-col class="py-0" xs="6" sm="4">
-          <v-skeleton-loader type="image"></v-skeleton-loader>
+      <v-row align="center" no-gutters>
+        <v-col cols="auto">
+          <v-skeleton-loader
+            type="image"
+            height="100"
+            width="100"
+            class="ma-4"
+          ></v-skeleton-loader>
         </v-col>
         <v-col>
           <v-skeleton-loader type="list-item-two-line"></v-skeleton-loader>

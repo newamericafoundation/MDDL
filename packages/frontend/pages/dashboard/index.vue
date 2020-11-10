@@ -25,7 +25,7 @@
       </template>
     </AppBar>
     <v-main>
-      <template v-if="!loading">
+      <template>
         <v-tabs-items v-model="currentTab">
           <v-tab-item value="tab-docs">
             <DocumentList />
@@ -34,24 +34,6 @@
             <CollectionList v-model="collections" />
           </v-tab-item>
         </v-tabs-items>
-      </template>
-      <template v-else>
-        <v-card
-          v-for="i in new Array(5)"
-          :key="i"
-          class="mx-auto mb-4"
-          max-width="700"
-          outlined
-        >
-          <v-row align="center">
-            <v-col class="py-0" xs="6" sm="4">
-              <v-skeleton-loader type="image"></v-skeleton-loader>
-            </v-col>
-            <v-col>
-              <v-skeleton-loader type="list-item-two-line"></v-skeleton-loader>
-            </v-col>
-          </v-row>
-        </v-card>
       </template>
     </v-main>
   </div>
@@ -74,10 +56,9 @@ import { capitalize } from '@/assets/js/stringUtils'
   },
 })
 export default class Documents extends Vue {
-  loading = true
   currentTab = 'tab-docs'
 
-  async mounted() {
+  mounted() {
     if (this.$route.query.showSnack) {
       snackbarStore.setVisible(true)
     }
@@ -86,11 +67,6 @@ export default class Documents extends Vue {
     }
 
     this.$store.commit('user/setUserId', this.$auth.user.username)
-    await Promise.all([
-      this.$store.dispatch('user/getDocuments'),
-      this.$store.dispatch('user/getCollections'),
-    ])
-    this.loading = false
   }
 
   get documents() {
