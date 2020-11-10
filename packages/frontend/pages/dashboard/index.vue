@@ -58,7 +58,7 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'nuxt-property-decorator'
+import { Vue, Component, Watch } from 'nuxt-property-decorator'
 import { DocumentListItem } from 'api-client'
 import { userStore, snackbarStore } from '@/plugins/store-accessor'
 import SnackParams from '@/types/snackbar'
@@ -81,6 +81,9 @@ export default class Documents extends Vue {
     if (this.$route.query.showSnack) {
       snackbarStore.setVisible(true)
     }
+    if (this.$route.query.tab) {
+      this.currentTab = this.$route.query.tab as string
+    }
 
     this.$store.commit('user/setUserId', this.$auth.user.username)
     await Promise.all([
@@ -101,6 +104,16 @@ export default class Documents extends Vue {
   toggleNav() {
     this.$parent.$parent.$parent.$data.drawer = !this.$parent.$parent.$parent
       .$data.drawer
+  }
+
+  @Watch('currentTab')
+  onTabChange() {
+    this.$router.push({
+      path: this.$route.path,
+      query: {
+        tab: this.currentTab,
+      },
+    })
   }
 }
 </script>

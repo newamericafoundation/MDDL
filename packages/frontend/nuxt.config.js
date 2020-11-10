@@ -65,12 +65,6 @@ export default {
     customVariables: ['@/assets/scss/vuetifyVariables.scss'],
     optionsPath: './vuetify.options.ts',
   },
-  env: {
-    apiUrl: process.env.API_URL,
-    debugToken: process.env.DEBUG_TOKEN,
-    buildNumber: process.env.CODEBUILD_BUILD_NUMBER,
-    buildTime: process.env.CODEBUILD_START_TIME,
-  },
   publicRuntimeConfig: {
     agencyEmailDomainsWhitelist: process.env.AGENCY_EMAIL_DOMAINS_WHITELIST,
   },
@@ -88,6 +82,15 @@ export default {
    */
   router: {
     middleware: ['auth', 'default'],
+    extendRoutes(routes, resolve) {
+      if (process.env.NODE_ENV === 'development') {
+        routes.push({
+          name: 'debug',
+          path: '/debug',
+          component: resolve(__dirname, 'components/DebugMenu/DebugMenu.vue'),
+        })
+      }
+    },
   },
   /*
    ** Auth Config

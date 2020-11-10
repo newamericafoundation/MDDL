@@ -2,9 +2,7 @@
   <v-window v-model="step">
     <v-window-item :class="{ mobile: $vuetify.breakpoint.xs }">
       <v-toolbar v-model="step" flat>
-        <nuxt-link class="mr-2" :to="localePath('/dashboard')">
-          <v-icon small>$chevron-left</v-icon>
-        </nuxt-link>
+        <BackButton />
         <v-toolbar-title>{{ $t('selectFiles') }}</v-toolbar-title>
         <v-spacer />
         <v-btn
@@ -287,6 +285,7 @@ export default class Share extends Vue {
         path: '/dashboard',
         query: {
           showSnack: 'true',
+          tab: 'tab-collections',
         },
       }) as RawLocation,
     )

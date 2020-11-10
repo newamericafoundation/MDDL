@@ -1,7 +1,8 @@
 import { NuxtAxiosInstance } from '@nuxtjs/axios'
 import { DocumentApi, UserApi, CollectionsApi, Configuration } from 'api-client'
-import { AxiosResponse } from 'axios'
+import { AxiosResponse, AxiosError } from 'axios'
 import { Auth } from '@nuxtjs/auth'
+import VueRouter from 'vue-router'
 
 const initialisedAPIs = {
   document: null as DocumentApi | null,
@@ -57,7 +58,7 @@ export class ApiService {
 // eslint-disable-next-line import/no-mutable-exports
 export let api: ApiService
 
-export default (
+export default async (
   {
     $axios,
     $auth,
@@ -67,14 +68,17 @@ export default (
   },
   inject: (s: string, o: any) => void,
 ) => {
+  await $axios.interceptors.response.use(
+    (res: AxiosResponse) => {
+      // happy response :)
+      return res
+    },
+    (err: AxiosError) => {
+      if (err.response && err.response.status === 401) {
+        $auth.login()
+      }
+    },
+  )
   api = new ApiService($axios)
   inject('api', api)
-  const unauthorizedResponseInterceptor = (res: AxiosResponse) => {
-    if (res.status === 401) {
-      $auth.login()
-    }
-    return res
-  }
-
-  $axios.interceptors.response.use(unauthorizedResponseInterceptor)
 }

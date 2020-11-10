@@ -57,3 +57,7 @@ Rendering mode: Single Page App
 Deployment target: Static
 CSS Preprocessing: node-sass, sass-loader, @nuxtjs/style-resources
 Vue modules: vue-class-component, nuxt-property-decorator, vuex-module-decorators
+
+## Debugging Auth
+
+In [./nuxt.config.js](./nuxt.config.js) set `auth.redirect = false`, and `auth.strategies.redirect_uri = 'http://localhost:3000/debug'`. Then you can navigate to /debug (on dev environment only) and do your troubleshooting using the tools there.

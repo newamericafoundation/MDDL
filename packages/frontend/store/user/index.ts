@@ -37,6 +37,10 @@ export default class User extends VuexModule {
     return this._sharedCollections
   }
 
+  get userId() {
+    return this._userId
+  }
+
   @Mutation
   setUserId(userId: string) {
     this._userId = userId
