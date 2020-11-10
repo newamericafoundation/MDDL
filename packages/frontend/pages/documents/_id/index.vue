@@ -103,7 +103,7 @@
               <ValidationProvider
                 v-slot="{ errors }"
                 name="name"
-                rules="required"
+                rules="required|max:255"
               >
                 <v-text-field
                   v-model="newName"
