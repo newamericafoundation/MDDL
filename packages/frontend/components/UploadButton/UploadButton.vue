@@ -106,6 +106,10 @@ export default class UploadButton extends Vue {
   onFileInput(event: any) {
     if (event?.target?.files && event.target.files.length) {
       this.files = event.target.files
+      this.documentName = event.target.files[0].name
+        .split('.')
+        .slice(0, -1)
+        .join('.')
       this.showDialog = true
     }
   }
