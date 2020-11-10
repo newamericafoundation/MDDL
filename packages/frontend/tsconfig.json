@@ -18,7 +18,8 @@
       "nuxt-i18n",
       "@nuxtjs/vuetify",
       "@types/nuxtjs__auth"
-    ]
+    ],
+    "typeRoots": ["./types"]
   },
   "exclude": ["node_modules", ".nuxt", "dist"]
 }
