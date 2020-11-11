@@ -25,7 +25,9 @@
     </v-window-item>
     <v-window-item>
       <v-toolbar class="mb-2" flat>
-        <v-icon class="mr-2" @click="prev">$chevron-left</v-icon>
+        <v-btn icon>
+          <v-icon small class="mr-2" @click="prev">$chevron-left</v-icon>
+        </v-btn>
         <v-toolbar-title>{{ $t('addRecipients') }}</v-toolbar-title>
         <v-spacer />
         <v-btn
@@ -91,19 +93,31 @@
         </v-card>
       </div>
       <v-footer outlined class="pa-8 d-flex">
-        <span class="font-weight-medium capitalize">
-          {{ $t('disclaimer') }}:&nbsp;
-        </span>
-        {{ $t('shareDocumentDisclaimer') }}
+        <div class="disclaimer capitalize">
+          <span class="font-weight-bold">{{ $t('disclaimer') }}:&nbsp;</span>
+          <span class="font-weight-normal">
+            {{ capitalize($t('shareDocumentDisclaimer')) }}
+          </span>
+        </div>
       </v-footer>
     </v-window-item>
     <v-window-item>
       <v-toolbar class="mb-8" flat>
-        <v-icon class="mr-2" :disabled="isLoading" @click="prev">
-          $chevron-left
-        </v-icon>
+        <v-btn icon>
+          <v-icon small class="mr-2" :disabled="isLoading" @click="prev">
+            $chevron-left
+          </v-icon>
+        </v-btn>
         <v-toolbar-title>{{ $t('confirmSharing') }}</v-toolbar-title>
         <v-spacer />
+        <v-btn
+          color="primary"
+          text
+          class="font-weight-bold body-1"
+          @click="cancel"
+        >
+          {{ $t('cancel') }}
+        </v-btn>
         <v-btn
           class="font-weight-bold body-1"
           color="primary"
@@ -267,7 +281,7 @@ export default class Share extends Vue {
     this.isLoading = true
     const collection = await this.$store.dispatch('user/createCollection', {
       name: this.name,
-      documentIds: this.selectedDocs.map(d => d.id),
+      documentIds: this.selectedDocs.map((d) => d.id),
       individualEmailAddresses: this.individualEmailAddresses,
       agencyOfficersEmailAddresses: [], // TODO: implement
     })
@@ -293,6 +307,10 @@ export default class Share extends Vue {
         },
       }) as RawLocation,
     )
+  }
+
+  cancel() {
+    this.$router.push(this.localePath(`/dashboard`))
   }
 
   /**
@@ -334,5 +352,8 @@ export default class Share extends Vue {
 .v-card.invitee {
   background-color: var(--grey-2);
   max-width: 40rem;
+}
+.disclaimer {
+  font-size: 13px;
 }
 </style>

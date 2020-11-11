@@ -75,6 +75,16 @@
       @extend .capitalize;
       font-weight: 600;
     }
+    .v-toolbar__content {
+      padding-right: 4px;
+    }
+  }
+
+  .v-application--is-ltr
+    .v-toolbar__content
+    > .v-btn.v-btn--icon:first-child
+    + .v-toolbar__title {
+    padding-left: 0;
   }
 
   // Tabs
@@ -145,6 +155,11 @@
     box-shadow: none;
     min-width: $button-min-width !important;
     min-height: $button-min-height;
+
+    &.v-btn--flat {
+      padding: 0 12px;
+      min-width: inherit !important;
+    }
     &.v-btn--outlined {
       border: 2px solid currentColor;
     }
@@ -229,5 +244,10 @@
     -moz-user-select: none; /* Firefox all */
     -ms-user-select: none; /* IE 10+ */
     user-select: none; /* Likely future */
+  }
+
+  // Footer
+  .theme--light.v-footer {
+    background: none;
   }
 }
