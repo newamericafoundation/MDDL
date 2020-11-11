@@ -213,11 +213,15 @@ export default class Share extends Vue {
   name = ''
   sliceFiles = 5
   sliceRecipients = 5
-  emailValidationRules = `required|email|emailWhitelist:${this.$config.agencyEmailDomainsWhitelist}`
+  emailValidationRules = ''
 
   async mounted() {
     const collections = await this.$store.dispatch('user/getCollections')
     this.name = `Collection ${collections.length + 1}`
+
+    // we wait until mounted to assign this since jest cannot mock $config
+    // until the component is mounted
+    this.emailValidationRules = `required|email|emailWhitelist:${this.$config.agencyEmailDomainsWhitelist}`
   }
 
   next() {

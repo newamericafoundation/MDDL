@@ -17,28 +17,27 @@ describe('Share component', () => {
     vuetify = new Vuetify()
   })
   it('exports a valid page', () => {
-    // const wrapper = shallowMount(Share, {
-    //   vuetify,
-    //   stubs: { Layout },
-    //   mocks: {
-    //     $config: {
-    //       agencyEmailDomainsWhitelist:
-    //         '@myspecificdomain.com,partialdomain.net',
-    //     },
-    //     $route: {
-    //       params: {
-    //         id: '1',
-    //       },
-    //       query: {
-    //         selected: [],
-    //       },
-    //     },
-    //     $store: {
-    //       dispatch: () => '',
-    //     },
-    //   },
-    // })
-    // expect(wrapper.html()).toBeTruthy()
-    expect(true).toBeTruthy()
+    const wrapper = shallowMount(Share, {
+      vuetify,
+      stubs: { Layout },
+      mocks: {
+        $config: {
+          agencyEmailDomainsWhitelist:
+            '@myspecificdomain.com,partialdomain.net',
+        },
+        $route: {
+          params: {
+            id: '1',
+          },
+          query: {
+            selected: [],
+          },
+        },
+        $store: {
+          dispatch: () => '',
+        },
+      },
+    })
+    expect(wrapper.html()).toBeTruthy()
   })
 })
