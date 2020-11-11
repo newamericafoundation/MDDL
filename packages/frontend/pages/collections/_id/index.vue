@@ -5,7 +5,7 @@
       type="list-item-three-line, image, list-item"
     ></v-skeleton-loader>
   </div>
-  <div v-else>
+  <div v-else class="main">
     <template v-if="documents.length">
       <DocumentCard
         v-for="(document, i) in documents"
@@ -71,3 +71,11 @@ export default class ViewCollection extends Vue {
   }
 }
 </script>
+
+<style lang="scss">
+.container {
+  max-width: none !important;
+  padding-left: 0;
+  padding-right: 0;
+}
+</style>

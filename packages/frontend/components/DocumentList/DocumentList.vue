@@ -11,7 +11,7 @@
         :reload="reload"
       />
     </template>
-    <div v-else>
+    <div v-else class="mx-8">
       <v-img
         max-width="30rem"
         class="mx-auto"

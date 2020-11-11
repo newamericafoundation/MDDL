@@ -38,7 +38,7 @@
           {{ $t('next') }}
         </v-btn>
       </v-toolbar>
-      <div class="window-container">
+      <div class="window-container px-8">
         <v-row>
           <v-col cols="auto" class="pr-0">
             <v-icon v-if="true" class="mb-2">$profile</v-icon>
@@ -114,7 +114,7 @@
           {{ $t('done') }}
         </v-btn>
       </v-toolbar>
-      <div class="window-container">
+      <div class="window-container px-8">
         <p class="capitalize font-weight-medium pt-4">
           {{ $tc('confirmSharedFiles', selectedDocs.length) }}:
         </p>
@@ -321,13 +321,11 @@ export default class Share extends Vue {
     border-bottom: none;
     border-left: none;
     border-right: none;
-    max-width: 40rem;
     margin: 0 auto;
   }
   .window-container {
-    padding: 5rem 2rem 0 2rem;
+    padding-top: 5rem;
     margin: 0 auto 6rem auto;
-    max-width: 40rem;
   }
   .v-window-item.mobile .window-container {
     padding: 5rem 0 0 0;
