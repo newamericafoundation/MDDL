@@ -12,7 +12,6 @@
       "@/*": ["./*"]
     },
     "types": [
-      "@types/node",
       "@types/jest",
       "@nuxt/types",
       "nuxt-i18n",

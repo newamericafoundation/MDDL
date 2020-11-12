@@ -40,7 +40,7 @@ const mockUploadStore = new Vuex.Store({
                   id: '1',
                   createdDate: '2020-01-01T10:10:10Z',
                   files: [],
-                  links: {},
+                  links: [],
                 })
               }
             }, 250)

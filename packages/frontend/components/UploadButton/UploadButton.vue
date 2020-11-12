@@ -152,6 +152,7 @@ export default class UploadButton extends Vue {
         })
 
         this.$store.dispatch('user/getDocuments')
+        this.$store.dispatch('user/scheduleDocumentsRefresh')
 
         this.reset()
       })

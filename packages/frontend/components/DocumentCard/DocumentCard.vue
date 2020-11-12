@@ -34,10 +34,9 @@
           ></v-img>
           <v-skeleton-loader
             v-else
-            class="pa-4"
-            boilerplate
             type="image"
-            tile
+            height="100"
+            width="100"
           ></v-skeleton-loader>
         </v-lazy>
       </v-col>
