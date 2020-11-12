@@ -3,7 +3,7 @@
     <v-window-item :class="{ mobile: $vuetify.breakpoint.xs }">
       <v-toolbar v-model="step" flat>
         <BackButton />
-        <v-toolbar-title>{{ $t('selectFiles') }}</v-toolbar-title>
+        <v-toolbar-title>{{ $t('sharing.selectFilesTitle') }}</v-toolbar-title>
         <v-spacer />
         <v-btn
           color="primary"
@@ -12,7 +12,7 @@
           :disabled="selectedDocs.length === 0"
           @click="next"
         >
-          {{ $t('next') }}
+          {{ $t('controls.next') }}
         </v-btn>
       </v-toolbar>
       <div class="window-container">
@@ -28,7 +28,9 @@
         <v-btn icon>
           <v-icon small class="mr-2" @click="prev">$chevron-left</v-icon>
         </v-btn>
-        <v-toolbar-title>{{ $t('addRecipients') }}</v-toolbar-title>
+        <v-toolbar-title>
+          {{ $t('sharing.addRecipientsTitle') }}
+        </v-toolbar-title>
         <v-spacer />
         <v-btn
           color="primary"
@@ -37,7 +39,7 @@
           class="font-weight-bold body-1"
           @click="next"
         >
-          {{ $t('next') }}
+          {{ $t('controls.next') }}
         </v-btn>
       </v-toolbar>
       <div class="window-container px-8">
@@ -46,7 +48,7 @@
             <v-icon v-if="true" class="mb-2">$profile</v-icon>
           </v-col>
           <v-col class="capitalize font-weight-medium">
-            {{ $t('recipients') }}
+            {{ $t('sharing.recipients') }}
           </v-col>
         </v-row>
         <ValidationObserver ref="observer">
@@ -61,11 +63,11 @@
                 v-model="email"
                 :error-messages="
                   individualEmailAddresses.length >= 10
-                    ? [capitalize($t('tooManyRecipients'))]
+                    ? [capitalize($t('sharing.tooManyRecipients'))]
                     : errors
                 "
                 outlined
-                :placeholder="capitalize($t('enterEmailPlaceholder'))"
+                :placeholder="capitalize($t('sharing.addRecipientPlaceholder'))"
                 type="email"
                 :disabled="individualEmailAddresses.length >= 10"
                 @keydown.enter="addEmail"
@@ -94,9 +96,11 @@
       </div>
       <v-footer outlined class="pa-8 d-flex">
         <div class="disclaimer capitalize">
-          <span class="font-weight-bold">{{ $t('disclaimer') }}:&nbsp;</span>
+          <span class="font-weight-bold">
+            {{ $t('sharing.disclaimer') }}:&nbsp;
+          </span>
           <span class="font-weight-normal">
-            {{ capitalize($t('shareDocumentDisclaimer')) }}
+            {{ capitalize($t('sharing.shareDocumentDisclaimer')) }}
           </span>
         </div>
       </v-footer>
@@ -108,7 +112,7 @@
             $chevron-left
           </v-icon>
         </v-btn>
-        <v-toolbar-title>{{ $t('confirmSharing') }}</v-toolbar-title>
+        <v-toolbar-title>{{ $t('sharing.confirmTitle') }}</v-toolbar-title>
         <v-spacer />
         <v-btn
           color="primary"
@@ -116,7 +120,7 @@
           class="font-weight-bold body-1"
           @click="cancel"
         >
-          {{ $t('cancel') }}
+          {{ $t('controls.cancel') }}
         </v-btn>
         <v-btn
           class="font-weight-bold body-1"
@@ -125,12 +129,12 @@
           :disabled="isLoading"
           @click="submit"
         >
-          {{ $t('done') }}
+          {{ $t('controls.done') }}
         </v-btn>
       </v-toolbar>
       <div class="window-container px-8">
         <p class="capitalize font-weight-medium pt-4">
-          {{ $tc('confirmSharedFiles', selectedDocs.length) }}:
+          {{ $tc('sharing.confirmSharedFiles', selectedDocs.length) }}:
         </p>
         <v-card
           v-for="(doc, i) in selectedDocs.slice(0, sliceFiles)"
@@ -153,10 +157,15 @@
           text
           @click="sliceFiles = 10"
         >
-          {{ $tc('plusNMore', selectedDocs.length - sliceFiles) }}
+          {{ $tc('sharing.plusNMore', selectedDocs.length - sliceFiles) }}
         </v-btn>
         <p class="capitalize font-weight-medium pt-8">
-          {{ $tc('confirmSharedRecipients', individualEmailAddresses.length) }}:
+          {{
+            $tc(
+              'sharing.confirmRecipientsLabel',
+              individualEmailAddresses.length,
+            )
+          }}:
         </p>
         <v-card
           v-for="(email, i) in individualEmailAddresses.slice(0, 5)"
@@ -180,12 +189,15 @@
           @click="sliceRecipients = 10"
         >
           {{
-            $tc('plusNMore', individualEmailAddresses.length - sliceRecipients)
+            $tc(
+              'sharing.plusNMore',
+              individualEmailAddresses.length - sliceRecipients,
+            )
           }}
         </v-btn>
       </div>
       <v-footer outlined class="pa-8">
-        {{ capitalize($t('shareSettingsDisclaimer')) }}
+        {{ capitalize($t('sharing.shareSettingsDisclaimer')) }}
       </v-footer>
     </v-window-item>
   </v-window>
@@ -210,7 +222,7 @@ import { snackbarStore } from '../../plugins/store-accessor'
   },
   head() {
     return {
-      title: capitalize(this.$t('share') as string),
+      title: capitalize(this.$t('controls.share') as string),
     }
   },
 })
@@ -281,15 +293,15 @@ export default class Share extends Vue {
     this.isLoading = true
     const collection = await this.$store.dispatch('user/createCollection', {
       name: this.name,
-      documentIds: this.selectedDocs.map((d) => d.id),
+      documentIds: this.selectedDocs.map(d => d.id),
       individualEmailAddresses: this.individualEmailAddresses,
       agencyOfficersEmailAddresses: [], // TODO: implement
     })
 
     await snackbarStore.setParams({
       message: `${capitalize(
-        this.$t('sharingComplete') as string,
-      )}.\n${capitalize(this.$t('collectionCreatedConfirmation') as string)}`,
+        this.$t('toast.sharingComplete') as string,
+      )}.\n${capitalize(this.$t('toast.collectionCreated') as string)}`,
       actions: [
         {
           name: 'view',

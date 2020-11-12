@@ -6,150 +6,150 @@ const es: any = require('vuetify/lib/locale/es')
 
 export default {
   en: {
-    accessedNItems: 'accessed {count} item | accessed {count} items',
-    account: 'account',
-    accountRemoveConfirmation: 'account removed',
-    activityNavLabel: 'activity',
-    activityToolbarLabel: 'account activity',
-    addRecipients: 'who can access your file',
-    allFiles: 'all files',
-    areYouSure: 'are you sure?',
-    authorizing: 'authorizing',
-    cancel: 'cancel',
-    cannotBeUndone: 'this cannot be undone',
-    caseWorker: 'case worker | case workers',
-    category: 'category',
-    collection: 'collection',
-    collectionCreatedConfirmation: 'Shared folder created',
-    confirmSharedFiles: 'file to be shared | files to be shared',
-    confirmSharedRecipients: 'recipient | recipients',
-    confirmSharing: 'confirm sharing',
-    created: 'created',
-    createdDate: 'created date',
-    dashboard: 'dashboard',
-    delegateAccess: 'delegate access',
-    delete: 'delete',
-    deleteAccount: 'delete your account',
-    deleteDocumentConfirmation:
-      "Once you delete a document, it will be gone forever. Anyone you have shared it with won't be able to see it any more.",
-    description: 'description',
-    details: 'details',
-    disclaimer: 'disclaimer',
-    docName: 'document name',
-    document: 'document',
-    done: 'done',
-    download: 'download',
-    downloadLoadingState: 'preparing download',
-    downloadZip: 'download Zip',
-    downloadPdf: 'download PDF',
-    editDetails: 'edit details',
-    editInformation: 'edit information',
-    emptyCollection: 'there are no documents in this collection.',
-    enterEmailPlaceholder: 'enter email address',
-    enterDocumentDescriptionPlaceholder: 'enter description',
-    enterDocumentNamePlaceholder: 'enter new document name',
-    enterPasswordPlaceholder: 'please enter your password',
-    fileName: 'file name',
-    fileSize: 'size',
-    forgotPassword: 'forgotten your password?',
-    individuals: 'individuals',
-    language: 'language',
-    linkedAccounts: 'linked accounts',
-    manageAccounts: 'Manage Accounts',
-    manageCBO: 'manage case workers / carers',
-    name: 'name',
-    next: 'next',
-    noCollections: "You haven't shared any documents yet.",
-    noDocuments: 'there are no files saved to your account',
-    optional: 'optional',
-    plusNMore: '+ {count} more',
-    recipients: 'recipients',
-    removeAccountConfirmation: 'are you sure you want to remove account',
-    rename: 'rename',
-    reorder: 'reorder',
-    reorderFiles: 'reorder your files',
-    returnDashboard: 'return to dashboard',
-    selectAccount: 'select account to access',
-    selectFiles: 'select',
-    selectUserToView: 'select user to view files',
-    share: 'share',
-    shared: 'shared',
-    sharedNItems: 'shared {count} item | shared {count} items',
-    sharedBy: 'shared by',
-    shareDocumentDisclaimer:
-      'never send your documents to anyone who is not a government official.',
-    sharedWith: 'shared with: {count} person | shared with: {count} people',
-    shareFirstDocument: 'share your first document',
-    shareSettingsDisclaimer:
-      'you can change these settings any time in the collections information menu.',
-    sharingComplete: 'sharing complete',
-    signIn: 'sign in',
-    signOut: 'sign out',
-    signUp: 'sign up',
-    switchAccount: 'switch account',
-    tooManyRecipients: 'you can share with at most 10 people',
-    upload: 'add',
-    uploadComplete: 'upload complete',
-    uploading: 'uploading...',
-    uploadFirst: 'upload your first file',
-    view: 'view',
+    name: 'name', // TODO: replace with filename
+
+    // label appearing in tabular content (list of users, list of shared collections etc)
+    dateAdded: 'date added',
+
+    toast: {
+      accountRemoved: 'account removed',
+      downloadLoadingState: 'preparing download',
+      collectionCreated: 'shared folder created.',
+      sharingComplete: 'sharing complete.',
+      uploading: 'adding file...', // displayed while a file is uploading
+      uploadComplete: 'file added',
+      fileDeletedConfirmation: 'file deleted.',
+    },
+
+    navigation: {
+      account: 'account', // navigate to account settings in nav menu
+      activity: 'activity',
+      manageAccounts: 'Manage Clients',
+      dashboard: 'dashboard',
+      switchAccount: 'Switch Clients',
+      signIn: 'sign in',
+      signOut: 'sign out',
+    },
+
+    document: {
+      // This is the title of the confirmation dialog for deleting a document
+      deleteConfirmationTitle: 'Are you sure you want to delete this file?',
+      // This is the body content of the confirmation dialog for deleting a document
+      deleteConfirmationBody:
+        'Anyone with shared access will no longer be able to view this file. This cannot be undone.',
+      downloadZip: 'download Zip',
+      downloadPdf: 'download PDF',
+      description: 'description', // displayed beneath the document and expands to show description (if any)
+      editDetailsTitle: 'edit details', // page title on edit details screen
+      enterNamePlaceholder: 'enter new file name',
+      enterDescriptionPlaceholder: 'enter description',
+      fileName: 'file name', // shown as a label on edit details screen
+
+      noDocuments: 'there are no files saved to your account', // shown on dashboard when there are no documents
+      uploadFirst: 'Add Your First File', // label on the empty state upload button
+    },
+
+    controls: {
+      cancel: 'cancel', // cancel button
+      share: 'share', // share button
+      allFiles: 'all files', // shown as tab label on the dashboard
+      shared: 'share', // label of shared tab on dashboard
+      confirm: 'confirm',
+      done: 'done',
+      delete: 'delete', // delete document kebab item
+      editDetails: 'edit details', // edit document kebab item
+      download: 'download', // edit document kebab item and button text
+      next: 'next',
+      upload: 'add',
+      view: 'view',
+    },
+
+    // account settings page
+    account: {
+      language: 'language', // open language selector
+      pageTitle: 'account settings',
+      deleteAccount: 'delete your account',
+    },
+
+    // All copy related to the create shared folder flow
+    sharing: {
+      confirmSharedFiles: 'file to be shared | files to be shared',
+      plusNMore: '+ {count} more',
+      recipients: 'recipients',
+
+      // placeholder text for the add recipient email field
+      addRecipientPlaceholder: 'enter email address',
+
+      // step titles in the share flow
+      confirmTitle: 'Confirm Sharing',
+      addRecipientsTitle: 'Share With',
+      selectFilesTitle: 'Select Files',
+
+      disclaimer: 'disclaimer',
+      shareDocumentDisclaimer:
+        'never send your documents to anyone who is not a government official.',
+      shareSettingsDisclaimer:
+        'you can change these settings any time in the collections information menu.',
+
+      // on the confirmation step, could be "recipient" or "recipients" depending on number of items
+      confirmRecipientsLabel: 'recipient | recipients',
+      tooManyRecipients: 'you can share with up to 10 people', // error text when trying to add more than 10 recipients
+    },
+
+    tabTitles: {
+      shared: 'shared', // used in share flow
+      dashboard: 'dashboard',
+      document: 'document', // used for document preview while page is loading, then changes to document title
+      authorizing: 'authorizing', // not important - used while logging in
+    },
+
+    delegateAccess: {
+      pageTitle: 'Who Can Access Your Account', // title in account menu and page title of delegation flow
+      emailPlaceholder: 'add people via email',
+      confirmationTitle: 'are you sure you want to add this person?',
+      confirmationBody: 'confirmation body placeholder',
+      removeAccountConfirmation: 'are you sure you want to remove this person',
+    },
+
+    activity: {
+      pageTitle: 'Account Activity',
+      accessedNItems: 'accessed {count} item | accessed {count} items',
+      sharedNItems: 'shared {count} item | shared {count} items',
+      uploadNItems: 'uploaded {count} document | uploaded {count} documents',
+      deleteNDocuments: 'deleted {count} document | deleted {count} documents',
+      gaveAccess: 'gave access to:', // will be followed by list of emails
+      acceptedAccess: 'accepted access to your account', // when invited delegate accepts access
+      declinedAccess: 'declined access to your account', // when invited delegate declines access
+      removeDelegate: 'was removed from your account', // when invited delegate declines access
+    },
+
+    // Copy where you are viewing shared folders
+    sharedFolder: {
+      // empty state for list of shared folders
+      noCollections: "you haven't shared any documents yet.", // message
+      shareFirstDocument: 'share your first document', // call to action
+
+      // empty state for an individual shared folder
+      emptyCollection: 'all files have been removed from Datalocker.', // message
+      returnDashboard: 'return to dashboard', // call to action
+
+      // empty state for list of clients who have shared collections with user
+      noSharedDocuments: 'No documents have been shared with you yet.',
+    },
+
+    agent: {
+      clientNameLabel: 'name', // label of client name column in agent view
+      sharedFolderNameLabel: 'name', // label of shared folder name column in agent view
+      selectClient: 'select client to access files.',
+      reorderFiles: 'reorder files', // shown in agent view when downloading as PDF
+    },
+
     $vuetify: en,
   },
 
   // Special test language iso code
   // see http://chaoticshiny.com/langreplace.php (sibilant 1)
   test: {
-    account: 'sissieh',
-    addRecipients: 'sivv lisepheihs',
-    allFiles: 'siss hesis',
-    areYouSure: 'sili ithie seli?',
-    category: 'csiishilith',
-    collection: 'sissiseih',
-    collections: 'sissiseihs',
-    confirmSharing: 'sihhelr smsilehsh',
-    created: 'slisiiv',
-    createdDate: 'slisiiv vsii',
-    dashboard: 'vsismfisilv',
-    description: 'visslepheih',
-    delete: 'visii',
-    deleteDocumentConfirmation:
-      "Ohsi ithie visii si viserih, e zess fi shihi hilixil. Ahithihi ithie msixi smsiliv e zem zih' fi sifsi i sii e sihith rili.",
-    details: 'visiess',
-    disclaimer: 'vessssieril',
-    docName: 'viserih hsiri',
-    done: 'vihi',
-    download: 'vizhsisiv',
-    editDetails: 'ive visiess',
-    editInformation: 'ive ehhilrsieih',
-    enterEmailPlaceholder: 'ihil irsies sivvliss',
-    enterDocumentDescriptionPlaceholder: 'ihil visslepheih',
-    enterDocumentNamePlaceholder: 'ihil hiz viserih hsiri',
-    fileName: 'hesi hsiri',
-    fileSize: 'sesi',
-    confirmSharedFiles: 'hesi(s) i fi smsiliv',
-    firstFile: 'ephsisiv ithiel hels hesi',
-    individuals: 'ehvexevesiss',
-    language: 'ssihshesishi',
-    more: 'rili',
-    name: 'hsiri',
-    next: 'hi',
-    nothingHere: "mili's himehsh mili ithi",
-    optional: 'ipheihsis',
-    recipients: 'lisepheihs',
-    rename: 'lihsiri',
-    returnDashboard: 'lielh i vsismfisilv',
-    selectFiles: 'sisis hesis',
-    share: 'smsili',
-    shareDocumentDisclaimer:
-      'Nixil sihv ithiel viserihs i sihithihi zmi es hi si shixilhrih ihhesesis.',
-    shareSettingsDisclaimer:
-      'ithie ssih smsihshi misi siehshs sihith eri eh mi sissiseihs ehhilrsieih rihe.',
-    sharingComplete: 'smsilehsh sirphsii',
-    signOut: 'seshh ie',
-    upload: 'ephsisiv',
-    uploadComplete: 'ephsisiv sirphsii',
-    uploading: 'ephsisivehsh...',
-    view: 'xeiz',
     $vuetify: es, // idk, just use spanish for the test language vuetify translations lol
   },
 }

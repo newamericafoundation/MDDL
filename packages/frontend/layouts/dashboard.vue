@@ -16,7 +16,7 @@
         >
           <v-list-item-content>
             <v-list-item-title class="capitalize">
-              {{ $t('dashboard') }}
+              {{ $t('navigation.dashboard') }}
             </v-list-item-title>
           </v-list-item-content>
         </v-list-item>
@@ -69,11 +69,11 @@ export default class ClientDashboard extends Vue {
       type: 'break',
     },
     {
-      title: this.$i18n.t('account'),
+      title: this.$i18n.t('navigation.account'),
       to: '/account',
     },
     {
-      title: this.$i18n.t('signOut'),
+      title: this.$i18n.t('navigation.signOut'),
       click: async () => {
         await this.$auth.logout()
         this.$router.push('/')

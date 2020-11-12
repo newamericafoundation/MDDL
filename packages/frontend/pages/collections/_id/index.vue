@@ -17,14 +17,14 @@
     </template>
     <template v-else>
       <p class="d-flex justify-center">
-        {{ capitalize($t('emptyCollection')) }}
+        {{ capitalize($t('sharedFolder.authorizing')) }}
       </p>
       <nuxt-link
         class="d-flex justify-center nuxt-link"
         :to="localePath('/dashboard')"
       >
         <v-btn text color="primary" class="body-1 font-weight-bold">
-          {{ capitalize($t('returnDashboard')) }}
+          {{ capitalize($t('sharedFolder.returnDashboard')) }}
         </v-btn>
       </nuxt-link>
     </template>
@@ -55,7 +55,7 @@ export default class ViewCollection extends Vue {
   capitalize = capitalize
 
   mounted() {
-    this.title = this.$t('shared') as string
+    this.title = this.$t('tabTitles.shared') as string
     this.$store
       .dispatch('collection/getDocuments', this.$route.params.id)
       .then((res: DocumentListItem[]) => {

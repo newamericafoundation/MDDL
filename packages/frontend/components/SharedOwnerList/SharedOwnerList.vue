@@ -15,7 +15,9 @@
     </template>
     <div v-else>
       <!-- TODO: proper empty state -->
-      <p class="d-flex justify-center capitalize">{{ $t('noDocuments') }}</p>
+      <p class="d-flex justify-center capitalize">
+        {{ $t('sharedFolder.noSharedDocuments') }}
+      </p>
     </div>
   </div>
   <div v-else>
@@ -54,13 +56,13 @@ export default class SharedOwnerList extends Vue {
         width: '3rem',
       },
       {
-        text: this.$i18n.t('name') as string,
+        text: this.$i18n.t('agent.clientNameLabel') as string,
         align: 'start',
         sortable: true,
         value: 'name',
       },
       {
-        text: this.$i18n.t('created') as string,
+        text: this.$i18n.t('dateAdded') as string,
         value: 'createdDate',
         sortable: true,
       },

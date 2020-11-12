@@ -11,7 +11,7 @@ import { capitalize } from '@/assets/js/stringUtils'
 @Component({
   head() {
     return {
-      title: capitalize(this.$t('shared') as string),
+      title: capitalize(this.$t('tabTitles.shared') as string),
     }
   },
 })

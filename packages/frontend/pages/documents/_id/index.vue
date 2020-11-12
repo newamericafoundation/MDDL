@@ -25,7 +25,7 @@
         >
           <v-btn class="ml-4 text-body-1 font-weight-medium" color="primary">
             <v-icon>$send</v-icon>
-            {{ $t('share') }}
+            {{ $t('controls.share') }}
           </v-btn>
         </nuxt-link>
       </template>
@@ -50,7 +50,7 @@
                 class="body-1 font-weight-medium"
                 expand-icon="mdi-menu-down"
               >
-                {{ capitalize($t('description')) }}
+                {{ capitalize($t('document.description')) }}
               </v-expansion-panel-header>
               <v-expansion-panel-content class="pt-4 body-1">
                 {{ document.description }}
@@ -85,7 +85,7 @@
           >
             <v-icon small>$chevron-left</v-icon>
           </v-btn>
-          <v-toolbar-title>{{ $t('editDetails') }}</v-toolbar-title>
+          <v-toolbar-title>{{ $t('controls.editDetails') }}</v-toolbar-title>
           <v-spacer />
           <v-btn
             color="primary"
@@ -93,13 +93,13 @@
             :disabled="!valid || loading"
             @click="editDetails"
           >
-            {{ $t('done') }}
+            {{ $t('controls.done') }}
           </v-btn>
         </v-toolbar>
         <v-container class="pa-8">
           <ValidationObserver ref="observer">
             <v-form @submit.prevent>
-              <p class="subtitle-1 capitalize">{{ $t('name') }}</p>
+              <p class="subtitle-1 capitalize">{{ $t('document.fileName') }}</p>
               <ValidationProvider
                 v-slot="{ errors }"
                 name="name"
@@ -109,10 +109,12 @@
                   v-model="newName"
                   :error-messages="errors"
                   outlined
-                  :placeholder="capitalize($t('enterDocumentNamePlaceholder'))"
+                  :placeholder="capitalize($t('document.editNamePlaceholder'))"
                 />
               </ValidationProvider>
-              <p class="subtitle-1 capitalize">{{ $t('description') }}</p>
+              <p class="subtitle-1 capitalize">
+                {{ $t('document.description') }}
+              </p>
               <ValidationProvider
                 v-slot="{ errors }"
                 name="description"
@@ -173,7 +175,7 @@ export default class ViewDocument extends Vue {
   title = ''
 
   async mounted() {
-    this.title = capitalize(this.$t('document') as string)
+    this.title = capitalize(this.$t('tabTitles.document') as string)
     const data: Document = await this.$store.dispatch(
       'document/getById',
       this.$route.params.id,

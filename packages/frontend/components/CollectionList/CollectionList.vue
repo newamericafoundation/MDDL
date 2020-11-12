@@ -11,12 +11,14 @@
       />
     </template>
     <div v-else>
-      <p class="d-flex justify-center capitalize">{{ $t('noCollections') }}</p>
+      <p class="d-flex justify-center capitalize">
+        {{ $t('sharedFolder.noCollections') }}
+      </p>
       <nuxt-link
         class="body-1 font-weight-medium share-link d-flex justify-center"
         :to="localePath('/share')"
       >
-        {{ capitalize($t('shareFirstDocument')) }}
+        {{ capitalize($t('sharedFolder.shareFirstDocument')) }}
       </nuxt-link>
     </div>
   </div>

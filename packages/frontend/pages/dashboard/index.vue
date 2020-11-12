@@ -7,19 +7,19 @@
       <template v-slot:actions>
         <UploadButton prepend-icon="$plus" />
         <nuxt-link :to="localePath('/share')" class="nuxt-link">
-          <v-btn class="ml-4 text-body-1 font-weight-medium" color="primary">
+          <v-btn class="ml-1 text-body-1 font-weight-medium" color="primary">
             <v-icon>$send</v-icon>
-            {{ $t('share') }}
+            {{ $t('controls.share') }}
           </v-btn>
         </nuxt-link>
       </template>
       <template v-slot:extension>
         <v-tabs v-model="currentTab" slider-color="primary" color="#000">
           <v-tab href="#tab-docs">
-            <span>{{ $t('allFiles') }}</span>
+            <span>{{ $t('controls.allFiles') }}</span>
           </v-tab>
           <v-tab href="#tab-collections">
-            <span>{{ $t('shared') }}</span>
+            <span>{{ $t('controls.shared') }}</span>
           </v-tab>
         </v-tabs>
       </template>
@@ -51,7 +51,7 @@ import { capitalize } from '@/assets/js/stringUtils'
   layout: 'dashboard',
   head() {
     return {
-      title: capitalize(this.$t('dashboard') as string),
+      title: capitalize(this.$t('tabTitles.dashboard') as string),
     }
   },
 })

@@ -4,7 +4,7 @@
       v-if="$i18n"
       v-model="$i18n.locale"
       :items="$i18n.locales"
-      :label="$t('language')"
+      :label="$t('account.language')"
       class="mt-4"
       dense
     />
@@ -18,7 +18,7 @@ import { capitalize } from '../../assets/js/stringUtils'
 @Component({
   head() {
     return {
-      title: capitalize(this.$t('account') as string),
+      title: capitalize(this.$t('navigation.account') as string),
     }
   },
 })

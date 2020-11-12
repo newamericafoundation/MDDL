@@ -21,7 +21,7 @@ export default class OwnerCollections extends Vue {
   title = ''
 
   mounted() {
-    this.title = this.$t('shared') as string
+    this.title = this.$t('tabTitles.shared') as string
     // TODO: uncomment when getUser 404 error is fixed
     // const user = (await this.$store.dispatch(
     //   'user/getUser',

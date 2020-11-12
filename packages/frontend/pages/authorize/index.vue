@@ -9,7 +9,7 @@ import { capitalize } from '../../assets/js/stringUtils'
 @Component({
   head() {
     return {
-      title: capitalize(this.$t('authorizing') as string),
+      title: capitalize(this.$t('tabTitles.authorizing') as string),
     }
   },
 })

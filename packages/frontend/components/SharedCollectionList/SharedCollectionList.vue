@@ -50,13 +50,13 @@ export default class SharedCollectionList extends Vue {
         width: '3rem',
       },
       {
-        text: this.$i18n.t('name') as string,
+        text: this.$i18n.t('agent.sharedFolderNameLabel') as string,
         align: 'start',
         sortable: true,
         value: 'name',
       },
       {
-        text: this.$i18n.t('created') as string,
+        text: this.$i18n.t('dateAdded') as string,
         value: 'createdDate',
         sortable: true,
       },

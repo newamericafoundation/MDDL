@@ -17,19 +17,19 @@
         <v-list-item>
           <v-btn text @click="editDetails">
             <v-icon small class="mr-2" color="primary">$pencil</v-icon>
-            {{ $t('editDetails') }}
+            {{ $t('controls.editDetails') }}
           </v-btn>
         </v-list-item>
         <v-list-item>
           <v-btn text @click="showConfirmation = true">
             <v-icon small class="mr-2" color="primary">$delete</v-icon>
-            {{ $t('delete') }}
+            {{ $t('controls.done') }}
           </v-btn>
         </v-list-item>
         <v-list-item>
           <v-btn text @click="download">
             <v-icon small class="mr-2" color="primary">$download</v-icon>
-            {{ $t('download') }}
+            {{ $t('controls.download') }}
           </v-btn>
         </v-list-item>
       </v-list>
@@ -37,11 +37,11 @@
     <v-dialog v-model="showConfirmation" width="500">
       <v-card>
         <v-card-title class="headline grey lighten-2">
-          {{ capitalize($t('areYouSure')) }}
+          {{ capitalize($t('document.deleteConfirmationTitle')) }}
         </v-card-title>
 
         <v-card-text class="mt-2">
-          {{ $t('deleteDocumentConfirmation') }}
+          {{ $t('document.deleteConfirmationBody') }}
         </v-card-text>
 
         <v-divider></v-divider>

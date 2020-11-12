@@ -4,7 +4,7 @@ export default {
   ssr: false,
   target: 'static',
   head: {
-    titleTemplate: '%s - Datalocker',
+    titleTemplate: '%s | Datalocker',
     meta: [
       {
         charset: 'utf-8',

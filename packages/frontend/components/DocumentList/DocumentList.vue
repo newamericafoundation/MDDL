@@ -17,7 +17,7 @@
         class="mx-auto"
         :src="require('@/assets/images/upload.svg')"
       />
-      <p class="capitalize text-center">{{ $t('noDocuments') }}</p>
+      <p class="capitalize text-center">{{ $t('document.noDocuments') }}</p>
       <UploadButton
         class="text-center"
         label="uploadFirst"

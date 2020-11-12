@@ -41,11 +41,11 @@
             :disabled="!documentName"
             @click="uploadDocument"
           >
-            {{ $t('upload') }}
+            {{ $t('controls.upload') }}
           </v-btn>
         </v-toolbar>
         <v-container class="pa-8">
-          <p class="subtitle-1">{{ capitalize($t('name')) }}</p>
+          <p class="subtitle-1">{{ capitalize($t('document.fileName')) }}</p>
           <ValidationObserver ref="observer">
             <v-form @submit.prevent>
               <ValidationProvider
@@ -57,7 +57,7 @@
                   v-model="documentName"
                   :error-messages="errors"
                   outlined
-                  :placeholder="capitalize($t('enterDocumentNamePlaceholder'))"
+                  :placeholder="capitalize($t('document.editNamePlaceholder'))"
                 />
               </ValidationProvider>
             </v-form>
@@ -116,7 +116,7 @@ export default class UploadButton extends Vue {
 
   uploadDocument() {
     snackbarStore.setParams({
-      message: 'uploading',
+      message: 'toast.uploading',
       dismissable: false,
     })
     snackbarStore.setProgress(0)
@@ -134,16 +134,8 @@ export default class UploadButton extends Vue {
       })
       .then((document: Document) => {
         snackbarStore.setParams({
-          message: 'uploadComplete',
+          message: 'toast.uploadComplete',
           actions: [
-            // TODO: removed for now pending design discussion
-            // {
-            //   name: 'rename',
-            //   to: `/documents/${document.id}`,
-            //   query: {
-            //     showDetails: 'true',
-            //   },
-            // },
             {
               name: 'view',
               to: `/documents/${document.id}`,
