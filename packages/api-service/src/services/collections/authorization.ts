@@ -10,6 +10,7 @@ import { requireUserData } from '../user'
 export enum CollectionPermission {
   ListDocuments = 'list:documents',
   ListGrants = 'list:grants',
+  DownloadDocuments = 'download:documents',
 }
 
 const getPermissionsToCollection = async (
@@ -30,7 +31,10 @@ const getPermissionsToCollection = async (
       user.email,
     ))
   ) {
-    return [CollectionPermission.ListDocuments]
+    return [
+      CollectionPermission.ListDocuments,
+      CollectionPermission.DownloadDocuments,
+    ]
   }
   // can't find any permissions
   return []

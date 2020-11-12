@@ -31,7 +31,7 @@ export class Document extends BaseModel {
   static get modifiers() {
     return {
       fieldsForList(query: QueryBuilder<Document>) {
-        const fields = ['id', 'name', 'createdAt', 'thumbnailPath']
+        const fields = ['id', 'name', 'createdAt', 'thumbnailPath', 'updatedAt']
         return query.select(...fields.map((f) => Document.ref(f)))
       },
       fieldsForSingle(query: QueryBuilder<Document>) {

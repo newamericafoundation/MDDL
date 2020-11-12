@@ -1,3 +1,4 @@
+import { EnvironmentVariable, requireConfiguration } from '@/config'
 import fetch from 'node-fetch'
 
 type UserInfo = {
@@ -9,10 +10,7 @@ type UserInfo = {
   username: string
 }
 export const getUserInfo = async (token: string): Promise<UserInfo> => {
-  const endpoint = process.env.USERINFO_ENDPOINT
-  if (!endpoint) {
-    throw new Error('USERINFO_ENDPOINT not available!')
-  }
+  const endpoint = requireConfiguration(EnvironmentVariable.USERINFO_ENDPOINT)
   const result = await fetch(endpoint, {
     headers: {
       Authorization: token,

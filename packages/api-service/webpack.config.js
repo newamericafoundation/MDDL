@@ -37,6 +37,15 @@ const lambdas = {
   collections_getGrantsByCollectionId: lambdaPath(
     'collections/getGrantsByCollectionId.ts',
   ),
+  collections_createCollectionZip: lambdaPath(
+    'collections/createCollectionZip.ts',
+  ),
+  collections_downloadCollectionDocuments: lambdaPath(
+    'collections/downloadCollectionDocuments.ts',
+  ),
+  collections_getDownloadForCollectionDocuments: lambdaPath(
+    'collections/getDownloadForCollectionDocuments.ts',
+  ),
 }
 
 const config = {

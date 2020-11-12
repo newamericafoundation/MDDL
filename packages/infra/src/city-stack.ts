@@ -152,12 +152,20 @@ interface ApiProps {
   authorizer: CfnAuthorizer
 }
 
+interface BucketPermissions {
+  includeRead?: boolean
+  includeWrite?: boolean
+  includeDelete?: boolean
+  includeTagging?: boolean
+}
+
 enum EnvironmentVariables {
   DOCUMENTS_BUCKET = 'DOCUMENTS_BUCKET',
   USERINFO_ENDPOINT = 'USERINFO_ENDPOINT',
   WEB_APP_DOMAIN = 'WEB_APP_DOMAIN',
   EMAIL_SENDER = 'EMAIL_SENDER',
   AGENCY_EMAIL_DOMAINS_WHITELIST = 'AGENCY_EMAIL_DOMAINS_WHITELIST',
+  CREATE_COLLECTION_ZIP_FUNCTION_NAME = 'CREATE_COLLECTION_ZIP_FUNCTION_NAME',
 }
 
 const pathToApiServiceLambda = (name: string) =>
@@ -165,7 +173,8 @@ const pathToApiServiceLambda = (name: string) =>
 
 export class CityStack extends Stack {
   public bucketNames: { [index: string]: string }
-  private static documentsBucketUploadsPrefix = 'documents/'
+  private static documentsBucketDocumentsPrefix = 'documents/'
+  private static documentsBucketCollectionsPrefix = 'collections/'
   private lambdaVpc: IVpc
   private lambdaSecurityGroups: ISecurityGroup[]
   private rdsEndpoint: string
@@ -318,30 +327,35 @@ export class CityStack extends Stack {
    * @param corsOrigins CORS origins for the bucket policy
    */
   private createUploadsBucket(kmsKey: Key, corsOrigins: string[]) {
-    return {
-      bucket: new Bucket(this, 'DocumentsBucket', {
-        blockPublicAccess: {
-          blockPublicAcls: true,
-          blockPublicPolicy: true,
-          ignorePublicAcls: true,
-          restrictPublicBuckets: true,
+    const bucket = new Bucket(this, 'DocumentsBucket', {
+      blockPublicAccess: {
+        blockPublicAcls: true,
+        blockPublicPolicy: true,
+        ignorePublicAcls: true,
+        restrictPublicBuckets: true,
+      },
+      encryptionKey: kmsKey,
+      removalPolicy: RemovalPolicy.RETAIN,
+      cors: [
+        {
+          allowedMethods: [HttpMethods.POST, HttpMethods.GET],
+          allowedOrigins: corsOrigins,
+          maxAge: 3000,
+          allowedHeaders: [
+            'x-amz-*',
+            'content-type',
+            'content-disposition',
+            'content-length',
+          ],
         },
-        encryptionKey: kmsKey,
-        removalPolicy: RemovalPolicy.RETAIN,
-        cors: [
-          {
-            allowedMethods: [HttpMethods.POST, HttpMethods.GET],
-            allowedOrigins: corsOrigins,
-            maxAge: 3000,
-            allowedHeaders: [
-              'x-amz-*',
-              'content-type',
-              'content-disposition',
-              'content-length',
-            ],
-          },
-        ],
-      }),
+      ],
+    })
+    bucket.addLifecycleRule({
+      expiration: Duration.days(14),
+      prefix: CityStack.documentsBucketCollectionsPrefix,
+    })
+    return {
+      bucket,
     }
   }
 
@@ -732,24 +746,15 @@ export class CityStack extends Stack {
     }
   }
 
-  /**
-   * Adds Policy Statements to allow some actions in the S3 bucket
-   * @param lambdaFunction The function to apply the statements to
-   * @param uploadsBucket The Documents Upload Bucket
-   * @param actions The actions to allow
-   */
-  private addPermissionsToDocumentBucket(
-    lambdaFunction: IFunction,
-    uploadsBucket: IBucket,
-    permissions: {
-      includeRead?: boolean
-      includeWrite?: boolean
-      includeDelete?: boolean
-    },
-  ) {
-    // set up constants
-    const { includeRead, includeWrite, includeDelete } = permissions
-    const { encryptionKey } = uploadsBucket
+  private determinePermissions(
+    permissions: BucketPermissions,
+  ): { bucketActions: string[]; keyActions: string[] } {
+    const {
+      includeRead,
+      includeWrite,
+      includeDelete,
+      includeTagging,
+    } = permissions
     const bucketActions = []
     const keyActions = []
 
@@ -765,22 +770,75 @@ export class CityStack extends Stack {
       keyActions.push('kms:GenerateDataKey')
     }
 
+    // determine tag permissions needed
+    if (includeTagging) {
+      bucketActions.push('s3:PutObjectTagging')
+    }
+
     // determine delete permissions needed
     if (includeDelete) {
       bucketActions.push('s3:DeleteObject')
     }
 
-    // add bucket permissions
-    lambdaFunction.addToRolePolicy(
-      new PolicyStatement({
-        actions: bucketActions,
-        resources: [
-          uploadsBucket.arnForObjects(
-            `${CityStack.documentsBucketUploadsPrefix}*`,
-          ),
-        ],
-      }),
+    return {
+      bucketActions,
+      keyActions,
+    }
+  }
+
+  /**
+   * Adds Policy Statements to allow some actions in the S3 bucket
+   * @param lambdaFunction The function to apply the statements to
+   * @param uploadsBucket The Documents Upload Bucket
+   * @param actions The actions to allow
+   */
+  private addPermissionsToDocumentBucket(
+    lambdaFunction: IFunction,
+    uploadsBucket: IBucket,
+    documentPermissions: BucketPermissions,
+    collectionPermissions?: BucketPermissions,
+  ) {
+    // set up constants
+    const {
+      bucketActions: documentBucketActions,
+      keyActions: documentKeyActions,
+    } = this.determinePermissions(documentPermissions)
+    const {
+      bucketActions: collectionBucketActions,
+      keyActions: collectionKeyActions,
+    } = this.determinePermissions(collectionPermissions ?? {})
+    const { encryptionKey } = uploadsBucket
+    const keyActions = Array.from(
+      new Set([...documentKeyActions, ...collectionKeyActions]),
     )
+
+    // add bucket permissions for documents
+    if (documentBucketActions.length) {
+      lambdaFunction.addToRolePolicy(
+        new PolicyStatement({
+          actions: documentBucketActions,
+          resources: [
+            uploadsBucket.arnForObjects(
+              `${CityStack.documentsBucketDocumentsPrefix}*`,
+            ),
+          ],
+        }),
+      )
+    }
+
+    // add bucket permissions for collections
+    if (collectionBucketActions.length) {
+      lambdaFunction.addToRolePolicy(
+        new PolicyStatement({
+          actions: collectionBucketActions,
+          resources: [
+            uploadsBucket.arnForObjects(
+              `${CityStack.documentsBucketCollectionsPrefix}*`,
+            ),
+          ],
+        }),
+      )
+    }
 
     // add key permissions
     if (encryptionKey && keyActions.length) {
@@ -1045,7 +1103,7 @@ export class CityStack extends Stack {
         events: [EventType.OBJECT_CREATED],
         filters: [
           {
-            prefix: CityStack.documentsBucketUploadsPrefix,
+            prefix: CityStack.documentsBucketDocumentsPrefix,
           },
         ],
       }),
@@ -1146,6 +1204,100 @@ export class CityStack extends Stack {
           extraEnvironmentVariables: [EnvironmentVariables.USERINFO_ENDPOINT],
         },
       ),
+      authorizer,
+    })
+
+    // add lambda to create a zip of collection documents
+    const createCollectionZip = this.createLambda(
+      'CreateCollectionZip',
+      pathToApiServiceLambda('collections/createCollectionZip'),
+      {
+        dbSecret,
+        layers: [mySqlLayer],
+        extraEnvironmentVariables: [EnvironmentVariables.DOCUMENTS_BUCKET],
+        extraFunctionProps: {
+          timeout: Duration.seconds(900),
+        },
+      },
+    )
+    this.addPermissionsToDocumentBucket(
+      createCollectionZip,
+      uploadsBucket,
+      {
+        // can read documents
+        includeRead: true,
+      },
+      {
+        // can read and write collections
+        includeRead: true,
+        includeWrite: true,
+        includeTagging: true,
+      },
+    )
+    this.environmentVariables[
+      EnvironmentVariables.CREATE_COLLECTION_ZIP_FUNCTION_NAME
+    ] = createCollectionZip.functionName
+
+    // add lambda to create a collection download
+    const downloadCollectionDocuments = this.createLambda(
+      'DownloadCollectionDocuments',
+      pathToApiServiceLambda('collections/downloadCollectionDocuments'),
+      {
+        dbSecret,
+        layers: [mySqlLayer],
+        extraEnvironmentVariables: [
+          EnvironmentVariables.USERINFO_ENDPOINT,
+          EnvironmentVariables.DOCUMENTS_BUCKET,
+          EnvironmentVariables.CREATE_COLLECTION_ZIP_FUNCTION_NAME,
+        ],
+      },
+    )
+    this.addPermissionsToDocumentBucket(
+      downloadCollectionDocuments,
+      uploadsBucket,
+      {},
+      {
+        // can read collections
+        includeRead: true,
+      },
+    )
+    createCollectionZip.grantInvoke(downloadCollectionDocuments)
+    // add route to create a collection download
+    this.addRoute(api, {
+      name: 'DownloadCollectionDocuments',
+      routeKey: 'POST /collections/{collectionId}/documents/downloads',
+      lambdaFunction: downloadCollectionDocuments,
+      authorizer,
+    })
+
+    // add lambda to fetch a collection download
+    const getDownloadForCollectionDocuments = this.createLambda(
+      'GetDownloadForCollectionDocuments',
+      pathToApiServiceLambda('collections/getDownloadForCollectionDocuments'),
+      {
+        dbSecret,
+        layers: [mySqlLayer],
+        extraEnvironmentVariables: [
+          EnvironmentVariables.USERINFO_ENDPOINT,
+          EnvironmentVariables.DOCUMENTS_BUCKET,
+        ],
+      },
+    )
+    this.addPermissionsToDocumentBucket(
+      getDownloadForCollectionDocuments,
+      uploadsBucket,
+      {},
+      {
+        // can read collections
+        includeRead: true,
+      },
+    )
+    // add route to fetch a collection download
+    this.addRoute(api, {
+      name: 'GetDownloadForCollectionDocuments',
+      routeKey:
+        'GET /collections/{collectionId}/documents/downloads/{downloadId}',
+      lambdaFunction: getDownloadForCollectionDocuments,
       authorizer,
     })
   }

@@ -24,13 +24,16 @@ import { requireUserData } from '@/services/user'
 import { formatCollectionListItem } from '.'
 import { CollectionPermission } from './authorization'
 import { sendSharedCollectionNotification } from '../emails/sendSharedCollectionNotification'
+import { EnvironmentVariable, requireConfiguration } from '@/config'
 
 connectDatabase()
 
 export const handler = createApiGatewayHandler(
   setContext('ownerId', (r) => requirePathParameter(r.event, 'userId')),
   setContext('userId', (r) => requireUserId(r.event)),
-  setContext('webAppDomain', () => process.env.WEB_APP_DOMAIN),
+  setContext('webAppDomain', () =>
+    requireConfiguration(EnvironmentVariable.WEB_APP_DOMAIN),
+  ),
   setContext('user', async (r) => await requireUserData(r)),
   requirePermissionToUser(UserPermission.WriteCollection),
   requireValidBody<CollectionCreateContract>(createCollectionSchema),

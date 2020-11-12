@@ -473,6 +473,71 @@ paths:
       security:
         - datalocker_auth: []
 
+  '/collections/{collectionId}/documents/downloads':
+    post:
+      tags:
+        - collections
+      summary: Download Collection documents
+      description: Download all documents in a collection
+      operationId: downloadCollectionDocuments
+      parameters:
+        - name: collectionId
+          in: path
+          description: ID of collection to download documents for
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentsDownload'
+        '400':
+          description: Bad Request
+      security:
+        - datalocker_auth: []
+      requestBody:
+        description: Requests a new download to be created for this collection
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DocumentsDownloadCreate'
+
+  '/collections/{collectionId}/documents/downloads/{downloadId}':
+    get:
+      tags:
+        - collections
+      summary: Collections download information
+      description: Get information about a download for a collections documents
+      operationId: getDownloadForCollectionDocuments
+      parameters:
+        - name: collectionId
+          in: path
+          description: ID of collection
+          required: true
+          schema:
+            type: string
+        - name: downloadId
+          in: path
+          description: ID of download
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentsDownload'
+        '400':
+          description: Bad Request
+      security:
+        - datalocker_auth: []
+
 components:
   schemas:
     Link:
@@ -928,6 +993,40 @@ components:
           description: The email addresses of individuals to grant access to this collection
           items:
             type: string
+    DocumentsDownloadCreate:
+      type: object
+      description: Request data to create a download of a set of documents
+      required:
+        - format
+      properties:
+        format:
+          $ref: '#/components/schemas/DocumentsDownloadFormatEnum'
+    DocumentsDownloadFormatEnum:
+      description: The valid formats for a requested download
+      type: string
+      enum:
+        - ZIP
+      example: ZIP
+    DocumentsDownloadStatusEnum:
+      description: The valid statuses for a requested download
+      type: string
+      enum:
+        - SUCCESS
+        - PENDING
+      example: SUCCESS
+    DocumentsDownload:
+      type: object
+      description: Details about a document download
+      required:
+        - id
+        - status
+      properties:
+        id:
+          type: string
+        status:
+          $ref: '#/components/schemas/DocumentsDownloadStatusEnum'
+        fileDownload:
+          $ref: '#/components/schemas/FileDownload'
 
   securitySchemes:
     datalocker_auth:

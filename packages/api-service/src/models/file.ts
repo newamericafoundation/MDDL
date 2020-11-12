@@ -105,3 +105,7 @@ export const getFileByIdAndDocumentId = async (
     .first()
   return file ? file : null
 }
+
+export const getFilesByDocumentId = async (documentId: string) => {
+  return await File.query().where({ documentId }).orderBy('order')
+}

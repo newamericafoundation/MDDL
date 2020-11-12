@@ -24,6 +24,7 @@ jest.mock('@/models/collection')
 jest.mock('@/models/document')
 jest.mock('@/services/user')
 jest.mock('@/services/emails')
+jest.mock('@/config')
 
 describe('createCollectionForUser', () => {
   const userId = 'myUserId'

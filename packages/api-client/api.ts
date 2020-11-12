@@ -403,6 +403,63 @@ export interface DocumentUpdate {
     description?: string;
 }
 /**
+ * Details about a document download
+ * @export
+ * @interface DocumentsDownload
+ */
+export interface DocumentsDownload {
+    /**
+     * 
+     * @type {string}
+     * @memberof DocumentsDownload
+     */
+    id: string;
+    /**
+     * 
+     * @type {DocumentsDownloadStatusEnum}
+     * @memberof DocumentsDownload
+     */
+    status: DocumentsDownloadStatusEnum;
+    /**
+     * 
+     * @type {FileDownload}
+     * @memberof DocumentsDownload
+     */
+    fileDownload?: FileDownload;
+}
+/**
+ * Request data to create a download of a set of documents
+ * @export
+ * @interface DocumentsDownloadCreate
+ */
+export interface DocumentsDownloadCreate {
+    /**
+     * 
+     * @type {DocumentsDownloadFormatEnum}
+     * @memberof DocumentsDownloadCreate
+     */
+    format: DocumentsDownloadFormatEnum;
+}
+/**
+ * The valid formats for a requested download
+ * @export
+ * @enum {string}
+ */
+export enum DocumentsDownloadFormatEnum {
+    ZIP = 'ZIP'
+}
+
+/**
+ * The valid statuses for a requested download
+ * @export
+ * @enum {string}
+ */
+export enum DocumentsDownloadStatusEnum {
+    SUCCESS = 'SUCCESS',
+    PENDING = 'PENDING'
+}
+
+/**
  * The accepted content type for files
  * @export
  * @enum {string}
@@ -738,6 +795,66 @@ export const CollectionsApiAxiosParamCreator = function (configuration?: Configu
             };
         },
         /**
+         * Download all documents in a collection
+         * @summary Download Collection documents
+         * @param {string} collectionId ID of collection to download documents for
+         * @param {DocumentsDownloadCreate} documentsDownloadCreate Requests a new download to be created for this collection
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        downloadCollectionDocuments: async (collectionId: string, documentsDownloadCreate: DocumentsDownloadCreate, options: any = {}): Promise<RequestArgs> => {
+            // verify required parameter 'collectionId' is not null or undefined
+            if (collectionId === null || collectionId === undefined) {
+                throw new RequiredError('collectionId','Required parameter collectionId was null or undefined when calling downloadCollectionDocuments.');
+            }
+            // verify required parameter 'documentsDownloadCreate' is not null or undefined
+            if (documentsDownloadCreate === null || documentsDownloadCreate === undefined) {
+                throw new RequiredError('documentsDownloadCreate','Required parameter documentsDownloadCreate was null or undefined when calling downloadCollectionDocuments.');
+            }
+            const localVarPath = `/collections/{collectionId}/documents/downloads`
+                .replace(`{${"collectionId"}}`, encodeURIComponent(String(collectionId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, 'https://example.com');
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication datalocker_auth required
+            // oauth required
+            if (configuration && configuration.accessToken) {
+                const localVarAccessTokenValue = typeof configuration.accessToken === 'function'
+                    ? await configuration.accessToken("datalocker_auth", [])
+                    : await configuration.accessToken;
+                localVarHeaderParameter["Authorization"] = "Bearer " + localVarAccessTokenValue;
+            }
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            const query = new URLSearchParams(localVarUrlObj.search);
+            for (const key in localVarQueryParameter) {
+                query.set(key, localVarQueryParameter[key]);
+            }
+            for (const key in options.query) {
+                query.set(key, options.query[key]);
+            }
+            localVarUrlObj.search = (new URLSearchParams(query)).toString();
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            const needsSerialization = (typeof documentsDownloadCreate !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.data =  needsSerialization ? JSON.stringify(documentsDownloadCreate !== undefined ? documentsDownloadCreate : {}) : (documentsDownloadCreate || "");
+
+            return {
+                url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * Get documents in a collection
          * @summary Get documents
          * @param {string} collectionId ID of the collection to fetch
@@ -751,6 +868,63 @@ export const CollectionsApiAxiosParamCreator = function (configuration?: Configu
             }
             const localVarPath = `/collections/{collectionId}/documents`
                 .replace(`{${"collectionId"}}`, encodeURIComponent(String(collectionId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, 'https://example.com');
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication datalocker_auth required
+            // oauth required
+            if (configuration && configuration.accessToken) {
+                const localVarAccessTokenValue = typeof configuration.accessToken === 'function'
+                    ? await configuration.accessToken("datalocker_auth", [])
+                    : await configuration.accessToken;
+                localVarHeaderParameter["Authorization"] = "Bearer " + localVarAccessTokenValue;
+            }
+
+
+    
+            const query = new URLSearchParams(localVarUrlObj.search);
+            for (const key in localVarQueryParameter) {
+                query.set(key, localVarQueryParameter[key]);
+            }
+            for (const key in options.query) {
+                query.set(key, options.query[key]);
+            }
+            localVarUrlObj.search = (new URLSearchParams(query)).toString();
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Get information about a download for a collections documents
+         * @summary Collections download information
+         * @param {string} collectionId ID of collection
+         * @param {string} downloadId ID of download
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getDownloadForCollectionDocuments: async (collectionId: string, downloadId: string, options: any = {}): Promise<RequestArgs> => {
+            // verify required parameter 'collectionId' is not null or undefined
+            if (collectionId === null || collectionId === undefined) {
+                throw new RequiredError('collectionId','Required parameter collectionId was null or undefined when calling getDownloadForCollectionDocuments.');
+            }
+            // verify required parameter 'downloadId' is not null or undefined
+            if (downloadId === null || downloadId === undefined) {
+                throw new RequiredError('downloadId','Required parameter downloadId was null or undefined when calling getDownloadForCollectionDocuments.');
+            }
+            const localVarPath = `/collections/{collectionId}/documents/downloads/{downloadId}`
+                .replace(`{${"collectionId"}}`, encodeURIComponent(String(collectionId)))
+                .replace(`{${"downloadId"}}`, encodeURIComponent(String(downloadId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, 'https://example.com');
             let baseOptions;
@@ -879,6 +1053,21 @@ export const CollectionsApiFp = function(configuration?: Configuration) {
             };
         },
         /**
+         * Download all documents in a collection
+         * @summary Download Collection documents
+         * @param {string} collectionId ID of collection to download documents for
+         * @param {DocumentsDownloadCreate} documentsDownloadCreate Requests a new download to be created for this collection
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async downloadCollectionDocuments(collectionId: string, documentsDownloadCreate: DocumentsDownloadCreate, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<DocumentsDownload>> {
+            const localVarAxiosArgs = await CollectionsApiAxiosParamCreator(configuration).downloadCollectionDocuments(collectionId, documentsDownloadCreate, options);
+            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
+                const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
+                return axios.request(axiosRequestArgs);
+            };
+        },
+        /**
          * Get documents in a collection
          * @summary Get documents
          * @param {string} collectionId ID of the collection to fetch
@@ -887,6 +1076,21 @@ export const CollectionsApiFp = function(configuration?: Configuration) {
          */
         async getCollectionDocuments(collectionId: string, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<DocumentList>> {
             const localVarAxiosArgs = await CollectionsApiAxiosParamCreator(configuration).getCollectionDocuments(collectionId, options);
+            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
+                const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
+                return axios.request(axiosRequestArgs);
+            };
+        },
+        /**
+         * Get information about a download for a collections documents
+         * @summary Collections download information
+         * @param {string} collectionId ID of collection
+         * @param {string} downloadId ID of download
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getDownloadForCollectionDocuments(collectionId: string, downloadId: string, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<DocumentsDownload>> {
+            const localVarAxiosArgs = await CollectionsApiAxiosParamCreator(configuration).getDownloadForCollectionDocuments(collectionId, downloadId, options);
             return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
                 const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
                 return axios.request(axiosRequestArgs);
@@ -938,6 +1142,17 @@ export const CollectionsApiFactory = function (configuration?: Configuration, ba
             return CollectionsApiFp(configuration).deleteCollectionGrantById(collectionId, grantId, options).then((request) => request(axios, basePath));
         },
         /**
+         * Download all documents in a collection
+         * @summary Download Collection documents
+         * @param {string} collectionId ID of collection to download documents for
+         * @param {DocumentsDownloadCreate} documentsDownloadCreate Requests a new download to be created for this collection
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        downloadCollectionDocuments(collectionId: string, documentsDownloadCreate: DocumentsDownloadCreate, options?: any): AxiosPromise<DocumentsDownload> {
+            return CollectionsApiFp(configuration).downloadCollectionDocuments(collectionId, documentsDownloadCreate, options).then((request) => request(axios, basePath));
+        },
+        /**
          * Get documents in a collection
          * @summary Get documents
          * @param {string} collectionId ID of the collection to fetch
@@ -946,6 +1161,17 @@ export const CollectionsApiFactory = function (configuration?: Configuration, ba
          */
         getCollectionDocuments(collectionId: string, options?: any): AxiosPromise<DocumentList> {
             return CollectionsApiFp(configuration).getCollectionDocuments(collectionId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Get information about a download for a collections documents
+         * @summary Collections download information
+         * @param {string} collectionId ID of collection
+         * @param {string} downloadId ID of download
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getDownloadForCollectionDocuments(collectionId: string, downloadId: string, options?: any): AxiosPromise<DocumentsDownload> {
+            return CollectionsApiFp(configuration).getDownloadForCollectionDocuments(collectionId, downloadId, options).then((request) => request(axios, basePath));
         },
         /**
          * Returns access grants for a single collection
@@ -994,6 +1220,19 @@ export class CollectionsApi extends BaseAPI {
     }
 
     /**
+     * Download all documents in a collection
+     * @summary Download Collection documents
+     * @param {string} collectionId ID of collection to download documents for
+     * @param {DocumentsDownloadCreate} documentsDownloadCreate Requests a new download to be created for this collection
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CollectionsApi
+     */
+    public downloadCollectionDocuments(collectionId: string, documentsDownloadCreate: DocumentsDownloadCreate, options?: any) {
+        return CollectionsApiFp(this.configuration).downloadCollectionDocuments(collectionId, documentsDownloadCreate, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
      * Get documents in a collection
      * @summary Get documents
      * @param {string} collectionId ID of the collection to fetch
@@ -1003,6 +1242,19 @@ export class CollectionsApi extends BaseAPI {
      */
     public getCollectionDocuments(collectionId: string, options?: any) {
         return CollectionsApiFp(this.configuration).getCollectionDocuments(collectionId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Get information about a download for a collections documents
+     * @summary Collections download information
+     * @param {string} collectionId ID of collection
+     * @param {string} downloadId ID of download
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CollectionsApi
+     */
+    public getDownloadForCollectionDocuments(collectionId: string, downloadId: string, options?: any) {
+        return CollectionsApiFp(this.configuration).getDownloadForCollectionDocuments(collectionId, downloadId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

@@ -1,5 +1,6 @@
-import { Collection } from '@/models/collection'
+import { Collection, getDocumentsByCollectionId } from '@/models/collection'
 import { User } from '@/models/user'
+import { hashString } from '@/utils/string'
 import { CollectionListItem, Link, SharedCollectionListItem } from 'api-client'
 import { CollectionPermission } from './authorization'
 
@@ -57,3 +58,20 @@ export const formatSharedCollections = (
     },
   ),
 })
+
+export const getCollectionDetails = async (collectionId: string) => {
+  // read in documents
+  const documents = await getDocumentsByCollectionId(collectionId)
+
+  // create a consistent hash that can be used as the download file name
+  const documentsHash = hashString(
+    collectionId +
+      ':' +
+      documents.map((d) => d.id + d.updatedAt.toUTCString()).join(':'),
+  )
+
+  return {
+    documents,
+    documentsHash,
+  }
+}

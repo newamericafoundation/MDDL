@@ -1,7 +1,9 @@
+import { EnvironmentVariable, requireConfiguration } from '@/config'
+
 export const emailIsWhitelisted = (email: string) => {
   // read in whitelist
-  const agencyEmailDomainsWhitelist = (
-    process.env.AGENCY_EMAIL_DOMAINS_WHITELIST ?? ''
+  const agencyEmailDomainsWhitelist = requireConfiguration(
+    EnvironmentVariable.AGENCY_EMAIL_DOMAINS_WHITELIST,
   ).split(',')
 
   // check if its set

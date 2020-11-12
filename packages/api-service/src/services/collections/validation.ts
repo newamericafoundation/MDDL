@@ -3,6 +3,7 @@ import {
   MaxDocumentsPerUser,
 } from '@/constants'
 import { emailIsWhitelisted } from '@/utils/whitelist'
+import { DocumentsDownloadFormatEnum } from 'api-client'
 import { string, array, object } from 'joi'
 
 const validateEmailIsWhitelisted = (value: string) => {
@@ -24,5 +25,12 @@ export const createCollectionSchema = object({
     .items(string().email().min(1).max(255).custom(validateEmailIsWhitelisted))
     .max(MaxIndividualEmailAddressesPerCollection)
     .unique()
+    .required(),
+})
+
+export const downloadCollectionDocumentsSchema = object({
+  format: string()
+    .allow(...Object.values(DocumentsDownloadFormatEnum))
+    .only()
     .required(),
 })

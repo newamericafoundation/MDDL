@@ -3,9 +3,13 @@ import SES from 'aws-sdk/clients/ses'
 import { render } from 'mustache'
 import header from './templates/header.mustache'
 import footer from './templates/footer.mustache'
+import {
+  EnvironmentVariable,
+  isProduction,
+  requireConfiguration,
+} from '@/config'
 
 const ses = new SES()
-const emailSender = process.env.EMAIL_SENDER as string
 
 const partials = {
   header,
@@ -22,6 +26,7 @@ type SendEmailOptions = {
 
 export const sendEmail = async (opts: SendEmailOptions) => {
   const { template, subject, data, destination, forceSend = false } = opts
+  const emailSender = requireConfiguration(EnvironmentVariable.EMAIL_SENDER)
   const body = render(template, data, partials)
   return new Promise<SES.SendEmailResponse & { Request: SES.SendEmailRequest }>(
     (resolve, reject) => {
@@ -41,7 +46,7 @@ export const sendEmail = async (opts: SendEmailOptions) => {
         },
         Source: emailSender,
       }
-      if (!forceSend && process.env.NODE_ENV !== 'production') {
+      if (!forceSend && !isProduction()) {
         resolve({
           Request: request,
           MessageId: 'MOCKMESSAGEID',

@@ -16,6 +16,7 @@
     "stop": "docker-compose down"
   },
   "devDependencies": {
+    "@types/archiver": "^3.1.1",
     "@types/aws-lambda": "^8.10.62",
     "@types/gm": "^1.18.9",
     "@types/http-errors": "^1.8.0",
@@ -40,6 +41,7 @@
   },
   "dependencies": {
     "api-client": "1.0.0",
+    "archiver": "^5.0.2",
     "aws-sdk": "^2.768.0",
     "cardinal": "^2.0.0",
     "gm": "^1.23.1",

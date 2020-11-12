@@ -1,14 +1,17 @@
 import { string, array, object, number } from 'joi'
 import { MaxFileSize, MaxFilesPerDocument } from '@/constants'
 import { APIGatewayRequest } from '@/utils/middleware'
-import { FileDownloadDispositionTypeEnum } from 'api-client'
+import {
+  FileContentTypeEnum,
+  FileDownloadDispositionTypeEnum,
+} from 'api-client'
 import createError from 'http-errors'
 
 export const createFileSchema = object({
   name: string().min(1).max(255).required(),
   contentLength: number().min(1).max(MaxFileSize).required(),
   contentType: string()
-    .allow('application/pdf', 'image/jpeg', 'image/png', 'image/tiff')
+    .allow(...Object.values(FileContentTypeEnum))
     .only()
     .required(),
   sha256Checksum: string().min(1).max(255).required(),

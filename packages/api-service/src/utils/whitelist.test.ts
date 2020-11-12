@@ -1,11 +1,14 @@
 import { emailIsWhitelisted } from '@/utils/whitelist'
+import { requireConfiguration } from '@/config'
+import { toMockedFunction } from './test'
+
+jest.mock('@/config')
 
 describe('emailIsWhitelisted', () => {
-  beforeAll(() => {
-    process.env = {
-      ...process.env,
-      AGENCY_EMAIL_DOMAINS_WHITELIST: '@myspecificdomain.com,partialdomain.net',
-    }
+  beforeEach(() => {
+    toMockedFunction(requireConfiguration).mockImplementation(
+      () => '@myspecificdomain.com,partialdomain.net',
+    )
   })
   it('matches specific domain', () => {
     expect(emailIsWhitelisted('test@myspecificdomain.com')).toEqual(true)
@@ -20,10 +23,7 @@ describe('emailIsWhitelisted', () => {
     expect(emailIsWhitelisted('myemail@gmail.com')).toEqual(false)
   })
   it('passes if there is no whitelist', () => {
-    process.env = {
-      ...process.env,
-      AGENCY_EMAIL_DOMAINS_WHITELIST: undefined,
-    }
+    toMockedFunction(requireConfiguration).mockImplementation(() => '')
     expect(emailIsWhitelisted('myemail@gmail.com')).toEqual(true)
   })
 })

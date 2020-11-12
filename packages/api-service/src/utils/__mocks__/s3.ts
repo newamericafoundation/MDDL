@@ -23,3 +23,9 @@ export const downloadObject = jest.fn()
 export const uploadObject = jest.fn()
 
 export const deleteObject = jest.fn()
+
+export const getObjectReadStream = jest.fn()
+
+export const uploadObjectStream = jest.fn()
+
+export const objectExists = jest.fn()
