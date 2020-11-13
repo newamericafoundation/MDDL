@@ -51,6 +51,16 @@
           </v-list-item>
         </template>
       </v-list>
+      <v-footer v-if="$config.showBuildInfo" fixed>
+        <p>
+          <span class="font-weight-bold">Build number:</span>
+          {{ $config.buildNumber }}
+        </p>
+        <p>
+          <span class="font-weight-bold">Build time:</span>
+          {{ format(new Date($config.buildTime), 'd/M/y h:mma') }}
+        </p>
+      </v-footer>
     </v-navigation-drawer>
     <nuxt />
     <SnackBar />
@@ -59,10 +69,12 @@
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
+import { format } from 'date-fns'
 
 @Component
 export default class ClientDashboard extends Vue {
   drawer = false
+  format = format
 
   navItems = [
     {

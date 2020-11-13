@@ -61,3 +61,23 @@ Vue modules: vue-class-component, nuxt-property-decorator, vuex-module-decorator
 ## Debugging Auth
 
 In [./nuxt.config.js](./nuxt.config.js) set `auth.redirect = false`, and `auth.strategies.redirect_uri = 'http://localhost:3000/debug'`. Then you can navigate to /debug (on dev environment only) and do your troubleshooting using the tools there.
+
+## Local Development with Google Analytics
+
+You need to set your tracking ID in your [.env](./.env) file:
+
+```
+GOOGLE_ANALYTICS_TRACKING_ID=UA-00000000-1
+```
+
+And you need to add the following in [nuxt.config.js](./nuxt.config.js):
+
+```
+googleAnalytics: {
+  dev: true,
+  debug: {
+    enabled: true,
+    sendHitTask: true,
+  },
+}
+```

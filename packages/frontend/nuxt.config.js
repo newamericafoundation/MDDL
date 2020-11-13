@@ -31,7 +31,7 @@ export default {
   styleResources: {
     scss: ['@/assets/scss/colors.scss', '@/assets/scss/variables.scss'],
   },
-  plugins: ['@/plugins/api-accessor.ts', '@/plugins/vee-validate.js'],
+  plugins: ['@/plugins/vee-validate.js'],
   components: true,
   buildModules: [
     '@nuxt/typescript-build',
@@ -63,7 +63,7 @@ export default {
     },
   },
   googleAnalytics: {
-    id: process.env.GOOGLE_ANALYTICS_ID,
+    id: process.env.GOOGLE_ANALYTICS_TRACKING_ID,
   },
   // TODO: disabled until GTM is configured
   // gtm: {
@@ -79,6 +79,12 @@ export default {
   },
   publicRuntimeConfig: {
     agencyEmailDomainsWhitelist: process.env.AGENCY_EMAIL_DOMAINS_WHITELIST,
+    showBuildInfo: process.env.SHOW_BUILD_INFO,
+    buildNumber: process.env.BUILD_NUMBER,
+    buildTime: process.env.CODEBUILD_START_TIME,
+    googleAnalytics: {
+      id: process.env.GOOGLE_ANALYTICS_TRACKING_ID,
+    },
   },
   build: {
     // TODO: disabled due to issues with hot reloading
@@ -127,6 +133,6 @@ export default {
     redirect: {
       callback: '/authorize',
     },
-    plugins: ['@plugins/store-accessor.ts'],
+    plugins: ['@plugins/store-accessor.ts', '@/plugins/api-accessor.ts'],
   },
 }
