@@ -38,6 +38,7 @@ export default {
     '@nuxtjs/vuetify',
     '@nuxtjs/dotenv',
     '@nuxtjs/google-fonts',
+    '@nuxtjs/google-analytics',
   ],
   modules: [
     '@nuxtjs/style-resources',
@@ -45,6 +46,7 @@ export default {
     '@nuxtjs/auth',
     '@nuxtjs/pwa',
     'nuxt-i18n',
+    '@nuxtjs/gtm',
   ],
   i18n: {
     locales: ['en', 'test'],
@@ -60,6 +62,16 @@ export default {
       'Noto Sans': [300, 400, 500, 600, 700],
     },
   },
+  googleAnalytics: {
+    id: process.env.GOOGLE_ANALYTICS_ID,
+  },
+  // TODO: disabled until GTM is configured
+  // gtm: {
+  //   id: process.env.GTM_ID,
+  //   pageTracking: true,
+  //   pageViewEventName: 'navigation',
+  //   enabled: true,
+  // },
   vuetify: {
     treeShake: true,
     customVariables: ['@/assets/scss/vuetifyVariables.scss'],

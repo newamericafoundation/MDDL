@@ -5,6 +5,7 @@
     <v-btn @click="logIn">log in</v-btn>
     <v-btn @click="logOut">log out</v-btn>
     <v-btn @click="getDocuments">request documents</v-btn>
+    <v-btn @click="sendEvent">send test upload event</v-btn>
   </div>
 </template>
 
@@ -36,6 +37,15 @@ export default class DebugMenu extends Vue {
   getDocuments() {
     this.$store.dispatch('user/getDocuments').then(res => {
       console.log(res)
+    })
+  }
+
+  sendEvent() {
+    console.log('analytics instance:', this.$ga)
+    this.$ga.event({
+      eventCategory: 'upload',
+      eventAction: 'file-input',
+      eventLabel: 'client',
     })
   }
 }

@@ -143,6 +143,13 @@ export default class UploadButton extends Vue {
           ],
         })
 
+        this.$ga.event({
+          eventCategory: 'upload',
+          eventAction: 'file-input',
+          // TODO: label based on user role
+          eventLabel: 'client',
+        })
+
         this.$store.dispatch('user/getDocuments')
         this.$store.dispatch('user/scheduleDocumentsRefresh')
 
