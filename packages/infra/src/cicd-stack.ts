@@ -76,6 +76,11 @@ interface CityStackArtifactBuildConfiguration {
   env: {
     [index: string]: string
   }
+
+  /**
+   * The path in the static assets bucket to transfer files such as the logo from during build time
+   */
+  staticAssetsPath?: string
 }
 
 export interface Props extends StackProps {
@@ -98,17 +103,20 @@ export class CiCdStack extends Stack {
     super(scope, id, props)
 
     // create bucket that hosts builds uploaded from source control
-    const { bucket } = this.createBuildsBucket()
+    const { bucket: buildsBucket } = this.createBuildsBucket()
+
+    // create bucket to hold city specific static assets that will be loaded to '/static' at build time
+    const { bucket: staticAssetsBucket } = this.createStaticAssetsBucket()
 
     // create user that has access to upload a build
-    this.createCiCdUser(bucket)
+    this.createCiCdUser(buildsBucket)
 
     // create the base code pipeline
     const {
       cloudAssemblyArtifact,
       codePipeline,
       sourceArtifact,
-    } = this.createCodePipeline(bucket)
+    } = this.createCodePipeline(buildsBucket)
 
     // create the CDK pipeline components
     this.createCdkPipeline(
@@ -116,6 +124,7 @@ export class CiCdStack extends Stack {
       cloudAssemblyArtifact,
       codePipeline,
       sourceArtifact,
+      staticAssetsBucket,
     )
   }
 
@@ -138,6 +147,17 @@ export class CiCdStack extends Stack {
     )
 
     return { cicdUser }
+  }
+
+  private createStaticAssetsBucket() {
+    // create the bucket
+    return {
+      bucket: new Bucket(this, 'StaticAssetsBucket', {
+        blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
+        versioned: true,
+        encryption: BucketEncryption.S3_MANAGED,
+      }),
+    }
   }
 
   /**
@@ -245,6 +265,7 @@ export class CiCdStack extends Stack {
    */
   private createBuildWebAppsProject(
     cityBuildArgs: CityStackArtifactBuildConfiguration[],
+    staticAssetsBucket: Bucket,
   ) {
     // declare the artifact config
     const artifactConfig: {
@@ -279,6 +300,13 @@ export class CiCdStack extends Stack {
       buildCommands.push(
         'BUILD_NUMBER=$(cat build-details.json | python -c "import sys, json; print(json.load(sys.stdin)[\'buildNumber\'])")',
         `echo "${envFileContents}\nBUILD_NUMBER=$BUILD_NUMBER\nBUILD_TIME=$CODEBUILD_START_TIME\nBUILD_ENVIRONMENT=${cba.name}" > packages/frontend/.env`,
+      )
+      if (cba.staticAssetsPath) {
+        buildCommands.push(
+          `aws s3 sync packages/frontend/static s3://$STATIC_ASSETS_BUCKET/${cba.staticAssetsPath}`,
+        )
+      }
+      buildCommands.push(
         `OUTPUT_DIR=${cba.name} yarn fe generate${
           index !== 0 ? ' --no-build' : ''
         }`,
@@ -287,6 +315,11 @@ export class CiCdStack extends Stack {
 
     // create the project
     const project = new Project(this, 'BuildWebAppsProject', {
+      environmentVariables: {
+        STATIC_ASSETS_BUCKET: {
+          value: staticAssetsBucket.bucketName,
+        },
+      },
       buildSpec: BuildSpec.fromObject({
         version: 0.2,
         phases: {
@@ -307,6 +340,18 @@ export class CiCdStack extends Stack {
         },
       }),
     })
+    project.addToRolePolicy(
+      new PolicyStatement({
+        actions: ['s3:GetObject'],
+        resources: [staticAssetsBucket.arnForObjects('*')],
+      }),
+    )
+    project.addToRolePolicy(
+      new PolicyStatement({
+        actions: ['s3:ListBucket'],
+        resources: [staticAssetsBucket.bucketArn],
+      }),
+    )
 
     return { project }
   }
@@ -381,6 +426,7 @@ export class CiCdStack extends Stack {
     cloudAssemblyArtifact: Artifact,
     codePipeline: Pipeline,
     sourceArtifact: Artifact,
+    staticAssetsBucket: Bucket,
   ) {
     // synthesize the cloud assembly
     const { app, createdStacks } = CiCdStack.buildApp(props)
@@ -396,14 +442,17 @@ export class CiCdStack extends Stack {
 
     // determine city stacks that will need to be built, and their args
     const cityStacks = CiCdStack.getCityStacksProps(props)
-    const cityBuildArgs = cityStacks.map((cs) => ({
-      name: cs.name,
-      env: {
-        ...cs.props.webAppBuildVariables,
-        AGENCY_EMAIL_DOMAINS_WHITELIST:
-          cs.props.agencyEmailDomainsWhitelist?.join(',') ?? '',
-      },
-    }))
+    const cityBuildArgs = cityStacks.map(
+      (cs): CityStackArtifactBuildConfiguration => ({
+        name: cs.name,
+        staticAssetsPath: cs.props.staticAssetsPath,
+        env: {
+          ...cs.props.webAppBuildVariables,
+          AGENCY_EMAIL_DOMAINS_WHITELIST:
+            cs.props.agencyEmailDomainsWhitelist?.join(',') ?? '',
+        },
+      }),
+    )
 
     // create artifacts for each one
     const cityBuildArtifacts = cityStacks.map(
@@ -468,7 +517,10 @@ export class CiCdStack extends Stack {
 
     // create the CodeBuild project that will build the web apps
     // we do this in a single project so that all dependencies are the same across outputs
-    const { project } = this.createBuildWebAppsProject(cityBuildArgs)
+    const { project } = this.createBuildWebAppsProject(
+      cityBuildArgs,
+      staticAssetsBucket,
+    )
 
     // add the build stage with codebuild project and all artifacts
     codePipeline.addStage({
