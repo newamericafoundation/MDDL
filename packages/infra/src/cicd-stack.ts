@@ -303,7 +303,7 @@ export class CiCdStack extends Stack {
       )
       if (cba.staticAssetsPath) {
         buildCommands.push(
-          `aws s3 sync packages/frontend/static s3://$STATIC_ASSETS_BUCKET/${cba.staticAssetsPath}`,
+          `aws s3 sync s3://$STATIC_ASSETS_BUCKET/${cba.staticAssetsPath} packages/frontend/static`,
         )
       }
       buildCommands.push(
