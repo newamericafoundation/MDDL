@@ -103,6 +103,6 @@ export default class ClientDashboard extends Vue {
 
 <style scoped lang="scss">
 .dashboardLink {
-  padding-bottom: 7px;
+  padding-bottom: rem(7px);
 }
 </style>

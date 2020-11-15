@@ -1,3 +1,6 @@
+@import 'vuetifyVariables';
+@import 'helpers';
+
 #__nuxt {
   .__nuxt-error-page {
     .error {
@@ -175,7 +178,7 @@
       }
     }
     &:not(.v-btn--text):not(.v-btn--icon) {
-      filter: drop-shadow(0px 3px 3px rgba(0, 0, 0, 0.13));
+      box-shadow: 0 3px 3px rgba(0, 0, 0, 0.13);
     }
     .v-btn__content {
       text-transform: capitalize;

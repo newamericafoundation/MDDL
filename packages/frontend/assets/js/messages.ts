@@ -21,9 +21,17 @@ export default {
       fileDeletedConfirmation: 'file deleted.',
     },
 
+    login: {
+      loggingIn: 'loggingIn',
+      welcomeTitle: 'welcome to Datalocker',
+      welcomeMessage:
+        "we're here to help you share documents with case managers in a way that's easy, convenient, and secure.",
+    },
+
     navigation: {
       account: 'account', // navigate to account settings in nav menu
       activity: 'activity',
+      loggingIn: 'logging in...',
       manageAccounts: 'Manage Clients',
       dashboard: 'dashboard',
       switchAccount: 'Switch Clients',

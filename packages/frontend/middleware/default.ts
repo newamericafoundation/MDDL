@@ -1,10 +1,18 @@
 import { Context } from '@nuxt/types'
 
-export default ({ store, route, redirect }: Context) => {
-  if (store.state.auth.loggedIn) {
+/**
+ * Check user role + logged in status and perform appropriate redirect
+ * @param store
+ * @param route
+ * @param redirect
+ * @param $auth
+ */
+export default ({ store, route, redirect, $auth }: Context) => {
+  const role = sessionStorage.getItem('datalocker.role')
+
+  if (!role) {
+    $auth.logout()
+  } else if (store.state.auth.loggedIn) {
     if (route.path === '/') redirect('/dashboard')
-  } else {
-    // if (route.path !== '/login' && route.path !== '/dashboard')
-    //   redirect('/login')
   }
 }

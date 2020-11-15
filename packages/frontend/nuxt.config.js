@@ -29,7 +29,11 @@ export default {
   },
   css: ['@/assets/scss/main.scss'],
   styleResources: {
-    scss: ['@/assets/scss/colors.scss', '@/assets/scss/variables.scss'],
+    scss: [
+      '@/assets/scss/_colors.scss',
+      '@/assets/scss/_variables.scss',
+      '@/assets/scss/_helpers.scss',
+    ],
   },
   plugins: ['@/plugins/vee-validate.js'],
   components: true,
@@ -74,17 +78,19 @@ export default {
   // },
   vuetify: {
     treeShake: true,
-    customVariables: ['@/assets/scss/vuetifyVariables.scss'],
+    customVariables: ['@/assets/scss/_vuetifyVariables.scss'],
     optionsPath: './vuetify.options.ts',
   },
   publicRuntimeConfig: {
     agencyEmailDomainsWhitelist: process.env.AGENCY_EMAIL_DOMAINS_WHITELIST,
-    showBuildInfo: process.env.SHOW_BUILD_INFO,
+    authorizationEndpoint: process.env.AUTH_URL + '/login',
     buildNumber: process.env.BUILD_NUMBER,
     buildTime: process.env.CODEBUILD_START_TIME,
+    cityLogo: process.env.CITY_LOGO,
     googleAnalytics: {
       id: process.env.GOOGLE_ANALYTICS_TRACKING_ID,
     },
+    showBuildInfo: process.env.SHOW_BUILD_INFO,
   },
   build: {
     // TODO: disabled due to issues with hot reloading

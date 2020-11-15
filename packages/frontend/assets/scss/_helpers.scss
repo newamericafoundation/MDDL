@@ -1,0 +1,7 @@
+@function stripUnit($value) {
+  @return $value / ($value * 0 + 1);
+}
+// Convert px to rem
+@function rem($pxValue) {
+  @return #{stripUnit($pxValue) / stripUnit($font-size-root)}rem;
+}

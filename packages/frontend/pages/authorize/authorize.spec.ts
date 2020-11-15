@@ -1,4 +1,3 @@
-import Vuex from 'vuex'
 import { shallowMount } from '@vue/test-utils'
 import Authorize from '@/pages/authorize/index.vue'
 

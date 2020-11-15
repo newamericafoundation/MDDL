@@ -25,7 +25,13 @@ Example config can be found in [./.env.local](./.env.local). You can use this as
 
 ## Hygen Templates
 
-[Hygen](https://www.hygen.io/) templates are stored in `./templates`. You can use hygen templates to generate boilerplate code for you. We currently have templates for:
+[Hygen](https://www.hygen.io/) templates are stored in `./templates`. You can use Hygen templates to generate boilerplate code for you. 
+```
+# install Hygen globally
+yarn global add hygen
+```
+
+We currently have templates for:
 
 - Components: Generates a component with unit tests and storybook. Also validates that component names are suitable.
 - Layouts: Generates a layout with unit tests.
@@ -46,17 +52,17 @@ More information can be found on the AWS docs regarding permitted [CSS classes](
 ## Frontend Stack
 
 Workspace name: frontend
-Programming language: TypeScript
-Package manager: Yarn
-UI framework: Vue
-Component library: Vuetify.js
-Nuxt.js modules: Axios, Progressive Web App (PWA)
-Linting tools: ESLint, Prettier, eslint-config-prettier
-Testing frameworks: Jest, Storybook, (In future we will also use Browserstack)
-Rendering mode: Single Page App
-Deployment target: Static
-CSS Preprocessing: node-sass, sass-loader, @nuxtjs/style-resources
-Vue modules: vue-class-component, nuxt-property-decorator, vuex-module-decorators
+- Programming language: TypeScript
+- Package manager: Yarn
+- UI framework: Vue 2
+- Component library: Vuetify.js
+- Nuxt.js modules: Axios, Progressive Web App (PWA)
+- Linting tools: ESLint, Prettier, eslint-config-prettier
+- Testing frameworks: Jest, Storybook, (In future we will also use Browserstack)
+- Rendering mode: Single Page App
+- Deployment target: Static
+- CSS Preprocessing: node-sass, sass-loader, @nuxtjs/style-resources
+- Vue modules: vue-class-component, nuxt-property-decorator, vuex-module-decorators
 
 ## Debugging Auth
 
