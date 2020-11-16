@@ -64,6 +64,10 @@ Workspace name: frontend
 - CSS Preprocessing: node-sass, sass-loader, @nuxtjs/style-resources
 - Vue modules: vue-class-component, nuxt-property-decorator, vuex-module-decorators
 
+## Static assets
+
+Assets under `./static` are for local development purposes only. At build time the CI/CD pipeline will pull the static assets from an S3 bucket specific to the deployment environment. 
+
 ## Debugging Auth
 
 In [./nuxt.config.js](./nuxt.config.js) set `auth.redirect = false`, and `auth.strategies.redirect_uri = 'http://localhost:3000/debug'`. Then you can navigate to /debug (on dev environment only) and do your troubleshooting using the tools there.

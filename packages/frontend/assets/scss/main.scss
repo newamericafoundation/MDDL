@@ -161,7 +161,7 @@
     &:not(.v-btn--block) {
       min-width: $button-min-width !important;
       .v-btn__content {
-        justify-content: start;
+        justify-content: center;
       }
     }
     &.v-btn--flat {

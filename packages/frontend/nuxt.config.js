@@ -86,7 +86,6 @@ export default {
     authorizationEndpoint: process.env.AUTH_URL + '/login',
     buildNumber: process.env.BUILD_NUMBER,
     buildTime: process.env.CODEBUILD_START_TIME,
-    cityLogo: process.env.CITY_LOGO,
     googleAnalytics: {
       id: process.env.GOOGLE_ANALYTICS_TRACKING_ID,
     },

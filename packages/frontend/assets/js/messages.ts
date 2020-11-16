@@ -22,7 +22,8 @@ export default {
     },
 
     login: {
-      loggingIn: 'loggingIn',
+      getStarted: 'Get started',
+      loggingIn: 'Loggin in...',
       welcomeTitle: 'welcome to Datalocker',
       welcomeMessage:
         "we're here to help you share documents with case managers in a way that's easy, convenient, and secure.",
