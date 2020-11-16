@@ -1253,6 +1253,7 @@ export class CityStack extends Stack {
           EnvironmentVariables.USERINFO_ENDPOINT,
           EnvironmentVariables.DOCUMENTS_BUCKET,
           EnvironmentVariables.CREATE_COLLECTION_ZIP_FUNCTION_NAME,
+          EnvironmentVariables.AGENCY_EMAIL_DOMAINS_WHITELIST,
         ],
       },
     )
@@ -1284,6 +1285,7 @@ export class CityStack extends Stack {
         extraEnvironmentVariables: [
           EnvironmentVariables.USERINFO_ENDPOINT,
           EnvironmentVariables.DOCUMENTS_BUCKET,
+          EnvironmentVariables.AGENCY_EMAIL_DOMAINS_WHITELIST,
         ],
       },
     )
