@@ -1,9 +1,5 @@
 import getDownloadForCollectionDocuments from './getDownloadForCollectionDocuments'
-import {
-  getCollectionById,
-  Collection as CollectionModel,
-  Collection,
-} from '@/models/collection'
+import { getCollectionById, Collection } from '@/models/collection'
 import {
   createMockEvent,
   mockUserData,
@@ -81,7 +77,7 @@ describe('getDownloadForCollectionDocuments', () => {
     expect(await getDownloadForCollectionDocuments(event))
       .toMatchInlineSnapshot(`
       Object {
-        "body": "{\\"id\\":\\"myDownloadId\\",\\"status\\":\\"PENDING\\"}",
+        "body": "{\\"id\\":\\"myDownloadId\\",\\"status\\":\\"PENDING\\",\\"fileDownload\\":null}",
         "cookies": Array [],
         "headers": Object {
           "Content-Type": "application/json",

@@ -78,7 +78,7 @@ export const singleDocumentResult = (
   document: Document,
   permissions: DocumentPermission[],
 ): DocumentContract => {
-  const { id, name, createdAt, description, files: baseFiles } = document
+  const { id, name, createdAt, description = null, files: baseFiles } = document
 
   const links = [
     {

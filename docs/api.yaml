@@ -253,6 +253,37 @@ paths:
       security:
         - datalocker_auth: []
 
+  '/users/{userId}/activity':
+    get:
+      tags:
+        - user
+      summary: List activity for an account
+      description: List audit activity in an account, limited to 50 most recent items.
+      operationId: listAccountActivity
+      parameters:
+        - name: userId
+          in: path
+          description: ID of user to find collections for
+          required: true
+          schema:
+            type: string
+        - name: nextToken
+          in: query
+          description: The token to be used to fetch the next set of results
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActivityList'
+        '404':
+          description: User not found
+      security:
+        - datalocker_auth: []
+
   '/documents/{documentId}':
     get:
       tags:
@@ -589,6 +620,7 @@ components:
           example: Sam's SSN
         description:
           type: string
+          nullable: true
           description: Document description or notes
           example: Saved with help of my case manager, Charlie :)
     DocumentCreate:
@@ -707,6 +739,7 @@ components:
       required:
         - id
         - name
+        - description
         - createdDate
         - files
         - links
@@ -721,6 +754,7 @@ components:
           example: Sam's SSN
         description:
           type: string
+          nullable: true
           description: Document description or notes
           example: Saved with help of my case manager, Charlie :)
         createdDate:
@@ -746,6 +780,7 @@ components:
     FileDownload:
       description: A result containing a download link to a file
       type: object
+      nullable: true
       required:
         - href
       properties:
@@ -932,6 +967,7 @@ components:
         - id
         - name
         - createdDate
+        - links
       properties:
         id:
           type: string
@@ -955,6 +991,7 @@ components:
         - id
         - name
         - createdDate
+        - links
       properties:
         id:
           type: string
@@ -1020,13 +1057,143 @@ components:
       required:
         - id
         - status
+        - fileDownload
       properties:
         id:
           type: string
+          description: The ID of the download
         status:
           $ref: '#/components/schemas/DocumentsDownloadStatusEnum'
         fileDownload:
           $ref: '#/components/schemas/FileDownload'
+    ActivityList:
+      type: object
+      description: A list of account activity
+      required:
+        - activity
+      properties:
+        activity:
+          type: array
+          description: The list of account activity
+          items:
+            $ref: '#/components/schemas/Activity'
+        nextToken:
+          type: string
+          description: The token to use to fetch further account activity
+          example: D050A33E-74F6-4BEF-AED5-87F48E5CCE44
+    ActivityActionTypeEnum:
+      description: The type of an activity action
+      type: string
+      enum:
+        - COLLECTION.CREATED
+        - DOCUMENT.CREATED
+        - DOCUMENT.ACCESSED
+        - DOCUMENT.EDITED
+        - DOCUMENT.DELETED
+        - DELEGATEDUSER.INVITED
+        - DELEGATEDUSER.INVITE_ACCEPTED
+        - DELEGATEDUSER.INVITE_REJECTED
+        - DELEGATEDUSER.DELETED
+      example: COLLECTION.CREATED
+    ActivityResourceTypeEnum:
+      description: The type of an activity resource
+      type: string
+      enum:
+        - COLLECTION
+        - COLLECTION.INDIVIDUAL_EMAIL_GRANT
+        - DOCUMENT
+        - DELEGATEDUSER
+      example: COLLECTION
+    ActivityResourceChange:
+      type: object
+      description: Changes made to a resource
+      required:
+        - field
+        - oldValue
+        - newValue
+      properties:
+        field:
+          type: string
+          description: The name of the field that was change
+          example: description
+        oldValue:
+          type: string
+          nullable: true
+          description: The value of the field before the change
+          example: Contains a picture of my social security card
+        newValue:
+          type: string
+          nullable: true
+          description: The value of the field after the change
+          example: Contains a picture of my SSN
+    ActivityResource:
+      type: object
+      description: A resource (or record) related to an activity
+      required:
+        - id
+        - name
+        - type
+      properties:
+        id:
+          type: string
+          description: The ID of the resource
+          example: D050A33E-74F6-4BEF-AED5-87F48E5CCE44
+        name:
+          type: string
+          description: The name of the resource, at the time of the activity, for human readable reference.
+          example: Housing application
+        type:
+          $ref: '#/components/schemas/ActivityResourceTypeEnum'
+        changes:
+          type: array
+          description: The list of any changes made to the resource
+          items:
+            $ref: '#/components/schemas/ActivityResourceChange'
+    ActivityPrincipal:
+      type: object
+      description: Details on the user principal that performed the activity
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: string
+          description: The ID of the principal
+          example: d537795d-3b76-4188-9e77-fdd5e9bfe218
+        name:
+          type: string
+          description: The consistent name of the principal, generally the user email, for human readable reference.
+          example: inviteduser@example.com
+    Activity:
+      type: object
+      description: An activity item
+      required:
+        - principal
+        - type
+        - requestId
+        - date
+        - resource
+      properties:
+        principal:
+          $ref: '#/components/schemas/ActivityPrincipal'
+        type:
+          $ref: '#/components/schemas/ActivityActionTypeEnum'
+        requestId:
+          type: string
+          description: The ID of the request that created this action
+          example: D050A33E-74F6-4BEF-AED5-87F48E5CCE44
+        date:
+          type: string
+          format: date-time
+          example: '2020-01-01T01:01:01Z'
+          description: The date the activity happened
+        resource:
+          $ref: '#/components/schemas/ActivityResource'
+        relatedResources:
+          type: array
+          description: The list of any additional resources part of this activity
+          items:
+            $ref: '#/components/schemas/ActivityResource'
 
   securitySchemes:
     datalocker_auth:

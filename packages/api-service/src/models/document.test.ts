@@ -273,6 +273,31 @@ describe('DocumentModel', () => {
         }),
       ).toStrictEqual(1)
     })
+    it('can update description to null', async () => {
+      const id = uuidv4()
+      await DocumentModel.query().insert({
+        id,
+        createdBy: id,
+        ownerId: id,
+        name: '' + id,
+        description: 'my description',
+        updatedBy: id,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })
+      expect(
+        await updateDocument(id, {
+          updatedAt: new Date(),
+          updatedBy: id,
+          description: null,
+        }),
+      ).toStrictEqual(1)
+      expect(await DocumentModel.query().findById(id)).toEqual(
+        expect.objectContaining({
+          description: null,
+        }),
+      )
+    })
   })
 
   describe('setDocumentThumbnailPath', () => {

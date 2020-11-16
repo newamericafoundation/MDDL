@@ -20,6 +20,172 @@ import globalAxios, { AxiosPromise, AxiosInstance } from 'axios';
 import { BASE_PATH, COLLECTION_FORMATS, RequestArgs, BaseAPI, RequiredError } from './base';
 
 /**
+ * An activity item
+ * @export
+ * @interface Activity
+ */
+export interface Activity {
+    /**
+     * 
+     * @type {ActivityPrincipal}
+     * @memberof Activity
+     */
+    principal: ActivityPrincipal;
+    /**
+     * 
+     * @type {ActivityActionTypeEnum}
+     * @memberof Activity
+     */
+    type: ActivityActionTypeEnum;
+    /**
+     * The ID of the request that created this action
+     * @type {string}
+     * @memberof Activity
+     */
+    requestId: string;
+    /**
+     * The date the activity happened
+     * @type {string}
+     * @memberof Activity
+     */
+    date: string;
+    /**
+     * 
+     * @type {ActivityResource}
+     * @memberof Activity
+     */
+    resource: ActivityResource;
+    /**
+     * The list of any additional resources part of this activity
+     * @type {Array<ActivityResource>}
+     * @memberof Activity
+     */
+    relatedResources?: Array<ActivityResource>;
+}
+/**
+ * The type of an activity action
+ * @export
+ * @enum {string}
+ */
+export enum ActivityActionTypeEnum {
+    COLLECTIONCREATED = 'COLLECTION.CREATED',
+    DOCUMENTCREATED = 'DOCUMENT.CREATED',
+    DOCUMENTACCESSED = 'DOCUMENT.ACCESSED',
+    DOCUMENTEDITED = 'DOCUMENT.EDITED',
+    DOCUMENTDELETED = 'DOCUMENT.DELETED',
+    DELEGATEDUSERINVITED = 'DELEGATEDUSER.INVITED',
+    DELEGATEDUSERINVITEACCEPTED = 'DELEGATEDUSER.INVITE_ACCEPTED',
+    DELEGATEDUSERINVITEREJECTED = 'DELEGATEDUSER.INVITE_REJECTED',
+    DELEGATEDUSERDELETED = 'DELEGATEDUSER.DELETED'
+}
+
+/**
+ * A list of account activity
+ * @export
+ * @interface ActivityList
+ */
+export interface ActivityList {
+    /**
+     * The list of account activity
+     * @type {Array<Activity>}
+     * @memberof ActivityList
+     */
+    activity: Array<Activity>;
+    /**
+     * The token to use to fetch further account activity
+     * @type {string}
+     * @memberof ActivityList
+     */
+    nextToken?: string;
+}
+/**
+ * Details on the user principal that performed the activity
+ * @export
+ * @interface ActivityPrincipal
+ */
+export interface ActivityPrincipal {
+    /**
+     * The ID of the principal
+     * @type {string}
+     * @memberof ActivityPrincipal
+     */
+    id: string;
+    /**
+     * The consistent name of the principal, generally the user email, for human readable reference.
+     * @type {string}
+     * @memberof ActivityPrincipal
+     */
+    name: string;
+}
+/**
+ * A resource (or record) related to an activity
+ * @export
+ * @interface ActivityResource
+ */
+export interface ActivityResource {
+    /**
+     * The ID of the resource
+     * @type {string}
+     * @memberof ActivityResource
+     */
+    id: string;
+    /**
+     * The name of the resource, at the time of the activity, for human readable reference.
+     * @type {string}
+     * @memberof ActivityResource
+     */
+    name: string;
+    /**
+     * 
+     * @type {ActivityResourceTypeEnum}
+     * @memberof ActivityResource
+     */
+    type: ActivityResourceTypeEnum;
+    /**
+     * The list of any changes made to the resource
+     * @type {Array<ActivityResourceChange>}
+     * @memberof ActivityResource
+     */
+    changes?: Array<ActivityResourceChange>;
+}
+/**
+ * Changes made to a resource
+ * @export
+ * @interface ActivityResourceChange
+ */
+export interface ActivityResourceChange {
+    /**
+     * The name of the field that was change
+     * @type {string}
+     * @memberof ActivityResourceChange
+     */
+    field: string;
+    /**
+     * The value of the field before the change
+     * @type {string}
+     * @memberof ActivityResourceChange
+     */
+    oldValue: string | null;
+    /**
+     * The value of the field after the change
+     * @type {string}
+     * @memberof ActivityResourceChange
+     */
+    newValue: string | null;
+}
+/**
+ * The type of an activity resource
+ * @export
+ * @enum {string}
+ */
+export enum ActivityResourceTypeEnum {
+    COLLECTION = 'COLLECTION',
+    COLLECTIONINDIVIDUALEMAILGRANT = 'COLLECTION.INDIVIDUAL_EMAIL_GRANT',
+    DOCUMENT = 'DOCUMENT',
+    DELEGATEDUSER = 'DELEGATEDUSER'
+}
+
+/**
  * A collection of documents
  * @export
  * @interface Collection
@@ -48,7 +214,7 @@ export interface Collection {
      * @type {Array<Link>}
      * @memberof Collection
      */
-    links?: Array<Link>;
+    links: Array<Link>;
 }
 /**
  * Request data to create a collection
@@ -189,7 +355,7 @@ export interface CollectionListItem {
      * @type {Array<Link>}
      * @memberof CollectionListItem
      */
-    links?: Array<Link>;
+    links: Array<Link>;
 }
 /**
  * A document
@@ -214,7 +380,7 @@ export interface Document {
      * @type {string}
      * @memberof Document
      */
-    description?: string;
+    description: string | null;
     /**
      * Date the document was created
      * @type {string}
@@ -400,7 +566,7 @@ export interface DocumentUpdate {
      * @type {string}
      * @memberof DocumentUpdate
      */
-    description?: string;
+    description?: string | null;
 }
 /**
  * Details about a document download
@@ -409,7 +575,7 @@ export interface DocumentUpdate {
  */
 export interface DocumentsDownload {
     /**
-     * 
+     * The ID of the download
      * @type {string}
      * @memberof DocumentsDownload
      */
@@ -425,7 +591,7 @@ export interface DocumentsDownload {
      * @type {FileDownload}
      * @memberof DocumentsDownload
      */
-    fileDownload?: FileDownload;
+    fileDownload: FileDownload | null;
 }
 /**
  * Request data to create a download of a set of documents
@@ -1922,6 +2088,62 @@ export const UserApiAxiosParamCreator = function (configuration?: Configuration)
             };
         },
         /**
+         * List audit activity in an account, limited to 50 most recent items.
+         * @summary List activity for an account
+         * @param {string} userId ID of user to find collections for
+         * @param {string} [nextToken] The token to be used to fetch the next set of results
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listAccountActivity: async (userId: string, nextToken?: string, options: any = {}): Promise<RequestArgs> => {
+            // verify required parameter 'userId' is not null or undefined
+            if (userId === null || userId === undefined) {
+                throw new RequiredError('userId','Required parameter userId was null or undefined when calling listAccountActivity.');
+            }
+            const localVarPath = `/users/{userId}/activity`
+                .replace(`{${"userId"}}`, encodeURIComponent(String(userId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, 'https://example.com');
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication datalocker_auth required
+            // oauth required
+            if (configuration && configuration.accessToken) {
+                const localVarAccessTokenValue = typeof configuration.accessToken === 'function'
+                    ? await configuration.accessToken("datalocker_auth", [])
+                    : await configuration.accessToken;
+                localVarHeaderParameter["Authorization"] = "Bearer " + localVarAccessTokenValue;
+            }
+
+            if (nextToken !== undefined) {
+                localVarQueryParameter['nextToken'] = nextToken;
+            }
+
+
+    
+            const query = new URLSearchParams(localVarUrlObj.search);
+            for (const key in localVarQueryParameter) {
+                query.set(key, localVarQueryParameter[key]);
+            }
+            for (const key in options.query) {
+                query.set(key, options.query[key]);
+            }
+            localVarUrlObj.search = (new URLSearchParams(query)).toString();
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * List access delegated to and from a user
          * @summary List delegated access
          * @param {string} userId ID of user to find delegated access items for
@@ -2209,6 +2431,21 @@ export const UserApiFp = function(configuration?: Configuration) {
             };
         },
         /**
+         * List audit activity in an account, limited to 50 most recent items.
+         * @summary List activity for an account
+         * @param {string} userId ID of user to find collections for
+         * @param {string} [nextToken] The token to be used to fetch the next set of results
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listAccountActivity(userId: string, nextToken?: string, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ActivityList>> {
+            const localVarAxiosArgs = await UserApiAxiosParamCreator(configuration).listAccountActivity(userId, nextToken, options);
+            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
+                const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
+                return axios.request(axiosRequestArgs);
+            };
+        },
+        /**
          * List access delegated to and from a user
          * @summary List delegated access
          * @param {string} userId ID of user to find delegated access items for
@@ -2320,6 +2557,17 @@ export const UserApiFactory = function (configuration?: Configuration, basePath?
             return UserApiFp(configuration).getUser(userId, options).then((request) => request(axios, basePath));
         },
         /**
+         * List audit activity in an account, limited to 50 most recent items.
+         * @summary List activity for an account
+         * @param {string} userId ID of user to find collections for
+         * @param {string} [nextToken] The token to be used to fetch the next set of results
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listAccountActivity(userId: string, nextToken?: string, options?: any): AxiosPromise<ActivityList> {
+            return UserApiFp(configuration).listAccountActivity(userId, nextToken, options).then((request) => request(axios, basePath));
+        },
+        /**
          * List access delegated to and from a user
          * @summary List delegated access
          * @param {string} userId ID of user to find delegated access items for
@@ -2421,6 +2669,19 @@ export class UserApi extends BaseAPI {
      */
     public getUser(userId: string, options?: any) {
         return UserApiFp(this.configuration).getUser(userId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * List audit activity in an account, limited to 50 most recent items.
+     * @summary List activity for an account
+     * @param {string} userId ID of user to find collections for
+     * @param {string} [nextToken] The token to be used to fetch the next set of results
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UserApi
+     */
+    public listAccountActivity(userId: string, nextToken?: string, options?: any) {
+        return UserApiFp(this.configuration).listAccountActivity(userId, nextToken, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

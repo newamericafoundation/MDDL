@@ -65,8 +65,10 @@ const gatherKeysFromObject = (
   keys: string[] = [],
   prefix = '',
 ): string[] => {
-  if (Array.isArray(obj)) {
-    const itemKeys = obj.map((item, index) =>
+  if (obj === null || obj === undefined) {
+    return keys
+  } else if (Array.isArray(obj)) {
+    obj.map((item, index) =>
       gatherKeysFromObject(item, keys, prefix + '[' + index + ']'),
     )
   } else if (obj.constructor === Object) {

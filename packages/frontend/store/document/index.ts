@@ -6,8 +6,11 @@ import {
   Document,
   DocumentFile,
   DocumentListItem,
+  DocumentUpdate,
   FileDownloadDispositionTypeEnum,
 } from 'api-client'
+
+export type UpdateDocumentInput = DocumentUpdate & { id: string }
 
 @Module({
   name: 'document',
@@ -23,7 +26,7 @@ export default class DocumentStore extends VuexModule {
   }
 
   @Action
-  update(document: Document): Promise<AxiosResponse<void>> {
+  update(document: UpdateDocumentInput): Promise<AxiosResponse<void>> {
     return api.document.updateDocumentById(document.id, {
       name: document.name,
       description: document.description,
@@ -37,14 +40,14 @@ export default class DocumentStore extends VuexModule {
   }): Promise<string[]> {
     const { document, disposition } = payload
     return Promise.all(
-      document.files.map(file =>
+      document.files.map((file) =>
         api.document
           .downloadDocumentFileById(
             document.id,
             file.id,
             disposition ?? FileDownloadDispositionTypeEnum.Attachment,
           )
-          .then(r => r.data.href),
+          .then((r) => r.data.href),
       ),
     )
   }
@@ -62,7 +65,7 @@ export default class DocumentStore extends VuexModule {
         file.id,
         disposition ?? FileDownloadDispositionTypeEnum.Attachment,
       )
-      .then(r => r.data.href)
+      .then((r) => r.data.href)
   }
 
   @Action

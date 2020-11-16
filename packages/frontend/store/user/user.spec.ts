@@ -19,6 +19,7 @@ jest.mock('@/plugins/api-accessor', () => ({
             data: {
               id: 'testDocumentId',
               name: documentCreate.name,
+              description: 'my test document',
               createdDate: Date.now().toLocaleString(),
               files: [
                 {

@@ -43,7 +43,7 @@ export const handler = createApiGatewayHandler(
               'attachment',
             ),
           }
-        : undefined,
+        : null,
     }
   },
 )

@@ -9,7 +9,7 @@ export class Document extends BaseModel {
   // columns
   public id: string
   public name: string
-  public description?: string
+  public description?: string | null
   public ownerId: string
   public source?: string
   public format?: string
@@ -60,7 +60,7 @@ export class Document extends BaseModel {
       properties: {
         id: { type: 'string', minLength: 1, maxLength: 40 },
         name: { type: 'string', maxLength: 255 },
-        description: { type: 'string', maxLength: 500 },
+        description: { type: ['string', 'null'], maxLength: 500 },
         ownerId: { type: 'string', minLength: 1, maxLength: 255 },
         source: { type: 'string', maxLength: 255 },
         format: { type: 'string', maxLength: 255 },
@@ -192,7 +192,7 @@ export const createDocument = async (document: CreateDocumentInput) => {
 
 export interface UpdateDocumentInput {
   name?: string
-  description?: string
+  description?: string | null
   updatedAt: Date
   updatedBy: string
 }

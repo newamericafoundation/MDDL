@@ -68,6 +68,7 @@ export const handler = createApiGatewayHandler(
     return {
       id: documentsHash,
       status: DocumentsDownloadStatusEnum.PENDING,
+      fileDownload: null,
     }
   },
 )

@@ -38,6 +38,7 @@ const mockUploadStore = new Vuex.Store({
                 resolve({
                   name: 'Test document',
                   id: '1',
+                  description: 'My test document',
                   createdDate: '2020-01-01T10:10:10Z',
                   files: [],
                   links: [],

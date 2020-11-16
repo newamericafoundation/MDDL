@@ -149,6 +149,7 @@ import {
 import { format } from 'date-fns'
 import { ValidationObserver, ValidationProvider } from 'vee-validate'
 import { capitalize } from '@/assets/js/stringUtils'
+import { UpdateDocumentInput } from '@/store/document'
 
 @Component({
   layout: 'empty',
@@ -201,7 +202,7 @@ export default class ViewDocument extends Vue {
   get documentContentSize() {
     if (!this.document) return ''
     const totalBytes = this.document.files
-      .map(f => f.contentLength)
+      .map((f) => f.contentLength)
       .reduce(
         (fileContentLength, documentContentLength) =>
           fileContentLength + documentContentLength,
@@ -234,12 +235,20 @@ export default class ViewDocument extends Vue {
   }
 
   async editDetails() {
+    if (!this.document) return
+
     this.loading = true
-    this.document!.name = this.newName
-    this.document!.description = this.newDescription.length
-      ? this.newDescription
-      : undefined
-    await this.$store.dispatch('document/update', this.document)
+    this.document.name = this.newName
+    this.document.description = this.newDescription
+    const update: UpdateDocumentInput = {
+      id: this.document.id,
+      name: this.newName,
+      description:
+        this.newDescription && this.newDescription.length
+          ? this.newDescription
+          : null,
+    }
+    await this.$store.dispatch('document/update', update)
     this.closeDetails()
     this.loading = false
   }

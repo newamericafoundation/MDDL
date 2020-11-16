@@ -9,6 +9,7 @@ export enum UserPermission {
   ListCollections = 'list:collection',
   WriteDocument = 'write:document',
   ListDocuments = 'list:document',
+  ListActivity = 'list:activity',
 }
 
 const getPermissionsToUser = async (

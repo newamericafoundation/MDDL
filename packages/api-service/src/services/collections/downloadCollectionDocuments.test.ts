@@ -141,7 +141,7 @@ describe('downloadCollectionDocuments', () => {
     )
     expect(await downloadCollectionDocuments(event)).toMatchInlineSnapshot(`
       Object {
-        "body": "{\\"id\\":\\"21ada2387bdfd35ad360d2ee7836674484a5bf14e288ddc44fa92df587e618f7\\",\\"status\\":\\"PENDING\\"}",
+        "body": "{\\"id\\":\\"21ada2387bdfd35ad360d2ee7836674484a5bf14e288ddc44fa92df587e618f7\\",\\"status\\":\\"PENDING\\",\\"fileDownload\\":null}",
         "cookies": Array [],
         "headers": Object {
           "Content-Type": "application/json",
