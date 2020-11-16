@@ -50,7 +50,8 @@
     </v-row>
     <v-progress-linear
       v-if="progress !== null"
-      :value="progress"
+      :value="progress >= 0 ? progress : null"
+      :indeterminate="progress === -1"
       color="success"
       class="mb-0"
     ></v-progress-linear>

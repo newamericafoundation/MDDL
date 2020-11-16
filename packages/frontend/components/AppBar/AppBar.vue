@@ -1,5 +1,5 @@
 <template>
-  <v-app-bar fixed app height="52px">
+  <v-app-bar fixed app height="52px" clipped-right>
     <slot name="nav-action" />
     <template v-if="$vuetify.breakpoint.smAndUp">
       <v-spacer />

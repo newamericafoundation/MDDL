@@ -57,7 +57,6 @@ export default class CollectionList extends Vue {
   capitalize = capitalize
 
   async mounted() {
-    this.$store.commit('user/setUserId', this.$auth.user.username)
     await this.$store.dispatch('user/getCollections')
     this.selected = new Array(userStore.collections.length)
     this.loading = false

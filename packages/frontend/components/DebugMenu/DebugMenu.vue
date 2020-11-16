@@ -6,14 +6,35 @@
     <v-btn @click="logOut">log out</v-btn>
     <v-btn @click="getDocuments">request documents</v-btn>
     <v-btn @click="sendEvent">send test upload event</v-btn>
+    <v-select
+      :items="userRoles"
+      :value="$store.getters['user/role']"
+      @change="setUserRole"
+    />
   </div>
 </template>
 
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator'
+import { UserRole } from '@/types/user'
 
 @Component
 export default class DebugMenu extends Vue {
+  userRoles = [
+    {
+      text: 'client',
+      value: UserRole.CLIENT,
+    },
+    {
+      text: 'cbo',
+      value: UserRole.CBO,
+    },
+    {
+      text: 'agent',
+      value: UserRole.AGENT,
+    },
+  ]
+
   mounted() {
     if (this.$auth.user)
       this.$store.commit('user/setUserId', this.$auth.user.username)
@@ -38,6 +59,10 @@ export default class DebugMenu extends Vue {
     this.$store.dispatch('user/getDocuments').then(res => {
       console.log(res)
     })
+  }
+
+  setUserRole(v: UserRole) {
+    this.$store.dispatch('user/setRole', v)
   }
 
   sendEvent() {

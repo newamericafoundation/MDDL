@@ -149,6 +149,7 @@ import {
 import { format } from 'date-fns'
 import { ValidationObserver, ValidationProvider } from 'vee-validate'
 import { capitalize } from '@/assets/js/stringUtils'
+import download from '@/assets/js/download'
 import { UpdateDocumentInput } from '@/store/document'
 
 @Component({
@@ -219,14 +220,10 @@ export default class ViewDocument extends Vue {
       document: this.document,
       disposition: FileDownloadDispositionTypeEnum.Attachment,
     })
-    const link = document.createElement('a')
-    for (let i = 0; i < this.document.files.length; i++) {
-      link.href = urls[i]
-      link.download = this.document.files[i].name
-      link.click()
-      URL.revokeObjectURL(link.href)
-    }
-    link.remove()
+    download(
+      urls,
+      this.document.files.map((f: DocumentFile) => f.name),
+    )
     this.loading = false
   }
 

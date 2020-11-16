@@ -13,6 +13,7 @@ import {
 import { SharedCollectionListItem } from '@/types/transformed'
 import axios, { AxiosResponse, AxiosRequestConfig } from 'axios'
 import { hashFile } from '@/assets/js/hash/'
+import { UserRole } from '@/types/user'
 
 @Module({
   name: 'user',
@@ -25,6 +26,7 @@ export default class User extends VuexModule {
   _collections: CollectionListItem[] = []
   _sharedCollections: SharedCollectionListItem[] = []
   _timeoutId: number | null
+  _role: UserRole = UserRole.CLIENT
 
   get documents() {
     return this._documents
@@ -42,9 +44,19 @@ export default class User extends VuexModule {
     return this._userId
   }
 
+  get role() {
+    return this._role
+  }
+
   @Mutation
   setUserId(userId: string) {
     this._userId = userId
+  }
+
+  @Action
+  setRole(role: UserRole) {
+    this._role = role
+    localStorage.setItem('datalocker.role', role.toString())
   }
 
   // TODO: Update after upload API changes
@@ -99,7 +111,7 @@ export default class User extends VuexModule {
     await Promise.all(
       addResponse.data.files.map((documentFile, i) => {
         const options: AxiosRequestConfig = {
-          onUploadProgress: (e) => {
+          onUploadProgress: e => {
             uploadProgress[i] = e.loaded
             onUploadProgress(
               new ProgressEvent('upload', {
@@ -111,7 +123,7 @@ export default class User extends VuexModule {
         }
 
         const uploadLink = (documentFile.links as any[]).find(
-          (l) => l.type === 'POST',
+          l => l.type === 'POST',
         )
 
         if (!uploadLink)
@@ -132,7 +144,7 @@ export default class User extends VuexModule {
           )
 
         const formData = new FormData()
-        Object.keys(uploadLink.includeFormData).forEach((key) =>
+        Object.keys(uploadLink.includeFormData).forEach(key =>
           formData.append(key, uploadLink.includeFormData[key]),
         )
         formData.append('file', file!)
@@ -160,7 +172,7 @@ export default class User extends VuexModule {
 
   @Action({ rawError: true })
   getUser(id: string): Promise<ApiUser> {
-    return api.user.getUser(id).then((response) => {
+    return api.user.getUser(id).then(response => {
       return response.data
     })
   }
@@ -176,7 +188,7 @@ export default class User extends VuexModule {
       this._timeoutId = window.setTimeout(() => {
         api.user
           .listUserDocuments(userId)
-          .then((response) => {
+          .then(response => {
             resolve(response.data.documents ? response.data.documents : [])
           })
           .catch(reject)
@@ -188,7 +200,7 @@ export default class User extends VuexModule {
   @Action({ rawError: true, commit: 'setDocuments' })
   getDocuments(): Promise<DocumentListItem[]> {
     if (!this._userId) return Promise.reject(new Error('UserID not set'))
-    return api.user.listUserDocuments(this._userId).then((response) => {
+    return api.user.listUserDocuments(this._userId).then(response => {
       return response.data.documents ? response.data.documents : []
     })
   }
@@ -196,7 +208,7 @@ export default class User extends VuexModule {
   @Action({ rawError: true, commit: 'setCollections' })
   getCollections(): Promise<CollectionListItem[]> {
     if (!this._userId) return Promise.reject(new Error('UserID not set'))
-    return api.user.listUserCollections(this._userId).then((response) => {
+    return api.user.listUserCollections(this._userId).then(response => {
       return response.data.collections ? response.data.collections : []
     })
   }
@@ -204,7 +216,7 @@ export default class User extends VuexModule {
   @Action({ rawError: true, commit: 'setSharedCollections' })
   getSharedCollections(): Promise<SharedCollectionListItem[]> {
     if (!this._userId) return Promise.reject(new Error('UserID not set'))
-    return api.user.listUserCollectionsShared(this._userId).then((response) => {
+    return api.user.listUserCollectionsShared(this._userId).then(response => {
       return (response.data.sharedCollections
         ? response.data.sharedCollections
         : []

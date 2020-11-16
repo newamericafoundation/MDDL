@@ -50,9 +50,14 @@
 </template>
 
 <script lang="ts">
-import { DocumentListItem, FileDownloadDispositionTypeEnum } from 'api-client'
+import {
+  DocumentFile,
+  DocumentListItem,
+  FileDownloadDispositionTypeEnum,
+} from 'api-client'
 import { Vue, Component, Prop } from 'nuxt-property-decorator'
 import { format, roundToNearestMinutes } from 'date-fns'
+import download from '@/assets/js/download'
 
 @Component
 export default class DocumentCard extends Vue {
@@ -106,14 +111,10 @@ export default class DocumentCard extends Vue {
       document: fullDocument,
       disposition: FileDownloadDispositionTypeEnum.Attachment,
     })
-    const link = document.createElement('a')
-    for (let i = 0; i < fullDocument.files.length; i++) {
-      link.href = urls[i]
-      link.download = fullDocument.files[i].name
-      link.click()
-      URL.revokeObjectURL(link.href)
-    }
-    link.remove()
+    download(
+      urls,
+      fullDocument.files.map((f: DocumentFile) => f.name),
+    )
   }
 
   showDetails() {

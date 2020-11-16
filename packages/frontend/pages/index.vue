@@ -24,7 +24,7 @@ export default class Landing extends Vue {
 
   // set client role and redirect to login
   gotoLogin() {
-    sessionStorage.setItem('datalocker.role', 'client')
+    localStorage.setItem('datalocker.role', 'client')
     this.$router.push('/login')
   }
 }

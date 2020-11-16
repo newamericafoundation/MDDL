@@ -23,7 +23,7 @@
         <v-list-item>
           <v-btn text @click="showConfirmation = true">
             <v-icon small class="mr-2" color="primary">$delete</v-icon>
-            {{ $t('controls.done') }}
+            {{ $t('controls.delete') }}
           </v-btn>
         </v-list-item>
         <v-list-item>

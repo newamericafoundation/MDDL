@@ -67,7 +67,6 @@ export default class SharedOwnerList extends Vue {
         sortable: true,
       },
     ]
-    this.$store.commit('user/setUserId', this.$auth.user.username)
     await this.$store.dispatch('user/getSharedCollections')
     this.loading = false
   }
@@ -81,7 +80,7 @@ export default class SharedOwnerList extends Vue {
           c: SharedCollectionListItem,
           i: number,
           arr: SharedCollectionListItem[],
-        ) => arr.findIndex(o => o.owner.id === c.owner.id) === i,
+        ) => arr.findIndex((o) => o.owner.id === c.owner.id) === i,
       )
       .map((c: SharedCollectionListItem) => ({
         ownerId: c.owner.id,

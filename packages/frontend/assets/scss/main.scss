@@ -156,9 +156,14 @@
   .v-btn {
     text-transform: initial;
     box-shadow: none;
-    min-width: $button-min-width !important;
     min-height: $button-min-height;
 
+    &:not(.v-btn--block) {
+      min-width: $button-min-width !important;
+      .v-btn__content {
+        justify-content: start;
+      }
+    }
     &.v-btn--flat {
       padding: 0 12px;
       min-width: inherit !important;
@@ -168,14 +173,6 @@
     }
     &.v-btn--icon {
       min-width: 1.5rem !important;
-    }
-    &:not(.v-btn--icon) {
-      .v-btn__content {
-        display: block;
-      }
-      .v-icon {
-        float: left;
-      }
     }
     &:not(.v-btn--text):not(.v-btn--icon) {
       box-shadow: 0 3px 3px rgba(0, 0, 0, 0.13);

@@ -67,7 +67,6 @@ export default class Documents extends Vue {
   selected: boolean[] = []
 
   async mounted() {
-    await this.$store.commit('user/setUserId', this.$auth.user.username)
     await this.reload()
   }
 

@@ -150,6 +150,9 @@ export default {
       sharedFolderNameLabel: 'name', // label of shared folder name column in agent view
       selectClient: 'select client to access files.',
       reorderFiles: 'reorder files', // shown in agent view when downloading as PDF
+      downloadZip: 'Download Zip',
+      dateShared: 'Date Shared', // label in side bar
+      sharedBy: 'Shared By', // label in side bar
     },
 
     $vuetify: en,

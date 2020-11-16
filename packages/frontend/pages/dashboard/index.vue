@@ -2,13 +2,13 @@
   <div>
     <AppBar>
       <template v-slot:nav-action>
-        <v-app-bar-nav-icon color="grey8" @click.stop="toggleNav" />
+        <v-app-bar-nav-icon color="grey-8" @click.stop="toggleNav" />
       </template>
       <template v-slot:actions>
         <UploadButton prepend-icon="$plus" />
         <nuxt-link :to="localePath('/share')" class="nuxt-link">
           <v-btn class="ml-1 text-body-1 font-weight-medium" color="primary">
-            <v-icon>$send</v-icon>
+            <v-icon left small>$send</v-icon>
             {{ $t('controls.share') }}
           </v-btn>
         </nuxt-link>
@@ -65,8 +65,6 @@ export default class Documents extends Vue {
     if (this.$route.query.tab) {
       this.currentTab = this.$route.query.tab as string
     }
-
-    this.$store.commit('user/setUserId', this.$auth.user.username)
   }
 
   get documents() {

@@ -61,7 +61,6 @@ export default class SharedCollectionList extends Vue {
         sortable: true,
       },
     ]
-    this.$store.commit('user/setUserId', this.$auth.user.username)
     await this.$store.dispatch('user/getSharedCollections')
     this.loading = false
   }

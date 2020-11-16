@@ -37,7 +37,8 @@ const vuetifyOptions = (ctx: Context): Options => {
           warning: colors.amber.base,
           error: '#ff5c62',
           success: '#2affb8',
-          grey8: '#55585e',
+          'grey-8': '#55585e',
+          'grey-7': '#6b6e76',
         },
         dark: {
           primary: colors.blue.darken2,

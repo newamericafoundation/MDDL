@@ -1,6 +1,6 @@
 import Vuex from 'vuex'
 import { shallowMount } from '@vue/test-utils'
-import ViewCollection from '@/pages/collections/_id/index.vue'
+import CollectionOwners from '@/pages/collections/owner/_ownerid/index.vue'
 import Layout from '@/layouts/default.vue'
 import flushPromises from 'flush-promises'
 
@@ -26,7 +26,7 @@ describe('Collections by owner', () => {
   })
 
   it('exports a valid page', async () => {
-    const wrapper = shallowMount(ViewCollection, {
+    const wrapper = shallowMount(CollectionOwners, {
       store,
       stubs: { Layout },
       mocks: {

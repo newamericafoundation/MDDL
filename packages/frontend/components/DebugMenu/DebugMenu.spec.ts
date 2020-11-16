@@ -3,7 +3,17 @@ import DebugMenu from '@/components/DebugMenu/DebugMenu.vue'
 
 describe('DebugMenu component', () => {
   it('exports a valid component', () => {
-    const wrapper = shallowMount(DebugMenu)
+    const wrapper = shallowMount(DebugMenu, {
+      mocks: {
+        $store: {
+          dispatch: () => [],
+          commit: () => {
+            // empty
+          },
+          getters: {},
+        },
+      },
+    })
     expect(wrapper.html()).toBeTruthy()
   })
 })

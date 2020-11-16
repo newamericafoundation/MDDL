@@ -4,6 +4,7 @@
       :class="[
         'upload-label',
         'font-weight-medium',
+        'body-1',
         'px-4',
         textButton ? 'text' : 'v-btn',
         { disabled: isLoading },
@@ -70,10 +71,11 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from 'nuxt-property-decorator'
-import { snackbarStore } from '@/plugins/store-accessor'
+import { userStore, snackbarStore } from '@/plugins/store-accessor'
 import { Document } from 'api-client'
 import { ValidationObserver, ValidationProvider } from 'vee-validate'
 import { capitalize } from '@/assets/js/stringUtils'
+import { UserRole } from '@/types/user'
 
 @Component({
   components: {
@@ -84,7 +86,7 @@ import { capitalize } from '@/assets/js/stringUtils'
 export default class UploadButton extends Vue {
   capitalize = capitalize
 
-  @Prop({ default: 'upload' })
+  @Prop({ default: 'controls.upload' })
   label: string
 
   @Prop({ default: null })
@@ -146,8 +148,7 @@ export default class UploadButton extends Vue {
         this.$ga.event({
           eventCategory: 'upload',
           eventAction: 'file-input',
-          // TODO: label based on user role
-          eventLabel: 'client',
+          eventLabel: UserRole[userStore.role],
         })
 
         this.$store.dispatch('user/getDocuments')
