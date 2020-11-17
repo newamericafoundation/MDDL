@@ -17,7 +17,7 @@ jest.mock('@/utils/database')
 jest.mock('@/utils/whitelist')
 jest.mock('@/models/collection')
 jest.mock('@/models/user')
-jest.mock('@/services/user')
+jest.mock('@/services/users')
 
 describe('getSharedToUserId', () => {
   const userId = 'myUserId'

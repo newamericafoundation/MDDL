@@ -25,7 +25,7 @@ jest.mock('@/utils/s3')
 jest.mock('@/utils/lambda')
 jest.mock('@/models/collection')
 jest.mock('@/models/file')
-jest.mock('@/services/user')
+jest.mock('@/services/users')
 jest.mock('@/config')
 
 describe('downloadCollectionDocuments', () => {

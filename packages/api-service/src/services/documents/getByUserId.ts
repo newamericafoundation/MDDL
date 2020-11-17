@@ -8,7 +8,10 @@ import {
   createApiGatewayHandler,
   setContext,
 } from '@/utils/middleware'
-import { requirePermissionToUser, UserPermission } from '../user/authorization'
+import {
+  requirePermissionToUser,
+  UserPermission,
+} from '@/services/users/authorization'
 
 connectDatabase()
 

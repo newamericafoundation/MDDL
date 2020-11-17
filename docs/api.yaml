@@ -13,6 +13,8 @@ tags:
     description: Document based operations
   - name: collections
     description: Collection based operations
+  - name: delegate
+    description: Account Delegate based operations
 paths:
   '/users/{userId}/documents':
     get:
@@ -109,7 +111,7 @@ paths:
         - user
       summary: List delegated access
       description: List access delegated to and from a user
-      operationId: listDelegatedAccess
+      operationId: listAccountDelegates
       parameters:
         - name: userId
           in: path
@@ -131,7 +133,7 @@ paths:
         - user
       summary: Add delegated access
       description: Add delegated access to a user for current user
-      operationId: addDelegatedAccess
+      operationId: addAccountDelegate
       parameters:
         - name: userId
           in: path
@@ -155,6 +157,73 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/UserDelegatedAccessCreate'
+      security:
+        - datalocker_auth: []
+
+  '/delegates/{delegateId}':
+    delete:
+      tags:
+        - delegate
+      summary: Deletes a delegated users access
+      description: ''
+      operationId: deleteAccountDelegate
+      parameters:
+        - name: userId
+          in: path
+          description: ID of user owning or targeted in the Delegated Access
+          required: true
+          schema:
+            type: string
+        - name: delegateId
+          in: path
+          description: ID of the User Delegated Access record
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User Delegated Access deleted
+        '404':
+          description: User Delegated Access not found
+      security:
+        - datalocker_auth: []
+
+  '/delegates/{delegateId}/accept':
+    post:
+      tags:
+        - delegate
+      summary: Accept delegated access
+      description: Accept delegated access to a users account for current user
+      operationId: acceptDelegatedAccount
+      parameters:
+        - name: userId
+          in: path
+          description: ID of current user
+          required: true
+          schema:
+            type: string
+        - name: delegateId
+          in: path
+          description: ID of the User Delegated Access record
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDelegatedAccess'
+        '404':
+          description: User not found
+      requestBody:
+        description: Accept a delegated access request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserDelegatedAccessAccept'
       security:
         - datalocker_auth: []
 
@@ -842,27 +911,46 @@ components:
           items:
             $ref: '#/components/schemas/UserDelegatedAccess'
       type: object
+    UserDelegatedAccessAccept:
+      type: object
+      description: A request to accept a delegated access request
     UserDelegatedAccess:
       description: Delegated access to a user account
       required:
+        - id
         - email
         - createdDate
+        - status
         - links
       properties:
+        id:
+          type: string
+          description: The ID for the delegated access
+          example: BC9115B9-B1E2-41AA-ACF4-F5908E2FB09B
         email:
           type: string
           description: The email of the user to delegate access to
           example: inviteduser@example.com
         allowsAccessToUser:
-          $ref: '#/components/schemas/User'
+          $ref: '#/components/schemas/Owner'
         createdDate:
           type: string
           description: The date the access delegation was added
           format: date-time
           example: '2020-01-01T01:01:01Z'
+        status:
+          $ref: '#/components/schemas/UserDelegatedAccessStatus'
         links:
           $ref: '#/components/schemas/Links'
       type: object
+    UserDelegatedAccessStatus:
+      description: The statuses a delegated access record can be in
+      type: string
+      enum:
+        - INVITATION_SENT
+        - INVITATION_EXPIRED
+        - ACTIVE
+      example: ACTIVE
     UserDelegatedAccessCreate:
       description: Request data to create delegated access to a user account
       required:

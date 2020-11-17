@@ -321,6 +321,12 @@ export class CityStack extends Stack {
     // add collection routes
     this.addCollectionRoutes(apiProps, bucket)
 
+    // add account delegate routes
+    this.addAccountDelegateRoutes(apiProps)
+
+    // add account delegate routes
+    this.addActivityRoutes(apiProps)
+
     // run database migrations
     this.runMigrations(secret, mySqlLayer)
   }
@@ -1304,6 +1310,102 @@ export class CityStack extends Stack {
       routeKey:
         'GET /collections/{collectionId}/documents/downloads/{downloadId}',
       lambdaFunction: getDownloadForCollectionDocuments,
+      authorizer,
+    })
+  }
+
+  /**
+   * Adds account delegate specific routes to the API
+   * @param apiProps Common properties for API functions
+   */
+  private addAccountDelegateRoutes(apiProps: ApiProps) {
+    const { api, dbSecret, mySqlLayer, authorizer } = apiProps
+
+    // add route and lambda to list account delegates
+    this.addRoute(api, {
+      name: 'ListAccountDelegates',
+      routeKey: 'GET /users/{userId}/delegates',
+      lambdaFunction: this.createLambda(
+        'ListAccountDelegates',
+        pathToApiServiceLambda('accountDelegates/listAccountDelegates'),
+        {
+          dbSecret,
+          layers: [mySqlLayer],
+          extraEnvironmentVariables: [EnvironmentVariables.USERINFO_ENDPOINT],
+        },
+      ),
+      authorizer,
+    })
+
+    // add route and lambda to add account delegate
+    this.addRoute(api, {
+      name: 'AddAccountDelegate',
+      routeKey: 'POST /users/{userId}/delegates',
+      lambdaFunction: this.createLambda(
+        'AddAccountDelegate',
+        pathToApiServiceLambda('accountDelegates/addAccountDelegate'),
+        {
+          dbSecret,
+          layers: [mySqlLayer],
+          extraEnvironmentVariables: [EnvironmentVariables.USERINFO_ENDPOINT],
+        },
+      ),
+      authorizer,
+    })
+
+    // add route and lambda to delete account delegate
+    this.addRoute(api, {
+      name: 'DeleteAccountDelegate',
+      routeKey: 'DELETE /delegates/{delegateId}',
+      lambdaFunction: this.createLambda(
+        'DeleteAccountDelegate',
+        pathToApiServiceLambda('accountDelegates/deleteAccountDelegate'),
+        {
+          dbSecret,
+          layers: [mySqlLayer],
+          extraEnvironmentVariables: [EnvironmentVariables.USERINFO_ENDPOINT],
+        },
+      ),
+      authorizer,
+    })
+
+    // add route and lambda to accept account delegate invitation
+    this.addRoute(api, {
+      name: 'AcceptDelegatedAccount',
+      routeKey: 'POST /delegates/{delegateId}/accept',
+      lambdaFunction: this.createLambda(
+        'AcceptDelegatedAccount',
+        pathToApiServiceLambda('accountDelegates/acceptDelegatedAccount'),
+        {
+          dbSecret,
+          layers: [mySqlLayer],
+          extraEnvironmentVariables: [EnvironmentVariables.USERINFO_ENDPOINT],
+        },
+      ),
+      authorizer,
+    })
+  }
+
+  /**
+   * Adds user account activity specific routes to the API
+   * @param apiProps Common properties for API functions
+   */
+  private addActivityRoutes(apiProps: ApiProps) {
+    const { api, dbSecret, mySqlLayer, authorizer } = apiProps
+
+    // add route and lambda to list account delegates
+    this.addRoute(api, {
+      name: 'ListAccountActivity',
+      routeKey: 'GET /users/{userId}/activity',
+      lambdaFunction: this.createLambda(
+        'ListAccountActivity',
+        pathToApiServiceLambda('activity/listAccountActivity'),
+        {
+          dbSecret,
+          layers: [mySqlLayer],
+          extraEnvironmentVariables: [EnvironmentVariables.USERINFO_ENDPOINT],
+        },
+      ),
       authorizer,
     })
   }

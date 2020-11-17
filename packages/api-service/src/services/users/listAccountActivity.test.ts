@@ -1,15 +1,10 @@
 import { handler as listAccountActivity } from './listAccountActivity'
-import {
-  createMockEvent,
-  getObjectKeys,
-  mockUserData,
-  setUserId,
-  toMockedFunction,
-} from '@/utils/test'
+import { createMockEvent, mockUserData, setUserId } from '@/utils/test'
 import { APIGatewayProxyEventV2 } from 'aws-lambda'
 
 jest.mock('@/utils/database')
-jest.mock('@/services/user')
+jest.mock('@/services/users')
+jest.mock('@/services/users/authorization')
 
 describe('listAccountActivity', () => {
   const userId = 'myUserId'

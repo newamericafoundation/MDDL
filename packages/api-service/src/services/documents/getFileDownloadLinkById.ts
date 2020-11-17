@@ -22,7 +22,7 @@ import {
 } from './authorization'
 import { getDocumentById } from '@/models/document'
 import { validateDisposition } from './validation'
-import { requireUserData } from '@/services/user'
+import { requireUserData } from '@/services/users'
 
 connectDatabase()
 

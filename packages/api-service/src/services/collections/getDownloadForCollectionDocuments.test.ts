@@ -12,7 +12,7 @@ import { objectExists } from '@/utils/s3'
 jest.mock('@/utils/database')
 jest.mock('@/utils/s3')
 jest.mock('@/models/collection')
-jest.mock('@/services/user')
+jest.mock('@/services/users')
 
 describe('getDownloadForCollectionDocuments', () => {
   const userId = 'myUserId'

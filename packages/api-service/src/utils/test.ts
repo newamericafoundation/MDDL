@@ -1,11 +1,15 @@
 import { User } from '@/models/user'
-import { requireUserData } from '@/services/user'
+import { requireUserData } from '@/services/users'
 import { APIGatewayProxyEventV2, Context } from 'aws-lambda'
 
 export const toMockedFunction = <T extends (...args: any[]) => any>(
   input: T,
 ) => {
   return input as jest.MockedFunction<T>
+}
+
+export const importMock = async (modulePath: string) => {
+  return (await import(modulePath)) as { [index: string]: jest.Mock }
 }
 
 export const setUserId = (userId: string, event: APIGatewayProxyEventV2) => {
@@ -81,13 +85,16 @@ const gatherKeysFromObject = (
   return keys
 }
 
-export const mockUserData = (userId: string) => {
+export const mockUserData = (
+  userId: string,
+  email = 'jcitizen@example.com',
+) => {
   toMockedFunction(requireUserData).mockImplementationOnce(async () =>
     User.fromJson({
       id: userId,
       givenName: 'Jane',
       familyName: 'Citizen',
-      email: 'jcitizen@example.com',
+      email,
     }),
   )
 }

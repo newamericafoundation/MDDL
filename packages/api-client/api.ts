@@ -786,6 +786,12 @@ export interface User {
  */
 export interface UserDelegatedAccess {
     /**
+     * The ID for the delegated access
+     * @type {string}
+     * @memberof UserDelegatedAccess
+     */
+    id: string;
+    /**
      * The email of the user to delegate access to
      * @type {string}
      * @memberof UserDelegatedAccess
@@ -793,16 +799,22 @@ export interface UserDelegatedAccess {
     email: string;
     /**
      * 
-     * @type {User}
+     * @type {Owner}
      * @memberof UserDelegatedAccess
      */
-    allowsAccessToUser?: User;
+    allowsAccessToUser?: Owner;
     /**
      * The date the access delegation was added
      * @type {string}
      * @memberof UserDelegatedAccess
      */
     createdDate: string;
+    /**
+     * 
+     * @type {UserDelegatedAccessStatus}
+     * @memberof UserDelegatedAccess
+     */
+    status: UserDelegatedAccessStatus;
     /**
      * An array of Links
      * @type {Array<Link>}
@@ -836,6 +848,17 @@ export interface UserDelegatedAccessList {
      */
     delegatedAccess: Array<UserDelegatedAccess>;
 }
+/**
+ * The statuses a delegated access record can be in
+ * @export
+ * @enum {string}
+ */
+export enum UserDelegatedAccessStatus {
+    INVITATIONSENT = 'INVITATION_SENT',
+    INVITATIONEXPIRED = 'INVITATION_EXPIRED',
+    ACTIVE = 'ACTIVE'
+}
+
 
 /**
  * CollectionsApi - axios parameter creator
@@ -1438,6 +1461,246 @@ export class CollectionsApi extends BaseAPI {
 
 
 /**
+ * DelegateApi - axios parameter creator
+ * @export
+ */
+export const DelegateApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * Accept delegated access to a users account for current user
+         * @summary Accept delegated access
+         * @param {string} userId ID of current user
+         * @param {string} delegateId ID of the User Delegated Access record
+         * @param {object} body Accept a delegated access request
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        acceptDelegatedAccount: async (userId: string, delegateId: string, body: object, options: any = {}): Promise<RequestArgs> => {
+            // verify required parameter 'userId' is not null or undefined
+            if (userId === null || userId === undefined) {
+                throw new RequiredError('userId','Required parameter userId was null or undefined when calling acceptDelegatedAccount.');
+            }
+            // verify required parameter 'delegateId' is not null or undefined
+            if (delegateId === null || delegateId === undefined) {
+                throw new RequiredError('delegateId','Required parameter delegateId was null or undefined when calling acceptDelegatedAccount.');
+            }
+            // verify required parameter 'body' is not null or undefined
+            if (body === null || body === undefined) {
+                throw new RequiredError('body','Required parameter body was null or undefined when calling acceptDelegatedAccount.');
+            }
+            const localVarPath = `/delegates/{delegateId}/accept`
+                .replace(`{${"userId"}}`, encodeURIComponent(String(userId)))
+                .replace(`{${"delegateId"}}`, encodeURIComponent(String(delegateId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, 'https://example.com');
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication datalocker_auth required
+            // oauth required
+            if (configuration && configuration.accessToken) {
+                const localVarAccessTokenValue = typeof configuration.accessToken === 'function'
+                    ? await configuration.accessToken("datalocker_auth", [])
+                    : await configuration.accessToken;
+                localVarHeaderParameter["Authorization"] = "Bearer " + localVarAccessTokenValue;
+            }
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            const query = new URLSearchParams(localVarUrlObj.search);
+            for (const key in localVarQueryParameter) {
+                query.set(key, localVarQueryParameter[key]);
+            }
+            for (const key in options.query) {
+                query.set(key, options.query[key]);
+            }
+            localVarUrlObj.search = (new URLSearchParams(query)).toString();
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            const needsSerialization = (typeof body !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.data =  needsSerialization ? JSON.stringify(body !== undefined ? body : {}) : (body || "");
+
+            return {
+                url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Deletes a delegated users access
+         * @param {string} userId ID of user owning or targeted in the Delegated Access
+         * @param {string} delegateId ID of the User Delegated Access record
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteAccountDelegate: async (userId: string, delegateId: string, options: any = {}): Promise<RequestArgs> => {
+            // verify required parameter 'userId' is not null or undefined
+            if (userId === null || userId === undefined) {
+                throw new RequiredError('userId','Required parameter userId was null or undefined when calling deleteAccountDelegate.');
+            }
+            // verify required parameter 'delegateId' is not null or undefined
+            if (delegateId === null || delegateId === undefined) {
+                throw new RequiredError('delegateId','Required parameter delegateId was null or undefined when calling deleteAccountDelegate.');
+            }
+            const localVarPath = `/delegates/{delegateId}`
+                .replace(`{${"userId"}}`, encodeURIComponent(String(userId)))
+                .replace(`{${"delegateId"}}`, encodeURIComponent(String(delegateId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, 'https://example.com');
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication datalocker_auth required
+            // oauth required
+            if (configuration && configuration.accessToken) {
+                const localVarAccessTokenValue = typeof configuration.accessToken === 'function'
+                    ? await configuration.accessToken("datalocker_auth", [])
+                    : await configuration.accessToken;
+                localVarHeaderParameter["Authorization"] = "Bearer " + localVarAccessTokenValue;
+            }
+
+
+    
+            const query = new URLSearchParams(localVarUrlObj.search);
+            for (const key in localVarQueryParameter) {
+                query.set(key, localVarQueryParameter[key]);
+            }
+            for (const key in options.query) {
+                query.set(key, options.query[key]);
+            }
+            localVarUrlObj.search = (new URLSearchParams(query)).toString();
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * DelegateApi - functional programming interface
+ * @export
+ */
+export const DelegateApiFp = function(configuration?: Configuration) {
+    return {
+        /**
+         * Accept delegated access to a users account for current user
+         * @summary Accept delegated access
+         * @param {string} userId ID of current user
+         * @param {string} delegateId ID of the User Delegated Access record
+         * @param {object} body Accept a delegated access request
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async acceptDelegatedAccount(userId: string, delegateId: string, body: object, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserDelegatedAccess>> {
+            const localVarAxiosArgs = await DelegateApiAxiosParamCreator(configuration).acceptDelegatedAccount(userId, delegateId, body, options);
+            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
+                const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
+                return axios.request(axiosRequestArgs);
+            };
+        },
+        /**
+         * 
+         * @summary Deletes a delegated users access
+         * @param {string} userId ID of user owning or targeted in the Delegated Access
+         * @param {string} delegateId ID of the User Delegated Access record
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async deleteAccountDelegate(userId: string, delegateId: string, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await DelegateApiAxiosParamCreator(configuration).deleteAccountDelegate(userId, delegateId, options);
+            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
+                const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
+                return axios.request(axiosRequestArgs);
+            };
+        },
+    }
+};
+
+/**
+ * DelegateApi - factory interface
+ * @export
+ */
+export const DelegateApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    return {
+        /**
+         * Accept delegated access to a users account for current user
+         * @summary Accept delegated access
+         * @param {string} userId ID of current user
+         * @param {string} delegateId ID of the User Delegated Access record
+         * @param {object} body Accept a delegated access request
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        acceptDelegatedAccount(userId: string, delegateId: string, body: object, options?: any): AxiosPromise<UserDelegatedAccess> {
+            return DelegateApiFp(configuration).acceptDelegatedAccount(userId, delegateId, body, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Deletes a delegated users access
+         * @param {string} userId ID of user owning or targeted in the Delegated Access
+         * @param {string} delegateId ID of the User Delegated Access record
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteAccountDelegate(userId: string, delegateId: string, options?: any): AxiosPromise<void> {
+            return DelegateApiFp(configuration).deleteAccountDelegate(userId, delegateId, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * DelegateApi - object-oriented interface
+ * @export
+ * @class DelegateApi
+ * @extends {BaseAPI}
+ */
+export class DelegateApi extends BaseAPI {
+    /**
+     * Accept delegated access to a users account for current user
+     * @summary Accept delegated access
+     * @param {string} userId ID of current user
+     * @param {string} delegateId ID of the User Delegated Access record
+     * @param {object} body Accept a delegated access request
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DelegateApi
+     */
+    public acceptDelegatedAccount(userId: string, delegateId: string, body: object, options?: any) {
+        return DelegateApiFp(this.configuration).acceptDelegatedAccount(userId, delegateId, body, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Deletes a delegated users access
+     * @param {string} userId ID of user owning or targeted in the Delegated Access
+     * @param {string} delegateId ID of the User Delegated Access record
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DelegateApi
+     */
+    public deleteAccountDelegate(userId: string, delegateId: string, options?: any) {
+        return DelegateApiFp(this.configuration).deleteAccountDelegate(userId, delegateId, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+/**
  * DocumentApi - axios parameter creator
  * @export
  */
@@ -1864,14 +2127,14 @@ export const UserApiAxiosParamCreator = function (configuration?: Configuration)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        addDelegatedAccess: async (userId: string, userDelegatedAccessCreate: UserDelegatedAccessCreate, options: any = {}): Promise<RequestArgs> => {
+        addAccountDelegate: async (userId: string, userDelegatedAccessCreate: UserDelegatedAccessCreate, options: any = {}): Promise<RequestArgs> => {
             // verify required parameter 'userId' is not null or undefined
             if (userId === null || userId === undefined) {
-                throw new RequiredError('userId','Required parameter userId was null or undefined when calling addDelegatedAccess.');
+                throw new RequiredError('userId','Required parameter userId was null or undefined when calling addAccountDelegate.');
             }
             // verify required parameter 'userDelegatedAccessCreate' is not null or undefined
             if (userDelegatedAccessCreate === null || userDelegatedAccessCreate === undefined) {
-                throw new RequiredError('userDelegatedAccessCreate','Required parameter userDelegatedAccessCreate was null or undefined when calling addDelegatedAccess.');
+                throw new RequiredError('userDelegatedAccessCreate','Required parameter userDelegatedAccessCreate was null or undefined when calling addAccountDelegate.');
             }
             const localVarPath = `/users/{userId}/delegates`
                 .replace(`{${"userId"}}`, encodeURIComponent(String(userId)));
@@ -2150,10 +2413,10 @@ export const UserApiAxiosParamCreator = function (configuration?: Configuration)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listDelegatedAccess: async (userId: string, options: any = {}): Promise<RequestArgs> => {
+        listAccountDelegates: async (userId: string, options: any = {}): Promise<RequestArgs> => {
             // verify required parameter 'userId' is not null or undefined
             if (userId === null || userId === undefined) {
-                throw new RequiredError('userId','Required parameter userId was null or undefined when calling listDelegatedAccess.');
+                throw new RequiredError('userId','Required parameter userId was null or undefined when calling listAccountDelegates.');
             }
             const localVarPath = `/users/{userId}/delegates`
                 .replace(`{${"userId"}}`, encodeURIComponent(String(userId)));
@@ -2379,8 +2642,8 @@ export const UserApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async addDelegatedAccess(userId: string, userDelegatedAccessCreate: UserDelegatedAccessCreate, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserDelegatedAccess>> {
-            const localVarAxiosArgs = await UserApiAxiosParamCreator(configuration).addDelegatedAccess(userId, userDelegatedAccessCreate, options);
+        async addAccountDelegate(userId: string, userDelegatedAccessCreate: UserDelegatedAccessCreate, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserDelegatedAccess>> {
+            const localVarAxiosArgs = await UserApiAxiosParamCreator(configuration).addAccountDelegate(userId, userDelegatedAccessCreate, options);
             return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
                 const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
                 return axios.request(axiosRequestArgs);
@@ -2452,8 +2715,8 @@ export const UserApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async listDelegatedAccess(userId: string, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserDelegatedAccessList>> {
-            const localVarAxiosArgs = await UserApiAxiosParamCreator(configuration).listDelegatedAccess(userId, options);
+        async listAccountDelegates(userId: string, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserDelegatedAccessList>> {
+            const localVarAxiosArgs = await UserApiAxiosParamCreator(configuration).listAccountDelegates(userId, options);
             return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
                 const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
                 return axios.request(axiosRequestArgs);
@@ -2521,8 +2784,8 @@ export const UserApiFactory = function (configuration?: Configuration, basePath?
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        addDelegatedAccess(userId: string, userDelegatedAccessCreate: UserDelegatedAccessCreate, options?: any): AxiosPromise<UserDelegatedAccess> {
-            return UserApiFp(configuration).addDelegatedAccess(userId, userDelegatedAccessCreate, options).then((request) => request(axios, basePath));
+        addAccountDelegate(userId: string, userDelegatedAccessCreate: UserDelegatedAccessCreate, options?: any): AxiosPromise<UserDelegatedAccess> {
+            return UserApiFp(configuration).addAccountDelegate(userId, userDelegatedAccessCreate, options).then((request) => request(axios, basePath));
         },
         /**
          * Add a new collection for a user
@@ -2574,8 +2837,8 @@ export const UserApiFactory = function (configuration?: Configuration, basePath?
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listDelegatedAccess(userId: string, options?: any): AxiosPromise<UserDelegatedAccessList> {
-            return UserApiFp(configuration).listDelegatedAccess(userId, options).then((request) => request(axios, basePath));
+        listAccountDelegates(userId: string, options?: any): AxiosPromise<UserDelegatedAccessList> {
+            return UserApiFp(configuration).listAccountDelegates(userId, options).then((request) => request(axios, basePath));
         },
         /**
          * List collections owned by a user
@@ -2629,8 +2892,8 @@ export class UserApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof UserApi
      */
-    public addDelegatedAccess(userId: string, userDelegatedAccessCreate: UserDelegatedAccessCreate, options?: any) {
-        return UserApiFp(this.configuration).addDelegatedAccess(userId, userDelegatedAccessCreate, options).then((request) => request(this.axios, this.basePath));
+    public addAccountDelegate(userId: string, userDelegatedAccessCreate: UserDelegatedAccessCreate, options?: any) {
+        return UserApiFp(this.configuration).addAccountDelegate(userId, userDelegatedAccessCreate, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -2692,8 +2955,8 @@ export class UserApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof UserApi
      */
-    public listDelegatedAccess(userId: string, options?: any) {
-        return UserApiFp(this.configuration).listDelegatedAccess(userId, options).then((request) => request(this.axios, this.basePath));
+    public listAccountDelegates(userId: string, options?: any) {
+        return UserApiFp(this.configuration).listAccountDelegates(userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

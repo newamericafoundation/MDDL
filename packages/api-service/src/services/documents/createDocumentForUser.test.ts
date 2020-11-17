@@ -19,6 +19,7 @@ import {
 jest.mock('@/utils/database')
 jest.mock('@/utils/s3')
 jest.mock('@/models/document')
+jest.mock('@/services/users/authorization')
 
 describe('createDocumentForUser', () => {
   const userId = 'myUserId'

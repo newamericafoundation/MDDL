@@ -15,7 +15,7 @@ import {
 jest.mock('@/utils/database')
 jest.mock('@/utils/s3')
 jest.mock('@/models/document')
-jest.mock('@/services/user')
+jest.mock('@/services/users')
 
 describe('deleteDocumentById', () => {
   const documentId = 'myDocumentId'

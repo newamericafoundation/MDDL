@@ -1,5 +1,11 @@
 import { NuxtAxiosInstance } from '@nuxtjs/axios'
-import { DocumentApi, UserApi, CollectionsApi, Configuration } from 'api-client'
+import {
+  DocumentApi,
+  UserApi,
+  CollectionsApi,
+  Configuration,
+  DelegateApi,
+} from 'api-client'
 import { AxiosResponse, AxiosError } from 'axios'
 import { Auth } from '@nuxtjs/auth'
 import VueRouter from 'vue-router'
@@ -8,6 +14,7 @@ const initialisedAPIs = {
   document: null as DocumentApi | null,
   user: null as UserApi | null,
   collection: null as CollectionsApi | null,
+  delegate: null as DelegateApi | null,
 }
 
 export class ApiService {
@@ -52,6 +59,17 @@ export class ApiService {
       )
     }
     return initialisedAPIs.collection
+  }
+
+  get delegate(): DelegateApi {
+    if (initialisedAPIs.delegate === null) {
+      initialisedAPIs.delegate = new DelegateApi(
+        this.config,
+        process.env.API_URL,
+        this.axios,
+      )
+    }
+    return initialisedAPIs.delegate
   }
 }
 

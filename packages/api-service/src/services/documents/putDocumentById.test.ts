@@ -13,7 +13,7 @@ import {
 
 jest.mock('@/utils/database')
 jest.mock('@/models/document')
-jest.mock('@/services/user')
+jest.mock('@/services/users')
 
 describe('putDocumentById', () => {
   const documentId = 'myDocumentId'

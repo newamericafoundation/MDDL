@@ -1,14 +1,12 @@
-import {
-  Document,
-  getDocumentById,
-  documentIsInCollectionWithGrant,
-} from '@/models/document'
+import { Document, getDocumentById } from '@/models/document'
 import { User } from '@/models/user'
 import { APIGatewayRequest, setContext } from '@/utils/middleware'
-import { emailIsWhitelisted } from '@/utils/whitelist'
-import { CollectionGrantType } from 'api-client'
 import createError from 'http-errors'
-import { requireUserData } from '../user'
+import { hasAccessToDocumentViaCollectionGrant } from '@/services/documents'
+import {
+  hasDelegatedAccessToUserAccount,
+  requireUserData,
+} from '@/services/users'
 
 export enum DocumentPermission {
   GetDocument = 'get:document',
@@ -20,22 +18,27 @@ const getPermissionsToDocument = async (
   document: Document,
   user: User,
 ): Promise<DocumentPermission[]> => {
-  // check if owner
   if (document.ownerId === user.id) {
+    // check if owner
     return Object.values(DocumentPermission)
   }
-  // check if in a shared collection to this individual
+
   if (
     user.email &&
-    emailIsWhitelisted(user.email) &&
-    (await documentIsInCollectionWithGrant(
-      document.id,
-      CollectionGrantType.INDIVIDUALEMAIL,
-      user.email,
-    ))
+    (await hasDelegatedAccessToUserAccount(user.email, document.ownerId))
   ) {
+    // check for delegated access
+    return [DocumentPermission.GetDocument, DocumentPermission.WriteDocument]
+  }
+
+  if (
+    user.email &&
+    (await hasAccessToDocumentViaCollectionGrant(document.id, user.email))
+  ) {
+    // check if in a shared collection to this individual
     return [DocumentPermission.GetDocument]
   }
+
   // can't find any permissions
   return []
 }

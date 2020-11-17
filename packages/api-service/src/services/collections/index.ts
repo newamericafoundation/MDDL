@@ -1,7 +1,15 @@
 import { Collection, getDocumentsByCollectionId } from '@/models/collection'
+import { collectionGrantExists } from '@/models/collectionGrant'
 import { User } from '@/models/user'
 import { hashString } from '@/utils/string'
-import { CollectionListItem, Link, SharedCollectionListItem } from 'api-client'
+import { emailIsWhitelisted } from '@/utils/whitelist'
+import {
+  CollectionGrantType,
+  CollectionListItem,
+  Link,
+  SharedCollectionListItem,
+} from 'api-client'
+import { userToOwner } from '../users'
 import { CollectionPermission } from './authorization'
 
 export const formatCollectionListItem = (
@@ -49,11 +57,7 @@ export const formatSharedCollections = (
       const owner = users.find((u) => u.id == ownerId)
       return {
         collection: formatCollectionListItem(collection, permissions),
-        owner: {
-          id: ownerId,
-          givenName: owner?.givenName ?? 'Unknown',
-          familyName: owner?.familyName ?? 'Unknown',
-        },
+        owner: userToOwner(owner ?? { id: ownerId }),
       }
     },
   ),
@@ -74,4 +78,18 @@ export const getCollectionDetails = async (collectionId: string) => {
     documents,
     documentsHash,
   }
+}
+
+export const hasAccessToCollectionViaGrant = async (
+  collectionId: string,
+  userEmail: string,
+) => {
+  return (
+    emailIsWhitelisted(userEmail) &&
+    (await collectionGrantExists(
+      collectionId,
+      CollectionGrantType.INDIVIDUALEMAIL,
+      userEmail,
+    ))
+  )
 }

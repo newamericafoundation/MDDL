@@ -1,7 +1,16 @@
-import { getUserById, insertUser, updateUser } from '@/models/user'
+import {
+  AccountDelegate,
+  findAccountDelegateForAccountByEmail,
+} from '@/models/accountDelegate'
+import { getUserById, insertUser, updateUser, User } from '@/models/user'
 import { requireToken, requireTokenIssuedAt } from '@/utils/api-gateway'
 import { APIGatewayRequest } from '@/utils/middleware'
 import { getUserInfo } from '@/utils/oauth'
+import {
+  Owner,
+  UserDelegatedAccess,
+  UserDelegatedAccessStatus,
+} from 'api-client'
 
 export const requireUserData = async (request: APIGatewayRequest) => {
   return await getUserData(
@@ -58,3 +67,28 @@ export const getUserData = async (
     syncTimestamp: issuedAt,
   })
 }
+
+export const hasDelegatedAccessToUserAccount = async (
+  currentUsersEmail: string,
+  possibleDelegatedAccountId: string,
+) => {
+  // check if user is delegated access to this account
+  const delegatedAccount = await findAccountDelegateForAccountByEmail(
+    possibleDelegatedAccountId,
+    currentUsersEmail,
+  )
+  return (
+    delegatedAccount !== undefined &&
+    delegatedAccount.status === UserDelegatedAccessStatus.ACTIVE
+  )
+}
+
+export const userToOwner = (user: {
+  id: string
+  givenName?: string
+  familyName?: string
+}): Owner => ({
+  id: user.id,
+  givenName: user.givenName ?? 'Unknown',
+  familyName: user.familyName ?? 'Unknown',
+})

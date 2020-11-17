@@ -1,13 +1,20 @@
-import getByUserId from './getByUserId'
 import {
   getCollectionsByOwnerId,
   Collection as CollectionModel,
 } from '@/models/collection'
-import { createMockEvent, setUserId, toMockedFunction } from '@/utils/test'
+import {
+  createMockEvent,
+  importMock,
+  setUserId,
+  toMockedFunction,
+} from '@/utils/test'
 import { APIGatewayProxyEventV2 } from 'aws-lambda'
+import createError from 'http-errors'
+import { handler as getByUserId } from './getByUserId'
 
 jest.mock('@/utils/database')
 jest.mock('@/models/collection')
+jest.mock('@/services/users/authorization')
 
 describe('getByUserId', () => {
   const userId = 'myUserId'
@@ -59,6 +66,12 @@ describe('getByUserId', () => {
   })
   it('returns 404 when user doesnt exist', async () => {
     event = setUserId('otherUserId', event)
+    const requirePermissionToUserImpl = (
+      await importMock('@/services/users/authorization')
+    ).requirePermissionToUserImpl
+    requirePermissionToUserImpl.mockImplementationOnce(() => {
+      throw new createError.NotFound('user not found')
+    })
     toMockedFunction(getCollectionsByOwnerId).mockImplementationOnce(() =>
       Promise.resolve([]),
     )

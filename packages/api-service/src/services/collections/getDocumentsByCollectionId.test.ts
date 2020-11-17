@@ -16,7 +16,7 @@ import { APIGatewayProxyEventV2 } from 'aws-lambda'
 jest.mock('@/utils/database')
 jest.mock('@/utils/s3')
 jest.mock('@/models/collection')
-jest.mock('@/services/user')
+jest.mock('@/services/users')
 
 describe('getDocumentsByCollectionId', () => {
   const userId = 'myUserId'

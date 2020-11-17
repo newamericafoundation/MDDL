@@ -10,8 +10,11 @@ import {
   createApiGatewayHandler,
   setContext,
 } from '@/utils/middleware'
-import { requirePermissionToAgent, UserPermission } from '../user/authorization'
-import { requireUserData } from '@/services/user'
+import {
+  requirePermissionToAgent,
+  UserPermission,
+} from '@/services/users/authorization'
+import { requireUserData } from '@/services/users'
 import { getUsersById, User } from '@/models/user'
 import { formatSharedCollections } from '@/services/collections'
 import { CollectionPermission } from './authorization'

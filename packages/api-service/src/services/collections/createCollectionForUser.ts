@@ -18,9 +18,9 @@ import {
 import {
   requirePermissionToUser,
   UserPermission,
-} from '@/services/user/authorization'
+} from '@/services/users/authorization'
 import createError from 'http-errors'
-import { requireUserData } from '@/services/user'
+import { requireUserData } from '@/services/users'
 import { formatCollectionListItem } from '.'
 import { CollectionPermission } from './authorization'
 import { sendSharedCollectionNotification } from '../emails/sendSharedCollectionNotification'

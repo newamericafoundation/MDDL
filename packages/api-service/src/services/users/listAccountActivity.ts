@@ -13,8 +13,8 @@ import {
 import {
   requirePermissionToUser,
   UserPermission,
-} from '@/services/user/authorization'
-import { requireUserData } from '@/services/user'
+} from '@/services/users/authorization'
+import { requireUserData } from '@/services/users'
 import { User } from '@/models/user'
 
 connectDatabase()

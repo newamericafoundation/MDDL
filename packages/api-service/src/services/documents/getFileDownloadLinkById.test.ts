@@ -14,7 +14,7 @@ jest.mock('@/utils/database')
 jest.mock('@/utils/s3')
 jest.mock('@/models/document')
 jest.mock('@/models/file')
-jest.mock('@/services/user')
+jest.mock('@/services/users')
 
 describe('getFileDownloadLinkById', () => {
   const documentId = 'myDocumentId'

@@ -46,6 +46,19 @@ const lambdas = {
   collections_getDownloadForCollectionDocuments: lambdaPath(
     'collections/getDownloadForCollectionDocuments.ts',
   ),
+  activity_listAccountActivity: lambdaPath('users/listAccountActivity.ts'),
+  accountDelegates_listAccountDelegates: lambdaPath(
+    'accountDelegates/listAccountDelegates.ts',
+  ),
+  accountDelegates_addAccountDelegate: lambdaPath(
+    'accountDelegates/addAccountDelegate.ts',
+  ),
+  accountDelegates_deleteAccountDelegate: lambdaPath(
+    'accountDelegates/deleteAccountDelegate.ts',
+  ),
+  accountDelegates_acceptDelegatedAccount: lambdaPath(
+    'accountDelegates/acceptDelegatedAccount.ts',
+  ),
 }
 
 const config = {

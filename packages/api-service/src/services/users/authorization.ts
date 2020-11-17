@@ -2,24 +2,47 @@ import { User } from '@/models/user'
 import { APIGatewayRequest, setContext } from '@/utils/middleware'
 import { emailIsWhitelisted } from '@/utils/whitelist'
 import createError from 'http-errors'
+import {
+  hasDelegatedAccessToUserAccount,
+  requireUserData,
+} from '@/services/users'
 
 export enum UserPermission {
   WriteUser = 'write:user',
+
   WriteCollection = 'write:collection',
   ListCollections = 'list:collection',
+
   WriteDocument = 'write:document',
   ListDocuments = 'list:document',
+
   ListActivity = 'list:activity',
+
+  WriteAccountDelegates = 'write:accountDelegates',
+  ListAccountDelegates = 'list:accountDelegates',
 }
 
 const getPermissionsToUser = async (
   userId: string,
   ownerId: string,
+  userEmail: string,
 ): Promise<UserPermission[]> => {
   // check if owner
   if (userId === ownerId) {
     return Object.values(UserPermission)
   }
+
+  // check if user is delegated access to this account
+  if (await hasDelegatedAccessToUserAccount(userEmail, ownerId)) {
+    return [
+      UserPermission.WriteCollection,
+      UserPermission.WriteCollection,
+      UserPermission.ListCollections,
+      UserPermission.WriteDocument,
+      UserPermission.ListDocuments,
+    ]
+  }
+
   // can't find any permissions
   return []
 }
@@ -45,10 +68,11 @@ const getPermissionsToAgent = async (
 export const requirePermissionToUser = (permission: UserPermission) => async (
   request: APIGatewayRequest,
 ): Promise<APIGatewayRequest> => {
-  const { ownerId, userId } = request
+  const { ownerId, userId, user: passedUser } = request
+  const user = passedUser || (await requireUserData(request))
 
   // resolve permissions
-  const permissions = await getPermissionsToUser(userId, ownerId)
+  const permissions = await getPermissionsToUser(userId, ownerId, user.email)
   await setContext('userPermissions', () => permissions)(request)
 
   // determine access to permissions

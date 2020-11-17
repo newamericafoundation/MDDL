@@ -1,11 +1,12 @@
 import { Collection, getCollectionById } from '@/models/collection'
-import { collectionGrantExists } from '@/models/collectionGrant'
 import { User } from '@/models/user'
 import { APIGatewayRequest, setContext } from '@/utils/middleware'
-import { emailIsWhitelisted } from '@/utils/whitelist'
-import { CollectionGrantType } from 'api-client'
 import createError from 'http-errors'
-import { requireUserData } from '../user'
+import { hasAccessToCollectionViaGrant } from '@/services/collections'
+import {
+  hasDelegatedAccessToUserAccount,
+  requireUserData,
+} from '@/services/users'
 
 export enum CollectionPermission {
   ListDocuments = 'list:documents',
@@ -17,25 +18,30 @@ const getPermissionsToCollection = async (
   collection: Collection,
   user: User,
 ): Promise<CollectionPermission[]> => {
-  // check if owner
   if (collection.ownerId === user.id) {
+    // check if owner
     return Object.values(CollectionPermission)
   }
-  // check if this is a shared collection to this individual
+
   if (
     user.email &&
-    emailIsWhitelisted(user.email) &&
-    (await collectionGrantExists(
-      collection.id,
-      CollectionGrantType.INDIVIDUALEMAIL,
-      user.email,
-    ))
+    (await hasDelegatedAccessToUserAccount(user.email, collection.ownerId))
   ) {
+    // check for delegated access
+    return [CollectionPermission.ListDocuments, CollectionPermission.ListGrants]
+  }
+
+  if (
+    user.email &&
+    (await hasAccessToCollectionViaGrant(collection.id, user.email))
+  ) {
+    // check if this is a shared collection to this individual
     return [
       CollectionPermission.ListDocuments,
       CollectionPermission.DownloadDocuments,
     ]
   }
+
   // can't find any permissions
   return []
 }
