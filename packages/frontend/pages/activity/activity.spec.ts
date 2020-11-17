@@ -1,10 +1,10 @@
 import { shallowMount } from '@vue/test-utils'
-import Account from '@/pages/account/index.vue'
+import Activity from '@/pages/activity/index.vue'
 import Layout from '@/layouts/default.vue'
 
-describe('Account page', () => {
+describe('Activity page', () => {
   it('exports a valid page', () => {
-    const wrapper = shallowMount(Account, { stubs: { Layout } })
+    const wrapper = shallowMount(Activity, { stubs: { Layout } })
     expect(wrapper.html()).toBeTruthy()
   })
 })

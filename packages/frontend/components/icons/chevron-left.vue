@@ -6,7 +6,9 @@
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
     class="mb-1"
+    :transform="`rotate(${rotation} 2 2)`"
   >
+    >
     <path
       fill-rule="evenodd"
       clip-rule="evenodd"
@@ -17,8 +19,14 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'nuxt-property-decorator'
+import { Vue, Component, Prop } from 'nuxt-property-decorator'
 
 @Component
-export default class ChevronLeft extends Vue {}
+export default class ChevronLeft extends Vue {
+  @Prop({ default: 0 }) rotation: number
+}
+// <style lang="scss" scoped>
+// svg {
+// }
+// </style>
 </script>

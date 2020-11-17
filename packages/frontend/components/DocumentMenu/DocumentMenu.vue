@@ -15,19 +15,19 @@
 
       <v-list>
         <v-list-item>
-          <v-btn text @click="editDetails">
+          <v-btn class="justify-start" text @click="editDetails">
             <v-icon small class="mr-2" color="primary">$pencil</v-icon>
             {{ $t('controls.editDetails') }}
           </v-btn>
         </v-list-item>
         <v-list-item>
-          <v-btn text @click="showConfirmation = true">
+          <v-btn class="justify-start" text @click="showConfirmation = true">
             <v-icon small class="mr-2" color="primary">$delete</v-icon>
             {{ $t('controls.delete') }}
           </v-btn>
         </v-list-item>
         <v-list-item>
-          <v-btn text @click="download">
+          <v-btn class="justify-start" text @click="download">
             <v-icon small class="mr-2" color="primary">$download</v-icon>
             {{ $t('controls.download') }}
           </v-btn>
@@ -49,9 +49,11 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="primary" text @click="showConfirmation = false">
-            Cancel
+            {{ capitalize($t('controls.cancel')) }}
           </v-btn>
-          <v-btn color="primary" text @click="confirmDelete">Confirm</v-btn>
+          <v-btn color="primary" text @click="confirmDelete">
+            {{ capitalize($t('controls.confirm')) }}
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>

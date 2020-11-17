@@ -80,7 +80,7 @@
           v-for="(email, i) in individualEmailAddresses"
           :key="i"
           rounded
-          class="invitee px-4 py-1 mb-2"
+          class="invitee px-4 py-1 mb-2 grey-2"
         >
           <v-row align="center" no-gutters>
             <v-col>
@@ -140,7 +140,7 @@
           v-for="(doc, i) in selectedDocs.slice(0, sliceFiles)"
           :key="`file-${i}`"
           rounded
-          class="invitee px-4 py-4 mb-2"
+          class="invitee px-4 py-4 mb-2 grey-2"
         >
           <v-row align="center" no-gutters>
             <v-col class="pr-4" cols="auto">
@@ -171,7 +171,7 @@
           v-for="(email, i) in individualEmailAddresses.slice(0, 5)"
           :key="`recipient-${i}`"
           rounded
-          class="invitee px-4 py-4 mb-2 d-flex"
+          class="invitee px-4 py-4 mb-2 d-flex grey-2"
         >
           <v-row align="center" no-gutters>
             <v-col class="pr-4" cols="auto">
@@ -293,7 +293,7 @@ export default class Share extends Vue {
     this.isLoading = true
     const collection = await this.$store.dispatch('user/createCollection', {
       name: this.name,
-      documentIds: this.selectedDocs.map((d) => d.id),
+      documentIds: this.selectedDocs.map(d => d.id),
       individualEmailAddresses: this.individualEmailAddresses,
       agencyOfficersEmailAddresses: [], // TODO: implement
     })
@@ -362,7 +362,6 @@ export default class Share extends Vue {
   }
 }
 .v-card.invitee {
-  background-color: var(--grey-2);
   max-width: 40rem;
 }
 .disclaimer {

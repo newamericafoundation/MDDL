@@ -132,6 +132,9 @@
   // Card
   .v-card {
     box-shadow: none;
+    .v-card__title {
+      word-break: break-word;
+    }
   }
 
   // Link
@@ -160,9 +163,6 @@
 
     &:not(.v-btn--block) {
       min-width: $button-min-width !important;
-      .v-btn__content {
-        justify-content: center;
-      }
     }
     &.v-btn--flat {
       padding: 0 12px;
@@ -249,5 +249,10 @@
   // Footer
   .theme--light.v-footer {
     background: none;
+  }
+
+  .v-divider.full-width {
+    width: 100%;
+    flex: 0 0 100%;
   }
 }

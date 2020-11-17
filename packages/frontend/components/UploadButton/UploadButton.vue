@@ -116,7 +116,7 @@ export default class UploadButton extends Vue {
     }
   }
 
-  uploadDocument() {
+  async uploadDocument() {
     snackbarStore.setParams({
       message: 'toast.uploading',
       dismissable: false,
@@ -126,36 +126,36 @@ export default class UploadButton extends Vue {
 
     this.showDialog = false
 
-    this.$store
-      .dispatch('user/uploadDocument', {
-        fileList: this.files,
-        name: this.documentName,
-        onUploadProgress: (e: ProgressEvent) => {
-          snackbarStore.setProgress(Math.round((e.loaded / e.total) * 100))
+    const document = await this.$store.dispatch('user/uploadDocument', {
+      fileList: this.files,
+      name: this.documentName,
+      onUploadProgress: (e: ProgressEvent) => {
+        snackbarStore.setProgress(Math.round((e.loaded / e.total) * 100))
+      },
+    })
+
+    snackbarStore.setParams({
+      message: 'toast.uploadComplete',
+      actions: [
+        {
+          name: 'view',
+          to: `/documents/${document.id}`,
         },
-      })
-      .then((document: Document) => {
-        snackbarStore.setParams({
-          message: 'toast.uploadComplete',
-          actions: [
-            {
-              name: 'view',
-              to: `/documents/${document.id}`,
-            },
-          ],
-        })
+      ],
+    })
 
-        this.$ga.event({
-          eventCategory: 'upload',
-          eventAction: 'file-input',
-          eventLabel: UserRole[userStore.role],
-        })
+    const role = await this.$store.dispatch('user/fetchRole')
 
-        this.$store.dispatch('user/getDocuments')
-        this.$store.dispatch('user/scheduleDocumentsRefresh')
+    this.$ga.event({
+      eventCategory: 'upload',
+      eventAction: 'file-input',
+      eventLabel: UserRole[role],
+    })
 
-        this.reset()
-      })
+    this.$store.dispatch('user/getDocuments')
+    this.$store.dispatch('user/scheduleDocumentsRefresh')
+
+    this.reset()
   }
 
   get isLoading() {

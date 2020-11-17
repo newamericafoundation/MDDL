@@ -70,6 +70,7 @@ export default {
       download: 'download', // edit document kebab item and button text
       next: 'next',
       upload: 'add',
+      add: 'add', // add a delegate
       view: 'view',
     },
 
@@ -113,7 +114,8 @@ export default {
     },
 
     delegateAccess: {
-      pageTitle: 'Who Can Access Your Account', // title in account menu and page title of delegation flow
+      pageTitle: 'Account Access', // title in account menu and page title of delegation flow
+      menuTitle: 'Who Can Access Your Account', // title in account menu and page title of delegation flow
       emailPlaceholder: 'add people via email',
       confirmationTitle: 'are you sure you want to add this person?',
       confirmationBody: 'confirmation body placeholder',

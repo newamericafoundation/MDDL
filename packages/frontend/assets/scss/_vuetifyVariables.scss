@@ -33,7 +33,7 @@ $card-btn-padding: 0 1rem;
 // Typography
 $headings: (
   // ---- Title font ----
-  'h1':
+  'heading-1':
     (
       'size': 1.25rem,
       'weight': 600,
@@ -43,7 +43,7 @@ $headings: (
       'text-transform': false,
     ),
   // ---- Heading font ----
-  'h2':
+  'heading-2':
     (
       'size': 1.0625rem,
       'weight': 600,
@@ -53,7 +53,7 @@ $headings: (
       'text-transform': false,
     ),
   // ---- Subheading font ----
-  'h3':
+  'heading-3':
     (
       'size': 0.9375rem,
       'weight': 600,
@@ -101,7 +101,15 @@ $headings: (
       'letter-spacing': 0,
       'font-family': $body-font-family,
       'text-transform': false,
-    )
+    ),
+  'menu-2': (
+    'size': 0.9375rem,
+    'weight': 500,
+    'line-height': 135%,
+    'letter-spacing': 0,
+    'font-family': $body-font-family,
+    'text-transform': false,
+  )
 );
 
 $material-light: (

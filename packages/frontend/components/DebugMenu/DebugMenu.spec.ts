@@ -6,7 +6,7 @@ describe('DebugMenu component', () => {
     const wrapper = shallowMount(DebugMenu, {
       mocks: {
         $store: {
-          dispatch: () => [],
+          dispatch: () => Promise.resolve([]),
           commit: () => {
             // empty
           },

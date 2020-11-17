@@ -6,9 +6,11 @@ import colors from 'vuetify/es5/util/colors'
 import Agency from '@/components/icons/agency.vue'
 import Alert from '@/components/icons/alert.vue'
 import ChevronLeft from '@/components/icons/chevron-left.vue'
+import Clock from '@/components/icons/clock.vue'
 import Close from '@/components/icons/close.vue'
 import CloseBold from '@/components/icons/close-bold.vue'
 import CloseCircleOutline from '@/components/icons/close-circle-outline.vue'
+import Cog from '@/components/icons/cog.vue'
 import Delete from '@/components/icons/delete.vue'
 import Document from '@/components/icons/document.vue'
 import DotsHorizontal from '@/components/icons/dots-horizontal.vue'
@@ -20,6 +22,7 @@ import Pencil from '@/components/icons/pencil.vue'
 import Plus from '@/components/icons/plus.vue'
 import Profile from '@/components/icons/profile.vue'
 import Send from '@/components/icons/send.vue'
+import SignOut from '@/components/icons/signOut.vue'
 
 const vuetifyOptions = (ctx: Context): Options => {
   return {
@@ -39,6 +42,7 @@ const vuetifyOptions = (ctx: Context): Options => {
           success: '#2affb8',
           'grey-8': '#55585e',
           'grey-7': '#6b6e76',
+          'grey-2': '#f8f8f9',
         },
         dark: {
           primary: colors.blue.darken2,
@@ -68,6 +72,15 @@ const vuetifyOptions = (ctx: Context): Options => {
         'chevron-left': {
           component: ChevronLeft,
         },
+        'chevron-right': {
+          component: ChevronLeft,
+          props: {
+            rotation: 180,
+          },
+        },
+        clock: {
+          component: Clock,
+        },
         close: {
           component: Close,
         },
@@ -76,6 +89,9 @@ const vuetifyOptions = (ctx: Context): Options => {
         },
         'close-circle-outline': {
           component: CloseCircleOutline,
+        },
+        cog: {
+          component: Cog,
         },
         delete: {
           component: Delete,
@@ -109,6 +125,9 @@ const vuetifyOptions = (ctx: Context): Options => {
         },
         send: {
           component: Send,
+        },
+        'sign-out': {
+          component: SignOut,
         },
       },
     },

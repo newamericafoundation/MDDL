@@ -9,6 +9,8 @@ import {
   DocumentListItem,
   FileContentTypeEnum,
   User as ApiUser,
+  UserDelegatedAccessCreate,
+  UserDelegatedAccess,
 } from 'api-client'
 import { SharedCollectionListItem } from '@/types/transformed'
 import axios, { AxiosResponse, AxiosRequestConfig } from 'axios'
@@ -51,6 +53,19 @@ export default class User extends VuexModule {
   @Mutation
   setUserId(userId: string) {
     this._userId = userId
+  }
+
+  @Action
+  fetchRole() {
+    const storedRole = localStorage.getItem('datalocker.role')
+    if (storedRole !== null) {
+      const role = parseInt(storedRole)
+      if (isNaN(role) || !Object.keys(UserRole).includes(storedRole)) {
+        this.setRole(UserRole.CLIENT)
+      } else {
+        this.setRole(role)
+      }
+    }
   }
 
   @Action
@@ -236,6 +251,15 @@ export default class User extends VuexModule {
   async createCollection(payload: CollectionCreate): Promise<Collection> {
     if (!this._userId) return Promise.reject(new Error('UserID not set'))
     const { data } = await api.user.addUserCollection(this._userId, payload)
+    return data
+  }
+
+  @Action({ rawError: true })
+  async delegateAccess(
+    payload: UserDelegatedAccessCreate,
+  ): Promise<UserDelegatedAccess> {
+    if (!this._userId) return Promise.reject(new Error('UserID not set'))
+    const { data } = await api.user.addDelegatedAccess(this._userId, payload)
     return data
   }
 }

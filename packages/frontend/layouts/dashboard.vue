@@ -29,11 +29,11 @@
             :to="localePath(item.to)"
           >
             <v-list-item router exact>
-              <v-list-item-action v-if="item.icon">
-                <v-icon>{{ item.icon }}</v-icon>
+              <v-list-item-action v-if="item.icon" class="mr-4">
+                <v-icon color="primary">{{ item.icon }}</v-icon>
               </v-list-item-action>
               <v-list-item-content>
-                <v-list-item-title class="capitalize" v-text="item.title" />
+                <v-list-item-title class="capitalize" v-text="$t(item.title)" />
               </v-list-item-content>
             </v-list-item>
           </nuxt-link>
@@ -42,24 +42,40 @@
             :key="i"
             @click.stop="item.click"
           >
-            <v-list-item-action v-if="item.icon">
-              <v-icon>{{ item.icon }}</v-icon>
+            <v-list-item-action v-if="item.icon" class="mr-4">
+              <v-icon color="primary">{{ item.icon }}</v-icon>
             </v-list-item-action>
             <v-list-item-content>
-              <v-list-item-title class="capitalize" v-text="item.title" />
+              <v-list-item-title class="capitalize" v-text="$t(item.title)" />
             </v-list-item-content>
           </v-list-item>
         </template>
       </v-list>
-      <v-footer v-if="$config.showBuildInfo" fixed>
-        <p>
-          <span class="font-weight-bold">Build number:</span>
-          {{ $config.buildNumber }}
-        </p>
-        <p>
-          <span class="font-weight-bold">Build time:</span>
-          {{ format(new Date($config.buildTime), 'd/M/y h:mma') }}
-        </p>
+      <v-footer fixed>
+        <v-divider class="full-width" />
+        <template v-if="$config.showBuildInfo">
+          <p>
+            <span class="font-weight-bold">Build number:</span>
+            {{ $config.buildNumber }}
+          </p>
+          <p>
+            <span class="font-weight-bold">Build time:</span>
+            {{ format(new Date($config.buildTime), 'd/M/y h:mma') }}
+          </p>
+        </template>
+        <v-list>
+          <v-list-item @click.stop="logOut">
+            <v-list-item-action>
+              <v-icon color="primary">$sign-out</v-icon>
+            </v-list-item-action>
+            <v-list-item-content>
+              <v-list-item-title
+                class="capitalize"
+                v-text="$t('navigation.signOut')"
+              />
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
       </v-footer>
     </v-navigation-drawer>
     <nuxt />
@@ -81,22 +97,27 @@ export default class ClientDashboard extends Vue {
       type: 'break',
     },
     {
-      title: this.$i18n.t('navigation.account'),
+      title: 'navigation.account',
       to: '/account',
+      icon: '$cog',
     },
-    {
-      title: this.$i18n.t('navigation.signOut'),
-      click: async () => {
-        await this.$auth.logout()
-        this.$router.push('/')
-      },
-    },
+    // TODO: uncomment when implementing account activity
+    // {
+    //   title: 'navigation.activity',
+    //   to: '/activity',
+    //   icon: '$clock',
+    // },
   ]
 
   mounted() {
     if (this.$route.params.showSnack) {
       this.$store.dispatch('snackbar/show')
     }
+  }
+
+  async logOut() {
+    await this.$auth.logout()
+    this.$router.push('/')
   }
 }
 </script>

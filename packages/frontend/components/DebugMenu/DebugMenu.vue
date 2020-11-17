@@ -6,11 +6,7 @@
     <v-btn @click="logOut">log out</v-btn>
     <v-btn @click="getDocuments">request documents</v-btn>
     <v-btn @click="sendEvent">send test upload event</v-btn>
-    <v-select
-      :items="userRoles"
-      :value="$store.getters['user/role']"
-      @change="setUserRole"
-    />
+    <v-select :items="userRoles" :value="initialRole" @change="setUserRole" />
   </div>
 </template>
 
@@ -35,12 +31,17 @@ export default class DebugMenu extends Vue {
     },
   ]
 
+  initialRole = UserRole.CLIENT
+
   mounted() {
     if (this.$auth.user)
       this.$store.commit('user/setUserId', this.$auth.user.username)
     else {
       this.$store.commit('user/setUserId', 'testUserId')
     }
+    this.$store.dispatch('user/fetchRole').then((role: UserRole) => {
+      this.initialRole = role
+    })
   }
 
   expireToken() {
