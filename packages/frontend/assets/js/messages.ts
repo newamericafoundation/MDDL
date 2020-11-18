@@ -103,7 +103,7 @@ export default {
 
       // on the confirmation step, could be "recipient" or "recipients" depending on number of items
       confirmRecipientsLabel: 'recipient | recipients',
-      tooManyRecipients: 'you can share with up to 10 people', // error text when trying to add more than 10 recipients
+      tooManyRecipients: 'you can share with up to {count} people', // error text when trying to add more than 10 recipients
     },
 
     tabTitles: {
@@ -117,9 +117,14 @@ export default {
       pageTitle: 'Account Access', // title in account menu and page title of delegation flow
       menuTitle: 'Who Can Access Your Account', // title in account menu and page title of delegation flow
       emailPlaceholder: 'add people via email',
-      confirmationTitle: 'are you sure you want to add this person?',
-      confirmationBody: 'confirmation body placeholder',
-      removeAccountConfirmation: 'are you sure you want to remove this person',
+      addConfirmationTitle: 'are you sure you want to add this person?',
+      addConfirmationBody:
+        'They will be able to manage and share files on your behalf. You can always revoke access via the Account menu.',
+      removeConfirmationTitle:
+        'Are you sure you want to remove this person from your account?',
+      removeConfirmationBody:
+        'They will no longer be able to manage or share files on your behalf. You can always grant access again via the Account menu.',
+      tooManyDelegates: 'up to {count} people can access your account',
     },
 
     activity: {

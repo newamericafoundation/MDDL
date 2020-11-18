@@ -57,7 +57,7 @@ export default class DebugMenu extends Vue {
   }
 
   getDocuments() {
-    this.$store.dispatch('user/getDocuments').then(res => {
+    this.$store.dispatch('user/getDocuments').then((res) => {
       console.log(res)
     })
   }

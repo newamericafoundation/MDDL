@@ -1,7 +1,7 @@
 <template>
   <div class="client-landing-container">
     <CityLogo />
-    <h2 class="text-h2 mt-4 mb-4 primary--text">
+    <h2 class="heading-2 mt-4 mb-4 primary--text">
       {{ capitalize($t('login.welcomeTitle')) }}
     </h2>
     <div class="body-1 welcome-message mb-8">

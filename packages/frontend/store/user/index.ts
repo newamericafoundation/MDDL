@@ -11,6 +11,7 @@ import {
   User as ApiUser,
   UserDelegatedAccessCreate,
   UserDelegatedAccess,
+  UserDelegatedAccessList,
 } from 'api-client'
 import { SharedCollectionListItem } from '@/types/transformed'
 import axios, { AxiosResponse, AxiosRequestConfig } from 'axios'
@@ -252,6 +253,13 @@ export default class User extends VuexModule {
     if (!this._userId) return Promise.reject(new Error('UserID not set'))
     const { data } = await api.user.addUserCollection(this._userId, payload)
     return data
+  }
+
+  @Action({ rawError: true })
+  async fetchDelegates(): Promise<UserDelegatedAccess[]> {
+    if (!this._userId) return Promise.reject(new Error('UserID not set'))
+    const { data } = await api.user.listAccountDelegates(this._userId)
+    return data.delegatedAccess
   }
 
   @Action({ rawError: true })

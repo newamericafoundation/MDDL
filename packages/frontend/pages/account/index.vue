@@ -5,7 +5,7 @@
         <BackButton />
         <v-toolbar-title>{{ $t('navigation.account') }}</v-toolbar-title>
       </v-toolbar>
-      <div class="window-container mx-8">
+      <div class="window-container ma-8">
         <v-btn
           text
           width="100%"
@@ -38,7 +38,7 @@
         </v-btn>
         <v-toolbar-title>{{ $t('account.language') }}</v-toolbar-title>
       </v-toolbar>
-      <div class="window-container mx-8">
+      <div class="window-container ma-8">
         <v-select
           v-if="$i18n"
           v-model="$i18n.locale"
@@ -56,53 +56,66 @@
         </v-btn>
         <v-toolbar-title>{{ $t('delegateAccess.pageTitle') }}</v-toolbar-title>
       </v-toolbar>
-      <div class="window-container mx-8">
+      <div class="window-container ma-8">
         <ValidationObserver ref="observer">
           <v-form @submit.prevent>
             <ValidationProvider
-              v-slot="{ errors }"
+              v-slot="{ errors, valid }"
               mode="eager"
               name="email"
               rules="required|email|max:255"
             >
               <v-text-field
                 v-model="email"
-                :error-messages="errors"
+                :disabled="delegates.length >= 10"
+                :error-messages="
+                  delegates.length >= 10
+                    ? [capitalize($tc('delegateAccess.tooManyDelegates', 10))]
+                    : errors
+                "
                 outlined
                 :placeholder="capitalize($t('delegateAccess.emailPlaceholder'))"
                 type="email"
-                :disabled="delegateEmails.length >= maxDelegates"
-                @keydown.enter="addEmail"
-                @blur="addEmail"
               />
+              <v-row justify="end">
+                <v-col cols="auto">
+                  <v-btn
+                    class="body-1 mb-4 font-weight-medium"
+                    color="primary"
+                    :disabled="!valid || delegates.length >= 10"
+                    @click="
+                      showConfirmation = true
+                      confirmationType = 0
+                    "
+                  >
+                    {{ $t('controls.add') }}
+                  </v-btn>
+                </v-col>
+              </v-row>
             </ValidationProvider>
           </v-form>
         </ValidationObserver>
-        <v-row justify="end">
-          <v-col cols="auto">
-            <v-btn
-              class="body-1 mb-4 font-weight-medium"
-              color="primary"
-              :disabled="!delegateEmails.length"
-              @click="showConfirmation = true"
-            >
-              {{ $t('controls.add') }}
-            </v-btn>
-          </v-col>
-        </v-row>
+
         <v-divider class="full-width mb-8" />
         <v-card
-          v-for="(email, i) in delegateEmails"
+          v-for="(delegate, i) in delegates"
           :key="i"
           rounded
           class="px-4 py-1 mb-2 grey-2"
         >
           <v-row align="center" no-gutters>
             <v-col>
-              <span>{{ email }}</span>
+              <span>{{ delegate.email }}</span>
             </v-col>
             <v-col cols="auto">
-              <v-btn icon @click="removeEmail(i)">
+              <v-btn
+                icon
+                @click="
+                  showConfirmation = true
+                  delegateToRemove = delegate
+                  confirmationType = 1
+                "
+              >
                 <v-icon>$close</v-icon>
               </v-btn>
             </v-col>
@@ -124,11 +137,23 @@
             <br />
           </v-row>
           <v-card-title class="heading-1 mx-2">
-            {{ capitalize($t('delegateAccess.confirmationTitle')) }}
+            {{
+              capitalize(
+                confirmationType === 0
+                  ? $t('delegateAccess.addConfirmationTitle')
+                  : $t('delegateAccess.removeConfirmationTitle'),
+              )
+            }}
           </v-card-title>
 
           <v-card-text class="ma-2">
-            {{ $t('delegateAccess.confirmationBody') }}
+            {{
+              capitalize(
+                confirmationType === 0
+                  ? $t('delegateAccess.addConfirmationBody')
+                  : $t('delegateAccess.removeConfirmationBody'),
+              )
+            }}
           </v-card-text>
 
           <v-card-actions class="px-8 pb-8">
@@ -136,7 +161,14 @@
             <v-btn :disabled="loading" @click="showConfirmation = false">
               {{ capitalize($t('controls.cancel')) }}
             </v-btn>
-            <v-btn color="primary" :disabled="loading" @click="confirmDelegate">
+            <v-btn
+              color="primary"
+              :loading="loading"
+              @click="
+                () =>
+                  confirmationType === 0 ? confirmDelegate() : removeDelegate()
+              "
+            >
               {{ capitalize($t('controls.confirm')) }}
             </v-btn>
           </v-card-actions>
@@ -151,6 +183,7 @@ import { Vue, Component } from 'nuxt-property-decorator'
 import { ValidationObserver, ValidationProvider } from 'vee-validate'
 import { capitalize } from '@/assets/js/stringUtils'
 import { snackbarStore } from '@/plugins/store-accessor'
+import { UserDelegatedAccess } from 'api-client'
 
 @Component({
   layout: 'empty',
@@ -169,42 +202,43 @@ export default class Account extends Vue {
 
   step = 'top-level'
   email = ''
-  delegateEmails: string[] = []
+  delegates: UserDelegatedAccess[] = []
   maxDelegates = 1 // possibly want multiple delegates in a future iteration
   recompute = false
   showConfirmation = false
   loading = false
+  confirmationType = 0 // 0: add, 1: remove
+  delegateToRemove: UserDelegatedAccess | null = null
 
-  get emailInputValid() {
-    // Referencing this.recompute forces this.$refs.observer to be updated
-    // eslint-disable-next-line no-unused-expressions
-    this.recompute
-    return this.$refs.observer instanceof ValidationObserver
-      ? (this.$refs.observer as any).fields.email.valid || this.email === ''
-      : false
+  mounted() {
+    this.loadDelegates()
   }
 
-  async addEmail(evt: KeyboardEvent | FocusEvent) {
-    await (this.$refs.observer as any).validate()
-    if (this.emailInputValid && this.email.length) {
-      const email = this.email
-      this.email = ''
-      // unfortunately nextTick won't do the trick here
-      setTimeout(() => (this.$refs.observer as any).reset(), 50)
-      if (!this.delegateEmails.includes(email)) this.delegateEmails.push(email)
-    }
-  }
-
-  removeEmail(index: number) {
-    this.delegateEmails.splice(index, 1)
+  async removeDelegate() {
+    this.loading = true
+    await this.$store.dispatch('delegate/delete', this.delegateToRemove!.id)
+    await this.loadDelegates()
+    this.loading = false
+    this.showConfirmation = false
+    this.delegateToRemove = null
   }
 
   async confirmDelegate() {
     this.loading = true
     await this.$store.dispatch('user/delegateAccess', {
-      email: this.delegateEmails[0],
+      email: this.email,
     })
-    this.$router.push('/dashboard')
+    await this.loadDelegates()
+    this.$nextTick(() => (this.$refs.observer as any).reset())
+    this.email = ''
+    this.showConfirmation = false
+    this.loading = false
+  }
+
+  loadDelegates() {
+    return this.$store
+      .dispatch('user/fetchDelegates')
+      .then((delegates) => (this.delegates = delegates))
   }
 }
 </script>

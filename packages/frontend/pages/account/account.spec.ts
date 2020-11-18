@@ -4,7 +4,17 @@ import Layout from '@/layouts/default.vue'
 
 describe('Account page', () => {
   it('exports a valid page', () => {
-    const wrapper = shallowMount(Account, { stubs: { Layout } })
+    const wrapper = shallowMount(Account, {
+      stubs: { Layout },
+      mocks: {
+        $store: {
+          dispatch: () => Promise.resolve(),
+          commit: () => {
+            // empty
+          },
+        },
+      },
+    })
     expect(wrapper.html()).toBeTruthy()
   })
 })
