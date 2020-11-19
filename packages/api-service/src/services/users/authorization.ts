@@ -9,6 +9,7 @@ import {
 
 export enum UserPermission {
   WriteUser = 'write:user',
+  GetUser = 'get:user',
 
   WriteCollection = 'write:collection',
   ListCollections = 'list:collection',

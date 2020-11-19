@@ -3,7 +3,7 @@ import {
   UserDelegatedAccess,
   UserDelegatedAccessStatus,
 } from 'api-client'
-import { requirePathParameter, requireUserId } from '@/utils/api-gateway'
+import { requirePathParameter } from '@/utils/api-gateway'
 import { connectDatabase } from '@/utils/database'
 import { createAccountDelegateSchema } from './validation'
 import { v4 as uuidv4 } from 'uuid'
@@ -13,7 +13,6 @@ import {
 } from '@/constants'
 import {
   APIGatewayRequestBody,
-  createApiGatewayHandler,
   requireValidBody,
   setContext,
 } from '@/utils/middleware'
@@ -31,14 +30,12 @@ import {
 } from '@/models/accountDelegate'
 import { addDaysFromNow } from '@/utils/date'
 import { toUserDelegatedAccess } from '.'
-import { requireUserData } from '@/services/users'
+import { createAuthenticatedApiGatewayHandler } from '@/services/users/middleware'
 
 connectDatabase()
 
-export const handler = createApiGatewayHandler(
+export const handler = createAuthenticatedApiGatewayHandler(
   setContext('ownerId', (r) => requirePathParameter(r.event, 'userId')),
-  setContext('userId', (r) => requireUserId(r.event)),
-  setContext('user', (r) => requireUserData(r)),
   requirePermissionToUser(UserPermission.WriteAccountDelegates),
   requireValidBody<UserDelegatedAccessCreate>(createAccountDelegateSchema),
   async (

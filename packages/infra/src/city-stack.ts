@@ -988,6 +988,38 @@ export class CityStack extends Stack {
       lambdaFunction: createCollectionFunction,
       authorizer,
     })
+
+    // add route and lambda to get users profile
+    this.addRoute(api, {
+      name: 'GetUser',
+      routeKey: 'GET /users/{userId}',
+      lambdaFunction: this.createLambda(
+        'GetUser',
+        pathToApiServiceLambda('users/getUser'),
+        {
+          dbSecret,
+          layers: [mySqlLayer],
+          extraEnvironmentVariables: [EnvironmentVariables.USERINFO_ENDPOINT],
+        },
+      ),
+      authorizer,
+    })
+
+    // add route and lambda to accept terms of use
+    this.addRoute(api, {
+      name: 'UserAcceptTerms',
+      routeKey: 'POST /users/{userId}/accept-terms',
+      lambdaFunction: this.createLambda(
+        'UserAcceptTerms',
+        pathToApiServiceLambda('users/acceptTerms'),
+        {
+          dbSecret,
+          layers: [mySqlLayer],
+          extraEnvironmentVariables: [EnvironmentVariables.USERINFO_ENDPOINT],
+        },
+      ),
+      authorizer,
+    })
   }
 
   /**

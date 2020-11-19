@@ -5,7 +5,7 @@ import {
   CreateDocumentFileInput,
   countDocumentsByOwnerId,
 } from '@/models/document'
-import { requirePathParameter, requireUserId } from '@/utils/api-gateway'
+import { requirePathParameter } from '@/utils/api-gateway'
 import { connectDatabase } from '@/utils/database'
 import { createDocumentSchema } from './validation'
 import { createFilePath } from '@/utils/s3'
@@ -14,7 +14,6 @@ import { singleDocumentResult } from '@/services/documents'
 import { MaxDocumentsPerUser } from '@/constants'
 import {
   APIGatewayRequestBody,
-  createApiGatewayHandler,
   requireValidBody,
   setContext,
 } from '@/utils/middleware'
@@ -24,12 +23,12 @@ import {
 } from '@/services/users/authorization'
 import createError from 'http-errors'
 import { DocumentPermission } from './authorization'
+import { createAuthenticatedApiGatewayHandler } from '@/services/users/middleware'
 
 connectDatabase()
 
-export const handler = createApiGatewayHandler(
+export const handler = createAuthenticatedApiGatewayHandler(
   setContext('ownerId', (r) => requirePathParameter(r.event, 'userId')),
-  setContext('userId', (r) => requireUserId(r.event)),
   requirePermissionToUser(UserPermission.WriteDocument),
   requireValidBody<DocumentCreate>(createDocumentSchema),
   async (

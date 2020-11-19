@@ -3,7 +3,7 @@ import {
   CollectionCreate as CollectionCreateContract,
   CollectionGrantType,
 } from 'api-client'
-import { requirePathParameter, requireUserId } from '@/utils/api-gateway'
+import { requirePathParameter } from '@/utils/api-gateway'
 import { connectDatabase } from '@/utils/database'
 import { createCollectionSchema } from './validation'
 import { v4 as uuidv4 } from 'uuid'
@@ -12,7 +12,6 @@ import { allDocumentsExistById } from '@/models/document'
 import {
   setContext,
   APIGatewayRequestBody,
-  createApiGatewayHandler,
   requireValidBody,
 } from '@/utils/middleware'
 import {
@@ -20,7 +19,7 @@ import {
   UserPermission,
 } from '@/services/users/authorization'
 import createError from 'http-errors'
-import { requireUserData } from '@/services/users'
+import { createAuthenticatedApiGatewayHandler } from '@/services/users/middleware'
 import { formatCollectionListItem } from '.'
 import { CollectionPermission } from './authorization'
 import { sendSharedCollectionNotification } from '../emails/sendSharedCollectionNotification'
@@ -28,13 +27,11 @@ import { EnvironmentVariable, requireConfiguration } from '@/config'
 
 connectDatabase()
 
-export const handler = createApiGatewayHandler(
+export const handler = createAuthenticatedApiGatewayHandler(
   setContext('ownerId', (r) => requirePathParameter(r.event, 'userId')),
-  setContext('userId', (r) => requireUserId(r.event)),
   setContext('webAppDomain', () =>
     requireConfiguration(EnvironmentVariable.WEB_APP_DOMAIN),
   ),
-  setContext('user', async (r) => await requireUserData(r)),
   requirePermissionToUser(UserPermission.WriteCollection),
   requireValidBody<CollectionCreateContract>(createCollectionSchema),
   async (

@@ -1,45 +1,20 @@
-import {
-  UserDelegatedAccessCreate,
-  UserDelegatedAccess,
-  UserDelegatedAccessStatus,
-} from 'api-client'
-import { requirePathParameter, requireUserId } from '@/utils/api-gateway'
+import { UserDelegatedAccess, UserDelegatedAccessStatus } from 'api-client'
+import { requirePathParameter } from '@/utils/api-gateway'
 import { connectDatabase } from '@/utils/database'
-import { createAccountDelegateSchema } from './validation'
-import { v4 as uuidv4 } from 'uuid'
-import {
-  AccountDelegateInvitationValidDays,
-  MaxDelegatesPerAccount,
-} from '@/constants'
-import {
-  APIGatewayRequest,
-  APIGatewayRequestBody,
-  createApiGatewayHandler,
-  requireValidBody,
-  setContext,
-} from '@/utils/middleware'
-import {
-  requirePermissionToUser,
-  UserPermission,
-} from '@/services/users/authorization'
+import { APIGatewayRequest, setContext } from '@/utils/middleware'
 import createError from 'http-errors'
 import {
   AccountDelegate,
-  countAccountDelegates,
-  createAccountDelegate,
-  CreateAccountDelegateInput,
-  findAccountDelegateForAccountByEmail,
   getAccountDelegateById,
   updateAccountDelegate,
 } from '@/models/accountDelegate'
-import { addDaysFromNow } from '@/utils/date'
 import { toUserDelegatedAccess } from '.'
 import {
   AccountDelegatePermission,
   requirePermissionToAccountDelegate,
 } from './authorization'
 import { getUserById } from '@/models/user'
-import { requireUserData } from '@/services/users'
+import { createAuthenticatedApiGatewayHandler } from '@/services/users/middleware'
 
 connectDatabase()
 
@@ -49,12 +24,10 @@ type Request = APIGatewayRequest & {
   accountDelegate: AccountDelegate
 }
 
-export const handler = createApiGatewayHandler(
+export const handler = createAuthenticatedApiGatewayHandler(
   setContext('accountDelegateId', (r) =>
     requirePathParameter(r.event, 'delegateId'),
   ),
-  setContext('userId', (r) => requireUserId(r.event)),
-  setContext('user', (r) => requireUserData(r)),
   setContext('accountDelegate', (r) =>
     getAccountDelegateById(r.accountDelegateId),
   ),

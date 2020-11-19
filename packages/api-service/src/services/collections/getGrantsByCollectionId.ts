@@ -1,24 +1,20 @@
 import { CollectionGrantList, CollectionGrantType } from 'api-client'
-import { requirePathParameter, requireUserId } from '@/utils/api-gateway'
+import { requirePathParameter } from '@/utils/api-gateway'
 import { connectDatabase } from '@/utils/database'
 import { getGrantsByCollectionId } from '@/models/collection'
-import {
-  APIGatewayRequest,
-  createApiGatewayHandler,
-  setContext,
-} from '@/utils/middleware'
+import { APIGatewayRequest, setContext } from '@/utils/middleware'
 import {
   CollectionPermission,
   requirePermissionToCollection,
 } from './authorization'
+import { createAuthenticatedApiGatewayHandler } from '@/services/users/middleware'
 
 connectDatabase()
 
-export const handler = createApiGatewayHandler(
+export const handler = createAuthenticatedApiGatewayHandler(
   setContext('collectionId', (r) =>
     requirePathParameter(r.event, 'collectionId'),
   ),
-  setContext('userId', (r) => requireUserId(r.event)),
   requirePermissionToCollection(CollectionPermission.ListGrants),
   async (request: APIGatewayRequest): Promise<CollectionGrantList> => {
     const { collectionId } = request

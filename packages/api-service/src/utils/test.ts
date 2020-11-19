@@ -1,6 +1,7 @@
 import { User } from '@/models/user'
 import { requireUserData } from '@/services/users'
 import { APIGatewayProxyEventV2, Context } from 'aws-lambda'
+import { setContext } from './middleware'
 
 export const toMockedFunction = <T extends (...args: any[]) => any>(
   input: T,
@@ -17,6 +18,7 @@ export const setUserId = (userId: string, event: APIGatewayProxyEventV2) => {
     jwt: {
       claims: {
         sub: userId,
+        iat: 1605745134,
       },
       scopes: [],
     },
@@ -88,13 +90,20 @@ const gatherKeysFromObject = (
 export const mockUserData = (
   userId: string,
   email = 'jcitizen@example.com',
+  attributes?: any,
 ) => {
-  toMockedFunction(requireUserData).mockImplementationOnce(async () =>
-    User.fromJson({
-      id: userId,
-      givenName: 'Jane',
-      familyName: 'Citizen',
-      email,
-    }),
+  const data = {
+    id: userId,
+    givenName: 'Jane',
+    familyName: 'Citizen',
+    email,
+    attributes,
+  }
+  toMockedFunction(requireUserData).mockImplementation(
+    async (request, requireTermsOfUseAcceptance) => {
+      await setContext('userId', () => userId)(request)
+      return User.fromJson(data)
+    },
   )
+  return data
 }

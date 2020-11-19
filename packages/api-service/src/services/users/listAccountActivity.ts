@@ -3,27 +3,21 @@ import {
   ActivityList,
   ActivityResourceTypeEnum,
 } from 'api-client'
-import { requirePathParameter, requireUserId } from '@/utils/api-gateway'
+import { requirePathParameter } from '@/utils/api-gateway'
 import { connectDatabase } from '@/utils/database'
-import {
-  APIGatewayRequest,
-  createApiGatewayHandler,
-  setContext,
-} from '@/utils/middleware'
+import { APIGatewayRequest, setContext } from '@/utils/middleware'
 import {
   requirePermissionToUser,
   UserPermission,
 } from '@/services/users/authorization'
-import { requireUserData } from '@/services/users'
+import { createAuthenticatedApiGatewayHandler } from '@/services/users/middleware'
 import { User } from '@/models/user'
 
 connectDatabase()
 type Request = APIGatewayRequest & { ownerId: string; user: User }
 
-export const handler = createApiGatewayHandler(
+export const handler = createAuthenticatedApiGatewayHandler(
   setContext('ownerId', (r) => requirePathParameter(r.event, 'userId')),
-  setContext('userId', (r) => requireUserId(r.event)),
-  setContext('user', (r) => requireUserData(r)),
   requirePermissionToUser(UserPermission.ListActivity),
   async (request: APIGatewayRequest): Promise<ActivityList> => {
     const { ownerId, user } = request as Request

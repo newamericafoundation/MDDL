@@ -7,7 +7,7 @@ export class User extends BaseModel {
   public familyName?: string
   public email?: string
   public syncTimestamp?: string
-  public attributes?: string
+  public attributes?: any
 
   static get tableName() {
     return 'users'

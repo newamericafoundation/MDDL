@@ -9,7 +9,7 @@ import {
   getPermissionsToAccountDelegate,
 } from '@/services/accountDelegates/authorization'
 import { User } from '@/models/user'
-import { userToOwner } from '../users'
+import { userToApiOwner } from '../users'
 
 const determineDelegateUserStatus = (
   status: string,
@@ -60,5 +60,5 @@ export const toUserDelegatedAccess = (
     getPermissionsToAccountDelegate(input, userId, userEmail),
   ),
   status: determineDelegateUserStatus(input.status, input.inviteValidUntil),
-  allowsAccessToUser: delegatedUser ? userToOwner(delegatedUser) : undefined,
+  allowsAccessToUser: delegatedUser ? userToApiOwner(delegatedUser) : undefined,
 })

@@ -13,3 +13,5 @@ export const MaxIndividualEmailAddressesPerCollection = 10
 export const DocumentsPrefix = 'documents'
 
 export const CollectionsPrefix = 'collections'
+
+export const EnforceUserTermsOfUseAcceptance = false

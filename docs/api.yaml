@@ -16,6 +16,7 @@ tags:
   - name: delegate
     description: Account Delegate based operations
 paths:
+
   '/users/{userId}/documents':
     get:
       tags:
@@ -78,7 +79,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/DocumentCreate'
-
   '/users/{userId}':
     get:
       tags:
@@ -104,7 +104,38 @@ paths:
           description: User not found
       security:
         - datalocker_auth: []
-
+  '/users/{userId}/accept-terms':
+    post:
+      tags:
+        - user
+      summary: Accept Terms
+      description: Accept application Terms of Use for a user
+      operationId: acceptTerms
+      parameters:
+        - name: userId
+          in: path
+          description: ID of current user
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User not found
+      requestBody:
+        description: Accept the terms of use
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserAcceptTermsOfUse'
+      security:
+        - datalocker_auth: []
   '/users/{userId}/delegates':
     get:
       tags:
@@ -159,74 +190,6 @@ paths:
               $ref: '#/components/schemas/UserDelegatedAccessCreate'
       security:
         - datalocker_auth: []
-
-  '/delegates/{delegateId}':
-    delete:
-      tags:
-        - delegate
-      summary: Deletes a delegated users access
-      description: ''
-      operationId: deleteAccountDelegate
-      parameters:
-        - name: userId
-          in: path
-          description: ID of user owning or targeted in the Delegated Access
-          required: true
-          schema:
-            type: string
-        - name: delegateId
-          in: path
-          description: ID of the User Delegated Access record
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: User Delegated Access deleted
-        '404':
-          description: User Delegated Access not found
-      security:
-        - datalocker_auth: []
-
-  '/delegates/{delegateId}/accept':
-    post:
-      tags:
-        - delegate
-      summary: Accept delegated access
-      description: Accept delegated access to a users account for current user
-      operationId: acceptDelegatedAccount
-      parameters:
-        - name: userId
-          in: path
-          description: ID of current user
-          required: true
-          schema:
-            type: string
-        - name: delegateId
-          in: path
-          description: ID of the User Delegated Access record
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserDelegatedAccess'
-        '404':
-          description: User not found
-      requestBody:
-        description: Accept a delegated access request
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UserDelegatedAccessAccept'
-      security:
-        - datalocker_auth: []
-
   '/users/{userId}/collections':
     get:
       tags:
@@ -289,7 +252,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CollectionCreate'
-
   '/users/{userId}/collections/shared':
     get:
       tags:
@@ -321,7 +283,6 @@ paths:
           description: User not found
       security:
         - datalocker_auth: []
-
   '/users/{userId}/activity':
     get:
       tags:
@@ -425,7 +386,6 @@ paths:
           description: Document not found
       security:
         - datalocker_auth: []
-
   '/documents/{documentId}/files/{fileId}/download':
     get:
       tags:
@@ -493,60 +453,6 @@ paths:
           description: Collection not found
       security:
         - datalocker_auth: []
-    post:
-      tags:
-        - collections
-      summary: Create grants to a collection
-      description: Grant access to a collection
-      operationId: createGrantsForCollection
-      parameters:
-        - name: collectionId
-          in: path
-          description: ID of the collection
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: successful operation
-        '405':
-          description: Invalid input
-      security:
-        - datalocker_auth: []
-      requestBody:
-        description: Create a document grant
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CollectionGrantCreate'
-
-  '/collection/{collectionId}/grants/{grantId}':
-    delete:
-      tags:
-        - collections
-      summary: Deletes a collection grant
-      description: Revokes access to a collection by removing the grant
-      operationId: deleteCollectionGrantById
-      parameters:
-        - name: collectionId
-          in: path
-          description: ID of the collection the grant belongs to
-          required: true
-          schema:
-            type: string
-        - name: grantId
-          in: path
-          description: ID of the grant to delete
-          required: true
-          schema:
-            type: string
-      responses:
-        '404':
-          description: Collection not found
-      security:
-        - datalocker_auth: []
-
   '/collections/{collectionId}/documents':
     get:
       tags:
@@ -572,7 +478,6 @@ paths:
           description: User not found
       security:
         - datalocker_auth: []
-
   '/collections/{collectionId}/documents/downloads':
     post:
       tags:
@@ -605,7 +510,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/DocumentsDownloadCreate'
-
   '/collections/{collectionId}/documents/downloads/{downloadId}':
     get:
       tags:
@@ -635,6 +539,60 @@ paths:
                 $ref: '#/components/schemas/DocumentsDownload'
         '400':
           description: Bad Request
+      security:
+        - datalocker_auth: []
+
+  '/delegates/{delegateId}':
+    delete:
+      tags:
+        - delegate
+      summary: Deletes a delegated users access
+      description: ''
+      operationId: deleteAccountDelegate
+      parameters:
+        - name: delegateId
+          in: path
+          description: ID of the User Delegated Access record
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User Delegated Access deleted
+        '404':
+          description: User Delegated Access not found
+      security:
+        - datalocker_auth: []
+  '/delegates/{delegateId}/accept':
+    post:
+      tags:
+        - delegate
+      summary: Accept delegated access
+      description: Accept delegated access to a users account for current user
+      operationId: acceptDelegatedAccount
+      parameters:
+        - name: delegateId
+          in: path
+          description: ID of the User Delegated Access record
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDelegatedAccess'
+        '404':
+          description: User not found
+      requestBody:
+        description: Accept a delegated access request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserDelegatedAccessAccept'
       security:
         - datalocker_auth: []
 
@@ -897,9 +855,16 @@ components:
           type: string
           description: The users family name
           example: Citizen
+        termsOfUseAccepted:
+          type: boolean
+          description: Whether the terms of use have been accepted for the current user for this application
+          example: false
         links:
           $ref: '#/components/schemas/Links'
       type: object
+    UserAcceptTermsOfUse:
+      type: object
+      description: A request to accept the terms of use for a user
     UserDelegatedAccessList:
       description: A result containing the delagated access information for a user account
       required:
@@ -967,17 +932,6 @@ components:
       enum:
         - INDIVIDUAL_EMAIL
       example: INDIVIDUAL_EMAIL
-    CollectionGrantCreate:
-      description: Request data to create an access grant to a collection
-      required:
-        - individualEmailAddresses
-      properties:
-        individualEmailAddresses:
-          type: array
-          description: The email addresses of individuals to grant access to this collection
-          items:
-            type: string
-      type: object
     CollectionGrantList:
       description: A result containing a list of access grants to a document
       required:

@@ -5,6 +5,7 @@ import {
 import {
   createMockEvent,
   importMock,
+  mockUserData,
   setUserId,
   toMockedFunction,
 } from '@/utils/test'
@@ -14,6 +15,7 @@ import { handler as getByUserId } from './getByUserId'
 
 jest.mock('@/utils/database')
 jest.mock('@/models/collection')
+jest.mock('@/services/users')
 jest.mock('@/services/users/authorization')
 
 describe('getByUserId', () => {
@@ -21,6 +23,7 @@ describe('getByUserId', () => {
   let event: APIGatewayProxyEventV2
 
   beforeEach(() => {
+    mockUserData(userId)
     event = setUserId(
       userId,
       createMockEvent({

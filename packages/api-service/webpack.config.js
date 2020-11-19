@@ -59,6 +59,8 @@ const lambdas = {
   accountDelegates_acceptDelegatedAccount: lambdaPath(
     'accountDelegates/acceptDelegatedAccount.ts',
   ),
+  users_getUser: lambdaPath('users/getUser.ts'),
+  users_acceptTerms: lambdaPath('users/acceptTerms.ts'),
 }
 
 const config = {

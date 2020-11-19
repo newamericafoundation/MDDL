@@ -21,14 +21,14 @@ type EventProcessorPromise = (
 ) => Promise<APIGatewayRequest>
 type EventHandler<R> = (request: APIGatewayRequest) => Promise<R>
 type EventBodyHandler<T, R> = (request: APIGatewayRequestBody<T>) => Promise<R>
+export type MiddlewareEventProcessor<R, T> =
+  | EventProcessor
+  | EventProcessorPromise
+  | EventBodyHandler<T, R>
+  | EventHandler<R>
 
-export const createApiGatewayHandler = <R, T = any>(
-  ...middleware: (
-    | EventProcessor
-    | EventProcessorPromise
-    | EventBodyHandler<T, R>
-    | EventHandler<R>
-  )[]
+export const createAuthenticatedApiGatewayHandlerBase = <R, T = any>(
+  ...middleware: MiddlewareEventProcessor<R, T>[]
 ) => {
   return formatApiGatewayResult(compose(combineRequest, ...middleware))
 }

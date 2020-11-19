@@ -66,11 +66,27 @@ describe('UserModel', () => {
         givenName: 'Jane',
         familyName: 'Citizen',
       }
-      const results = await insertUser(data)
+      await insertUser(data)
       data.givenName = 'John'
       expect(await updateUser(data.id, data)).toEqual(
         expect.objectContaining(data),
       )
+    })
+    it('will update a json attribute of a user', async () => {
+      const data: { [index: string]: any } = {
+        id: uuidv4(),
+        givenName: 'Jane',
+        familyName: 'Citizen',
+      }
+      await insertUser(data)
+      data.givenName = 'John'
+      data.attributes = {
+        termsOfUseAccepted: true,
+      }
+      expect(await updateUser(data.id, data)).toEqual(
+        expect.objectContaining(data),
+      )
+      expect(await getUserById(data.id)).toEqual(expect.objectContaining(data))
     })
   })
 })

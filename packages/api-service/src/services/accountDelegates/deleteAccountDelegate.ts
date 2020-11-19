@@ -1,10 +1,6 @@
-import { requirePathParameter, requireUserId } from '@/utils/api-gateway'
+import { requirePathParameter } from '@/utils/api-gateway'
 import { connectDatabase } from '@/utils/database'
-import {
-  APIGatewayRequest,
-  createApiGatewayHandler,
-  setContext,
-} from '@/utils/middleware'
+import { APIGatewayRequest, setContext } from '@/utils/middleware'
 import createError from 'http-errors'
 import {
   AccountDelegate,
@@ -15,7 +11,7 @@ import {
   AccountDelegatePermission,
   requirePermissionToAccountDelegate,
 } from './authorization'
-import { requireUserData } from '@/services/users'
+import { createAuthenticatedApiGatewayHandler } from '@/services/users/middleware'
 
 connectDatabase()
 
@@ -25,12 +21,10 @@ type Request = APIGatewayRequest & {
   accountDelegate: AccountDelegate
 }
 
-export const handler = createApiGatewayHandler(
+export const handler = createAuthenticatedApiGatewayHandler(
   setContext('accountDelegateId', (r) =>
     requirePathParameter(r.event, 'delegateId'),
   ),
-  setContext('userId', (r) => requireUserId(r.event)),
-  setContext('user', (r) => requireUserData(r)),
   setContext('accountDelegate', (r) =>
     getAccountDelegateById(r.accountDelegateId),
   ),

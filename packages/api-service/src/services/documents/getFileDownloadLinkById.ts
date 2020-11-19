@@ -6,15 +6,10 @@ import { getFileByIdAndDocumentId } from '@/models/file'
 import {
   getQueryStringParameter,
   requirePathParameter,
-  requireUserId,
 } from '@/utils/api-gateway'
 import { connectDatabase } from '@/utils/database'
 import { getPresignedDownloadUrl } from '@/utils/s3'
-import {
-  APIGatewayRequest,
-  createApiGatewayHandler,
-  setContext,
-} from '@/utils/middleware'
+import { APIGatewayRequest, setContext } from '@/utils/middleware'
 import createError from 'http-errors'
 import {
   DocumentPermission,
@@ -22,14 +17,13 @@ import {
 } from './authorization'
 import { getDocumentById } from '@/models/document'
 import { validateDisposition } from './validation'
-import { requireUserData } from '@/services/users'
+import { createAuthenticatedApiGatewayHandler } from '@/services/users/middleware'
 
 connectDatabase()
 
-export const handler = createApiGatewayHandler(
+export const handler = createAuthenticatedApiGatewayHandler(
   setContext('documentId', (r) => requirePathParameter(r.event, 'documentId')),
   setContext('fileId', (r) => requirePathParameter(r.event, 'fileId')),
-  setContext('userId', (r) => requireUserId(r.event)),
   setContext(
     'disposition',
     (r) =>
@@ -37,7 +31,6 @@ export const handler = createApiGatewayHandler(
       FileDownloadDispositionTypeEnum.Attachment,
   ),
   validateDisposition(),
-  setContext('user', async (r) => await requireUserData(r)),
   setContext('document', async (r) => await getDocumentById(r.documentId)),
   requirePermissionToDocument(DocumentPermission.GetDocument),
   async (request: APIGatewayRequest): Promise<FileDownloadContract> => {

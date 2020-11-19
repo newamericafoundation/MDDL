@@ -2,7 +2,6 @@ import {
   AccountDelegate,
   deleteAccountDelegate,
   getAccountDelegateById,
-  updateAccountDelegate,
 } from '@/models/accountDelegate'
 import { getUserById, User } from '@/models/user'
 import { addDaysFromNow } from '@/utils/date'

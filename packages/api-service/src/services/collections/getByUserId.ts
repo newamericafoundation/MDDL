@@ -1,27 +1,20 @@
-import {
-  CollectionList as CollectionListContract,
-  CollectionListItem,
-} from 'api-client'
-import { requirePathParameter, requireUserId } from '@/utils/api-gateway'
+import { CollectionList as CollectionListContract } from 'api-client'
+import { requirePathParameter } from '@/utils/api-gateway'
 import { connectDatabase } from '@/utils/database'
 import { getCollectionsByOwnerId } from '@/models/collection'
-import {
-  APIGatewayRequest,
-  createApiGatewayHandler,
-  setContext,
-} from '@/utils/middleware'
+import { APIGatewayRequest, setContext } from '@/utils/middleware'
 import {
   requirePermissionToUser,
   UserPermission,
 } from '@/services/users/authorization'
 import { formatCollections } from '@/services/collections'
 import { CollectionPermission } from './authorization'
+import { createAuthenticatedApiGatewayHandler } from '@/services/users/middleware'
 
 connectDatabase()
 
-export const handler = createApiGatewayHandler(
+export const handler = createAuthenticatedApiGatewayHandler(
   setContext('ownerId', (r) => requirePathParameter(r.event, 'userId')),
-  setContext('userId', (r) => requireUserId(r.event)),
   requirePermissionToUser(UserPermission.ListCollections),
   async (request: APIGatewayRequest): Promise<CollectionListContract> => {
     const { ownerId } = request

@@ -1,11 +1,7 @@
 import { deleteDocument, getSingleDocumentById } from '@/models/document'
-import { requirePathParameter, requireUserId } from '@/utils/api-gateway'
+import { requirePathParameter } from '@/utils/api-gateway'
 import { connectDatabase } from '@/utils/database'
-import {
-  APIGatewayRequest,
-  createApiGatewayHandler,
-  setContext,
-} from '@/utils/middleware'
+import { APIGatewayRequest, setContext } from '@/utils/middleware'
 import {
   DocumentPermission,
   requirePermissionToDocument,
@@ -13,12 +9,12 @@ import {
 import createError from 'http-errors'
 import { deleteObject } from '@/utils/s3'
 import { Document } from '@/models/document'
+import { createAuthenticatedApiGatewayHandler } from '@/services/users/middleware'
 
 connectDatabase()
 
-export const handler = createApiGatewayHandler(
+export const handler = createAuthenticatedApiGatewayHandler(
   setContext('documentId', (r) => requirePathParameter(r.event, 'documentId')),
-  setContext('userId', (r) => requireUserId(r.event)),
   setContext('document', (r) => getSingleDocumentById(r.documentId)),
   requirePermissionToDocument(DocumentPermission.DeleteDocument),
   async (request: APIGatewayRequest): Promise<any> => {

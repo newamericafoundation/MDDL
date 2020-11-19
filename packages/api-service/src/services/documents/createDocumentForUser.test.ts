@@ -7,6 +7,7 @@ import {
 import {
   createMockEvent,
   getObjectKeys,
+  mockUserData,
   setUserId,
   toMockedFunction,
 } from '@/utils/test'
@@ -19,6 +20,7 @@ import {
 jest.mock('@/utils/database')
 jest.mock('@/utils/s3')
 jest.mock('@/models/document')
+jest.mock('@/services/users')
 jest.mock('@/services/users/authorization')
 
 describe('createDocumentForUser', () => {
@@ -26,6 +28,7 @@ describe('createDocumentForUser', () => {
   let event: APIGatewayProxyEventV2
 
   beforeEach(() => {
+    mockUserData(userId)
     event = setUserId(
       userId,
       createMockEvent({

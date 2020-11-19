@@ -1,8 +1,6 @@
 import {
   AccountDelegate,
-  getAccountDelegateById,
   getAccountDelegatesForUser,
-  updateAccountDelegate,
 } from '@/models/accountDelegate'
 import { getUserById, getUsersById, User } from '@/models/user'
 import { addDaysFromNow } from '@/utils/date'
@@ -17,7 +15,6 @@ import { UserDelegatedAccessStatus } from 'api-client'
 import { APIGatewayProxyEventV2 } from 'aws-lambda'
 import { handler as listAccountDelegates } from './listAccountDelegates'
 import createError from 'http-errors'
-import { v4 as uuidv4 } from 'uuid'
 
 jest.mock('@/utils/database')
 jest.mock('@/models/user')

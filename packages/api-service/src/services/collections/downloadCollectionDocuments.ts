@@ -3,13 +3,12 @@ import {
   DocumentsDownload,
   DocumentsDownloadStatusEnum,
 } from 'api-client'
-import { requirePathParameter, requireUserId } from '@/utils/api-gateway'
+import { requirePathParameter } from '@/utils/api-gateway'
 import { connectDatabase } from '@/utils/database'
 import { downloadCollectionDocumentsSchema } from './validation'
 import {
   setContext,
   APIGatewayRequestBody,
-  createApiGatewayHandler,
   requireValidBody,
 } from '@/utils/middleware'
 import {
@@ -22,14 +21,14 @@ import { getCollectionDetails } from '@/services/collections'
 import { EnvironmentVariable, requireConfiguration } from '@/config'
 import { invokeFunction } from '@/utils/lambda'
 import { CreateCollectionZipEvent } from './createCollectionZip'
+import { createAuthenticatedApiGatewayHandler } from '@/services/users/middleware'
 
 connectDatabase()
 
-export const handler = createApiGatewayHandler(
+export const handler = createAuthenticatedApiGatewayHandler(
   setContext('collectionId', (r) =>
     requirePathParameter(r.event, 'collectionId'),
   ),
-  setContext('userId', (r) => requireUserId(r.event)),
   requirePermissionToCollection(CollectionPermission.DownloadDocuments),
   requireValidBody<DocumentsDownloadCreate>(downloadCollectionDocumentsSchema),
   async (

@@ -9,7 +9,7 @@ import {
   Link,
   SharedCollectionListItem,
 } from 'api-client'
-import { userToOwner } from '../users'
+import { userToApiOwner } from '../users'
 import { CollectionPermission } from './authorization'
 
 export const formatCollectionListItem = (
@@ -57,7 +57,7 @@ export const formatSharedCollections = (
       const owner = users.find((u) => u.id == ownerId)
       return {
         collection: formatCollectionListItem(collection, permissions),
-        owner: userToOwner(owner ?? { id: ownerId }),
+        owner: userToApiOwner(owner ?? { id: ownerId }),
       }
     },
   ),

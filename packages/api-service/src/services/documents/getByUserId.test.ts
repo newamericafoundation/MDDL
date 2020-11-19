@@ -3,11 +3,17 @@ import {
   getDocumentsByOwnerId,
   Document as DocumentModel,
 } from '@/models/document'
-import { createMockEvent, setUserId, toMockedFunction } from '@/utils/test'
+import {
+  createMockEvent,
+  mockUserData,
+  setUserId,
+  toMockedFunction,
+} from '@/utils/test'
 import { APIGatewayProxyEventV2 } from 'aws-lambda'
 
 jest.mock('@/utils/database')
 jest.mock('@/models/document')
+jest.mock('@/services/users')
 jest.mock('@/services/users/authorization')
 jest.mock('@/utils/s3')
 
@@ -16,6 +22,7 @@ describe('getByUserId', () => {
   let event: APIGatewayProxyEventV2
 
   beforeEach(() => {
+    mockUserData(userId)
     event = setUserId(
       userId,
       createMockEvent({

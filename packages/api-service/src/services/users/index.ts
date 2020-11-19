@@ -1,23 +1,34 @@
-import {
-  AccountDelegate,
-  findAccountDelegateForAccountByEmail,
-} from '@/models/accountDelegate'
+import { EnforceUserTermsOfUseAcceptance } from '@/constants'
+import { findAccountDelegateForAccountByEmail } from '@/models/accountDelegate'
 import { getUserById, insertUser, updateUser, User } from '@/models/user'
-import { requireToken, requireTokenIssuedAt } from '@/utils/api-gateway'
+import {
+  requireToken,
+  requireTokenIssuedAt,
+  requireUserId,
+} from '@/utils/api-gateway'
 import { APIGatewayRequest } from '@/utils/middleware'
 import { getUserInfo } from '@/utils/oauth'
-import {
-  Owner,
-  UserDelegatedAccess,
-  UserDelegatedAccessStatus,
-} from 'api-client'
+import { Owner, User as ApiUser, UserDelegatedAccessStatus } from 'api-client'
+import createError from 'http-errors'
 
-export const requireUserData = async (request: APIGatewayRequest) => {
-  return await getUserData(
-    request.userId,
+export const requireUserData = async (
+  request: APIGatewayRequest,
+  requireTermsOfUseAcceptance = true,
+) => {
+  requireTermsOfUseAcceptance =
+    requireTermsOfUseAcceptance && EnforceUserTermsOfUseAcceptance
+  const userId = request.userId || requireUserId(request.event)
+  const userData = await getUserData(
+    userId,
     requireToken(request.event),
     requireTokenIssuedAt(request.event),
   )
+  if (requireTermsOfUseAcceptance && !hasAcceptedTermsOfUse(userData)) {
+    throw new createError.Forbidden(
+      'terms of use must be accepted before using this API',
+    )
+  }
+  return userData
 }
 
 export const getUserData = async (
@@ -83,7 +94,7 @@ export const hasDelegatedAccessToUserAccount = async (
   )
 }
 
-export const userToOwner = (user: {
+export const userToApiOwner = (user: {
   id: string
   givenName?: string
   familyName?: string
@@ -91,4 +102,23 @@ export const userToOwner = (user: {
   id: user.id,
   givenName: user.givenName ?? 'Unknown',
   familyName: user.familyName ?? 'Unknown',
+})
+
+export const hasAcceptedTermsOfUse = (user: { attributes?: any }) => {
+  return user.attributes && user.attributes.termsOfUseAccepted
+    ? user.attributes.termsOfUseAccepted
+    : false
+}
+
+export const userToApiUser = (user: {
+  id: string
+  givenName?: string
+  familyName?: string
+  attributes?: any
+}): ApiUser => ({
+  id: user.id,
+  givenName: user.givenName ?? 'Unknown',
+  familyName: user.familyName ?? 'Unknown',
+  termsOfUseAccepted: hasAcceptedTermsOfUse(user),
+  links: [],
 })

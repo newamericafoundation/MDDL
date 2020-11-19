@@ -279,19 +279,6 @@ export interface CollectionGrant {
     links: Array<Link>;
 }
 /**
- * Request data to create an access grant to a collection
- * @export
- * @interface CollectionGrantCreate
- */
-export interface CollectionGrantCreate {
-    /**
-     * The email addresses of individuals to grant access to this collection
-     * @type {Array<string>}
-     * @memberof CollectionGrantCreate
-     */
-    individualEmailAddresses: Array<string>;
-}
-/**
  * A result containing a list of access grants to a document
  * @export
  * @interface CollectionGrantList
@@ -773,6 +760,12 @@ export interface User {
      */
     familyName: string;
     /**
+     * Whether the terms of use have been accepted for the current user for this application
+     * @type {boolean}
+     * @memberof User
+     */
+    termsOfUseAccepted?: boolean;
+    /**
      * An array of Links
      * @type {Array<Link>}
      * @memberof User
@@ -866,123 +859,6 @@ export enum UserDelegatedAccessStatus {
  */
 export const CollectionsApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
-        /**
-         * Grant access to a collection
-         * @summary Create grants to a collection
-         * @param {string} collectionId ID of the collection
-         * @param {CollectionGrantCreate} collectionGrantCreate Create a document grant
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        createGrantsForCollection: async (collectionId: string, collectionGrantCreate: CollectionGrantCreate, options: any = {}): Promise<RequestArgs> => {
-            // verify required parameter 'collectionId' is not null or undefined
-            if (collectionId === null || collectionId === undefined) {
-                throw new RequiredError('collectionId','Required parameter collectionId was null or undefined when calling createGrantsForCollection.');
-            }
-            // verify required parameter 'collectionGrantCreate' is not null or undefined
-            if (collectionGrantCreate === null || collectionGrantCreate === undefined) {
-                throw new RequiredError('collectionGrantCreate','Required parameter collectionGrantCreate was null or undefined when calling createGrantsForCollection.');
-            }
-            const localVarPath = `/collections/{collectionId}/grants`
-                .replace(`{${"collectionId"}}`, encodeURIComponent(String(collectionId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, 'https://example.com');
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication datalocker_auth required
-            // oauth required
-            if (configuration && configuration.accessToken) {
-                const localVarAccessTokenValue = typeof configuration.accessToken === 'function'
-                    ? await configuration.accessToken("datalocker_auth", [])
-                    : await configuration.accessToken;
-                localVarHeaderParameter["Authorization"] = "Bearer " + localVarAccessTokenValue;
-            }
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            const query = new URLSearchParams(localVarUrlObj.search);
-            for (const key in localVarQueryParameter) {
-                query.set(key, localVarQueryParameter[key]);
-            }
-            for (const key in options.query) {
-                query.set(key, options.query[key]);
-            }
-            localVarUrlObj.search = (new URLSearchParams(query)).toString();
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            const needsSerialization = (typeof collectionGrantCreate !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.data =  needsSerialization ? JSON.stringify(collectionGrantCreate !== undefined ? collectionGrantCreate : {}) : (collectionGrantCreate || "");
-
-            return {
-                url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * Revokes access to a collection by removing the grant
-         * @summary Deletes a collection grant
-         * @param {string} collectionId ID of the collection the grant belongs to
-         * @param {string} grantId ID of the grant to delete
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        deleteCollectionGrantById: async (collectionId: string, grantId: string, options: any = {}): Promise<RequestArgs> => {
-            // verify required parameter 'collectionId' is not null or undefined
-            if (collectionId === null || collectionId === undefined) {
-                throw new RequiredError('collectionId','Required parameter collectionId was null or undefined when calling deleteCollectionGrantById.');
-            }
-            // verify required parameter 'grantId' is not null or undefined
-            if (grantId === null || grantId === undefined) {
-                throw new RequiredError('grantId','Required parameter grantId was null or undefined when calling deleteCollectionGrantById.');
-            }
-            const localVarPath = `/collection/{collectionId}/grants/{grantId}`
-                .replace(`{${"collectionId"}}`, encodeURIComponent(String(collectionId)))
-                .replace(`{${"grantId"}}`, encodeURIComponent(String(grantId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, 'https://example.com');
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication datalocker_auth required
-            // oauth required
-            if (configuration && configuration.accessToken) {
-                const localVarAccessTokenValue = typeof configuration.accessToken === 'function'
-                    ? await configuration.accessToken("datalocker_auth", [])
-                    : await configuration.accessToken;
-                localVarHeaderParameter["Authorization"] = "Bearer " + localVarAccessTokenValue;
-            }
-
-
-    
-            const query = new URLSearchParams(localVarUrlObj.search);
-            for (const key in localVarQueryParameter) {
-                query.set(key, localVarQueryParameter[key]);
-            }
-            for (const key in options.query) {
-                query.set(key, options.query[key]);
-            }
-            localVarUrlObj.search = (new URLSearchParams(query)).toString();
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
-                options: localVarRequestOptions,
-            };
-        },
         /**
          * Download all documents in a collection
          * @summary Download Collection documents
@@ -1212,36 +1088,6 @@ export const CollectionsApiAxiosParamCreator = function (configuration?: Configu
 export const CollectionsApiFp = function(configuration?: Configuration) {
     return {
         /**
-         * Grant access to a collection
-         * @summary Create grants to a collection
-         * @param {string} collectionId ID of the collection
-         * @param {CollectionGrantCreate} collectionGrantCreate Create a document grant
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async createGrantsForCollection(collectionId: string, collectionGrantCreate: CollectionGrantCreate, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await CollectionsApiAxiosParamCreator(configuration).createGrantsForCollection(collectionId, collectionGrantCreate, options);
-            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
-                const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
-                return axios.request(axiosRequestArgs);
-            };
-        },
-        /**
-         * Revokes access to a collection by removing the grant
-         * @summary Deletes a collection grant
-         * @param {string} collectionId ID of the collection the grant belongs to
-         * @param {string} grantId ID of the grant to delete
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async deleteCollectionGrantById(collectionId: string, grantId: string, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await CollectionsApiAxiosParamCreator(configuration).deleteCollectionGrantById(collectionId, grantId, options);
-            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
-                const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
-                return axios.request(axiosRequestArgs);
-            };
-        },
-        /**
          * Download all documents in a collection
          * @summary Download Collection documents
          * @param {string} collectionId ID of collection to download documents for
@@ -1309,28 +1155,6 @@ export const CollectionsApiFp = function(configuration?: Configuration) {
 export const CollectionsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
     return {
         /**
-         * Grant access to a collection
-         * @summary Create grants to a collection
-         * @param {string} collectionId ID of the collection
-         * @param {CollectionGrantCreate} collectionGrantCreate Create a document grant
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        createGrantsForCollection(collectionId: string, collectionGrantCreate: CollectionGrantCreate, options?: any): AxiosPromise<void> {
-            return CollectionsApiFp(configuration).createGrantsForCollection(collectionId, collectionGrantCreate, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * Revokes access to a collection by removing the grant
-         * @summary Deletes a collection grant
-         * @param {string} collectionId ID of the collection the grant belongs to
-         * @param {string} grantId ID of the grant to delete
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        deleteCollectionGrantById(collectionId: string, grantId: string, options?: any): AxiosPromise<void> {
-            return CollectionsApiFp(configuration).deleteCollectionGrantById(collectionId, grantId, options).then((request) => request(axios, basePath));
-        },
-        /**
          * Download all documents in a collection
          * @summary Download Collection documents
          * @param {string} collectionId ID of collection to download documents for
@@ -1382,32 +1206,6 @@ export const CollectionsApiFactory = function (configuration?: Configuration, ba
  * @extends {BaseAPI}
  */
 export class CollectionsApi extends BaseAPI {
-    /**
-     * Grant access to a collection
-     * @summary Create grants to a collection
-     * @param {string} collectionId ID of the collection
-     * @param {CollectionGrantCreate} collectionGrantCreate Create a document grant
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof CollectionsApi
-     */
-    public createGrantsForCollection(collectionId: string, collectionGrantCreate: CollectionGrantCreate, options?: any) {
-        return CollectionsApiFp(this.configuration).createGrantsForCollection(collectionId, collectionGrantCreate, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * Revokes access to a collection by removing the grant
-     * @summary Deletes a collection grant
-     * @param {string} collectionId ID of the collection the grant belongs to
-     * @param {string} grantId ID of the grant to delete
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof CollectionsApi
-     */
-    public deleteCollectionGrantById(collectionId: string, grantId: string, options?: any) {
-        return CollectionsApiFp(this.configuration).deleteCollectionGrantById(collectionId, grantId, options).then((request) => request(this.axios, this.basePath));
-    }
-
     /**
      * Download all documents in a collection
      * @summary Download Collection documents
@@ -1469,17 +1267,12 @@ export const DelegateApiAxiosParamCreator = function (configuration?: Configurat
         /**
          * Accept delegated access to a users account for current user
          * @summary Accept delegated access
-         * @param {string} userId ID of current user
          * @param {string} delegateId ID of the User Delegated Access record
          * @param {object} body Accept a delegated access request
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        acceptDelegatedAccount: async (userId: string, delegateId: string, body: object, options: any = {}): Promise<RequestArgs> => {
-            // verify required parameter 'userId' is not null or undefined
-            if (userId === null || userId === undefined) {
-                throw new RequiredError('userId','Required parameter userId was null or undefined when calling acceptDelegatedAccount.');
-            }
+        acceptDelegatedAccount: async (delegateId: string, body: object, options: any = {}): Promise<RequestArgs> => {
             // verify required parameter 'delegateId' is not null or undefined
             if (delegateId === null || delegateId === undefined) {
                 throw new RequiredError('delegateId','Required parameter delegateId was null or undefined when calling acceptDelegatedAccount.');
@@ -1489,7 +1282,6 @@ export const DelegateApiAxiosParamCreator = function (configuration?: Configurat
                 throw new RequiredError('body','Required parameter body was null or undefined when calling acceptDelegatedAccount.');
             }
             const localVarPath = `/delegates/{delegateId}/accept`
-                .replace(`{${"userId"}}`, encodeURIComponent(String(userId)))
                 .replace(`{${"delegateId"}}`, encodeURIComponent(String(delegateId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, 'https://example.com');
@@ -1535,22 +1327,16 @@ export const DelegateApiAxiosParamCreator = function (configuration?: Configurat
         /**
          * 
          * @summary Deletes a delegated users access
-         * @param {string} userId ID of user owning or targeted in the Delegated Access
          * @param {string} delegateId ID of the User Delegated Access record
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deleteAccountDelegate: async (userId: string, delegateId: string, options: any = {}): Promise<RequestArgs> => {
-            // verify required parameter 'userId' is not null or undefined
-            if (userId === null || userId === undefined) {
-                throw new RequiredError('userId','Required parameter userId was null or undefined when calling deleteAccountDelegate.');
-            }
+        deleteAccountDelegate: async (delegateId: string, options: any = {}): Promise<RequestArgs> => {
             // verify required parameter 'delegateId' is not null or undefined
             if (delegateId === null || delegateId === undefined) {
                 throw new RequiredError('delegateId','Required parameter delegateId was null or undefined when calling deleteAccountDelegate.');
             }
             const localVarPath = `/delegates/{delegateId}`
-                .replace(`{${"userId"}}`, encodeURIComponent(String(userId)))
                 .replace(`{${"delegateId"}}`, encodeURIComponent(String(delegateId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, 'https://example.com');
@@ -1601,14 +1387,13 @@ export const DelegateApiFp = function(configuration?: Configuration) {
         /**
          * Accept delegated access to a users account for current user
          * @summary Accept delegated access
-         * @param {string} userId ID of current user
          * @param {string} delegateId ID of the User Delegated Access record
          * @param {object} body Accept a delegated access request
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async acceptDelegatedAccount(userId: string, delegateId: string, body: object, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserDelegatedAccess>> {
-            const localVarAxiosArgs = await DelegateApiAxiosParamCreator(configuration).acceptDelegatedAccount(userId, delegateId, body, options);
+        async acceptDelegatedAccount(delegateId: string, body: object, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserDelegatedAccess>> {
+            const localVarAxiosArgs = await DelegateApiAxiosParamCreator(configuration).acceptDelegatedAccount(delegateId, body, options);
             return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
                 const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
                 return axios.request(axiosRequestArgs);
@@ -1617,13 +1402,12 @@ export const DelegateApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Deletes a delegated users access
-         * @param {string} userId ID of user owning or targeted in the Delegated Access
          * @param {string} delegateId ID of the User Delegated Access record
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async deleteAccountDelegate(userId: string, delegateId: string, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await DelegateApiAxiosParamCreator(configuration).deleteAccountDelegate(userId, delegateId, options);
+        async deleteAccountDelegate(delegateId: string, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await DelegateApiAxiosParamCreator(configuration).deleteAccountDelegate(delegateId, options);
             return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
                 const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
                 return axios.request(axiosRequestArgs);
@@ -1641,25 +1425,23 @@ export const DelegateApiFactory = function (configuration?: Configuration, baseP
         /**
          * Accept delegated access to a users account for current user
          * @summary Accept delegated access
-         * @param {string} userId ID of current user
          * @param {string} delegateId ID of the User Delegated Access record
          * @param {object} body Accept a delegated access request
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        acceptDelegatedAccount(userId: string, delegateId: string, body: object, options?: any): AxiosPromise<UserDelegatedAccess> {
-            return DelegateApiFp(configuration).acceptDelegatedAccount(userId, delegateId, body, options).then((request) => request(axios, basePath));
+        acceptDelegatedAccount(delegateId: string, body: object, options?: any): AxiosPromise<UserDelegatedAccess> {
+            return DelegateApiFp(configuration).acceptDelegatedAccount(delegateId, body, options).then((request) => request(axios, basePath));
         },
         /**
          * 
          * @summary Deletes a delegated users access
-         * @param {string} userId ID of user owning or targeted in the Delegated Access
          * @param {string} delegateId ID of the User Delegated Access record
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deleteAccountDelegate(userId: string, delegateId: string, options?: any): AxiosPromise<void> {
-            return DelegateApiFp(configuration).deleteAccountDelegate(userId, delegateId, options).then((request) => request(axios, basePath));
+        deleteAccountDelegate(delegateId: string, options?: any): AxiosPromise<void> {
+            return DelegateApiFp(configuration).deleteAccountDelegate(delegateId, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -1674,28 +1456,26 @@ export class DelegateApi extends BaseAPI {
     /**
      * Accept delegated access to a users account for current user
      * @summary Accept delegated access
-     * @param {string} userId ID of current user
      * @param {string} delegateId ID of the User Delegated Access record
      * @param {object} body Accept a delegated access request
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof DelegateApi
      */
-    public acceptDelegatedAccount(userId: string, delegateId: string, body: object, options?: any) {
-        return DelegateApiFp(this.configuration).acceptDelegatedAccount(userId, delegateId, body, options).then((request) => request(this.axios, this.basePath));
+    public acceptDelegatedAccount(delegateId: string, body: object, options?: any) {
+        return DelegateApiFp(this.configuration).acceptDelegatedAccount(delegateId, body, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 
      * @summary Deletes a delegated users access
-     * @param {string} userId ID of user owning or targeted in the Delegated Access
      * @param {string} delegateId ID of the User Delegated Access record
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof DelegateApi
      */
-    public deleteAccountDelegate(userId: string, delegateId: string, options?: any) {
-        return DelegateApiFp(this.configuration).deleteAccountDelegate(userId, delegateId, options).then((request) => request(this.axios, this.basePath));
+    public deleteAccountDelegate(delegateId: string, options?: any) {
+        return DelegateApiFp(this.configuration).deleteAccountDelegate(delegateId, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -2119,6 +1899,66 @@ export class DocumentApi extends BaseAPI {
  */
 export const UserApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
+        /**
+         * Accept application Terms of Use for a user
+         * @summary Accept Terms
+         * @param {string} userId ID of current user
+         * @param {object} body Accept the terms of use
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        acceptTerms: async (userId: string, body: object, options: any = {}): Promise<RequestArgs> => {
+            // verify required parameter 'userId' is not null or undefined
+            if (userId === null || userId === undefined) {
+                throw new RequiredError('userId','Required parameter userId was null or undefined when calling acceptTerms.');
+            }
+            // verify required parameter 'body' is not null or undefined
+            if (body === null || body === undefined) {
+                throw new RequiredError('body','Required parameter body was null or undefined when calling acceptTerms.');
+            }
+            const localVarPath = `/users/{userId}/accept-terms`
+                .replace(`{${"userId"}}`, encodeURIComponent(String(userId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, 'https://example.com');
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication datalocker_auth required
+            // oauth required
+            if (configuration && configuration.accessToken) {
+                const localVarAccessTokenValue = typeof configuration.accessToken === 'function'
+                    ? await configuration.accessToken("datalocker_auth", [])
+                    : await configuration.accessToken;
+                localVarHeaderParameter["Authorization"] = "Bearer " + localVarAccessTokenValue;
+            }
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            const query = new URLSearchParams(localVarUrlObj.search);
+            for (const key in localVarQueryParameter) {
+                query.set(key, localVarQueryParameter[key]);
+            }
+            for (const key in options.query) {
+                query.set(key, options.query[key]);
+            }
+            localVarUrlObj.search = (new URLSearchParams(query)).toString();
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            const needsSerialization = (typeof body !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.data =  needsSerialization ? JSON.stringify(body !== undefined ? body : {}) : (body || "");
+
+            return {
+                url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
+                options: localVarRequestOptions,
+            };
+        },
         /**
          * Add delegated access to a user for current user
          * @summary Add delegated access
@@ -2635,6 +2475,21 @@ export const UserApiAxiosParamCreator = function (configuration?: Configuration)
 export const UserApiFp = function(configuration?: Configuration) {
     return {
         /**
+         * Accept application Terms of Use for a user
+         * @summary Accept Terms
+         * @param {string} userId ID of current user
+         * @param {object} body Accept the terms of use
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async acceptTerms(userId: string, body: object, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<User>> {
+            const localVarAxiosArgs = await UserApiAxiosParamCreator(configuration).acceptTerms(userId, body, options);
+            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
+                const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
+                return axios.request(axiosRequestArgs);
+            };
+        },
+        /**
          * Add delegated access to a user for current user
          * @summary Add delegated access
          * @param {string} userId ID of user to delegate access for
@@ -2777,6 +2632,17 @@ export const UserApiFp = function(configuration?: Configuration) {
 export const UserApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
     return {
         /**
+         * Accept application Terms of Use for a user
+         * @summary Accept Terms
+         * @param {string} userId ID of current user
+         * @param {object} body Accept the terms of use
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        acceptTerms(userId: string, body: object, options?: any): AxiosPromise<User> {
+            return UserApiFp(configuration).acceptTerms(userId, body, options).then((request) => request(axios, basePath));
+        },
+        /**
          * Add delegated access to a user for current user
          * @summary Add delegated access
          * @param {string} userId ID of user to delegate access for
@@ -2883,6 +2749,19 @@ export const UserApiFactory = function (configuration?: Configuration, basePath?
  * @extends {BaseAPI}
  */
 export class UserApi extends BaseAPI {
+    /**
+     * Accept application Terms of Use for a user
+     * @summary Accept Terms
+     * @param {string} userId ID of current user
+     * @param {object} body Accept the terms of use
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UserApi
+     */
+    public acceptTerms(userId: string, body: object, options?: any) {
+        return UserApiFp(this.configuration).acceptTerms(userId, body, options).then((request) => request(this.axios, this.basePath));
+    }
+
     /**
      * Add delegated access to a user for current user
      * @summary Add delegated access

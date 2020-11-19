@@ -82,7 +82,7 @@ describe('getSharedToUserId', () => {
     `)
   })
   it('returns 404 when user doesnt exist', async () => {
-    event = setUserId('otherUserId', event)
+    mockUserData('otherUserId')
     toMockedFunction(getCollectionsByGrantType).mockImplementationOnce(() =>
       Promise.resolve([]),
     )
