@@ -4,6 +4,7 @@ import {
   setContext,
 } from '@/utils/middleware'
 import { requireUserData } from '@/services/users'
+import { requireUserId } from '@/utils/api-gateway'
 
 export type HandlerProps = {
   requireTermsOfUseAcceptance?: boolean
@@ -21,6 +22,7 @@ export const createCustomAuthenticatedApiGatewayHandler = <R, T = any>(
 ) => {
   const { requireTermsOfUseAcceptance = true } = props
   return createAuthenticatedApiGatewayHandlerBase(
+    setContext('userId', (r) => requireUserId(r.event)),
     setContext(
       'user',
       async (r) => await requireUserData(r, requireTermsOfUseAcceptance),
