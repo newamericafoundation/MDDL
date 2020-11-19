@@ -28,6 +28,7 @@ import { MinimalCloudFrontTarget } from './minimal-cloudfront-target'
 import path = require('path')
 import fs = require('fs')
 import { EmailSender } from './email-sender'
+import { getCognitoHostedLoginCss } from './utils'
 
 interface CustomHostedDomain extends HostedDomain {
   /**
@@ -182,10 +183,7 @@ export class AuthStack extends Stack {
       {
         clientId: 'ALL',
         userPoolId: userPool.userPoolId,
-        css: fs.readFileSync(
-          path.join(__dirname, 'assets', 'hostedLogin.css'),
-          'utf8',
-        ),
+        css: getCognitoHostedLoginCss(),
       },
     )
 

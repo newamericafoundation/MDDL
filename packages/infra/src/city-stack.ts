@@ -56,7 +56,9 @@ import {
 } from '@aws-cdk/aws-route53'
 import { CloudFrontTarget } from '@aws-cdk/aws-route53-targets'
 import {
+  CfnUserPoolClient,
   CfnUserPoolResourceServer,
+  CfnUserPoolUICustomizationAttachment,
   OAuthScope,
   UserPool,
 } from '@aws-cdk/aws-cognito'
@@ -65,6 +67,7 @@ import { ISecurityGroup, IVpc } from '@aws-cdk/aws-ec2'
 import { LambdaDestination } from '@aws-cdk/aws-lambda-destinations'
 import { MinimalCloudFrontTarget } from './minimal-cloudfront-target'
 import { EmailSender } from './email-sender'
+import { getCognitoHostedLoginCss } from './utils'
 
 interface ApiHostedDomain extends HostedDomain {
   /**
@@ -266,6 +269,7 @@ export class CityStack extends Stack {
       authStack,
       apiDomainConfig,
       jwtAuth,
+      `https://${webAppDomain}`,
     )
 
     // create the city key used for encryption of resources in this stack
@@ -381,6 +385,7 @@ export class CityStack extends Stack {
     authStack?: AuthStack,
     apiDomainConfig?: HostedDomain,
     jwtAuth?: JwtConfiguration,
+    appUrl?: string,
   ) {
     // if JWT Auth is given, shortcut out
     if (jwtAuth) {
@@ -412,6 +417,9 @@ export class CityStack extends Stack {
         },
       },
     })
+    const cfnUserPoolClient = client.node.defaultChild as CfnUserPoolClient
+    cfnUserPoolClient.accessTokenValidity = Duration.hours(12).toSeconds()
+    cfnUserPoolClient.idTokenValidity = Duration.hours(12).toSeconds()
 
     // add the resource server
     if (apiDomainConfig) {
@@ -420,6 +428,19 @@ export class CityStack extends Stack {
         name: this.stackName,
         userPoolId: authStack.userPoolId,
       })
+    }
+
+    if (appUrl) {
+      // CSS for hosted login
+      new CfnUserPoolUICustomizationAttachment(
+        this,
+        'UserPoolUICustomizationAttachment',
+        {
+          clientId: client.userPoolClientId,
+          userPoolId: authStack.userPoolId,
+          css: getCognitoHostedLoginCss(appUrl + '/city-logo.svg'),
+        },
+      )
     }
 
     return {
