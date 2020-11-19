@@ -418,8 +418,12 @@ export class CityStack extends Stack {
       },
     })
     const cfnUserPoolClient = client.node.defaultChild as CfnUserPoolClient
-    cfnUserPoolClient.accessTokenValidity = Duration.hours(12).toSeconds()
-    cfnUserPoolClient.idTokenValidity = Duration.hours(12).toSeconds()
+    cfnUserPoolClient.accessTokenValidity = 12
+    cfnUserPoolClient.idTokenValidity = 12
+    cfnUserPoolClient.tokenValidityUnits = {
+      accessToken: 'hours',
+      idToken: 'hours',
+    }
 
     // add the resource server
     if (apiDomainConfig) {
