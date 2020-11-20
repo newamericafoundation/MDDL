@@ -14,6 +14,18 @@ Install all local dependencies via
 yarn
 ```
 
+Run tests for all packages
+
+```bash
+yarn test
+```
+
+Build all packages
+
+```bash
+yarn build
+```
+
 ## Creating a new Package (i.e. adding to the packages/ directory)
 
 Create the new folder and move to it
@@ -55,7 +67,7 @@ Start the nuxt development server with `yarn fe dev`. You should be able to open
 
 For more info see the [frontend readme](./packages/frontend/README.md)
 
-## Storybook
+### Storybook
 
 Storybook helps you document components for reuse and automatically visually test your components to prevent bugs. Run storybook with `yarn storybook`. You can access the storybook by navigating to `http://localhost:3003/` in your browser. For more information see the [storybook docs](https://storybook.js.org/docs/vue/get-started/introduction).
 
@@ -82,9 +94,9 @@ If you have followed the steps correctly, `yarn mockapi` will start a mock api o
 }
 ```
 
-#### Regenerating the API Client
+## Regenerating the API Client
 
-You can use the [OpenAPI Generator](https://github.com/OpenAPITools/openapi-generator#table-of-contents) docker image to regenerate the `api-client` (packages/api-client) with the following command:
+After changing `docs/api.yaml`, you can use the [OpenAPI Generator](https://github.com/OpenAPITools/openapi-generator#table-of-contents) docker image to regenerate the `api-client` (packages/api-client) with the following command:
 
 ```bash
 docker run --rm -v "${PWD}:/local" openapitools/openapi-generator-cli:latest-release generate \
@@ -94,6 +106,14 @@ docker run --rm -v "${PWD}:/local" openapitools/openapi-generator-cli:latest-rel
 ```
 
 > note: run this from the root directory
+
+## Infrastructure
+
+Please see the [infrastructure readme](packages/infra/README.md) for details on developing the infrastructure.
+
+## Backend/API
+
+Please see the [API Service readme](packages/api-service/README.md) for details on developing the API and other application specific cloud processing.
 
 ## Architecture
 
@@ -121,3 +141,7 @@ Scalable and serverless compute powered by AWS Lambda
 If a City is configured in a multi-tenant manner, documents are encrypted with a city-specific KMS key.
 
 A City stack will provision its own database and credentials on creation so it is fully isolated from other City data.
+
+## Information Classification
+
+[Please find a detailed information classification here.](docs/information_classification.md)

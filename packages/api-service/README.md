@@ -1,5 +1,32 @@
 # API Service
 
+## Local development flow
+
+If a new API is to be introduced, first make changes to [the API spec (docs/api.yaml)](./../../docs/api.yaml).
+From there, you should regenerate the API Client as that provides the underlying types we will write API contracts to. Details on how to regenerate this client are in the top level readme for this repository.
+
+Locally, all execution is done via jest testing. Tests sit alongside each entrypoint and contain tests specific to that.
+There are pros and cons to this approach. You don't get a full local setup to test API's end to end, but automated testing is increased and the code is more specific to it's execution environment (AWS Lambda). This means we process API Gateway events (defined by @types/lambda) rather than by locally proxying requests with a framework such as Express.js or Koa.js. Development for lambdas processing events from other services, e.g. S3, can then be developed in the same way with much change to the approach.
+
+### Running the local database
+
+For integration testing with the database, a local MYSQL instance is ran in docker. You can start this database and migrate it with the following command:
+
+```bash
+yarn api start
+```
+
+### Watching and running tests locally
+
+To run jest tests in watch mode, including integration tests with the database, run the following command
+
+```bash
+yarn api test:watch
+```
+
+_note_ the local database should be started before the `test:watch` command is ran.
+_note_ the `yarn api test` command will only run unit tests that do not require the database. This is used by CI/CD tools such as GitHub Actions.
+
 ## Database Migrations
 
 This project uses [Knex](http://knexjs.org) for database migrations.
