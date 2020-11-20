@@ -1,50 +1,17 @@
 <template>
-  <div>
-    <AppBar>
-      <template v-slot:nav-action>
-        <v-app-bar-nav-icon color="grey-8" @click.stop="toggleNav" />
-      </template>
-      <template v-slot:actions>
-        <UploadButton prepend-icon="$plus" />
-        <nuxt-link :to="localePath('/share')" class="nuxt-link">
-          <v-btn class="ml-1 text-body-1 font-weight-medium" color="primary">
-            <v-icon left small>$send</v-icon>
-            {{ $t('controls.share') }}
-          </v-btn>
-        </nuxt-link>
-      </template>
-      <template v-slot:extension>
-        <v-tabs v-model="currentTab" slider-color="primary" color="#000">
-          <v-tab href="#tab-docs">
-            <span>{{ $t('controls.allFiles') }}</span>
-          </v-tab>
-          <v-tab href="#tab-collections">
-            <span>{{ $t('controls.shared') }}</span>
-          </v-tab>
-        </v-tabs>
-      </template>
-    </AppBar>
-    <v-main>
-      <template>
-        <v-tabs-items v-model="currentTab">
-          <v-tab-item value="tab-docs">
-            <DocumentList />
-          </v-tab-item>
-          <v-tab-item value="tab-collections">
-            <CollectionList v-model="collections" />
-          </v-tab-item>
-        </v-tabs-items>
-      </template>
-    </v-main>
-  </div>
+  <ClientDashboard v-if="showClientDashboard" :toggle-nav="toggleNav" />
+  <CboDashboard
+    v-else-if="userStore.role === UserRole.CBO"
+    :toggle-nav="toggleNav"
+  />
 </template>
 
 <script lang="ts">
-import { Vue, Component, Watch } from 'nuxt-property-decorator'
-import { DocumentListItem } from 'api-client'
+import { Vue, Component } from 'nuxt-property-decorator'
 import { userStore, snackbarStore } from '@/plugins/store-accessor'
 import SnackParams from '@/types/snackbar'
 import ClientDashboard from '@/layouts/dashboard.vue'
+import { UserRole } from '@/types/user'
 import { capitalize } from '@/assets/js/stringUtils'
 
 @Component({
@@ -56,23 +23,14 @@ import { capitalize } from '@/assets/js/stringUtils'
   },
 })
 export default class Documents extends Vue {
-  currentTab = 'tab-docs'
+  userStore = userStore
+  UserRole = UserRole
 
   mounted() {
     if (this.$route.query.showSnack) {
       snackbarStore.setVisible(true)
     }
-    if (this.$route.query.tab) {
-      this.currentTab = this.$route.query.tab as string
-    }
-  }
-
-  get documents() {
-    return userStore.documents
-  }
-
-  get collections() {
-    return userStore.collections
+    this.$store.dispatch('user/fetchRole')
   }
 
   toggleNav() {
@@ -80,27 +38,11 @@ export default class Documents extends Vue {
       .$data.drawer
   }
 
-  @Watch('currentTab')
-  onTabChange() {
-    this.$router.push({
-      path: this.$route.path,
-      query: {
-        tab: this.currentTab,
-      },
-    })
+  get showClientDashboard() {
+    return (
+      userStore.role === UserRole.CLIENT ||
+      (userStore.role === UserRole.CBO && userStore.isActingAsDelegate)
+    )
   }
 }
 </script>
-
-<style scoped lang="scss">
-#__nuxt {
-  .v-main {
-    padding-top: 1rem;
-  }
-  .v-window.v-tabs-items .v-window-item {
-    padding: 1rem 0 6rem 0;
-    background-color: var(--blue-super-light);
-    min-height: 100vh;
-  }
-}
-</style>

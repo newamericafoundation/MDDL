@@ -18,7 +18,7 @@
     <DocumentMenu
       v-else-if="showActions"
       :download="download"
-      :delete-doc="deleteDoc"
+      :delete-doc="deleteProp"
       :edit-details="showDetails"
     />
     <v-row align="center" no-gutters>
@@ -100,6 +100,12 @@ export default class DocumentCard extends Vue {
 
   emitChange(val: any) {
     this.$emit('input', val)
+  }
+
+  get deleteProp() {
+    return this.document && this.document.links.some((l) => l.rel === 'delete')
+      ? this.download
+      : null
   }
 
   async download() {

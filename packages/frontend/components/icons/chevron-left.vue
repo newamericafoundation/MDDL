@@ -25,8 +25,4 @@ import { Vue, Component, Prop } from 'nuxt-property-decorator'
 export default class ChevronLeft extends Vue {
   @Prop({ default: 0 }) rotation: number
 }
-// <style lang="scss" scoped>
-// svg {
-// }
-// </style>
 </script>

@@ -6,7 +6,7 @@
       </template>
       <template v-slot:actions>
         <DocumentMenu
-          :download="download"
+          :download="downloadProp"
           :delete-doc="deleteDoc"
           :edit-details="showDetails"
         />
@@ -211,6 +211,12 @@ export default class ViewDocument extends Vue {
       )
     const mb = totalBytes / 1000000
     return mb.toFixed(2)
+  }
+
+  get downloadProp() {
+    return this.document && this.document.links.some((l) => l.rel === 'delete')
+      ? this.download
+      : null
   }
 
   async download() {

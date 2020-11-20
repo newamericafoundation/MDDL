@@ -12,11 +12,13 @@ import {
   UserDelegatedAccessCreate,
   UserDelegatedAccess,
   UserDelegatedAccessList,
+  UserDelegatedAccessStatus,
 } from 'api-client'
 import { SharedCollectionListItem } from '@/types/transformed'
 import axios, { AxiosResponse, AxiosRequestConfig } from 'axios'
 import { hashFile } from '@/assets/js/hash/'
 import { UserRole } from '@/types/user'
+import { Delegate, DelegatedClient } from '@/types/delegate'
 
 @Module({
   name: 'user',
@@ -24,7 +26,14 @@ import { UserRole } from '@/types/user'
   namespaced: true,
 })
 export default class User extends VuexModule {
+  /**
+   * User ID is just the ID of the logged in user.
+   * Owner ID could be the user's user ID, or it could be the user ID of an
+   * account this user has delegate acccess to, hence the "resource owner ID"
+   */
   _userId: string | null = null
+  _ownerId: string | null = null
+
   _documents: DocumentListItem[] = []
   _collections: CollectionListItem[] = []
   _sharedCollections: SharedCollectionListItem[] = []
@@ -47,8 +56,16 @@ export default class User extends VuexModule {
     return this._userId
   }
 
+  get ownerId() {
+    return this._ownerId || this._userId
+  }
+
   get role() {
     return this._role
+  }
+
+  get isActingAsDelegate() {
+    return this._ownerId && this._userId !== this._ownerId
   }
 
   @Mutation
@@ -56,23 +73,41 @@ export default class User extends VuexModule {
     this._userId = userId
   }
 
+  @Mutation
+  setOwnerId(ownerId: string) {
+    this._ownerId = ownerId
+  }
+
+  @Mutation
+  clearOwnerId() {
+    this._ownerId = this._userId
+  }
+
   @Action
-  fetchRole() {
+  async fetchRole() {
     const storedRole = localStorage.getItem('datalocker.role')
     if (storedRole !== null) {
       const role = parseInt(storedRole)
       if (isNaN(role) || !Object.keys(UserRole).includes(storedRole)) {
-        this.setRole(UserRole.CLIENT)
+        await this.setRole(UserRole.CLIENT)
       } else {
-        this.setRole(role)
+        await this.setRole(role)
       }
+    } else {
+      await this.setRole(UserRole.CLIENT)
     }
+    return this._role
   }
 
-  @Action
-  setRole(role: UserRole) {
+  @Mutation
+  _setRole(role: UserRole) {
     this._role = role
+  }
+
+  @Action({ commit: '_setRole' })
+  setRole(role: UserRole) {
     localStorage.setItem('datalocker.role', role.toString())
+    return role
   }
 
   // TODO: Update after upload API changes
@@ -255,11 +290,29 @@ export default class User extends VuexModule {
     return data
   }
 
+  /**
+   * Fetches the list of users who have delegated access to logged in user's account
+   */
   @Action({ rawError: true })
-  async fetchDelegates(): Promise<UserDelegatedAccess[]> {
+  async fetchDelegates(): Promise<Delegate[]> {
     if (!this._userId) return Promise.reject(new Error('UserID not set'))
     const { data } = await api.user.listAccountDelegates(this._userId)
-    return data.delegatedAccess
+    return data.delegatedAccess.filter(
+      (d: UserDelegatedAccess) => !d.allowsAccessToUser,
+    )
+  }
+
+  /**
+   * Fetches a list of user whose accounts the logged in user has access to as a delegate
+   */
+  @Action({ rawError: true })
+  async fetchDelegatedClients(): Promise<DelegatedClient[]> {
+    if (!this._userId) return Promise.reject(new Error('UserID not set'))
+    const { data } = await api.user.listAccountDelegates(this._userId)
+    return data.delegatedAccess.filter(
+      (d: UserDelegatedAccess) =>
+        !!d.allowsAccessToUser && d.status === UserDelegatedAccessStatus.ACTIVE,
+    ) as DelegatedClient[]
   }
 
   @Action({ rawError: true })

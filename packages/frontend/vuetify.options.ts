@@ -22,7 +22,8 @@ import Pencil from '@/components/icons/pencil.vue'
 import Plus from '@/components/icons/plus.vue'
 import Profile from '@/components/icons/profile.vue'
 import Send from '@/components/icons/send.vue'
-import SignOut from '@/components/icons/signOut.vue'
+import SignOut from '@/components/icons/sign-out.vue'
+import SwitchAccount from '@/components/icons/switch-account.vue'
 
 const vuetifyOptions = (ctx: Context): Options => {
   return {
@@ -43,6 +44,8 @@ const vuetifyOptions = (ctx: Context): Options => {
           'grey-8': '#55585e',
           'grey-7': '#6b6e76',
           'grey-2': '#f8f8f9',
+          'blue-mid-light': '#e5e5e5',
+          'blue-super-light': '#fafcff',
         },
         dark: {
           primary: colors.blue.darken2,
@@ -128,6 +131,9 @@ const vuetifyOptions = (ctx: Context): Options => {
         },
         'sign-out': {
           component: SignOut,
+        },
+        'switch-account': {
+          component: SwitchAccount,
         },
       },
     },

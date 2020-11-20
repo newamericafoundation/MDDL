@@ -153,10 +153,20 @@ export default {
       noSharedDocuments: 'No documents have been shared with you yet.',
     },
 
+    cbo: {
+      selectClient: 'select client to access shared files.',
+      clickToRemove: 'click {close} to remove client',
+      noClients:
+        "Once a client adds you to their datalocker account, you'll be able to manage and share files on their behalf from this screen. A client can provide access by navigating to the Account menu in the Datalocker app.",
+      removeConfirmationTitle:
+        'Are you sure you want to remove this client from your Datalocker?',
+      removeConfirmationBody:
+        "You'll no longer have access to shared files. This cannot be undone.",
+    },
+
     agent: {
       clientNameLabel: 'name', // label of client name column in agent view
       sharedFolderNameLabel: 'name', // label of shared folder name column in agent view
-      selectClient: 'select client to access files.',
       reorderFiles: 'reorder files', // shown in agent view when downloading as PDF
       downloadZip: 'Download Zip',
       dateShared: 'Date Shared', // label in side bar

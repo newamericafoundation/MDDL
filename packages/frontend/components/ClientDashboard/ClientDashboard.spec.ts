@@ -1,22 +1,15 @@
-import Vuex from 'vuex'
 import { shallowMount } from '@vue/test-utils'
-import Dashboard from '@/pages/dashboard/index.vue'
+import Vuex from 'vuex'
 import Layout from '@/layouts/default.vue'
-import { UserRole } from '@/types/user'
+import ClientDashboard from '@/components/ClientDashboard/ClientDashboard.vue'
 
 jest.mock('@/plugins/store-accessor', () => ({
   userStore: {
-    role: 0,
-    isActingAsDelegate: false,
-  },
-  snackbarStore: {
-    setVisible: (v: boolean) => {
-      // empty
-    },
+    documents: [],
   },
 }))
 
-describe('Page/Dashboard', () => {
+describe('ClientDashboard component', () => {
   let store: any
   let actions
   beforeEach(() => {
@@ -36,8 +29,8 @@ describe('Page/Dashboard', () => {
     })
   })
 
-  it('exports a valid page', () => {
-    const wrapper = shallowMount(Dashboard, {
+  it('exports a valid component', () => {
+    const wrapper = shallowMount(ClientDashboard, {
       store,
       stubs: { Layout },
       mocks: {

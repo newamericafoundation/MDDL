@@ -15,7 +15,7 @@
       <v-img
         max-width="30rem"
         class="mx-auto"
-        :src="require('@/assets/images/upload.svg')"
+        :src="require('@/static/images/upload.svg')"
       />
       <p class="capitalize text-center">{{ $t('document.noDocuments') }}</p>
       <UploadButton

@@ -20,7 +20,7 @@
             {{ $t('controls.editDetails') }}
           </v-btn>
         </v-list-item>
-        <v-list-item>
+        <v-list-item v-if="deleteDoc">
           <v-btn class="justify-start" text @click="showConfirmation = true">
             <v-icon small class="mr-2" color="primary">$delete</v-icon>
             {{ $t('controls.delete') }}
@@ -66,16 +66,16 @@ import { capitalize } from '@/assets/js/stringUtils'
 
 @Component
 export default class DocumentMenu extends Vue {
-  @Prop({ required: true }) download: () => void
-  @Prop({ required: true }) editDetails: () => void
-  @Prop({ required: true }) deleteDoc: () => void
+  @Prop({ default: null }) editDetails: () => void
+  @Prop({ default: null }) deleteDoc: null | (() => void)
+  @Prop({ default: null }) download: () => void
 
   capitalize = capitalize
   showMenu = false
   showConfirmation = false
 
   confirmDelete() {
-    this.deleteDoc()
+    this.deleteDoc!()
     this.showConfirmation = false
   }
 }

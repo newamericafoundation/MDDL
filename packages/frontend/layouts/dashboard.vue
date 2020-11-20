@@ -1,81 +1,17 @@
 <template>
   <v-app>
     <v-navigation-drawer v-model="drawer" fixed temporary>
-      <v-list>
-        <v-list-item
-          class="dashboardLink"
-          @click.stop="
-            () => {
-              if ($route.path !== '/dashboard') {
-                $router.push('/dashboard')
-              } else {
-                drawer = !drawer
-              }
-            }
-          "
-        >
-          <v-list-item-content>
-            <v-list-item-title class="capitalize">
-              {{ $t('navigation.dashboard') }}
-            </v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-        <template v-for="(item, i) in navItems">
-          <v-divider v-if="item.type === 'break'" :key="i" />
-          <nuxt-link
-            v-else-if="item.to"
-            :key="i"
-            class="nuxt-link"
-            :to="localePath(item.to)"
-          >
-            <v-list-item router exact>
-              <v-list-item-action v-if="item.icon" class="mr-4">
-                <v-icon color="primary">{{ item.icon }}</v-icon>
-              </v-list-item-action>
-              <v-list-item-content>
-                <v-list-item-title class="capitalize" v-text="$t(item.title)" />
-              </v-list-item-content>
-            </v-list-item>
-          </nuxt-link>
-          <v-list-item
-            v-else-if="item.click !== null"
-            :key="i"
-            @click.stop="item.click"
-          >
-            <v-list-item-action v-if="item.icon" class="mr-4">
-              <v-icon color="primary">{{ item.icon }}</v-icon>
-            </v-list-item-action>
-            <v-list-item-content>
-              <v-list-item-title class="capitalize" v-text="$t(item.title)" />
-            </v-list-item-content>
-          </v-list-item>
-        </template>
-      </v-list>
-      <v-footer fixed>
-        <v-divider class="full-width" />
-        <template v-if="$config.showBuildInfo">
+      <NavItemList :items="navItems" />
+      <v-footer fixed class="pa-0">
+        <div v-if="$config.showBuildInfo" class="px-4 mt-4">
           <p>
             <span class="font-weight-bold">Build number:</span>
             {{ $config.buildNumber }}
           </p>
-          <p>
-            <span class="font-weight-bold">Build time:</span>
-            {{ format(new Date($config.buildTime), 'd/M/y h:mma') }}
-          </p>
-        </template>
-        <v-list>
-          <v-list-item @click.stop="logOut">
-            <v-list-item-action>
-              <v-icon color="primary">$sign-out</v-icon>
-            </v-list-item-action>
-            <v-list-item-content>
-              <v-list-item-title
-                class="capitalize"
-                v-text="$t('navigation.signOut')"
-              />
-            </v-list-item-content>
-          </v-list-item>
-        </v-list>
+          <span class="font-weight-bold">Build time:</span>
+          {{ format(new Date($config.buildTime), 'd/M/y h:mma') }}
+        </div>
+        <NavItemList :items="footerNavItems" />
       </v-footer>
     </v-navigation-drawer>
     <nuxt />
@@ -86,32 +22,113 @@
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
 import { format } from 'date-fns'
+import { userStore } from '@/plugins/store-accessor'
+import { UserRole } from '@/types/user'
+import { NavItem } from '@/types/nav'
+import { RawLocation } from 'vue-router'
 
 @Component
-export default class ClientDashboard extends Vue {
+export default class DashboardLayout extends Vue {
   drawer = false
   format = format
+  numDelegatedClients = 0
 
-  navItems = [
+  activityNavItem: NavItem = {
+    label: 'navigation.activity',
+    to: '/activity',
+    icon: '$clock',
+  }
+
+  clientNavItems: NavItem[] = [
     {
-      type: 'break',
-    },
-    {
-      title: 'navigation.account',
+      label: 'navigation.account',
       to: '/account',
       icon: '$cog',
     },
-    // TODO: uncomment when implementing account activity
-    // {
-    //   title: 'navigation.activity',
-    //   to: '/activity',
-    //   icon: '$clock',
-    // },
+    this.activityNavItem,
+    {
+      divider: true,
+    },
   ]
 
-  mounted() {
+  footerNavItems: NavItem[] = [
+    {
+      divider: true,
+    },
+    {
+      label: 'navigation.signOut',
+      icon: '$sign-out',
+      click: this.logOut,
+    },
+  ]
+
+  async mounted() {
     if (this.$route.params.showSnack) {
       this.$store.dispatch('snackbar/show')
+    }
+    await this.$store.dispatch('user/fetchRole')
+    if (userStore.role === UserRole.CBO) {
+      const delegatedClients = await this.$store.dispatch(
+        'user/fetchDelegatedClients',
+      )
+      this.numDelegatedClients = delegatedClients.length
+    }
+  }
+
+  get cboNavItems() {
+    return ([] as NavItem[])
+      .concat(userStore.isActingAsDelegate ? [this.activityNavItem] : [])
+      .concat(
+        this.numDelegatedClients > 0
+          ? [
+              {
+                label: 'navigation.switchAccount',
+                click: () => {
+                  userStore.clearOwnerId()
+                  this.drawer = false
+                  this.$router.push(
+                    this.localeRoute({
+                      path: '/dashboard',
+                      query: {
+                        tab: 'switch',
+                      },
+                    }) as RawLocation,
+                  )
+                },
+                icon: '$switch-account',
+              },
+              {
+                label: 'navigation.manageAccounts',
+                click: () => {
+                  userStore.clearOwnerId()
+                  this.drawer = false
+                  this.$router.push(
+                    this.localeRoute({
+                      path: '/dashboard',
+                      query: {
+                        tab: 'manage',
+                      },
+                    }) as RawLocation,
+                  )
+                },
+                icon: '$cog',
+              },
+            ]
+          : [],
+      )
+  }
+
+  get navItems() {
+    switch (userStore.role) {
+      case UserRole.CBO:
+        return this.cboNavItems
+
+      case UserRole.AGENT:
+        return [] // TODO
+
+      default:
+        // UserRole.CLIENT
+        return this.clientNavItems
     }
   }
 
