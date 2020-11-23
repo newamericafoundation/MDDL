@@ -1,4 +1,8 @@
-import { UpdateDocumentInput, updateDocument } from '@/models/document'
+import {
+  Document,
+  UpdateDocumentInput,
+  updateDocument,
+} from '@/models/document'
 import { requirePathParameter } from '@/utils/api-gateway'
 import { connectDatabase } from '@/utils/database'
 import { putDocumentSchema } from './validation'
@@ -14,15 +18,31 @@ import {
 } from './authorization'
 import createError from 'http-errors'
 import { createAuthenticatedApiGatewayHandler } from '@/services/users/middleware'
+import { User } from '@/models/user'
+import { changesBetween, submitDocumentEditedEvent } from '@/services/activity'
 
 connectDatabase()
+
+type Request = {
+  documentId: string
+  user: User
+  document: Document
+  userId: string
+} & APIGatewayRequestBody<DocumentUpdate>
 
 export const handler = createAuthenticatedApiGatewayHandler(
   setContext('documentId', (r) => requirePathParameter(r.event, 'documentId')),
   requirePermissionToDocument(DocumentPermission.WriteDocument),
   requireValidBody<DocumentUpdate>(putDocumentSchema),
   async (request: APIGatewayRequestBody<DocumentUpdate>): Promise<any> => {
-    const { documentId, userId, body } = request
+    const {
+      documentId,
+      userId,
+      user,
+      document: originalDocument,
+      body,
+      event,
+    } = request as Request
 
     const updatedDate = new Date()
     const document: UpdateDocumentInput = {
@@ -30,6 +50,15 @@ export const handler = createAuthenticatedApiGatewayHandler(
       updatedAt: updatedDate,
       updatedBy: userId,
     }
+
+    // submit change event
+    await submitDocumentEditedEvent({
+      ownerId: originalDocument.ownerId,
+      document: originalDocument,
+      changes: changesBetween(originalDocument, body),
+      event,
+      user,
+    })
 
     const updatedDocument = await updateDocument(documentId, document)
     if (!updatedDocument) {

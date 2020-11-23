@@ -28,7 +28,7 @@ export const createDocumentSchema = object({
 
 export const putDocumentSchema = object({
   name: string().max(255),
-  description: string().max(500),
+  description: string().max(500).allow(null),
 }).or('name', 'description')
 
 export const validateDisposition = () => (

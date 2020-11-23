@@ -31,8 +31,15 @@ import {
 import { addDaysFromNow } from '@/utils/date'
 import { toUserDelegatedAccess } from '.'
 import { createAuthenticatedApiGatewayHandler } from '@/services/users/middleware'
+import { User } from '@/models/user'
+import { submitDelegatedUserInvitedEvent } from '../activity'
 
 connectDatabase()
+type Request = {
+  ownerId: string
+  userId: string
+  user: User
+} & APIGatewayRequestBody<UserDelegatedAccessCreate>
 
 export const handler = createAuthenticatedApiGatewayHandler(
   setContext('ownerId', (r) => requirePathParameter(r.event, 'userId')),
@@ -41,7 +48,7 @@ export const handler = createAuthenticatedApiGatewayHandler(
   async (
     request: APIGatewayRequestBody<UserDelegatedAccessCreate>,
   ): Promise<UserDelegatedAccess> => {
-    const { ownerId, userId, body, user } = request
+    const { ownerId, userId, body, user, event } = request as Request
 
     const delegateCount = await countAccountDelegates(ownerId)
     if (delegateCount >= MaxDelegatesPerAccount) {
@@ -86,6 +93,14 @@ export const handler = createAuthenticatedApiGatewayHandler(
       inviteValidUntil: addDaysFromNow(AccountDelegateInvitationValidDays),
       status: UserDelegatedAccessStatus.INVITATIONSENT,
     }
+
+    // submit audit activity
+    await submitDelegatedUserInvitedEvent({
+      ownerId,
+      user,
+      event,
+      accountDelegate: accountDelegateCreate,
+    })
 
     const createdAccountDelegate = await createAccountDelegate(
       accountDelegateCreate,

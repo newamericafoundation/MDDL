@@ -45,7 +45,7 @@ export const getQueryStringParameter = (
 ): string | undefined => {
   return event.queryStringParameters &&
     event.queryStringParameters[parameterName]
-    ? event.queryStringParameters[parameterName]
+    ? decodeURIComponent(event.queryStringParameters[parameterName])
     : undefined
 }
 
@@ -70,10 +70,6 @@ export const getHeader = (
   return event.headers && event.headers[headerName]
     ? event.headers[headerName]
     : undefined
-}
-
-export const getUrl = (event: APIGatewayProxyEventV2): string => {
-  return event.requestContext.domainName
 }
 
 export const requireUserId = (event: APIGatewayProxyEventV2): string =>

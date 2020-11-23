@@ -8,7 +8,7 @@ import { connectDatabase } from '@/utils/database'
 import { createCollectionSchema } from './validation'
 import { v4 as uuidv4 } from 'uuid'
 import { createCollection, CreateCollectionInput } from '@/models/collection'
-import { allDocumentsExistById } from '@/models/document'
+import { getDocumentsByIdsAndOwnerId } from '@/models/document'
 import {
   setContext,
   APIGatewayRequestBody,
@@ -24,8 +24,17 @@ import { formatCollectionListItem } from '.'
 import { CollectionPermission } from './authorization'
 import { sendSharedCollectionNotification } from '../emails/sendSharedCollectionNotification'
 import { EnvironmentVariable, requireConfiguration } from '@/config'
+import { submitCollectionCreatedEvent } from '../activity'
+import { User } from '@/models/user'
 
 connectDatabase()
+
+type Request = {
+  ownerId: string
+  userId: string
+  user: User
+  webAppDomain: string
+} & APIGatewayRequestBody<CollectionCreateContract>
 
 export const handler = createAuthenticatedApiGatewayHandler(
   setContext('ownerId', (r) => requirePathParameter(r.event, 'userId')),
@@ -37,7 +46,15 @@ export const handler = createAuthenticatedApiGatewayHandler(
   async (
     request: APIGatewayRequestBody<CollectionCreateContract>,
   ): Promise<CollectionContract> => {
-    const { ownerId, userId, user, body, webAppDomain } = request
+    const {
+      ownerId,
+      userId,
+      user,
+      body,
+      webAppDomain,
+      event,
+    } = request as Request
+
     // prepare values
     const createdAt = new Date()
     const updatedAt = createdAt
@@ -50,17 +67,15 @@ export const handler = createAuthenticatedApiGatewayHandler(
     } = body as CollectionCreateContract
 
     // extended validation - check documents exist for user
-    const allDocumentsBelongToUser = await allDocumentsExistById(
-      documentIds,
-      ownerId,
-    )
+    const documents = await getDocumentsByIdsAndOwnerId(documentIds, ownerId)
+    const allDocumentsBelongToUser = documents.length === documentIds.length
     if (!allDocumentsBelongToUser) {
       throw new createError.BadRequest(`validation error: documents not found`)
     }
 
     // create model input
     const collection: CreateCollectionInput = {
-      name: name,
+      name,
       id: uuidv4(),
       ownerId,
       createdBy,
@@ -73,12 +88,22 @@ export const handler = createAuthenticatedApiGatewayHandler(
         createdAt,
       })),
       grants: individualEmailAddresses.map((email) => ({
+        id: uuidv4(),
         requirementType: CollectionGrantType.INDIVIDUALEMAIL,
         requirementValue: email,
         createdBy,
         createdAt,
       })),
     }
+
+    // submit audit activity
+    await submitCollectionCreatedEvent({
+      ownerId,
+      user,
+      collection,
+      documents,
+      event,
+    })
 
     // submit model
     const createdCollection = await createCollection(collection)

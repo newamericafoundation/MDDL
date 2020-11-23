@@ -10,7 +10,9 @@ import {
 import { getFileByIdAndDocumentId } from '@/models/file'
 import { APIGatewayProxyEventV2 } from 'aws-lambda'
 
+jest.mock('@/config')
 jest.mock('@/utils/database')
+jest.mock('@/utils/sqs')
 jest.mock('@/utils/s3')
 jest.mock('@/models/document')
 jest.mock('@/models/file')
@@ -28,6 +30,7 @@ describe('getFileDownloadLinkById', () => {
       Document.fromDatabaseJson({
         id: documentId,
         ownerId: userId,
+        name: documentId,
       }),
     )
     event = setUserId(

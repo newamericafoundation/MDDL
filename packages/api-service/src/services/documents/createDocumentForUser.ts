@@ -24,8 +24,16 @@ import {
 import createError from 'http-errors'
 import { DocumentPermission } from './authorization'
 import { createAuthenticatedApiGatewayHandler } from '@/services/users/middleware'
+import { submitDocumentCreatedEvent } from '../activity'
+import { User } from '@/models/user'
 
 connectDatabase()
+type Request = {
+  ownerId: string
+  userId: string
+  user: User
+  userPermissions: UserPermission[]
+} & APIGatewayRequestBody<DocumentCreate>
 
 export const handler = createAuthenticatedApiGatewayHandler(
   setContext('ownerId', (r) => requirePathParameter(r.event, 'userId')),
@@ -34,7 +42,14 @@ export const handler = createAuthenticatedApiGatewayHandler(
   async (
     request: APIGatewayRequestBody<DocumentCreate>,
   ): Promise<DocumentContract> => {
-    const { ownerId, userId, body, userPermissions } = request
+    const {
+      ownerId,
+      userId,
+      user,
+      body,
+      userPermissions,
+      event,
+    } = request as Request
 
     const documentCount = await countDocumentsByOwnerId(ownerId)
     if (documentCount >= MaxDocumentsPerUser) {
@@ -70,6 +85,14 @@ export const handler = createAuthenticatedApiGatewayHandler(
         },
       ),
     }
+
+    // submit audit activity
+    await submitDocumentCreatedEvent({
+      ownerId,
+      user,
+      document: document,
+      event,
+    })
 
     const createdDocument = await createDocument(document)
     if (!createdDocument) {

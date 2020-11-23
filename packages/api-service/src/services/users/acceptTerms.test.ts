@@ -8,6 +8,8 @@ import {
 import { APIGatewayProxyEventV2 } from 'aws-lambda'
 import { updateUser, User } from '@/models/user'
 
+jest.mock('@/config')
+jest.mock('@/utils/sqs')
 jest.mock('@/utils/database')
 jest.mock('@/models/user')
 jest.mock('@/services/users')

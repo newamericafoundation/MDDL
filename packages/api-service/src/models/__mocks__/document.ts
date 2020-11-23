@@ -2,7 +2,7 @@ export const { Document } = jest.requireActual('../document')
 
 export const documentExistsById = jest.fn()
 export const updateDocument = jest.fn()
-export const allDocumentsExistById = jest.fn()
+export const getDocumentsByIdsAndOwnerId = jest.fn()
 export const createDocument = jest.fn()
 export const countDocumentsByOwnerId = jest.fn()
 export const getDocumentById = jest.fn()

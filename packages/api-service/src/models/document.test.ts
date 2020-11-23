@@ -4,7 +4,7 @@ import {
   getDocumentsByOwnerId,
   createDocument,
   Document as DocumentModel,
-  allDocumentsExistById,
+  getDocumentsByIdsAndOwnerId,
   updateDocument,
   getSingleDocumentById,
   documentIsInCollectionWithGrant,
@@ -178,12 +178,14 @@ describe('DocumentModel', () => {
     })
   })
 
-  describe('allDocumentsExistById', () => {
-    it('returns false if document not found', async () => {
+  describe('getDocumentsByIdsAndOwnerId', () => {
+    it('returns empty if document not found', async () => {
       const id = uuidv4()
-      expect(await allDocumentsExistById([uuidv4()], id)).toStrictEqual(false)
+      expect(await getDocumentsByIdsAndOwnerId([uuidv4()], id)).toStrictEqual(
+        [],
+      )
     })
-    it('returns true when only document is found', async () => {
+    it('returns single element when only document is found', async () => {
       const userId = uuidv4()
       const id = uuidv4()
       await DocumentModel.query().insert({
@@ -195,9 +197,16 @@ describe('DocumentModel', () => {
         createdAt: new Date(),
         updatedAt: new Date(),
       })
-      expect(await allDocumentsExistById([id], userId)).toStrictEqual(true)
+      expect(await getDocumentsByIdsAndOwnerId([id], userId)).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            id,
+            name: '' + id,
+          }),
+        ]),
+      )
     })
-    it('returns false when single document is not found from list', async () => {
+    it('returns one when single document is not found from list', async () => {
       const userId = uuidv4()
       const id = uuidv4()
       await DocumentModel.query().insert({
@@ -209,8 +218,13 @@ describe('DocumentModel', () => {
         createdAt: new Date(),
         updatedAt: new Date(),
       })
-      expect(await allDocumentsExistById([id, uuidv4()], userId)).toStrictEqual(
-        false,
+      expect(await getDocumentsByIdsAndOwnerId([id, uuidv4()], userId)).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            id,
+            name: '' + id,
+          }),
+        ]),
       )
     })
     it('returns true when all grants in list are found', async () => {
@@ -235,8 +249,17 @@ describe('DocumentModel', () => {
         createdAt: new Date(),
         updatedAt: new Date(),
       })
-      expect(await allDocumentsExistById([id1, id2], userId)).toStrictEqual(
-        true,
+      expect(await getDocumentsByIdsAndOwnerId([id1, id2], userId)).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            id: id2,
+            name: '' + id2,
+          }),
+          expect.objectContaining({
+            id: id1,
+            name: '' + id1,
+          }),
+        ]),
       )
     })
   })
@@ -365,6 +388,7 @@ describe('DocumentModel', () => {
         ],
         grants: [
           {
+            id: uuidv4(),
             requirementType: CollectionGrantType.INDIVIDUALEMAIL,
             requirementValue: userEmail,
             createdAt: new Date(),
@@ -449,6 +473,7 @@ describe('DocumentModel', () => {
         ],
         grants: [
           {
+            id: uuidv4(),
             requirementType: CollectionGrantType.INDIVIDUALEMAIL,
             requirementValue: userEmail,
             createdAt: new Date(),

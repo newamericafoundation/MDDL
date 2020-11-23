@@ -115,6 +115,7 @@ export interface CreateCollectionDocumentInput {
 }
 
 export interface CreateCollectionGrantInput {
+  id: string
   requirementType: string
   requirementValue: string
   createdBy: string

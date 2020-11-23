@@ -1093,6 +1093,7 @@ components:
       description: A list of account activity
       required:
         - activity
+        - nextToken
       properties:
         activity:
           type: array
@@ -1101,6 +1102,7 @@ components:
             $ref: '#/components/schemas/Activity'
         nextToken:
           type: string
+          nullable: true
           description: The token to use to fetch further account activity
           example: D050A33E-74F6-4BEF-AED5-87F48E5CCE44
     ActivityActionTypeEnum:
@@ -1114,8 +1116,8 @@ components:
         - DOCUMENT.DELETED
         - DELEGATEDUSER.INVITED
         - DELEGATEDUSER.INVITE_ACCEPTED
-        - DELEGATEDUSER.INVITE_REJECTED
         - DELEGATEDUSER.DELETED
+        - USER.TERMS_ACCEPTED
       example: COLLECTION.CREATED
     ActivityResourceTypeEnum:
       description: The type of an activity resource
@@ -1124,7 +1126,9 @@ components:
         - COLLECTION
         - COLLECTION.INDIVIDUAL_EMAIL_GRANT
         - DOCUMENT
+        - DOCUMENT.FILE
         - DELEGATEDUSER
+        - USER
       example: COLLECTION
     ActivityResourceChange:
       type: object

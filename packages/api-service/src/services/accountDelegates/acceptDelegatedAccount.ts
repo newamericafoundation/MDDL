@@ -15,6 +15,7 @@ import {
 } from './authorization'
 import { getUserById } from '@/models/user'
 import { createAuthenticatedApiGatewayHandler } from '@/services/users/middleware'
+import { submitDelegatedUserInviteAcceptedEvent } from '../activity'
 
 connectDatabase()
 
@@ -35,7 +36,7 @@ export const handler = createAuthenticatedApiGatewayHandler(
     AccountDelegatePermission.AcceptAccountDelegate,
   ),
   async (request: APIGatewayRequest): Promise<UserDelegatedAccess> => {
-    const { accountDelegate, userId, user } = request as Request
+    const { accountDelegate, userId, user, event } = request as Request
 
     if (
       accountDelegate.status !== UserDelegatedAccessStatus.INVITATIONSENT ||
@@ -46,6 +47,14 @@ export const handler = createAuthenticatedApiGatewayHandler(
         `validation error: account delegate invitation can not be accepted`,
       )
     }
+
+    // submit audit activity
+    await submitDelegatedUserInviteAcceptedEvent({
+      ownerId: accountDelegate.accountId,
+      user,
+      event,
+      accountDelegate,
+    })
 
     const updatedDelegate = await updateAccountDelegate(
       accountDelegate.id,

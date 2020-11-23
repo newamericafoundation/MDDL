@@ -11,7 +11,9 @@ import {
   APIGatewayProxyStructuredResultV2,
 } from 'aws-lambda'
 
+jest.mock('@/config')
 jest.mock('@/utils/database')
+jest.mock('@/utils/sqs')
 jest.mock('@/models/document')
 jest.mock('@/services/users')
 
@@ -26,6 +28,7 @@ describe('putDocumentById', () => {
       Document.fromDatabaseJson({
         id: documentId,
         ownerId: userId,
+        name: documentId,
       }),
     )
     event = setUserId(

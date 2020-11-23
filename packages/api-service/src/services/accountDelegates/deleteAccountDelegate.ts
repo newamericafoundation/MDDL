@@ -12,6 +12,7 @@ import {
   requirePermissionToAccountDelegate,
 } from './authorization'
 import { createAuthenticatedApiGatewayHandler } from '@/services/users/middleware'
+import { submitDelegatedUserDeletedEvent } from '../activity'
 
 connectDatabase()
 
@@ -32,7 +33,16 @@ export const handler = createAuthenticatedApiGatewayHandler(
     AccountDelegatePermission.DeleteAccountDelegate,
   ),
   async (request: APIGatewayRequest): Promise<any> => {
-    const { accountDelegate, userId, user } = request as Request
+    const { accountDelegate, user, event } = request as Request
+
+    // submit audit activity
+    await submitDelegatedUserDeletedEvent({
+      ownerId: accountDelegate.accountId,
+      user,
+      event,
+      accountDelegate,
+    })
+
     const deleted = await deleteAccountDelegate(accountDelegate.id)
     if (!deleted) {
       throw new createError.InternalServerError(

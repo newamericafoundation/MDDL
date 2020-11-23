@@ -10,10 +10,12 @@ import { updateUser, User } from '@/models/user'
 import { hasAcceptedTermsOfUse, userToApiUser } from '@/services/users'
 import { createCustomAuthenticatedApiGatewayHandler } from '@/services/users/middleware'
 import createError from 'http-errors'
+import { submitTermsAcceptedEvent } from '../activity'
 
 connectDatabase()
 
 type Request = APIGatewayRequest & {
+  ownerId: string
   userId: string
   user: User
 }
@@ -23,13 +25,20 @@ export const handler = createCustomAuthenticatedApiGatewayHandler(
   setContext('ownerId', (r) => requirePathParameter(r.event, 'userId')),
   requirePermissionToUser(UserPermission.WriteUser),
   async (request: APIGatewayRequest): Promise<ApiUser> => {
-    const { user } = request as Request
+    const { ownerId, user, event } = request as Request
 
     if (hasAcceptedTermsOfUse(user)) {
       throw new createError.BadRequest(
         'terms of use already accepted for user!',
       )
     }
+
+    // submit audit activity
+    await submitTermsAcceptedEvent({
+      ownerId,
+      user,
+      event,
+    })
 
     const updatedUser = await updateUser(user.id, {
       attributes: {

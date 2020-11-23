@@ -46,7 +46,8 @@ const lambdas = {
   collections_getDownloadForCollectionDocuments: lambdaPath(
     'collections/getDownloadForCollectionDocuments.ts',
   ),
-  activity_listAccountActivity: lambdaPath('users/listAccountActivity.ts'),
+  activity_listAccountActivity: lambdaPath('activity/listAccountActivity.ts'),
+  activity_processActivity: lambdaPath('activity/processActivity.ts'),
   accountDelegates_listAccountDelegates: lambdaPath(
     'accountDelegates/listAccountDelegates.ts',
   ),

@@ -25,7 +25,12 @@ import {
 import { DataStoreStack } from './data-store-stack'
 import { AuthStack } from './auth-stack'
 import { Provider } from '@aws-cdk/custom-resources'
-import { RetentionDays } from '@aws-cdk/aws-logs'
+import {
+  CfnLogGroup,
+  ILogGroup,
+  LogGroup,
+  RetentionDays,
+} from '@aws-cdk/aws-logs'
 import { ISecret, Secret } from '@aws-cdk/aws-secretsmanager'
 import {
   AccountPrincipal,
@@ -65,6 +70,8 @@ import {
 import { HostedDomain } from './hosted-domain'
 import { ISecurityGroup, IVpc } from '@aws-cdk/aws-ec2'
 import { LambdaDestination } from '@aws-cdk/aws-lambda-destinations'
+import { SqsEventSource } from '@aws-cdk/aws-lambda-event-sources'
+import { Queue, IQueue } from '@aws-cdk/aws-sqs'
 import { MinimalCloudFrontTarget } from './minimal-cloudfront-target'
 import { EmailSender } from './email-sender'
 import { getCognitoHostedLoginCss } from './utils'
@@ -166,6 +173,16 @@ interface BucketPermissions {
   includeTagging?: boolean
 }
 
+interface SqsPermissions {
+  includeWrite?: boolean
+  includeDelete?: boolean
+}
+
+interface LogGroupPermissions {
+  includeRead?: boolean
+  includeWrite?: boolean
+}
+
 enum EnvironmentVariables {
   DOCUMENTS_BUCKET = 'DOCUMENTS_BUCKET',
   USERINFO_ENDPOINT = 'USERINFO_ENDPOINT',
@@ -173,6 +190,8 @@ enum EnvironmentVariables {
   EMAIL_SENDER = 'EMAIL_SENDER',
   AGENCY_EMAIL_DOMAINS_WHITELIST = 'AGENCY_EMAIL_DOMAINS_WHITELIST',
   CREATE_COLLECTION_ZIP_FUNCTION_NAME = 'CREATE_COLLECTION_ZIP_FUNCTION_NAME',
+  ACTIVITY_RECORD_SQS_QUEUE_URL = 'ACTIVITY_RECORD_SQS_QUEUE_URL',
+  ACTIVITY_CLOUDWATCH_LOG_GROUP = 'ACTIVITY_CLOUDWATCH_LOG_GROUP',
 }
 
 const pathToApiServiceLambda = (name: string) =>
@@ -186,6 +205,10 @@ export class CityStack extends Stack {
   private lambdaSecurityGroups: ISecurityGroup[]
   private rdsEndpoint: string
   private environmentVariables: { [key: string]: string }
+  private uploadsBucket: Bucket
+  private kmsKey: IKey
+  private auditLogQueue: IQueue
+  private auditLogGroup: ILogGroup
   constructor(scope: Construct, id: string, props: Props) {
     super(scope, id, props)
 
@@ -274,6 +297,7 @@ export class CityStack extends Stack {
 
     // create the city key used for encryption of resources in this stack
     const { kmsKey } = this.addKmsKey()
+    this.kmsKey = kmsKey
 
     // create the DB and access credentials for this city
     const { secret } = this.addDbAndCredentials(
@@ -302,11 +326,18 @@ export class CityStack extends Stack {
       gmLayer,
     }
 
+    // create dead letter queue
+    const { queue: deadLetterQueue } = this.createDeadLetterQueue(kmsKey)
+
     // create uploads bucket
-    const { bucket } = this.createUploadsBucket(kmsKey, corsOrigins)
+    this.uploadsBucket = this.createUploadsBucket(kmsKey, corsOrigins).bucket
+
+    // create audit log group and queue
+    this.auditLogGroup = this.createAuditLogGroup(kmsKey).logGroup
+    this.auditLogQueue = this.createAuditLogQueue(kmsKey, deadLetterQueue).queue
 
     this.environmentVariables = {
-      [EnvironmentVariables.DOCUMENTS_BUCKET]: bucket.bucketName,
+      [EnvironmentVariables.DOCUMENTS_BUCKET]: this.uploadsBucket.bucketName,
       [EnvironmentVariables.USERINFO_ENDPOINT]:
         jwtConfiguration.userInfoEndpoint,
       [EnvironmentVariables.WEB_APP_DOMAIN]: webAppDomain,
@@ -314,22 +345,25 @@ export class CityStack extends Stack {
       [EnvironmentVariables.AGENCY_EMAIL_DOMAINS_WHITELIST]: agencyEmailDomainsWhitelist.join(
         ',',
       ),
+      [EnvironmentVariables.ACTIVITY_CLOUDWATCH_LOG_GROUP]: this.auditLogGroup
+        .logGroupName,
+      [EnvironmentVariables.ACTIVITY_RECORD_SQS_QUEUE_URL]: this.auditLogQueue
+        .queueUrl,
     }
 
+    this.createAuditLogQueueProcessor(this.auditLogQueue)
+
     // add user routes
-    this.addUserRoutes(apiProps, bucket)
+    this.addUserRoutes(apiProps)
 
     // add document routes
-    this.addDocumentRoutes(apiProps, bucket)
+    this.addDocumentRoutes(apiProps)
 
     // add collection routes
-    this.addCollectionRoutes(apiProps, bucket)
+    this.addCollectionRoutes(apiProps)
 
     // add account delegate routes
     this.addAccountDelegateRoutes(apiProps)
-
-    // add account delegate routes
-    this.addActivityRoutes(apiProps)
 
     // run database migrations
     this.runMigrations(secret, mySqlLayer)
@@ -340,7 +374,7 @@ export class CityStack extends Stack {
    * @param kmsKey The encryption key for the bucket
    * @param corsOrigins CORS origins for the bucket policy
    */
-  private createUploadsBucket(kmsKey: Key, corsOrigins: string[]) {
+  private createUploadsBucket(kmsKey: IKey, corsOrigins: string[]) {
     const bucket = new Bucket(this, 'DocumentsBucket', {
       blockPublicAccess: {
         blockPublicAcls: true,
@@ -370,6 +404,88 @@ export class CityStack extends Stack {
     })
     return {
       bucket,
+    }
+  }
+
+  /**
+   * Create the audit log group for the stack. Predictably named for easier finding in the console.
+   * @param kmsKey The encryption key for the log group
+   */
+  private createAuditLogGroup(kmsKey: IKey) {
+    const logGroup = new LogGroup(this, 'AuditLogGroup', {
+      logGroupName: this.stackName + '_AuditLogGroup',
+      removalPolicy: RemovalPolicy.RETAIN,
+      retention: RetentionDays.INFINITE,
+    })
+    const cfnLogGroup = logGroup.node.defaultChild as CfnLogGroup
+    cfnLogGroup.addPropertyOverride('KmsKeyId', kmsKey.keyArn)
+    return {
+      logGroup,
+    }
+  }
+
+  /**
+   * Create the audit log queue for the stack.
+   * @param kmsKey The encryption key for the log group
+   * @param deadLetterQueue The dead letter queue to user
+   */
+  private createAuditLogQueue(kmsKey: IKey, deadLetterQueue: Queue) {
+    const queue = new Queue(this, 'AuditLogQueue', {
+      encryptionMasterKey: kmsKey,
+      fifo: true,
+      retentionPeriod: Duration.days(10),
+      visibilityTimeout: Duration.seconds(60),
+      deadLetterQueue: {
+        queue: deadLetterQueue,
+        maxReceiveCount: 50,
+      },
+    })
+
+    return {
+      queue,
+    }
+  }
+
+  /**
+   * Create the processor for the audit log queue
+   * @param auditLogQueue The queue to read messages from
+   */
+  private createAuditLogQueueProcessor(auditLogQueue: IQueue) {
+    const lambda = this.createLambda(
+      'ProcessActivity',
+      pathToApiServiceLambda('activity/processActivity'),
+      {
+        auditLogGroupPermissions: {
+          includeWrite: true,
+        },
+        auditLogSqsPermissions: {
+          includeDelete: true,
+        },
+        extraEnvironmentVariables: [
+          EnvironmentVariables.ACTIVITY_RECORD_SQS_QUEUE_URL,
+          EnvironmentVariables.ACTIVITY_CLOUDWATCH_LOG_GROUP,
+        ],
+      },
+    )
+    lambda.addEventSource(
+      new SqsEventSource(auditLogQueue, {
+        batchSize: 10,
+      }),
+    )
+  }
+
+  /**
+   * Create the audit log queue for the stack.
+   * @param kmsKey The encryption key for the log group
+   */
+  private createDeadLetterQueue(kmsKey: IKey) {
+    const queue = new Queue(this, 'DeadLetterQueue', {
+      encryptionMasterKey: kmsKey,
+      retentionPeriod: Duration.days(10),
+      fifo: true,
+    })
+    return {
+      queue,
     }
   }
 
@@ -611,6 +727,26 @@ export class CityStack extends Stack {
       }),
     )
 
+    // add permissions required for logs
+    kmsKey.addToResourcePolicy(
+      new PolicyStatement({
+        principals: [new ServicePrincipal(`logs.${this.region}.amazonaws.com`)],
+        actions: [
+          'kms:Encrypt*',
+          'kms:Decrypt*',
+          'kms:ReEncrypt*',
+          'kms:GenerateDataKey*',
+          'kms:Describe*',
+        ],
+        resources: ['*'],
+        conditions: {
+          ArnEquals: {
+            'kms:EncryptionContext:aws:logs:arn': `arn:aws:logs:${this.region}:${this.account}:log-group:*`,
+          },
+        },
+      }),
+    )
+
     return {
       kmsKey,
     }
@@ -822,30 +958,35 @@ export class CityStack extends Stack {
   }
 
   /**
-   * Adds Policy Statements to allow some actions in the S3 bucket
+   * Adds Policy Statements to allow specified permissions to a lambda
    * @param lambdaFunction The function to apply the statements to
-   * @param uploadsBucket The Documents Upload Bucket
    * @param actions The actions to allow
    */
-  private addPermissionsToDocumentBucket(
+  private addPermissionsToLambda(
     lambdaFunction: IFunction,
-    uploadsBucket: IBucket,
-    documentPermissions: BucketPermissions,
-    collectionPermissions?: BucketPermissions,
+    permissions: {
+      documentBucketPermissions?: BucketPermissions
+      collectionBucketPermissions?: BucketPermissions
+      auditLogSqsPermissions?: SqsPermissions
+      auditLogGroupPermissions?: LogGroupPermissions
+    },
   ) {
     // set up constants
     const {
+      documentBucketPermissions,
+      collectionBucketPermissions,
+      auditLogSqsPermissions,
+      auditLogGroupPermissions,
+    } = permissions
+    const {
       bucketActions: documentBucketActions,
       keyActions: documentKeyActions,
-    } = this.determinePermissions(documentPermissions)
+    } = this.determinePermissions(documentBucketPermissions ?? {})
     const {
       bucketActions: collectionBucketActions,
       keyActions: collectionKeyActions,
-    } = this.determinePermissions(collectionPermissions ?? {})
-    const { encryptionKey } = uploadsBucket
-    const keyActions = Array.from(
-      new Set([...documentKeyActions, ...collectionKeyActions]),
-    )
+    } = this.determinePermissions(collectionBucketPermissions ?? {})
+    const keyActions = new Set([...documentKeyActions, ...collectionKeyActions])
 
     // add bucket permissions for documents
     if (documentBucketActions.length) {
@@ -853,7 +994,7 @@ export class CityStack extends Stack {
         new PolicyStatement({
           actions: documentBucketActions,
           resources: [
-            uploadsBucket.arnForObjects(
+            this.uploadsBucket.arnForObjects(
               `${CityStack.documentsBucketDocumentsPrefix}*`,
             ),
           ],
@@ -867,7 +1008,7 @@ export class CityStack extends Stack {
         new PolicyStatement({
           actions: collectionBucketActions,
           resources: [
-            uploadsBucket.arnForObjects(
+            this.uploadsBucket.arnForObjects(
               `${CityStack.documentsBucketCollectionsPrefix}*`,
             ),
           ],
@@ -875,12 +1016,71 @@ export class CityStack extends Stack {
       )
     }
 
-    // add key permissions
-    if (encryptionKey && keyActions.length) {
+    // add sqs permissions
+    if (auditLogSqsPermissions) {
+      const { includeWrite, includeDelete } = auditLogSqsPermissions
+      const actions = []
+
+      if (includeWrite) {
+        keyActions.add('kms:GenerateDataKey')
+        keyActions.add('kms:Decrypt')
+        actions.push('sqs:SendMessage')
+      }
+
+      if (includeDelete) {
+        actions.push('sqs:DeleteMessageBatch')
+      }
+
       lambdaFunction.addToRolePolicy(
         new PolicyStatement({
-          actions: keyActions,
-          resources: [encryptionKey.keyArn],
+          actions: actions,
+          resources: [this.auditLogQueue.queueArn],
+        }),
+      )
+    }
+
+    // add log group permissions
+    if (auditLogGroupPermissions) {
+      const { includeRead, includeWrite } = auditLogGroupPermissions
+      const logGroupActions = []
+      const logStreamActions = []
+
+      if (includeRead) {
+        logStreamActions.push('logs:GetLogEvents')
+      }
+
+      if (includeWrite) {
+        keyActions.add('kms:GenerateDataKey')
+        logGroupActions.push('logs:CreateLogStream')
+        logGroupActions.push('logs:DescribeLogStreams')
+        logStreamActions.push('logs:PutLogEvents')
+      }
+
+      if (logGroupActions.length) {
+        lambdaFunction.addToRolePolicy(
+          new PolicyStatement({
+            actions: logGroupActions,
+            resources: [this.auditLogGroup.logGroupArn],
+          }),
+        )
+      }
+
+      if (logStreamActions.length) {
+        lambdaFunction.addToRolePolicy(
+          new PolicyStatement({
+            actions: logStreamActions,
+            resources: [this.auditLogGroup.logGroupArn],
+          }),
+        )
+      }
+    }
+
+    // add key permissions
+    if (keyActions.size != 0) {
+      lambdaFunction.addToRolePolicy(
+        new PolicyStatement({
+          actions: Array.from(keyActions),
+          resources: [this.kmsKey.keyArn],
         }),
       )
     }
@@ -889,65 +1089,57 @@ export class CityStack extends Stack {
   /**
    * Adds user specific routes to the API
    * @param apiProps Common properties for API functions
-   * @param uploadsBucket The bucket with document uploads
    */
-  private addUserRoutes(apiProps: ApiProps, uploadsBucket: IBucket) {
+  private addUserRoutes(apiProps: ApiProps) {
     const { api, dbSecret, mySqlLayer, authorizer } = apiProps
 
-    // add lambda to list users documents
-    const getUserDocumentsLambda = this.createLambda(
-      'GetUserDocuments',
-      pathToApiServiceLambda('documents/getByUserId'),
-      {
-        dbSecret,
-        layers: [mySqlLayer],
-        extraEnvironmentVariables: [
-          EnvironmentVariables.DOCUMENTS_BUCKET,
-          EnvironmentVariables.USERINFO_ENDPOINT,
-        ],
-      },
-    )
-
-    // permission needed to create presigned urls for thumbnails
-    this.addPermissionsToDocumentBucket(getUserDocumentsLambda, uploadsBucket, {
-      includeRead: true,
-    })
-
-    // add route to list users documents
+    // add route and lambda to list users documents
     this.addRoute(api, {
       name: 'GetUserDocuments',
       routeKey: 'GET /users/{userId}/documents',
-      lambdaFunction: getUserDocumentsLambda,
+      lambdaFunction: this.createLambda(
+        'GetUserDocuments',
+        pathToApiServiceLambda('documents/getByUserId'),
+        {
+          dbSecret,
+          layers: [mySqlLayer],
+          extraEnvironmentVariables: [
+            EnvironmentVariables.DOCUMENTS_BUCKET,
+            EnvironmentVariables.USERINFO_ENDPOINT,
+          ],
+          // permission needed to create presigned urls for thumbnails
+          documentBucketPermissions: {
+            includeRead: true,
+          },
+        },
+      ),
       authorizer,
     })
 
-    // create lambda to submit a document
-    const postUserDocumentsLambda = this.createLambda(
-      'PostUserDocuments',
-      pathToApiServiceLambda('documents/createDocumentForUser'),
-      {
-        dbSecret,
-        layers: [mySqlLayer],
-        extraEnvironmentVariables: [
-          EnvironmentVariables.DOCUMENTS_BUCKET,
-          EnvironmentVariables.USERINFO_ENDPOINT,
-        ],
-      },
-    )
-    // permission needed to create presigned url
-    this.addPermissionsToDocumentBucket(
-      postUserDocumentsLambda,
-      uploadsBucket,
-      {
-        includeWrite: true,
-      },
-    )
-
-    // add route to submit a document
+    // add lambda and route to submit a document
     this.addRoute(api, {
       name: 'PostUserDocuments',
       routeKey: 'POST /users/{userId}/documents',
-      lambdaFunction: postUserDocumentsLambda,
+      lambdaFunction: this.createLambda(
+        'PostUserDocuments',
+        pathToApiServiceLambda('documents/createDocumentForUser'),
+        {
+          dbSecret,
+          layers: [mySqlLayer],
+          extraEnvironmentVariables: [
+            EnvironmentVariables.DOCUMENTS_BUCKET,
+            EnvironmentVariables.USERINFO_ENDPOINT,
+            EnvironmentVariables.ACTIVITY_RECORD_SQS_QUEUE_URL,
+          ],
+          // permission needed to create presigned upload url
+          documentBucketPermissions: {
+            includeWrite: true,
+          },
+          auditLogSqsPermissions: {
+            includeWrite: true,
+          },
+        },
+      ),
       authorizer,
     })
 
@@ -998,7 +1190,11 @@ export class CityStack extends Stack {
           EnvironmentVariables.WEB_APP_DOMAIN,
           EnvironmentVariables.EMAIL_SENDER,
           EnvironmentVariables.AGENCY_EMAIL_DOMAINS_WHITELIST,
+          EnvironmentVariables.ACTIVITY_RECORD_SQS_QUEUE_URL,
         ],
+        auditLogSqsPermissions: {
+          includeWrite: true,
+        },
       },
     )
     createCollectionFunction.addToRolePolicy(
@@ -1040,7 +1236,35 @@ export class CityStack extends Stack {
         {
           dbSecret,
           layers: [mySqlLayer],
-          extraEnvironmentVariables: [EnvironmentVariables.USERINFO_ENDPOINT],
+          extraEnvironmentVariables: [
+            EnvironmentVariables.USERINFO_ENDPOINT,
+            EnvironmentVariables.ACTIVITY_RECORD_SQS_QUEUE_URL,
+          ],
+          auditLogSqsPermissions: {
+            includeWrite: true,
+          },
+        },
+      ),
+      authorizer,
+    })
+
+    // add route and lambda to list account delegates
+    this.addRoute(api, {
+      name: 'ListAccountActivity',
+      routeKey: 'GET /users/{userId}/activity',
+      lambdaFunction: this.createLambda(
+        'ListAccountActivity',
+        pathToApiServiceLambda('activity/listAccountActivity'),
+        {
+          dbSecret,
+          layers: [mySqlLayer],
+          extraEnvironmentVariables: [
+            EnvironmentVariables.USERINFO_ENDPOINT,
+            EnvironmentVariables.ACTIVITY_CLOUDWATCH_LOG_GROUP,
+          ],
+          auditLogGroupPermissions: {
+            includeRead: true,
+          },
         },
       ),
       authorizer,
@@ -1052,67 +1276,58 @@ export class CityStack extends Stack {
    * @param apiProps Common properties for API functions
    * @param uploadsBucket The bucket with document uploads
    */
-  private addDocumentRoutes(apiProps: ApiProps, uploadsBucket: Bucket) {
+  private addDocumentRoutes(apiProps: ApiProps) {
     const { api, dbSecret, mySqlLayer, authorizer, gmLayer } = apiProps
 
-    // create lambda to fetch a document
-    const getDocumentByIdLambda = this.createLambda(
-      'GetDocumentById',
-      pathToApiServiceLambda('documents/getById'),
-      {
-        dbSecret,
-        layers: [mySqlLayer],
-        extraEnvironmentVariables: [
-          EnvironmentVariables.DOCUMENTS_BUCKET,
-          EnvironmentVariables.USERINFO_ENDPOINT,
-          EnvironmentVariables.AGENCY_EMAIL_DOMAINS_WHITELIST,
-        ],
-      },
-    )
-
-    // permission needed to create presigned urls (for get and put)
-    this.addPermissionsToDocumentBucket(getDocumentByIdLambda, uploadsBucket, {
-      includeRead: true,
-      includeWrite: true,
-    })
-
-    // add route
+    // add lambda and route to fetch a document
     this.addRoute(api, {
       name: 'GetDocumentById',
       routeKey: 'GET /documents/{documentId}',
-      lambdaFunction: getDocumentByIdLambda,
+      lambdaFunction: this.createLambda(
+        'GetDocumentById',
+        pathToApiServiceLambda('documents/getById'),
+        {
+          dbSecret,
+          layers: [mySqlLayer],
+          extraEnvironmentVariables: [
+            EnvironmentVariables.DOCUMENTS_BUCKET,
+            EnvironmentVariables.USERINFO_ENDPOINT,
+            EnvironmentVariables.AGENCY_EMAIL_DOMAINS_WHITELIST,
+          ],
+          documentBucketPermissions: {
+            includeRead: true,
+            includeWrite: true,
+          },
+        },
+      ),
       authorizer,
     })
 
-    // create lambda to get a file download link
-    const getFileDownloadByIdLambda = this.createLambda(
-      'DownloadDocumentFileById',
-      pathToApiServiceLambda('documents/getFileDownloadLinkById'),
-      {
-        dbSecret,
-        layers: [mySqlLayer],
-        extraEnvironmentVariables: [
-          EnvironmentVariables.DOCUMENTS_BUCKET,
-          EnvironmentVariables.USERINFO_ENDPOINT,
-          EnvironmentVariables.AGENCY_EMAIL_DOMAINS_WHITELIST,
-        ],
-      },
-    )
-
-    // permission needed to create presigned urls (for get)
-    this.addPermissionsToDocumentBucket(
-      getFileDownloadByIdLambda,
-      uploadsBucket,
-      {
-        includeRead: true,
-      },
-    )
-
-    // add route
+    // add lambda and route to get a file download link
     this.addRoute(api, {
       name: 'DownloadDocumentFileById',
       routeKey: 'GET /documents/{documentId}/files/{fileId}/download',
-      lambdaFunction: getFileDownloadByIdLambda,
+      lambdaFunction: this.createLambda(
+        'DownloadDocumentFileById',
+        pathToApiServiceLambda('documents/getFileDownloadLinkById'),
+        {
+          dbSecret,
+          layers: [mySqlLayer],
+          extraEnvironmentVariables: [
+            EnvironmentVariables.DOCUMENTS_BUCKET,
+            EnvironmentVariables.USERINFO_ENDPOINT,
+            EnvironmentVariables.AGENCY_EMAIL_DOMAINS_WHITELIST,
+            EnvironmentVariables.ACTIVITY_RECORD_SQS_QUEUE_URL,
+          ],
+          // permission needed to create presigned urls (for get)
+          documentBucketPermissions: {
+            includeRead: true,
+          },
+          auditLogSqsPermissions: {
+            includeWrite: true,
+          },
+        },
+      ),
       authorizer,
     })
 
@@ -1138,16 +1353,11 @@ export class CityStack extends Stack {
             responseOnly: true,
           }),
         },
-      },
-    )
-
-    // permission needed to upload and download files
-    this.addPermissionsToDocumentBucket(
-      createDocumentThumbnail,
-      uploadsBucket,
-      {
-        includeRead: true,
-        includeWrite: true,
+        // permission needed to upload and download files
+        documentBucketPermissions: {
+          includeRead: true,
+          includeWrite: true,
+        },
       },
     )
 
@@ -1166,7 +1376,7 @@ export class CityStack extends Stack {
       },
     )
     markFileAsReceived.addEventSource(
-      new S3EventSource(uploadsBucket, {
+      new S3EventSource(this.uploadsBucket, {
         events: [EventType.OBJECT_CREATED],
         filters: [
           {
@@ -1186,7 +1396,13 @@ export class CityStack extends Stack {
         {
           dbSecret,
           layers: [mySqlLayer],
-          extraEnvironmentVariables: [EnvironmentVariables.USERINFO_ENDPOINT],
+          extraEnvironmentVariables: [
+            EnvironmentVariables.USERINFO_ENDPOINT,
+            EnvironmentVariables.ACTIVITY_RECORD_SQS_QUEUE_URL,
+          ],
+          auditLogSqsPermissions: {
+            includeWrite: true,
+          },
         },
       ),
       authorizer,
@@ -1202,16 +1418,15 @@ export class CityStack extends Stack {
         extraEnvironmentVariables: [
           EnvironmentVariables.DOCUMENTS_BUCKET,
           EnvironmentVariables.USERINFO_ENDPOINT,
+          EnvironmentVariables.ACTIVITY_RECORD_SQS_QUEUE_URL,
         ],
-      },
-    )
-
-    // permission needed to create presigned urls (for get and put)
-    this.addPermissionsToDocumentBucket(
-      deleteDocumentByIdLambda,
-      uploadsBucket,
-      {
-        includeDelete: true,
+        // permission needed to create presigned urls (for get and put)
+        documentBucketPermissions: {
+          includeDelete: true,
+        },
+        auditLogSqsPermissions: {
+          includeWrite: true,
+        },
       },
     )
 
@@ -1228,33 +1443,30 @@ export class CityStack extends Stack {
    * Adds collection specific routes to the API
    * @param apiProps Common properties for API functions
    */
-  private addCollectionRoutes(apiProps: ApiProps, uploadsBucket: Bucket) {
+  private addCollectionRoutes(apiProps: ApiProps) {
     const { api, dbSecret, mySqlLayer, authorizer } = apiProps
-
-    const getCollectionDocuments = this.createLambda(
-      'GetCollectionDocuments',
-      pathToApiServiceLambda('collections/getDocumentsByCollectionId'),
-      {
-        dbSecret,
-        layers: [mySqlLayer],
-        extraEnvironmentVariables: [
-          EnvironmentVariables.USERINFO_ENDPOINT,
-          EnvironmentVariables.DOCUMENTS_BUCKET,
-          EnvironmentVariables.AGENCY_EMAIL_DOMAINS_WHITELIST,
-        ],
-      },
-    )
-
-    // permission needed to create presigned urls for thumbnails
-    this.addPermissionsToDocumentBucket(getCollectionDocuments, uploadsBucket, {
-      includeRead: true,
-    })
 
     // add route and lambda to list collections documents
     this.addRoute(api, {
       name: 'GetCollectionDocuments',
       routeKey: 'GET /collections/{collectionId}/documents',
-      lambdaFunction: getCollectionDocuments,
+      lambdaFunction: this.createLambda(
+        'GetCollectionDocuments',
+        pathToApiServiceLambda('collections/getDocumentsByCollectionId'),
+        {
+          dbSecret,
+          layers: [mySqlLayer],
+          extraEnvironmentVariables: [
+            EnvironmentVariables.USERINFO_ENDPOINT,
+            EnvironmentVariables.DOCUMENTS_BUCKET,
+            EnvironmentVariables.AGENCY_EMAIL_DOMAINS_WHITELIST,
+          ],
+          // permission needed to create presigned urls for thumbnails
+          documentBucketPermissions: {
+            includeRead: true,
+          },
+        },
+      ),
       authorizer,
     })
 
@@ -1285,20 +1497,16 @@ export class CityStack extends Stack {
         extraFunctionProps: {
           timeout: Duration.seconds(900),
         },
-      },
-    )
-    this.addPermissionsToDocumentBucket(
-      createCollectionZip,
-      uploadsBucket,
-      {
-        // can read documents
-        includeRead: true,
-      },
-      {
-        // can read and write collections
-        includeRead: true,
-        includeWrite: true,
-        includeTagging: true,
+        documentBucketPermissions: {
+          // can read documents
+          includeRead: true,
+        },
+        collectionBucketPermissions: {
+          // can read and write collections
+          includeRead: true,
+          includeWrite: true,
+          includeTagging: true,
+        },
       },
     )
     this.environmentVariables[
@@ -1317,18 +1525,18 @@ export class CityStack extends Stack {
           EnvironmentVariables.DOCUMENTS_BUCKET,
           EnvironmentVariables.CREATE_COLLECTION_ZIP_FUNCTION_NAME,
           EnvironmentVariables.AGENCY_EMAIL_DOMAINS_WHITELIST,
+          EnvironmentVariables.ACTIVITY_RECORD_SQS_QUEUE_URL,
         ],
+        collectionBucketPermissions: {
+          // can read collections
+          includeRead: true,
+        },
+        auditLogSqsPermissions: {
+          includeWrite: true,
+        },
       },
     )
-    this.addPermissionsToDocumentBucket(
-      downloadCollectionDocuments,
-      uploadsBucket,
-      {},
-      {
-        // can read collections
-        includeRead: true,
-      },
-    )
+
     createCollectionZip.grantInvoke(downloadCollectionDocuments)
     // add route to create a collection download
     this.addRoute(api, {
@@ -1338,35 +1546,32 @@ export class CityStack extends Stack {
       authorizer,
     })
 
-    // add lambda to fetch a collection download
-    const getDownloadForCollectionDocuments = this.createLambda(
-      'GetDownloadForCollectionDocuments',
-      pathToApiServiceLambda('collections/getDownloadForCollectionDocuments'),
-      {
-        dbSecret,
-        layers: [mySqlLayer],
-        extraEnvironmentVariables: [
-          EnvironmentVariables.USERINFO_ENDPOINT,
-          EnvironmentVariables.DOCUMENTS_BUCKET,
-          EnvironmentVariables.AGENCY_EMAIL_DOMAINS_WHITELIST,
-        ],
-      },
-    )
-    this.addPermissionsToDocumentBucket(
-      getDownloadForCollectionDocuments,
-      uploadsBucket,
-      {},
-      {
-        // can read collections
-        includeRead: true,
-      },
-    )
-    // add route to fetch a collection download
+    // add route and lambda to fetch a collection download
     this.addRoute(api, {
       name: 'GetDownloadForCollectionDocuments',
       routeKey:
         'GET /collections/{collectionId}/documents/downloads/{downloadId}',
-      lambdaFunction: getDownloadForCollectionDocuments,
+      lambdaFunction: this.createLambda(
+        'GetDownloadForCollectionDocuments',
+        pathToApiServiceLambda('collections/getDownloadForCollectionDocuments'),
+        {
+          dbSecret,
+          layers: [mySqlLayer],
+          extraEnvironmentVariables: [
+            EnvironmentVariables.USERINFO_ENDPOINT,
+            EnvironmentVariables.DOCUMENTS_BUCKET,
+            EnvironmentVariables.AGENCY_EMAIL_DOMAINS_WHITELIST,
+            EnvironmentVariables.ACTIVITY_RECORD_SQS_QUEUE_URL,
+          ],
+          collectionBucketPermissions: {
+            // can read collections
+            includeRead: true,
+          },
+          auditLogSqsPermissions: {
+            includeWrite: true,
+          },
+        },
+      ),
       authorizer,
     })
   }
@@ -1404,7 +1609,13 @@ export class CityStack extends Stack {
         {
           dbSecret,
           layers: [mySqlLayer],
-          extraEnvironmentVariables: [EnvironmentVariables.USERINFO_ENDPOINT],
+          extraEnvironmentVariables: [
+            EnvironmentVariables.USERINFO_ENDPOINT,
+            EnvironmentVariables.ACTIVITY_RECORD_SQS_QUEUE_URL,
+          ],
+          auditLogSqsPermissions: {
+            includeWrite: true,
+          },
         },
       ),
       authorizer,
@@ -1420,7 +1631,13 @@ export class CityStack extends Stack {
         {
           dbSecret,
           layers: [mySqlLayer],
-          extraEnvironmentVariables: [EnvironmentVariables.USERINFO_ENDPOINT],
+          extraEnvironmentVariables: [
+            EnvironmentVariables.USERINFO_ENDPOINT,
+            EnvironmentVariables.ACTIVITY_RECORD_SQS_QUEUE_URL,
+          ],
+          auditLogSqsPermissions: {
+            includeWrite: true,
+          },
         },
       ),
       authorizer,
@@ -1436,31 +1653,13 @@ export class CityStack extends Stack {
         {
           dbSecret,
           layers: [mySqlLayer],
-          extraEnvironmentVariables: [EnvironmentVariables.USERINFO_ENDPOINT],
-        },
-      ),
-      authorizer,
-    })
-  }
-
-  /**
-   * Adds user account activity specific routes to the API
-   * @param apiProps Common properties for API functions
-   */
-  private addActivityRoutes(apiProps: ApiProps) {
-    const { api, dbSecret, mySqlLayer, authorizer } = apiProps
-
-    // add route and lambda to list account delegates
-    this.addRoute(api, {
-      name: 'ListAccountActivity',
-      routeKey: 'GET /users/{userId}/activity',
-      lambdaFunction: this.createLambda(
-        'ListAccountActivity',
-        pathToApiServiceLambda('activity/listAccountActivity'),
-        {
-          dbSecret,
-          layers: [mySqlLayer],
-          extraEnvironmentVariables: [EnvironmentVariables.USERINFO_ENDPOINT],
+          extraEnvironmentVariables: [
+            EnvironmentVariables.USERINFO_ENDPOINT,
+            EnvironmentVariables.ACTIVITY_RECORD_SQS_QUEUE_URL,
+          ],
+          auditLogSqsPermissions: {
+            includeWrite: true,
+          },
         },
       ),
       authorizer,
@@ -1523,6 +1722,10 @@ export class CityStack extends Stack {
       extraEnvironmentVariables?: EnvironmentVariables[]
       layers?: ILayerVersion[]
       extraFunctionProps?: Partial<FunctionProps>
+      documentBucketPermissions?: BucketPermissions
+      collectionBucketPermissions?: BucketPermissions
+      auditLogSqsPermissions?: SqsPermissions
+      auditLogGroupPermissions?: LogGroupPermissions
     },
   ) {
     const {
@@ -1550,7 +1753,7 @@ export class CityStack extends Stack {
     extraEnvironmentVariables.forEach((e) => {
       environment[e] = this.environmentVariables[e]
     })
-    return new Function(this, name, {
+    const lambda = new Function(this, name, {
       ...extraFunctionProps,
       code: Code.fromAsset(path),
       handler,
@@ -1564,6 +1767,8 @@ export class CityStack extends Stack {
         ? this.lambdaSecurityGroups
         : undefined,
     })
+    this.addPermissionsToLambda(lambda, props)
+    return lambda
   }
 
   /**

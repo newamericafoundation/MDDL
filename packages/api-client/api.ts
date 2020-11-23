@@ -75,8 +75,8 @@ export enum ActivityActionTypeEnum {
     DOCUMENTDELETED = 'DOCUMENT.DELETED',
     DELEGATEDUSERINVITED = 'DELEGATEDUSER.INVITED',
     DELEGATEDUSERINVITEACCEPTED = 'DELEGATEDUSER.INVITE_ACCEPTED',
-    DELEGATEDUSERINVITEREJECTED = 'DELEGATEDUSER.INVITE_REJECTED',
-    DELEGATEDUSERDELETED = 'DELEGATEDUSER.DELETED'
+    DELEGATEDUSERDELETED = 'DELEGATEDUSER.DELETED',
+    USERTERMSACCEPTED = 'USER.TERMS_ACCEPTED'
 }
 
 /**
@@ -96,7 +96,7 @@ export interface ActivityList {
      * @type {string}
      * @memberof ActivityList
      */
-    nextToken?: string;
+    nextToken: string | null;
 }
 /**
  * Details on the user principal that performed the activity
@@ -182,7 +182,9 @@ export enum ActivityResourceTypeEnum {
     COLLECTION = 'COLLECTION',
     COLLECTIONINDIVIDUALEMAILGRANT = 'COLLECTION.INDIVIDUAL_EMAIL_GRANT',
     DOCUMENT = 'DOCUMENT',
-    DELEGATEDUSER = 'DELEGATEDUSER'
+    DOCUMENTFILE = 'DOCUMENT.FILE',
+    DELEGATEDUSER = 'DELEGATEDUSER',
+    USER = 'USER'
 }
 
 /**

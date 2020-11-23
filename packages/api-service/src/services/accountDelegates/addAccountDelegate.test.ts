@@ -16,7 +16,9 @@ import { APIGatewayProxyEventV2 } from 'aws-lambda'
 import { handler as addAccountDelegate } from './addAccountDelegate'
 import createError from 'http-errors'
 
+jest.mock('@/config')
 jest.mock('@/utils/database')
+jest.mock('@/utils/sqs')
 jest.mock('@/models/user')
 jest.mock('@/services/users')
 jest.mock('@/services/users/authorization')

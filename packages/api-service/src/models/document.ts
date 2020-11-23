@@ -120,12 +120,14 @@ export const getSingleDocumentById = async (
   )
 }
 
-export const allDocumentsExistById = async (ids: string[], ownerId: string) => {
-  const results = await Document.query()
-    .count({ count: 'id' })
+export const getDocumentsByIdsAndOwnerId = async (
+  ids: string[],
+  ownerId: string,
+) => {
+  return await Document.query()
+    .modify('fieldsForList')
     .whereIn('id', ids)
     .andWhere('ownerId', ownerId)
-  return ((results[0] as unknown) as { count: number }).count == ids.length
 }
 
 export const getDocumentsByOwnerId = async (ownerId: string) => {

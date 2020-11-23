@@ -60,6 +60,7 @@ describe('CollectionModel', () => {
         collectionDocuments: [],
         grants: [
           {
+            id: uuidv4(),
             requirementType: CollectionGrantType.INDIVIDUALEMAIL,
             requirementValue: userId,
             createdAt: new Date(),
@@ -78,6 +79,7 @@ describe('CollectionModel', () => {
         collectionDocuments: [],
         grants: [
           {
+            id: uuidv4(),
             requirementType: CollectionGrantType.INDIVIDUALEMAIL,
             requirementValue: userId,
             createdAt: new Date(),
@@ -120,12 +122,14 @@ describe('CollectionModel', () => {
         collectionDocuments: [],
         grants: [
           {
+            id: uuidv4(),
             requirementType: CollectionGrantType.INDIVIDUALEMAIL,
             requirementValue: grant1Value,
             createdBy: userId,
             createdAt: new Date(),
           },
           {
+            id: uuidv4(),
             requirementType: CollectionGrantType.INDIVIDUALEMAIL,
             requirementValue: grant2Value,
             createdBy: userId,
@@ -233,6 +237,7 @@ describe('CollectionModel', () => {
           ],
           grants: [
             {
+              id: uuidv4(),
               requirementType: CollectionGrantType.INDIVIDUALEMAIL,
               requirementValue: 'mytestemail@example.com',
               createdAt: new Date(),

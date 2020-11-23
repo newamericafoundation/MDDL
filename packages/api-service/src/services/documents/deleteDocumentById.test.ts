@@ -12,7 +12,9 @@ import {
   APIGatewayProxyStructuredResultV2,
 } from 'aws-lambda'
 
+jest.mock('@/config')
 jest.mock('@/utils/database')
+jest.mock('@/utils/sqs')
 jest.mock('@/utils/s3')
 jest.mock('@/models/document')
 jest.mock('@/services/users')
@@ -30,9 +32,11 @@ describe('deleteDocumentById', () => {
       Document.fromDatabaseJson({
         id: documentId,
         ownerId: userId,
+        name: documentId,
         files: [
           File.fromDatabaseJson({
             id: fileId,
+            name: fileId,
           }),
         ],
       }),

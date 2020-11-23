@@ -14,10 +14,11 @@ import {
   createCollection,
   Collection as CollectionModel,
 } from '@/models/collection'
-import { allDocumentsExistById } from '@/models/document'
+import { Document, getDocumentsByIdsAndOwnerId } from '@/models/document'
 import { emailIsWhitelisted } from '@/utils/whitelist'
 
 jest.mock('@/utils/database')
+jest.mock('@/utils/sqs')
 jest.mock('@/utils/s3')
 jest.mock('@/utils/whitelist')
 jest.mock('@/models/collection')
@@ -33,10 +34,16 @@ describe('createCollectionForUser', () => {
 
   beforeEach(() => {
     mockUserData(userId)
-    toMockedFunction(emailIsWhitelisted).mockImplementationOnce(() => true)
-    toMockedFunction(allDocumentsExistById).mockImplementationOnce(
-      async () => true,
+    toMockedFunction(getDocumentsByIdsAndOwnerId).mockImplementationOnce(
+      async (docIds) =>
+        docIds.map((id) =>
+          Document.fromDatabaseJson({
+            id,
+            name: '' + id,
+          }),
+        ),
     )
+    toMockedFunction(emailIsWhitelisted).mockImplementationOnce(() => true)
     event = setUserId(
       userId,
       createMockEvent({
@@ -107,9 +114,9 @@ describe('createCollectionForUser', () => {
       documentIds: ['abc1234'],
       individualEmailAddresses: ['exampleagent@example.com'],
     })
-    toMockedFunction(allDocumentsExistById)
+    toMockedFunction(getDocumentsByIdsAndOwnerId)
       .mockReset()
-      .mockImplementationOnce(async () => false)
+      .mockImplementationOnce(async () => [])
     expect(await createCollectionForUser(event)).toEqual(
       expect.objectContaining({
         body: '{"message":"validation error: documents not found"}',

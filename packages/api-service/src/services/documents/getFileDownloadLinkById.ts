@@ -15,11 +15,22 @@ import {
   DocumentPermission,
   requirePermissionToDocument,
 } from './authorization'
-import { getDocumentById } from '@/models/document'
+import { Document, getDocumentById } from '@/models/document'
 import { validateDisposition } from './validation'
 import { createAuthenticatedApiGatewayHandler } from '@/services/users/middleware'
+import { submitDocumentAccessedEvent } from '../activity'
+import { userInfo } from 'os'
+import { User } from '@/models/user'
 
 connectDatabase()
+
+type Request = {
+  document: Document
+  documentId: string
+  fileId: string
+  user: User
+  disposition: 'attachment' | 'inline'
+} & APIGatewayRequest
 
 export const handler = createAuthenticatedApiGatewayHandler(
   setContext('documentId', (r) => requirePathParameter(r.event, 'documentId')),
@@ -34,11 +45,27 @@ export const handler = createAuthenticatedApiGatewayHandler(
   setContext('document', async (r) => await getDocumentById(r.documentId)),
   requirePermissionToDocument(DocumentPermission.GetDocument),
   async (request: APIGatewayRequest): Promise<FileDownloadContract> => {
-    const { documentId, fileId, disposition } = request
+    const {
+      document,
+      documentId,
+      user,
+      fileId,
+      disposition,
+      event,
+    } = request as Request
     const file = await getFileByIdAndDocumentId(fileId, documentId)
     if (!file) {
       throw new createError.NotFound('file not found')
     }
+
+    // submit audit activity
+    await submitDocumentAccessedEvent({
+      ownerId: document.ownerId,
+      document,
+      files: [file],
+      user: user,
+      event,
+    })
 
     return {
       href: getPresignedDownloadUrl(file.path, file.name, disposition),
