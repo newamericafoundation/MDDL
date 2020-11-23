@@ -14,6 +14,7 @@
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator'
 import { capitalize } from '@/assets/js/stringUtils'
+import { UserRole } from '@/types/user'
 
 @Component({
   layout: 'centered',
@@ -24,7 +25,7 @@ export default class Landing extends Vue {
 
   // set client role and redirect to login
   gotoLogin() {
-    localStorage.setItem('datalocker.role', 'client')
+    this.$store.dispatch('user/setRole', UserRole.CLIENT)
     this.$router.push('/login')
   }
 }

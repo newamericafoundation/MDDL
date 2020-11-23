@@ -269,7 +269,7 @@ export default class Account extends Vue {
   loadDelegates() {
     return this.$store
       .dispatch('user/fetchDelegates')
-      .then(delegates => (this.delegates = delegates))
+      .then((delegates) => (this.delegates = delegates))
   }
 }
 </script>

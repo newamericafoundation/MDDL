@@ -18,6 +18,7 @@
 import { Component, mixins, Prop } from 'nuxt-property-decorator'
 import { capitalize } from '@/assets/js/stringUtils'
 import { Login } from '@/mixins/login'
+import { UserRole } from '@/types/user'
 
 @Component({
   name: 'LandingMessage',
@@ -26,7 +27,7 @@ import { Login } from '@/mixins/login'
   mixins: [Login],
 })
 export default class Landing extends mixins(Login) {
-  @Prop({ default: null, required: true }) role: null
+  @Prop({ required: true }) role: UserRole
 
   capitalize = capitalize
 }
