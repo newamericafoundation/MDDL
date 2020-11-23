@@ -29,6 +29,26 @@
           <v-icon small class="mx-1">$chevron-right</v-icon>
         </v-btn>
         <v-divider />
+        <v-footer v-if="userStore.profile" fixed class="pa-8">
+          <v-card
+            outlined
+            :class="[
+              $vuetify.breakpoint.xs ? 'full-width' : '',
+              'grey-2--text',
+              'px-4',
+            ]"
+          >
+            <v-row align="center">
+              <v-col cols="2" sm="auto">
+                <v-icon large>$profile</v-icon>
+              </v-col>
+              <v-col cols="10" sm="" class="grey-8--text">
+                <p v-text="accountName" />
+                <p class="mb-0" v-text="accountEmail" />
+              </v-col>
+            </v-row>
+          </v-card>
+        </v-footer>
       </div>
     </v-window-item>
     <v-window-item value="language">
@@ -182,7 +202,7 @@
 import { Vue, Component } from 'nuxt-property-decorator'
 import { ValidationObserver, ValidationProvider } from 'vee-validate'
 import { capitalize } from '@/assets/js/stringUtils'
-import { snackbarStore } from '@/plugins/store-accessor'
+import { snackbarStore, userStore } from '@/plugins/store-accessor'
 import { UserDelegatedAccess } from 'api-client'
 
 @Component({
@@ -209,6 +229,17 @@ export default class Account extends Vue {
   loading = false
   confirmationType = 0 // 0: add, 1: remove
   delegateToRemove: UserDelegatedAccess | null = null
+  userStore = userStore
+
+  get accountName() {
+    return userStore.profile
+      ? `${userStore.profile.givenName} ${userStore.profile.familyName}`
+      : ''
+  }
+
+  get accountEmail() {
+    return `${this.$auth.user.email}`
+  }
 
   mounted() {
     this.loadDelegates()
@@ -238,7 +269,13 @@ export default class Account extends Vue {
   loadDelegates() {
     return this.$store
       .dispatch('user/fetchDelegates')
-      .then((delegates) => (this.delegates = delegates))
+      .then(delegates => (this.delegates = delegates))
   }
 }
 </script>
+
+<style lang="scss" scoped>
+.v-card.full-width {
+  width: 100%;
+}
+</style>
