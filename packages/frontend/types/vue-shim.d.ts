@@ -3,9 +3,13 @@ import { Store } from 'vuex'
 import VueRouter, { Route } from 'vue-router'
 import { Auth } from 'nuxtjs__auth'
 import VueAnalytics from 'vue-analytics'
+import VueI18n, { IVueI18n } from 'vue-i18n'
+import { Context } from '@nuxt/types'
+// eslint-disable-next-line import/named
+import { NuxtVueI18n } from 'nuxt-i18n'
 
 declare module 'vue/types/vue' {
-  interface Vue {
+  interface Vue extends NuxtVueI18n.Options.NuxtI18nInterface {
     $api: ApiService
     $store: Store<any>
     $router: VueRouter
@@ -18,6 +22,7 @@ declare module 'vue/types/vue' {
       }): Promise<void>
     }
     $ga: VueAnalytics
+    readonly $i18n: VueI18n & IVueI18n
   }
 }
 

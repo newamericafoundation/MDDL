@@ -136,7 +136,7 @@
             </v-btn>
             <br />
           </v-row>
-          <v-card-title class="heading-1 mx-2">
+          <v-card-title class="text-heading-1 mx-2">
             {{
               capitalize(
                 confirmationType === 0

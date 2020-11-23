@@ -442,7 +442,7 @@ export class CityStack extends Stack {
         {
           clientId: client.userPoolClientId,
           userPoolId: authStack.userPoolId,
-          css: getCognitoHostedLoginCss(appUrl + '/city-logo.svg'),
+          css: getCognitoHostedLoginCss(appUrl + '/images/city-logo.svg'),
         },
       )
     }

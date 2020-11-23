@@ -6,7 +6,7 @@
 
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator'
-import { capitalize } from '../../assets/js/stringUtils'
+import { capitalize } from '@/assets/js/stringUtils'
 
 @Component({
   layout: 'centered',

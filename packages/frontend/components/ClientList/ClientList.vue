@@ -42,7 +42,7 @@
           </v-btn>
           <br />
         </v-row>
-        <v-card-title class="heading-1 mx-2 font-weight-bold">
+        <v-card-title class="text-heading-1 mx-2 font-weight-bold">
           {{ capitalize($t('cbo.removeConfirmationTitle')) }}
           <br />
           <span class="pt-2 primary--text">

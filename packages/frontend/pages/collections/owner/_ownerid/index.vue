@@ -8,7 +8,7 @@
 import { Vue, Component } from 'nuxt-property-decorator'
 import { DocumentListItem, User } from 'api-client'
 import { format } from 'date-fns'
-import { userStore } from '../../../../plugins/store-accessor'
+import { userStore } from '@/plugins/store-accessor'
 
 @Component({
   head() {
@@ -21,13 +21,13 @@ export default class OwnerCollections extends Vue {
   title = ''
 
   mounted() {
-    this.title = this.$t('tabTitles.shared') as string
-    // TODO: uncomment when getUser 404 error is fixed
-    // const user = (await this.$store.dispatch(
-    //   'user/getUser',
-    //   this.$route.params.ownerid,
-    // )) as User
-    // this.title = `${this.$t('sharedBy')} ${user.givenName}`
+    if (userStore.profile) {
+      this.title = `${this.$t('tabTitles.sharedBy')} ${
+        userStore.profile.givenName
+      }`
+    } else {
+      this.title = this.$t('tabTitles.shared') as string
+    }
   }
 }
 </script>

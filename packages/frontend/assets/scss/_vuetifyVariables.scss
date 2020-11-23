@@ -17,7 +17,7 @@ $grid-breakpoints: (
 $btn-active-opacity: 0;
 $btn-border-radius: 0.4rem;
 $btn-focus-opacity: 0;
-$btn-font-weight: normal;
+$btn-font-weight: 500;
 $btn-hover-opacity: 0;
 $btn-letter-spacing: 0;
 $btn-text-transform: none;
@@ -76,7 +76,7 @@ $headings: (
   'button':
     (
       'size': 1.0625rem,
-      'weight': normal,
+      'weight': 500,
       'line-height': 135%,
       'letter-spacing': 0,
       'font-family': $body-font-family,

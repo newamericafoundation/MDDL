@@ -1,13 +1,13 @@
 <template>
   <div class="client-landing-container">
-    <CityLogo />
-    <h2 class="heading-2 mt-4 mb-4 primary--text">
+    <CityLogo class="my-15" />
+    <h2 class="text-heading-2 mt-4 mb-4 primary--text">
       {{ capitalize($t('login.welcomeTitle')) }}
     </h2>
     <div class="body-1 welcome-message mb-8">
       {{ capitalize($t('login.welcomeMessage')) }}
     </div>
-    <ButtonLarge label="Get Started" @click.native="gotoLogin" />
+    <ButtonLarge :label="$t('login.getStarted')" @click.native="gotoLogin" />
   </div>
 </template>
 

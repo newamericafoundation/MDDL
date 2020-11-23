@@ -9,11 +9,22 @@ import { userStore } from '@/plugins/store-accessor'
  * @param redirect
  * @param $auth
  */
-export default ({ store, route, redirect, $auth }: Context) => {
+export default async ({ store, route, redirect, $auth, app }: Context) => {
   if (store.state.auth.loggedIn) {
     if (!userStore.userId) {
-      userStore.setUserId($auth.user.username)
+      await userStore.setUserId($auth.user.username)
     }
-    if (route.path === '/') redirect('/dashboard')
+    if (!userStore.profile) {
+      await userStore.fetchProfile()
+    }
+    if (
+      !userStore.profile!.termsOfUseAccepted &&
+      route.path !== app.localePath('/terms-of-use')
+    ) {
+      redirect(app.localePath('/terms-of-use'))
+    }
+
+    if (route.path === app.localePath('/'))
+      redirect(app.localePath('/dashboard'))
   }
 }

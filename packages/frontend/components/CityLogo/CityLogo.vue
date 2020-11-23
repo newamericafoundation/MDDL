@@ -1,8 +1,5 @@
 <template>
-  <div
-    class="logo"
-    :style="`background-image: url(${cityLogo}); width: ${width}; height: ${height}`"
-  />
+  <v-img :src="cityLogo" :width="width" />
 </template>
 
 <script lang="ts">
@@ -13,11 +10,8 @@ export default class CityLogo extends Vue {
   @Prop({ default: '155px' })
   width: string
 
-  @Prop({ default: '155px' })
-  height: string
-
   get cityLogo(): string {
-    return require('@/static/city-logo.svg')
+    return require('@/static/images/city-logo.svg')
   }
 }
 </script>

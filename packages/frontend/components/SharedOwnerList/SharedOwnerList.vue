@@ -56,13 +56,13 @@ export default class SharedOwnerList extends Vue {
         width: '3rem',
       },
       {
-        text: this.$i18n.t('agent.clientNameLabel') as string,
+        text: this.$t('agent.clientNameLabel') as string,
         align: 'start',
         sortable: true,
         value: 'name',
       },
       {
-        text: this.$i18n.t('dateAdded') as string,
+        text: this.$t('dateAdded') as string,
         value: 'createdDate',
         sortable: true,
       },
