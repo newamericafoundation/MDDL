@@ -1268,18 +1268,13 @@ export const DelegateApiAxiosParamCreator = function (configuration?: Configurat
          * Accept delegated access to a users account for current user
          * @summary Accept delegated access
          * @param {string} delegateId ID of the User Delegated Access record
-         * @param {object} body Accept a delegated access request
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        acceptDelegatedAccount: async (delegateId: string, body: object, options: any = {}): Promise<RequestArgs> => {
+        acceptDelegatedAccount: async (delegateId: string, options: any = {}): Promise<RequestArgs> => {
             // verify required parameter 'delegateId' is not null or undefined
             if (delegateId === null || delegateId === undefined) {
                 throw new RequiredError('delegateId','Required parameter delegateId was null or undefined when calling acceptDelegatedAccount.');
-            }
-            // verify required parameter 'body' is not null or undefined
-            if (body === null || body === undefined) {
-                throw new RequiredError('body','Required parameter body was null or undefined when calling acceptDelegatedAccount.');
             }
             const localVarPath = `/delegates/{delegateId}/accept`
                 .replace(`{${"delegateId"}}`, encodeURIComponent(String(delegateId)));
@@ -1304,8 +1299,6 @@ export const DelegateApiAxiosParamCreator = function (configuration?: Configurat
 
 
     
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
             const query = new URLSearchParams(localVarUrlObj.search);
             for (const key in localVarQueryParameter) {
                 query.set(key, localVarQueryParameter[key]);
@@ -1316,8 +1309,6 @@ export const DelegateApiAxiosParamCreator = function (configuration?: Configurat
             localVarUrlObj.search = (new URLSearchParams(query)).toString();
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            const needsSerialization = (typeof body !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.data =  needsSerialization ? JSON.stringify(body !== undefined ? body : {}) : (body || "");
 
             return {
                 url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
@@ -1388,12 +1379,11 @@ export const DelegateApiFp = function(configuration?: Configuration) {
          * Accept delegated access to a users account for current user
          * @summary Accept delegated access
          * @param {string} delegateId ID of the User Delegated Access record
-         * @param {object} body Accept a delegated access request
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async acceptDelegatedAccount(delegateId: string, body: object, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserDelegatedAccess>> {
-            const localVarAxiosArgs = await DelegateApiAxiosParamCreator(configuration).acceptDelegatedAccount(delegateId, body, options);
+        async acceptDelegatedAccount(delegateId: string, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserDelegatedAccess>> {
+            const localVarAxiosArgs = await DelegateApiAxiosParamCreator(configuration).acceptDelegatedAccount(delegateId, options);
             return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
                 const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
                 return axios.request(axiosRequestArgs);
@@ -1426,12 +1416,11 @@ export const DelegateApiFactory = function (configuration?: Configuration, baseP
          * Accept delegated access to a users account for current user
          * @summary Accept delegated access
          * @param {string} delegateId ID of the User Delegated Access record
-         * @param {object} body Accept a delegated access request
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        acceptDelegatedAccount(delegateId: string, body: object, options?: any): AxiosPromise<UserDelegatedAccess> {
-            return DelegateApiFp(configuration).acceptDelegatedAccount(delegateId, body, options).then((request) => request(axios, basePath));
+        acceptDelegatedAccount(delegateId: string, options?: any): AxiosPromise<UserDelegatedAccess> {
+            return DelegateApiFp(configuration).acceptDelegatedAccount(delegateId, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -1457,13 +1446,12 @@ export class DelegateApi extends BaseAPI {
      * Accept delegated access to a users account for current user
      * @summary Accept delegated access
      * @param {string} delegateId ID of the User Delegated Access record
-     * @param {object} body Accept a delegated access request
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof DelegateApi
      */
-    public acceptDelegatedAccount(delegateId: string, body: object, options?: any) {
-        return DelegateApiFp(this.configuration).acceptDelegatedAccount(delegateId, body, options).then((request) => request(this.axios, this.basePath));
+    public acceptDelegatedAccount(delegateId: string, options?: any) {
+        return DelegateApiFp(this.configuration).acceptDelegatedAccount(delegateId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1903,18 +1891,13 @@ export const UserApiAxiosParamCreator = function (configuration?: Configuration)
          * Accept application Terms of Use for a user
          * @summary Accept Terms
          * @param {string} userId ID of current user
-         * @param {object} body Accept the terms of use
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        acceptTerms: async (userId: string, body: object, options: any = {}): Promise<RequestArgs> => {
+        acceptTerms: async (userId: string, options: any = {}): Promise<RequestArgs> => {
             // verify required parameter 'userId' is not null or undefined
             if (userId === null || userId === undefined) {
                 throw new RequiredError('userId','Required parameter userId was null or undefined when calling acceptTerms.');
-            }
-            // verify required parameter 'body' is not null or undefined
-            if (body === null || body === undefined) {
-                throw new RequiredError('body','Required parameter body was null or undefined when calling acceptTerms.');
             }
             const localVarPath = `/users/{userId}/accept-terms`
                 .replace(`{${"userId"}}`, encodeURIComponent(String(userId)));
@@ -1939,8 +1922,6 @@ export const UserApiAxiosParamCreator = function (configuration?: Configuration)
 
 
     
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
             const query = new URLSearchParams(localVarUrlObj.search);
             for (const key in localVarQueryParameter) {
                 query.set(key, localVarQueryParameter[key]);
@@ -1951,8 +1932,6 @@ export const UserApiAxiosParamCreator = function (configuration?: Configuration)
             localVarUrlObj.search = (new URLSearchParams(query)).toString();
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            const needsSerialization = (typeof body !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.data =  needsSerialization ? JSON.stringify(body !== undefined ? body : {}) : (body || "");
 
             return {
                 url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
@@ -2478,12 +2457,11 @@ export const UserApiFp = function(configuration?: Configuration) {
          * Accept application Terms of Use for a user
          * @summary Accept Terms
          * @param {string} userId ID of current user
-         * @param {object} body Accept the terms of use
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async acceptTerms(userId: string, body: object, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<User>> {
-            const localVarAxiosArgs = await UserApiAxiosParamCreator(configuration).acceptTerms(userId, body, options);
+        async acceptTerms(userId: string, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<User>> {
+            const localVarAxiosArgs = await UserApiAxiosParamCreator(configuration).acceptTerms(userId, options);
             return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
                 const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
                 return axios.request(axiosRequestArgs);
@@ -2635,12 +2613,11 @@ export const UserApiFactory = function (configuration?: Configuration, basePath?
          * Accept application Terms of Use for a user
          * @summary Accept Terms
          * @param {string} userId ID of current user
-         * @param {object} body Accept the terms of use
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        acceptTerms(userId: string, body: object, options?: any): AxiosPromise<User> {
-            return UserApiFp(configuration).acceptTerms(userId, body, options).then((request) => request(axios, basePath));
+        acceptTerms(userId: string, options?: any): AxiosPromise<User> {
+            return UserApiFp(configuration).acceptTerms(userId, options).then((request) => request(axios, basePath));
         },
         /**
          * Add delegated access to a user for current user
@@ -2753,13 +2730,12 @@ export class UserApi extends BaseAPI {
      * Accept application Terms of Use for a user
      * @summary Accept Terms
      * @param {string} userId ID of current user
-     * @param {object} body Accept the terms of use
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof UserApi
      */
-    public acceptTerms(userId: string, body: object, options?: any) {
-        return UserApiFp(this.configuration).acceptTerms(userId, body, options).then((request) => request(this.axios, this.basePath));
+    public acceptTerms(userId: string, options?: any) {
+        return UserApiFp(this.configuration).acceptTerms(userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

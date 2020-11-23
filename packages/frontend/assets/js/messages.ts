@@ -12,10 +12,12 @@ export default {
     dateAdded: 'date added',
 
     toast: {
+      acceptedDelegateInvite: 'Delegate access accepted.',
       accountRemoved: 'account removed',
       downloadLoadingState: 'preparing download',
       collectionCreated: 'shared folder created.',
       sharingComplete: 'sharing complete.',
+      switchAccount: 'switch account',
       uploading: 'adding file...', // displayed while a file is uploading
       uploadComplete: 'file added',
       fileDeletedConfirmation: 'file deleted.',
@@ -162,6 +164,7 @@ export default {
         'Are you sure you want to remove this client from your Datalocker?',
       removeConfirmationBody:
         "You'll no longer have access to shared files. This cannot be undone.",
+      errorAcceptingInvite: 'Invite could not be accepted.',
     },
 
     agent: {

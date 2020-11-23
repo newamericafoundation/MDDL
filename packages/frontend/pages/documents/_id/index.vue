@@ -6,8 +6,8 @@
       </template>
       <template v-slot:actions>
         <DocumentMenu
-          :download="downloadProp"
-          :delete-doc="deleteDoc"
+          :download="download"
+          :delete-doc="deleteProp"
           :edit-details="showDetails"
         />
 
@@ -125,7 +125,7 @@
                   :error-messages="errors"
                   outlined
                   :placeholder="
-                    capitalize($t('enterDocumentDescriptionPlaceholder'))
+                    capitalize($t('document.enterDescriptionPlaceholder'))
                   "
                 />
               </ValidationProvider>
@@ -203,7 +203,7 @@ export default class ViewDocument extends Vue {
   get documentContentSize() {
     if (!this.document) return ''
     const totalBytes = this.document.files
-      .map((f) => f.contentLength)
+      .map(f => f.contentLength)
       .reduce(
         (fileContentLength, documentContentLength) =>
           fileContentLength + documentContentLength,
@@ -211,12 +211,6 @@ export default class ViewDocument extends Vue {
       )
     const mb = totalBytes / 1000000
     return mb.toFixed(2)
-  }
-
-  get downloadProp() {
-    return this.document && this.document.links.some((l) => l.rel === 'delete')
-      ? this.download
-      : null
   }
 
   async download() {
@@ -254,6 +248,12 @@ export default class ViewDocument extends Vue {
     await this.$store.dispatch('document/update', update)
     this.closeDetails()
     this.loading = false
+  }
+
+  get deleteProp() {
+    return this.document && this.document.links.some(l => l.rel === 'delete')
+      ? this.deleteDoc
+      : null
   }
 
   async deleteDoc() {

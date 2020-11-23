@@ -7,6 +7,12 @@
     <v-btn @click="getDocuments">request documents</v-btn>
     <v-btn @click="sendEvent">send test upload event</v-btn>
     <v-select :items="userRoles" :value="initialRole" @change="setUserRole" />
+    <v-row>
+      <v-text-field v-model="delegateToAccept" />
+      <v-btn :disabled="!delegateToAccept" @click="acceptDelegate">
+        accept delegate
+      </v-btn>
+    </v-row>
   </div>
 </template>
 
@@ -32,6 +38,8 @@ export default class DebugMenu extends Vue {
   ]
 
   initialRole = UserRole.CLIENT
+
+  delegateToAccept = ''
 
   mounted() {
     if (this.$auth.user)
@@ -73,6 +81,10 @@ export default class DebugMenu extends Vue {
       eventAction: 'file-input',
       eventLabel: 'client',
     })
+  }
+
+  acceptDelegate() {
+    this.$store.dispatch('delegate/acceptInvite', this.delegateToAccept)
   }
 }
 </script>

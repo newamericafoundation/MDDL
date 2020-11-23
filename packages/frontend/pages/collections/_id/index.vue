@@ -38,7 +38,7 @@
     </template>
     <template v-else>
       <p class="d-flex justify-center">
-        {{ capitalize($t('sharedFolder.authorizing')) }}
+        {{ capitalize($t('sharedFolder.emptyCollection')) }}
       </p>
       <nuxt-link
         class="d-flex justify-center nuxt-link"

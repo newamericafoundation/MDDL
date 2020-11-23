@@ -127,13 +127,6 @@ paths:
                 $ref: '#/components/schemas/User'
         '404':
           description: User not found
-      requestBody:
-        description: Accept the terms of use
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UserAcceptTermsOfUse'
       security:
         - datalocker_auth: []
   '/users/{userId}/delegates':
@@ -586,13 +579,6 @@ paths:
                 $ref: '#/components/schemas/UserDelegatedAccess'
         '404':
           description: User not found
-      requestBody:
-        description: Accept a delegated access request
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UserDelegatedAccessAccept'
       security:
         - datalocker_auth: []
 
@@ -862,9 +848,6 @@ components:
         links:
           $ref: '#/components/schemas/Links'
       type: object
-    UserAcceptTermsOfUse:
-      type: object
-      description: A request to accept the terms of use for a user
     UserDelegatedAccessList:
       description: A result containing the delagated access information for a user account
       required:
@@ -876,9 +859,6 @@ components:
           items:
             $ref: '#/components/schemas/UserDelegatedAccess'
       type: object
-    UserDelegatedAccessAccept:
-      type: object
-      description: A request to accept a delegated access request
     UserDelegatedAccess:
       description: Delegated access to a user account
       required:
