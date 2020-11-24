@@ -30,7 +30,7 @@ export default {
 
     login: {
       getStarted: 'Get started',
-      loggingIn: 'Loggin in...',
+      loggingIn: 'Logging in...',
       welcomeTitle: 'welcome to Datalocker',
       welcomeMessage:
         "we're here to help you share documents with case managers in a way that's easy, convenient, and secure.",
@@ -135,7 +135,13 @@ export default {
         'Are you sure you want to remove this person from your account?',
       removeConfirmationBody:
         'They will no longer be able to manage or share files on your behalf. You can always grant access again via the Account menu.',
+      uninviteConfirmationTitle:
+        'Are you sure you want to cancel this invitation?',
+      uninviteConfirmationBody: 'You can resend any time using this screen.',
       tooManyDelegates: 'up to {count} people can access your account',
+      invitePending: 'Invitation pending',
+      inviteExpired: 'Invitation expired.',
+      resendInvite: 'Resend?',
     },
 
     activity: {

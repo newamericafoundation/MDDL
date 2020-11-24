@@ -12,7 +12,7 @@
     </v-row>
     <v-row no-gutters justify="end" class="pa-12">
       <v-btn
-        :loading="loading"
+        :disabled="loading"
         outlined
         class="mx-2 px-6 grey-5--text"
         @click="cancel"

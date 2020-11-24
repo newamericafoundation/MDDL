@@ -98,15 +98,12 @@
                 type="email"
               />
               <v-row justify="end">
-                <v-col cols="auto">
+                <v-col cols="auto" class="pb-1">
                   <v-btn
-                    class="body-1 mb-4 font-weight-medium"
+                    class="body-1 font-weight-medium"
                     color="primary"
                     :disabled="!valid || delegates.length >= 10"
-                    @click="
-                      showConfirmation = true
-                      confirmationType = 0
-                    "
+                    @click="showConfirmation = true"
                   >
                     {{ $t('controls.add') }}
                   </v-btn>
@@ -116,84 +113,31 @@
           </v-form>
         </ValidationObserver>
 
-        <v-divider class="full-width mb-8" />
-        <v-card
-          v-for="(delegate, i) in delegates"
+        <v-divider class="full-width my-5" />
+        <DelegateCard
+          v-for="(delegate, i) in activeDelegates"
           :key="i"
-          rounded
-          class="px-4 py-1 mb-2 grey-2"
-        >
-          <v-row align="center" no-gutters>
-            <v-col>
-              <span>{{ delegate.email }}</span>
-            </v-col>
-            <v-col cols="auto">
-              <v-btn
-                icon
-                @click="
-                  showConfirmation = true
-                  delegateToRemove = delegate
-                  confirmationType = 1
-                "
-              >
-                <v-icon>$close</v-icon>
-              </v-btn>
-            </v-col>
-          </v-row>
-        </v-card>
+          :delegate="delegate"
+          @delete="loadDelegates"
+        />
+        <v-divider
+          v-if="activeDelegates.length && pendingOrExpiredDelegates.length"
+          class="full-width my-5"
+        />
+        <DelegateCard
+          v-for="(delegate, i) in pendingOrExpiredDelegates"
+          :key="i"
+          :delegate="delegate"
+          @delete="loadDelegates"
+        />
       </div>
-      <v-dialog v-model="showConfirmation" width="350">
-        <v-card>
-          <v-row class="py-4">
-            <v-btn
-              absolute
-              right
-              icon
-              :disabled="loading"
-              @click="showConfirmation = false"
-            >
-              <v-icon>$close</v-icon>
-            </v-btn>
-            <br />
-          </v-row>
-          <v-card-title class="text-heading-1 mx-2">
-            {{
-              capitalize(
-                confirmationType === 0
-                  ? $t('delegateAccess.addConfirmationTitle')
-                  : $t('delegateAccess.removeConfirmationTitle'),
-              )
-            }}
-          </v-card-title>
-
-          <v-card-text class="ma-2">
-            {{
-              capitalize(
-                confirmationType === 0
-                  ? $t('delegateAccess.addConfirmationBody')
-                  : $t('delegateAccess.removeConfirmationBody'),
-              )
-            }}
-          </v-card-text>
-
-          <v-card-actions class="px-8 pb-8">
-            <v-spacer></v-spacer>
-            <v-btn :disabled="loading" @click="showConfirmation = false">
-              {{ capitalize($t('controls.cancel')) }}
-            </v-btn>
-            <v-btn
-              color="primary"
-              :loading="loading"
-              @click="
-                () =>
-                  confirmationType === 0 ? confirmDelegate() : removeDelegate()
-              "
-            >
-              {{ capitalize($t('controls.confirm')) }}
-            </v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
+      <ConfirmationDialog
+        v-model="showConfirmation"
+        title="delegateAccess.addConfirmationTitle"
+        body="delegateAccess.addConfirmationBody"
+        :on-confirm="confirmDelegate"
+        :loading="loading"
+      />
     </v-window-item>
   </v-window>
 </template>
@@ -203,7 +147,11 @@ import { Vue, Component } from 'nuxt-property-decorator'
 import { ValidationObserver, ValidationProvider } from 'vee-validate'
 import { capitalize } from '@/assets/js/stringUtils'
 import { snackbarStore, userStore } from '@/plugins/store-accessor'
-import { UserDelegatedAccess } from 'api-client'
+import {
+  UserDelegatedAccess,
+  UserDelegatedAccessCreate,
+  UserDelegatedAccessStatus,
+} from 'api-client'
 
 @Component({
   layout: 'empty',
@@ -227,8 +175,6 @@ export default class Account extends Vue {
   recompute = false
   showConfirmation = false
   loading = false
-  confirmationType = 0 // 0: add, 1: remove
-  delegateToRemove: UserDelegatedAccess | null = null
   userStore = userStore
 
   get accountName() {
@@ -241,24 +187,30 @@ export default class Account extends Vue {
     return `${this.$auth.user.email}`
   }
 
-  mounted() {
-    this.loadDelegates()
+  get activeDelegates() {
+    return this.delegates.filter(
+      (d) => d.status === UserDelegatedAccessStatus.ACTIVE,
+    )
   }
 
-  async removeDelegate() {
-    this.loading = true
-    await this.$store.dispatch('delegate/delete', this.delegateToRemove!.id)
-    await this.loadDelegates()
-    this.loading = false
-    this.showConfirmation = false
-    this.delegateToRemove = null
+  get pendingOrExpiredDelegates() {
+    return this.delegates.filter((d) =>
+      [
+        UserDelegatedAccessStatus.INVITATIONSENT,
+        UserDelegatedAccessStatus.INVITATIONEXPIRED,
+      ].includes(d.status),
+    )
+  }
+
+  mounted() {
+    this.loadDelegates()
   }
 
   async confirmDelegate() {
     this.loading = true
     await this.$store.dispatch('user/delegateAccess', {
       email: this.email,
-    })
+    } as UserDelegatedAccessCreate)
     await this.loadDelegates()
     this.$nextTick(() => (this.$refs.observer as any).reset())
     this.email = ''
