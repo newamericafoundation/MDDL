@@ -9,6 +9,11 @@ import {
 import { CollectionsPrefix } from '@/constants'
 import { getPresignedDownloadUrl, objectExists } from '@/utils/s3'
 import { createAuthenticatedApiGatewayHandler } from '@/services/users/middleware'
+import {
+  getCollectionDetails,
+  submitCollectionDownloaded,
+} from '@/services/collections'
+import createError from 'http-errors'
 
 connectDatabase()
 
@@ -19,13 +24,39 @@ export const handler = createAuthenticatedApiGatewayHandler(
   setContext('downloadId', (r) => requirePathParameter(r.event, 'downloadId')),
   requirePermissionToCollection(CollectionPermission.DownloadDocuments),
   async (request: APIGatewayRequest): Promise<DocumentsDownload> => {
-    const { collectionId, collection, downloadId: documentsHash } = request
+    const {
+      collectionId,
+      collection,
+      downloadId: documentsHash,
+      event,
+      user,
+    } = request
 
     // read in documents
     const downloadPath = `${CollectionsPrefix}/${collectionId}/${documentsHash}`
     const success = await objectExists(downloadPath)
 
-    // zip already prepared, return
+    if (success) {
+      // prepare audit activity data
+
+      const {
+        documents,
+        documentsHash: currentDocumentsHash,
+      } = await getCollectionDetails(collection.id)
+
+      if (currentDocumentsHash != documentsHash) {
+        throw new createError.BadRequest(
+          'The requested download does not contain the latest group of documents ' +
+            currentDocumentsHash +
+            ' - ' +
+            documentsHash,
+        )
+      }
+
+      // submit audit activity data
+      await submitCollectionDownloaded(collection, documents, event, user)
+    }
+
     return {
       id: documentsHash,
       status: success

@@ -2,7 +2,7 @@ import { EnvironmentVariable, requireConfiguration } from '@/config'
 import { validate } from '@/utils/validation'
 import { submitActivitySchema, ActivityInput } from './validation'
 import createError from 'http-errors'
-import { putMessage } from '@/utils/sqs'
+import { putMessage, putMessages } from '@/utils/sqs'
 import { CreateDocumentInput, Document } from '@/models/document'
 import { CreateCollectionInput } from '@/models/collection'
 import { APIGatewayProxyEventV2 } from 'aws-lambda'
@@ -22,6 +22,32 @@ import { User } from '@/models/user'
 
 const getQueueUrl = () =>
   requireConfiguration(EnvironmentVariable.ACTIVITY_RECORD_SQS_QUEUE_URL)
+
+const submitActivities = async (
+  ownerId: string,
+  activities: ActivityInput[],
+) => {
+  const values = activities.map((activity) => {
+    const { error, value } = validate(activity, submitActivitySchema)
+    if (error) {
+      throw new createError.InternalServerError(
+        `Error validating activity: ${error.details
+          .map((x) => x.message)
+          .join(', ')}`,
+      )
+    }
+    return value
+  })
+  await putMessages(
+    values.map((v, i) => ({
+      Id: v.resource.id,
+      Data: v,
+      MessageDeduplicationId: `${v.requestId}-${i}`,
+      MessageGroupId: ownerId,
+    })),
+    getQueueUrl(),
+  )
+}
 
 const submitActivity = async (ownerId: string, activity: ActivityInput) => {
   const { error, value } = validate(activity, submitActivitySchema)
@@ -186,6 +212,33 @@ export const submitDocumentAccessedEvent = async (props: {
     event,
   })
   return await submitActivity(ownerId, activity)
+}
+
+type DocumentAccessed = {
+  document: Document
+  files: File[]
+}
+
+export const submitDocumentsAccessedEvent = async (props: {
+  ownerId: string
+  user: User
+  documents: DocumentAccessed[]
+  event: APIGatewayProxyEventV2
+}) => {
+  const { ownerId, user, documents, event } = props
+  const activities = documents.map(({ document, files }) =>
+    createActivityInput({
+      user,
+      type: ActivityActionTypeEnum.DOCUMENTACCESSED,
+      resource: document,
+      resourceType: ActivityResourceTypeEnum.DOCUMENT,
+      relatedResources: files.map((r) =>
+        toActivityResource(r, ActivityResourceTypeEnum.DOCUMENTFILE),
+      ),
+      event,
+    }),
+  )
+  return await submitActivities(ownerId, activities)
 }
 
 export const submitDocumentEditedEvent = async (props: {

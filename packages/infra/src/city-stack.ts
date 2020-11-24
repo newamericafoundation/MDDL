@@ -1024,7 +1024,7 @@ export class CityStack extends Stack {
       if (includeWrite) {
         keyActions.add('kms:GenerateDataKey')
         keyActions.add('kms:Decrypt')
-        actions.push('sqs:SendMessage')
+        actions.push('sqs:SendMessage', 'sqs:SendMessageBatch')
       }
 
       if (includeDelete) {

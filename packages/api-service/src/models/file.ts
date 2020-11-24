@@ -109,3 +109,7 @@ export const getFileByIdAndDocumentId = async (
 export const getFilesByDocumentId = async (documentId: string) => {
   return await File.query().where({ documentId }).orderBy('order')
 }
+
+export const getFilesByDocumentIds = async (documentIds: string[]) => {
+  return await File.query().whereIn('documentId', documentIds).orderBy('order')
+}

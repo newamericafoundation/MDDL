@@ -1,5 +1,6 @@
 import { Collection, getDocumentsByCollectionId } from '@/models/collection'
 import { collectionGrantExists } from '@/models/collectionGrant'
+import { getFilesByDocumentIds } from '@/models/file'
 import { User } from '@/models/user'
 import { hashString } from '@/utils/string'
 import { emailIsWhitelisted } from '@/utils/whitelist'
@@ -9,8 +10,11 @@ import {
   Link,
   SharedCollectionListItem,
 } from 'api-client'
+import { submitDocumentsAccessedEvent } from '../activity'
 import { userToApiOwner } from '../users'
 import { CollectionPermission } from './authorization'
+import { APIGatewayProxyEventV2 } from 'aws-lambda'
+import { Document } from '@/models/document'
 
 export const formatCollectionListItem = (
   collection: Collection,
@@ -78,6 +82,24 @@ export const getCollectionDetails = async (collectionId: string) => {
     documents,
     documentsHash,
   }
+}
+
+export const submitCollectionDownloaded = async (
+  collection: Collection,
+  documents: Document[],
+  event: APIGatewayProxyEventV2,
+  user: User,
+) => {
+  const files = await getFilesByDocumentIds(documents.map(({ id }) => id))
+  await submitDocumentsAccessedEvent({
+    ownerId: collection.ownerId,
+    event,
+    user,
+    documents: documents.map((d) => ({
+      document: d,
+      files: files.filter((f) => f.documentId === d.id),
+    })),
+  })
 }
 
 export const hasAccessToCollectionViaGrant = async (

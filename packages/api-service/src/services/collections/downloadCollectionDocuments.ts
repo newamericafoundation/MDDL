@@ -17,7 +17,10 @@ import {
 } from './authorization'
 import { CollectionsPrefix } from '@/constants'
 import { getPresignedDownloadUrl, objectExists } from '@/utils/s3'
-import { getCollectionDetails } from '@/services/collections'
+import {
+  getCollectionDetails,
+  submitCollectionDownloaded,
+} from '@/services/collections'
 import { EnvironmentVariable, requireConfiguration } from '@/config'
 import { invokeFunction } from '@/utils/lambda'
 import { CreateCollectionZipEvent } from './createCollectionZip'
@@ -34,14 +37,19 @@ export const handler = createAuthenticatedApiGatewayHandler(
   async (
     request: APIGatewayRequestBody<DocumentsDownloadCreate>,
   ): Promise<DocumentsDownload> => {
-    const { collectionId, userId, collection } = request
+    const { collectionId, userId, collection, user, event } = request
 
     // read in documents
-    const { documentsHash } = await getCollectionDetails(collectionId)
+    const { documents, documentsHash } = await getCollectionDetails(
+      collectionId,
+    )
     const downloadPath = `${CollectionsPrefix}/${collectionId}/${documentsHash}`
 
     if (await objectExists(downloadPath)) {
-      // zip already prepared, return
+      // zip already prepared, submit audit activity data
+      await submitCollectionDownloaded(collection, documents, event, user)
+
+      // return file access
       return {
         id: documentsHash,
         status: DocumentsDownloadStatusEnum.SUCCESS,

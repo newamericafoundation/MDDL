@@ -21,6 +21,7 @@ import { File as FileModel, getFilesByDocumentId } from '@/models/file'
 import { objectExists } from '@/utils/s3'
 
 jest.mock('@/utils/database')
+jest.mock('@/utils/sqs')
 jest.mock('@/utils/s3')
 jest.mock('@/utils/lambda')
 jest.mock('@/models/collection')
