@@ -203,6 +203,8 @@
   .v-snack {
     .v-snack__wrapper {
       border-radius: 0.4rem;
+      position: fixed;
+      bottom: 0;
       .v-snack__content {
         @extend .capitalize;
         font-weight: 700;

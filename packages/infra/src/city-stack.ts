@@ -646,13 +646,16 @@ export class CityStack extends Stack {
               originAccessIdentity: originAccessIdentity,
             },
             behaviors: [
-              {
-                maxTtl: Duration.minutes(5),
-                minTtl: Duration.minutes(5),
-                defaultTtl: Duration.minutes(5),
-                pathPattern: '/index.html',
-                compress: true,
-              },
+              ...['/index.html', '/sw.js'].map(
+                (shortCachePathPattern) =>
+                  ({
+                    maxTtl: Duration.minutes(5),
+                    minTtl: Duration.minutes(5),
+                    defaultTtl: Duration.minutes(5),
+                    pathPattern: shortCachePathPattern,
+                    compress: true,
+                  } as any),
+              ),
               {
                 isDefaultBehavior: true,
                 compress: true,

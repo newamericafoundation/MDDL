@@ -1,6 +1,6 @@
 import messages from './assets/js/messages.ts'
 
-export default {
+const config = {
   ssr: false,
   target: 'static',
   head: {
@@ -44,6 +44,7 @@ export default {
     '@nuxtjs/dotenv',
     '@nuxtjs/google-fonts',
     '@nuxtjs/google-analytics',
+    '@nuxtjs/pwa',
   ],
   modules: [
     '@nuxtjs/style-resources',
@@ -53,6 +54,15 @@ export default {
     'nuxt-i18n',
     '@nuxtjs/gtm',
   ],
+  pwa: {
+    // TODO: other PWA features like icon and colour scheme
+    manifest: {
+      name: 'Datalocker',
+      short_name: 'Datalocker',
+      useWebmanifestExtension: true,
+      display: 'fullscreen',
+    },
+  },
   i18n: {
     locales: ['en', 'test'],
     defaultLocale: 'en',
@@ -142,3 +152,23 @@ export default {
     plugins: ['@plugins/store-accessor.ts', '@/plugins/api-accessor.ts'],
   },
 }
+
+if (process.env.MOBILE_TESTING === '1') {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const fs = require('fs')
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const path = require('path')
+  Object.assign(config, {
+    server: {
+      port: 3000,
+      host: '0.0.0.0',
+      timing: false,
+      https: {
+        key: fs.readFileSync(path.resolve(__dirname, 'local/localhost.key')),
+        cert: fs.readFileSync(path.resolve(__dirname, 'local/localhost.crt')),
+      },
+    },
+  })
+}
+
+export default config

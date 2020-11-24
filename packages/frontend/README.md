@@ -25,7 +25,8 @@ Example config can be found in [./.env.local](./.env.local). You can use this as
 
 ## Hygen Templates
 
-[Hygen](https://www.hygen.io/) templates are stored in `./templates`. You can use Hygen templates to generate boilerplate code for you. 
+[Hygen](https://www.hygen.io/) templates are stored in `./templates`. You can use Hygen templates to generate boilerplate code for you.
+
 ```
 # install Hygen globally
 yarn global add hygen
@@ -52,6 +53,7 @@ More information can be found on the AWS docs regarding permitted [CSS classes](
 ## Frontend Stack
 
 Workspace name: frontend
+
 - Programming language: TypeScript
 - Package manager: Yarn
 - UI framework: Vue 2
@@ -66,7 +68,7 @@ Workspace name: frontend
 
 ## Static assets
 
-Assets under `./static` are for local development purposes only. At build time the CI/CD pipeline will pull the static assets from an S3 bucket specific to the deployment environment. 
+Assets under `./static` are for local development purposes only. At build time the CI/CD pipeline will pull the static assets from an S3 bucket specific to the deployment environment.
 
 ## Debugging Auth
 
@@ -91,3 +93,11 @@ googleAnalytics: {
   },
 }
 ```
+
+# Testing on mobile
+
+in your [.env](./.env) file, set `MOBILE_TESTING=1`
+
+Then you can run your development server, look at the IP it is running on and add that IP to the development environment cognito config. This is required for the login flow to work correctly. See the third entry in cognito console below for example:
+
+![IP address in cognito app client settings](./docs/mobile_development.png 'How to add local IP to cognito')

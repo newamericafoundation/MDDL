@@ -212,7 +212,7 @@ import SnackParams from '@/types/snackbar'
 import { RawLocation } from 'vue-router'
 import { VeeObserver } from 'vee-validate/dist/types/types'
 import { ValidationContext } from 'vee-validate/dist/types/components/common'
-import { snackbarStore } from '../../plugins/store-accessor'
+import { snackbarStore } from '@/plugins/store-accessor'
 
 @Component({
   layout: 'empty',
@@ -293,7 +293,7 @@ export default class Share extends Vue {
     this.isLoading = true
     const collection = await this.$store.dispatch('user/createCollection', {
       name: this.name,
-      documentIds: this.selectedDocs.map((d) => d.id),
+      documentIds: this.selectedDocs.map(d => d.id),
       individualEmailAddresses: this.individualEmailAddresses,
       agencyOfficersEmailAddresses: [], // TODO: implement
     })
