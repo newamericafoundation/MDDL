@@ -1,1 +1,2 @@
-export const { sendSharedCollectionNotification } = jest.requireActual('../')
+export const queueSharedCollectionNotification = jest.fn()
+export const queueDelegateUserInvitation = jest.fn()

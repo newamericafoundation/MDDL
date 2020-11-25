@@ -5,65 +5,29 @@ const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
   .BundleAnalyzerPlugin
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
   .TsconfigPathsPlugin
+const CopyPlugin = require('copy-webpack-plugin')
+const entrypoints = require('./entrypoints.json')
 
 const SRC_DIR = path.resolve(__dirname, 'src')
 const OUT_DIR = path.resolve(__dirname, 'build')
-const lambdaPath = (name) => path.resolve(SRC_DIR, 'services', name)
+const sourcePath = (name) => path.resolve(SRC_DIR, 'services', name)
+const directory = (filePath) => filePath.split('/').slice(0, -1).join('/')
 
-const lambdas = {
-  documents_createDocumentForUser: lambdaPath(
-    'documents/createDocumentForUser.ts',
+const lambdas = Object.fromEntries(
+  entrypoints.map((d) => [d.entrypoint, sourcePath(d.entrypoint + '.ts')]),
+)
+const copyPatterns = [].concat(
+  ...entrypoints
+  .filter((e) => e.include && e.include.length)
+  .map((e) =>
+    e.include.map((fromPath) => ({
+      from: sourcePath(path.join(directory(e.entrypoint), fromPath)),
+      to: path.join(e.entrypoint, fromPath),
+    })),
   ),
-  documents_getById: lambdaPath('documents/getById.ts'),
-  documents_getByUserId: lambdaPath('documents/getByUserId.ts'),
-  documents_markFileReceived: lambdaPath('documents/markFileReceived.ts'),
-  documents_getFileDownloadLinkById: lambdaPath(
-    'documents/getFileDownloadLinkById.ts',
-  ),
-  documents_putDocumentById: lambdaPath('documents/putDocumentById.ts'),
-  documents_deleteDocumentById: lambdaPath('documents/deleteDocumentById.ts'),
-  documents_createThumbnail: lambdaPath('documents/createThumbnail.ts'),
-  documents_attachThumbnailToDocument: lambdaPath(
-    'documents/attachThumbnailToDocument.ts',
-  ),
-  collections_createCollectionForUser: lambdaPath(
-    'collections/createCollectionForUser.ts',
-  ),
-  collections_getByUserId: lambdaPath('collections/getByUserId.ts'),
-  collections_getDocumentsByCollectionId: lambdaPath(
-    'collections/getDocumentsByCollectionId.ts',
-  ),
-  collections_getSharedToUserId: lambdaPath('collections/getSharedToUserId.ts'),
-  collections_getGrantsByCollectionId: lambdaPath(
-    'collections/getGrantsByCollectionId.ts',
-  ),
-  collections_createCollectionZip: lambdaPath(
-    'collections/createCollectionZip.ts',
-  ),
-  collections_downloadCollectionDocuments: lambdaPath(
-    'collections/downloadCollectionDocuments.ts',
-  ),
-  collections_getDownloadForCollectionDocuments: lambdaPath(
-    'collections/getDownloadForCollectionDocuments.ts',
-  ),
-  activity_listAccountActivity: lambdaPath('activity/listAccountActivity.ts'),
-  activity_processActivity: lambdaPath('activity/processActivity.ts'),
-  accountDelegates_listAccountDelegates: lambdaPath(
-    'accountDelegates/listAccountDelegates.ts',
-  ),
-  accountDelegates_addAccountDelegate: lambdaPath(
-    'accountDelegates/addAccountDelegate.ts',
-  ),
-  accountDelegates_deleteAccountDelegate: lambdaPath(
-    'accountDelegates/deleteAccountDelegate.ts',
-  ),
-  accountDelegates_acceptDelegatedAccount: lambdaPath(
-    'accountDelegates/acceptDelegatedAccount.ts',
-  ),
-  users_getUser: lambdaPath('users/getUser.ts'),
-  users_acceptTerms: lambdaPath('users/acceptTerms.ts'),
-}
+)
 
+console.log(copyPatterns)
 const config = {
   entry: lambdas,
   module: {
@@ -93,16 +57,17 @@ const config = {
   target: 'node',
   plugins: [
     // new BundleAnalyzerPlugin(),
-    ...Object.keys(lambdas).map((entryName) => {
-      const filePath = entryName.replace('_', '/')
-      const directory = filePath.split('/').slice(0, -1).join('/')
+    new CopyPlugin({
+      patterns: copyPatterns,
+    }),
+    ...Object.keys(lambdas).map((filePath) => {
       return new ZipPlugin({
         filename: filePath.split('/').pop(),
-        path: path.join(OUT_DIR, directory),
+        path: path.join(OUT_DIR, directory(filePath)),
         extension: 'zip',
-        include: entryName,
+        include: filePath,
         pathMapper: (assetPath) => {
-          const match = entryName + '/'
+          const match = filePath + '/'
           if (assetPath.startsWith(match)) {
             return assetPath.replace(match, '', 1)
           }

@@ -192,6 +192,7 @@ enum EnvironmentVariables {
   CREATE_COLLECTION_ZIP_FUNCTION_NAME = 'CREATE_COLLECTION_ZIP_FUNCTION_NAME',
   ACTIVITY_RECORD_SQS_QUEUE_URL = 'ACTIVITY_RECORD_SQS_QUEUE_URL',
   ACTIVITY_CLOUDWATCH_LOG_GROUP = 'ACTIVITY_CLOUDWATCH_LOG_GROUP',
+  EMAIL_PROCESSOR_SQS_QUEUE_URL = 'EMAIL_PROCESSOR_SQS_QUEUE_URL',
 }
 
 const pathToApiServiceLambda = (name: string) =>
@@ -207,6 +208,7 @@ export class CityStack extends Stack {
   private environmentVariables: { [key: string]: string }
   private uploadsBucket: Bucket
   private kmsKey: IKey
+  private emailProcessorQueue: IQueue
   private auditLogQueue: IQueue
   private auditLogGroup: ILogGroup
   constructor(scope: Construct, id: string, props: Props) {
@@ -336,6 +338,12 @@ export class CityStack extends Stack {
     this.auditLogGroup = this.createAuditLogGroup(kmsKey).logGroup
     this.auditLogQueue = this.createAuditLogQueue(kmsKey, deadLetterQueue).queue
 
+    // create email processing queue
+    this.emailProcessorQueue = this.createEmailProcessorQueue(
+      kmsKey,
+      deadLetterQueue,
+    ).queue
+
     this.environmentVariables = {
       [EnvironmentVariables.DOCUMENTS_BUCKET]: this.uploadsBucket.bucketName,
       [EnvironmentVariables.USERINFO_ENDPOINT]:
@@ -349,9 +357,12 @@ export class CityStack extends Stack {
         .logGroupName,
       [EnvironmentVariables.ACTIVITY_RECORD_SQS_QUEUE_URL]: this.auditLogQueue
         .queueUrl,
+      [EnvironmentVariables.EMAIL_PROCESSOR_SQS_QUEUE_URL]: this
+        .emailProcessorQueue.queueUrl,
     }
 
     this.createAuditLogQueueProcessor(this.auditLogQueue)
+    this.createEmailQueueProcessor(this.emailProcessorQueue)
 
     // add user routes
     this.addUserRoutes(apiProps)
@@ -422,6 +433,55 @@ export class CityStack extends Stack {
     return {
       logGroup,
     }
+  }
+
+  /**
+   * Create the email processing queue for the stack.
+   * @param kmsKey The encryption key for the log group
+   * @param deadLetterQueue The dead letter queue to user
+   */
+  private createEmailProcessorQueue(kmsKey: IKey, deadLetterQueue: Queue) {
+    const queue = new Queue(this, 'EmailProcessorQueue', {
+      encryptionMasterKey: kmsKey,
+      fifo: true,
+      contentBasedDeduplication: true,
+      retentionPeriod: Duration.days(10),
+      visibilityTimeout: Duration.seconds(60),
+      deadLetterQueue: {
+        queue: deadLetterQueue,
+        maxReceiveCount: 50,
+      },
+    })
+
+    return {
+      queue,
+    }
+  }
+
+  /**
+   * Create the processor for the email queue
+   * @param emailProcessorQueue The queue to read messages from
+   */
+  private createEmailQueueProcessor(emailProcessorQueue: IQueue) {
+    const lambda = this.createLambda(
+      'ProcessEmailSendRequest',
+      pathToApiServiceLambda('emails/processSendRequest'),
+      {
+        extraEnvironmentVariables: [
+          EnvironmentVariables.EMAIL_SENDER,
+          EnvironmentVariables.WEB_APP_DOMAIN,
+          EnvironmentVariables.EMAIL_PROCESSOR_SQS_QUEUE_URL,
+        ],
+        emailProcessorSqsPermissions: {
+          includeDelete: true,
+        },
+      },
+    )
+    lambda.addEventSource(
+      new SqsEventSource(emailProcessorQueue, {
+        batchSize: 10,
+      }),
+    )
   }
 
   /**
@@ -920,7 +980,7 @@ export class CityStack extends Stack {
     }
   }
 
-  private determinePermissions(
+  private determineBucketPermissions(
     permissions: BucketPermissions,
   ): { bucketActions: string[]; keyActions: string[] } {
     const {
@@ -960,6 +1020,35 @@ export class CityStack extends Stack {
     }
   }
 
+  private addSqsPermissions(
+    lambdaFunction: IFunction,
+    sqsQueue: IQueue,
+    sqsPermissions?: SqsPermissions,
+  ) {
+    const sqsActions = []
+    const keyActions = []
+    if (sqsPermissions) {
+      const { includeWrite, includeDelete } = sqsPermissions
+
+      if (includeWrite) {
+        keyActions.push('kms:GenerateDataKey', 'kms:Decrypt')
+        sqsActions.push('sqs:SendMessage', 'sqs:SendMessageBatch')
+      }
+
+      if (includeDelete) {
+        sqsActions.push('sqs:DeleteMessageBatch')
+      }
+
+      lambdaFunction.addToRolePolicy(
+        new PolicyStatement({
+          actions: sqsActions,
+          resources: [sqsQueue.queueArn],
+        }),
+      )
+    }
+    return { sqsActions, keyActions }
+  }
+
   /**
    * Adds Policy Statements to allow specified permissions to a lambda
    * @param lambdaFunction The function to apply the statements to
@@ -972,6 +1061,7 @@ export class CityStack extends Stack {
       collectionBucketPermissions?: BucketPermissions
       auditLogSqsPermissions?: SqsPermissions
       auditLogGroupPermissions?: LogGroupPermissions
+      emailProcessorSqsPermissions?: SqsPermissions
     },
   ) {
     // set up constants
@@ -980,15 +1070,16 @@ export class CityStack extends Stack {
       collectionBucketPermissions,
       auditLogSqsPermissions,
       auditLogGroupPermissions,
+      emailProcessorSqsPermissions,
     } = permissions
     const {
       bucketActions: documentBucketActions,
       keyActions: documentKeyActions,
-    } = this.determinePermissions(documentBucketPermissions ?? {})
+    } = this.determineBucketPermissions(documentBucketPermissions ?? {})
     const {
       bucketActions: collectionBucketActions,
       keyActions: collectionKeyActions,
-    } = this.determinePermissions(collectionBucketPermissions ?? {})
+    } = this.determineBucketPermissions(collectionBucketPermissions ?? {})
     const keyActions = new Set([...documentKeyActions, ...collectionKeyActions])
 
     // add bucket permissions for documents
@@ -1019,28 +1110,21 @@ export class CityStack extends Stack {
       )
     }
 
-    // add sqs permissions
-    if (auditLogSqsPermissions) {
-      const { includeWrite, includeDelete } = auditLogSqsPermissions
-      const actions = []
+    // add sqs permissions for audit log queue
+    const { keyActions: auditLogKeyActions } = this.addSqsPermissions(
+      lambdaFunction,
+      this.auditLogQueue,
+      auditLogSqsPermissions,
+    )
+    auditLogKeyActions.forEach((a) => keyActions.add(a))
 
-      if (includeWrite) {
-        keyActions.add('kms:GenerateDataKey')
-        keyActions.add('kms:Decrypt')
-        actions.push('sqs:SendMessage', 'sqs:SendMessageBatch')
-      }
-
-      if (includeDelete) {
-        actions.push('sqs:DeleteMessageBatch')
-      }
-
-      lambdaFunction.addToRolePolicy(
-        new PolicyStatement({
-          actions: actions,
-          resources: [this.auditLogQueue.queueArn],
-        }),
-      )
-    }
+    // add sqs permissions for email processor
+    const { keyActions: emailProcessorKeyActions } = this.addSqsPermissions(
+      lambdaFunction,
+      this.emailProcessorQueue,
+      emailProcessorSqsPermissions,
+    )
+    emailProcessorKeyActions.forEach((a) => keyActions.add(a))
 
     // add log group permissions
     if (auditLogGroupPermissions) {
@@ -1191,10 +1275,13 @@ export class CityStack extends Stack {
         extraEnvironmentVariables: [
           EnvironmentVariables.USERINFO_ENDPOINT,
           EnvironmentVariables.WEB_APP_DOMAIN,
-          EnvironmentVariables.EMAIL_SENDER,
           EnvironmentVariables.AGENCY_EMAIL_DOMAINS_WHITELIST,
           EnvironmentVariables.ACTIVITY_RECORD_SQS_QUEUE_URL,
+          EnvironmentVariables.EMAIL_PROCESSOR_SQS_QUEUE_URL,
         ],
+        emailProcessorSqsPermissions: {
+          includeWrite: true,
+        },
         auditLogSqsPermissions: {
           includeWrite: true,
         },
@@ -1615,8 +1702,13 @@ export class CityStack extends Stack {
           extraEnvironmentVariables: [
             EnvironmentVariables.USERINFO_ENDPOINT,
             EnvironmentVariables.ACTIVITY_RECORD_SQS_QUEUE_URL,
+            EnvironmentVariables.WEB_APP_DOMAIN,
+            EnvironmentVariables.EMAIL_PROCESSOR_SQS_QUEUE_URL,
           ],
           auditLogSqsPermissions: {
+            includeWrite: true,
+          },
+          emailProcessorSqsPermissions: {
             includeWrite: true,
           },
         },
@@ -1728,6 +1820,7 @@ export class CityStack extends Stack {
       documentBucketPermissions?: BucketPermissions
       collectionBucketPermissions?: BucketPermissions
       auditLogSqsPermissions?: SqsPermissions
+      emailProcessorSqsPermissions?: SqsPermissions
       auditLogGroupPermissions?: LogGroupPermissions
     },
   ) {

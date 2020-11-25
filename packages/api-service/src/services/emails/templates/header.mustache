@@ -18,22 +18,30 @@
     <![endif]-->
   <!--[if (gte mso 9)|(IE)]>
     <style type="text/css">
-      body {width: 600px;margin: 0 auto;}
+      body {width: 515px;margin: 0 auto;}
       table {border-collapse: collapse;}
       table, td {mso-table-lspace: 0pt;mso-table-rspace: 0pt;}
       img {-ms-interpolation-mode: bicubic;}
     </style>
     <![endif]-->
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&display=swap');
     </style>
 
   <style type="text/css">
     body,
     p,
     div {
-      font-family: 'Roboto', sans-serif;
+      font-family: 'Noto Sans', sans-serif;
       font-size: 14px;
+    }
+
+    h2 {
+      font-style: normal;
+      font-weight: 600;
+      line-height: 27px;
+      text-align: center;
+      color: #2F3033;
     }
 
     body {
@@ -74,19 +82,31 @@
       width: 25%;
     }
 
+    .primary-color {
+      color: #2157E4
+    }
+
     a.cta {
-        background-color: #D8DBDF;
-        border: 1px solid #D8DBDF;
+        background-color: #2157E4;
+        border: 1px solid #2157E4;
         border-radius: 8px;
         display: inline-block;
-        color: #000;
-        padding: 17px 35px;
+        color: #fff;
+        padding: 9px 50px;
         text-align: center;
         text-decoration: none;
         -webkit-text-size-adjust: none;
     }
 
-    @media screen and (max-width:480px) {
+    [role="modules-container"] {
+      border-radius: 4px;
+    }
+
+    @media screen and (max-width:515px) {
+
+      [role="modules-container"] {
+        border-radius: 0;
+      }
 
       .preheader .rightColumnContent,
       .footer .rightColumnContent {
@@ -166,7 +186,7 @@
                           <table><tr><td width="600">
                           <![endif]-->
                         <table width="100%" cellpadding="0" cellspacing="0" border="0"
-                          style="width: 100%; max-width:600px;" align="center">
+                          style="width: 100%; max-width:515px; padding: 20px 0 20px 0;" align="center">
                           <tr>
                             <td role="modules-container"
                               style="padding: 0px 0px 0px 0px; color: #000000; text-align: left;" bgcolor="#ffffff"
@@ -178,6 +198,14 @@
                                 <tr>
                                   <td role="module-content">
                                     <p></p>
+                                  </td>
+                                </tr>
+                              </table>
+
+                              <table class="wrapper" role="module" data-type="image" border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout: fixed;">
+                                <tr>
+                                  <td style="font-size:6px;line-height:10px;padding:75px 0px 0px 0px;" valign="top" align="center">
+                                    <img class="max-width" border="0" style="display:block;color:#000000;text-decoration:none;font-family:Helvetica, arial, sans-serif;font-size:16px;max-width:115px !important;width:100%;height:auto !important;" src="{{webAppDomain}}/images/city-logo.svg" alt="" width="115">
                                   </td>
                                 </tr>
                               </table>

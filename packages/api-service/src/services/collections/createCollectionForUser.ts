@@ -22,7 +22,7 @@ import createError from 'http-errors'
 import { createAuthenticatedApiGatewayHandler } from '@/services/users/middleware'
 import { formatCollectionListItem } from '.'
 import { CollectionPermission } from './authorization'
-import { sendSharedCollectionNotification } from '../emails/sendSharedCollectionNotification'
+import { queueSharedCollectionNotification } from '../emails'
 import { EnvironmentVariable, requireConfiguration } from '@/config'
 import { submitCollectionCreatedEvent } from '../activity'
 import { User } from '@/models/user'
@@ -114,9 +114,9 @@ export const handler = createAuthenticatedApiGatewayHandler(
     }
 
     try {
-      await sendSharedCollectionNotification({
+      await queueSharedCollectionNotification({
         collection: {
-          link: `https://${webAppDomain}/collections/shared`,
+          link: `https://${webAppDomain}/collections/${collection.id}`,
           name: `${user.givenName} ${user.familyName}`,
         },
         emails: individualEmailAddresses,

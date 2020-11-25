@@ -33,22 +33,35 @@ import { toUserDelegatedAccess } from '.'
 import { createAuthenticatedApiGatewayHandler } from '@/services/users/middleware'
 import { User } from '@/models/user'
 import { submitDelegatedUserInvitedEvent } from '../activity'
+import { queueDelegateUserInvitation } from '../emails'
+import { EnvironmentVariable, requireConfiguration } from '@/config'
 
 connectDatabase()
 type Request = {
   ownerId: string
   userId: string
   user: User
+  webAppDomain: string
 } & APIGatewayRequestBody<UserDelegatedAccessCreate>
 
 export const handler = createAuthenticatedApiGatewayHandler(
   setContext('ownerId', (r) => requirePathParameter(r.event, 'userId')),
+  setContext('webAppDomain', () =>
+    requireConfiguration(EnvironmentVariable.WEB_APP_DOMAIN),
+  ),
   requirePermissionToUser(UserPermission.WriteAccountDelegates),
   requireValidBody<UserDelegatedAccessCreate>(createAccountDelegateSchema),
   async (
     request: APIGatewayRequestBody<UserDelegatedAccessCreate>,
   ): Promise<UserDelegatedAccess> => {
-    const { ownerId, userId, body, user, event } = request as Request
+    const {
+      ownerId,
+      userId,
+      body,
+      user,
+      event,
+      webAppDomain,
+    } = request as Request
 
     const delegateCount = await countAccountDelegates(ownerId)
     if (delegateCount >= MaxDelegatesPerAccount) {
@@ -76,6 +89,14 @@ export const handler = createAuthenticatedApiGatewayHandler(
             ),
           },
         )
+
+        // resend invite email
+        await queueDelegateUserInvitation({
+          acceptLink: `https://${webAppDomain}/delegates/${existingDelegate.id}/accept`,
+          email,
+          userName: `${user.givenName} ${user.familyName}`,
+        })
+
         return toUserDelegatedAccess(updated, userId, user.email)
       } else {
         // existing accepted delegate account
@@ -110,6 +131,13 @@ export const handler = createAuthenticatedApiGatewayHandler(
         'account delegate could not be created',
       )
     }
+
+    // send invite email
+    await queueDelegateUserInvitation({
+      acceptLink: `https://${webAppDomain}/delegates/${createdAccountDelegate.id}/accept`,
+      email,
+      userName: `${user.givenName} ${user.familyName}`,
+    })
 
     return toUserDelegatedAccess(createdAccountDelegate, userId, user.email)
   },

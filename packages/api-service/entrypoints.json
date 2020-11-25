@@ -1,0 +1,56 @@
+[{
+  "entrypoint": "documents/createDocumentForUser"
+}, {
+  "entrypoint": "emails/processSendRequest",
+  "include": ["templates"]
+}, {
+  "entrypoint": "documents/getById"
+}, {
+  "entrypoint": "documents/getByUserId"
+}, {
+  "entrypoint": "documents/markFileReceived"
+}, {
+  "entrypoint": "documents/getFileDownloadLinkById"
+}, {
+  "entrypoint": "documents/putDocumentById"
+}, {
+  "entrypoint": "documents/deleteDocumentById"
+}, {
+  "entrypoint": "documents/createThumbnail"
+}, {
+  "entrypoint": "documents/attachThumbnailToDocument"
+}, {
+  "entrypoint": "collections/createCollectionForUser"
+}, {
+  "entrypoint": "collections/getByUserId"
+}, {
+  "entrypoint": "collections/getDocumentsByCollectionId"
+}, {
+  "entrypoint": "collections/getSharedToUserId"
+}, {
+  "entrypoint": "collections/getGrantsByCollectionId"
+}, {
+  "entrypoint": "collections/createCollectionZip"
+}, {
+  "entrypoint": "collections/downloadCollectionDocuments"
+}, {
+  "entrypoint": "collections/getDownloadForCollectionDocuments"
+}, {
+  "entrypoint": "activity/listAccountActivity"
+}, {
+  "entrypoint": "activity/processActivity"
+}, {
+  "entrypoint": "accountDelegates/listAccountDelegates"
+}, {
+  "entrypoint": "accountDelegates/addAccountDelegate"
+}, {
+  "entrypoint": "accountDelegates/deleteAccountDelegate"
+}, {
+  "entrypoint": "accountDelegates/acceptDelegatedAccount"
+}, {
+  "entrypoint": "users/getUser"
+}, {
+  "entrypoint": "users/acceptTerms"
+}, {
+  "entrypoint": "users/acceptTerms"
+}]
