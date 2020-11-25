@@ -24,6 +24,7 @@ h1 {
 .modal-body {
   padding: 0;
   width: 100%;
+  text-align: center;
 }
 .modal-dialog {
   margin: 30px 0 0 0;
@@ -130,6 +131,7 @@ p.redirect-customizable > a {
   color: #2affb8; /* Success */
   margin-bottom: 12px;
   display: flex;
+  text-align: left;
 }
 .passwordCheck-notValid-customizable {
   color: #ff5c62; /* Error */
