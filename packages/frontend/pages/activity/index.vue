@@ -50,8 +50,8 @@
                 v-for="(document, idx2) in splitFirst(
                   relatedDocuments(activity.relatedResources),
                 )"
-                class="resources__item"
                 :key="idx2"
+                class="resources__item"
               >
                 <v-icon size="20" class="mr-4" color="primary">$file</v-icon>
                 <span class="text-body-3 grey-9">{{ document.name }}</span>
@@ -59,9 +59,9 @@
 
               <a
                 v-if="relatedDocuments(activity.relatedResources).length > 5"
+                :ref="`showMoreDocumentsLink-${idx}`"
                 href="#"
                 class="show-more-link"
-                :ref="`showMoreDocumentsLink-${idx}`"
                 @click.prevent="showMore(idx, 'Documents')"
               >
                 +
@@ -82,8 +82,8 @@
                   v-for="(document, idx3) in splitLast(
                     relatedDocuments(activity.relatedResources),
                   )"
-                  class="resources__item"
                   :key="idx3"
+                  class="resources__item"
                 >
                   <v-icon size="20" class="mr-4" color="primary">$file</v-icon>
                   <span class="text-body-3 grey-9">{{ document.name }}</span>
@@ -95,8 +95,8 @@
                   v-for="(item, idx4) in splitFirst(
                     agent(activity.relatedResources),
                   )"
-                  class="resources__item"
                   :key="idx4"
+                  class="resources__item"
                 >
                   <v-icon size="20" class="mr-4" color="primary">
                     $profile
@@ -105,9 +105,9 @@
                 </div>
                 <a
                   v-if="agent(activity.relatedResources).length > 5"
+                  :ref="`showMorePeopleLink-${idx}`"
                   href="#"
                   class="show-more-link"
-                  :ref="`showMorePeopleLink-${idx}`"
                   @click.prevent="showMore(idx, 'People')"
                 >
                   +
@@ -124,8 +124,8 @@
                   v-for="(item, idx5) in splitLast(
                     agent(activity.relatedResources),
                   )"
-                  class="resources__item"
                   :key="idx5"
+                  class="resources__item"
                 >
                   <v-icon size="20" class="mr-4" color="primary">
                     $profile
@@ -264,7 +264,7 @@ export default class Account extends Vue {
 
     const arr = cloneDeep(this.activities.slice(0, index))
 
-    const found = arr.find((item) => {
+    const found = arr.find(item => {
       if ([ActivityActionTypeEnum.DOCUMENTACCESSED].includes(item.type)) {
         const itemMetadata: ResourceMetadata = {
           principalId: item.principal.id,
@@ -340,7 +340,7 @@ export default class Account extends Vue {
   }
 
   relatedDocuments(resources?: ActivityResource[]) {
-    return resources?.filter((r) =>
+    return resources?.filter(r =>
       [
         ActivityResourceTypeEnum.DOCUMENT,
         ActivityResourceTypeEnum.DOCUMENTFILE,

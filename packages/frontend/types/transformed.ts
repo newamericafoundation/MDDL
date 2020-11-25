@@ -1,8 +1,9 @@
 import {
   SharedCollectionListItem as ClientSharedCollectionListItem,
   CollectionListItem as ClientCollectionListItem,
+  ActivityActionTypeEnum,
 } from 'api-client'
-import { ActivityActionTypeEnum } from 'api-client'
+
 import messages from '../assets/js/messages'
 
 export interface CollectionListItem

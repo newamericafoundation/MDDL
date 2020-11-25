@@ -351,7 +351,7 @@ export default class User extends VuexModule {
   @Action({ rawError: true })
   getActivity(payload: any): Promise<ActivityList> {
     const { id, token } = payload
-    return api.user.listAccountActivity(id, token).then((response) => {
+    return api.user.listAccountActivity(id, token).then(response => {
       return response.data
     })
   }
