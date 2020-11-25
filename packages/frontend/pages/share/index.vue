@@ -310,19 +310,23 @@ export default class Share extends Vue {
       ],
     })
 
-    this.$router.push(
-      this.localeRoute({
-        path: '/dashboard',
-        query: {
-          showSnack: 'true',
-          tab: 'tab-collections',
-        },
-      }) as RawLocation,
-    )
+    if (window.history.length) {
+      this.$router.back()
+    } else {
+      this.$router.push(
+        this.localeRoute({
+          path: '/dashboard',
+          query: {
+            showSnack: 'true',
+            tab: 'tab-collections',
+          },
+        }) as RawLocation,
+      )
+    }
   }
 
   cancel() {
-    this.$router.push(this.localePath(`/dashboard`))
+    this.$router.back()
   }
 
   /**

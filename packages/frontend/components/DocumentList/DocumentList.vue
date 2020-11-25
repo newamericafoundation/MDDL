@@ -61,7 +61,7 @@ import { userStore } from '@/plugins/store-accessor'
 export default class Documents extends Vue {
   @Prop({ default: false }) selectable: boolean
   @Prop({ default: null }) value: any
-  @Prop({ default: () => [] }) preSelected: any
+  @Prop({ default: [] }) preSelected: string[]
 
   loading = true
   selected: boolean[] = []
@@ -72,7 +72,17 @@ export default class Documents extends Vue {
 
   get documents() {
     // eslint-disable-next-line no-unused-expressions
-    return userStore.documents
+    return userStore.documents.sort(
+      (d1: DocumentListItem, d2: DocumentListItem) => {
+        if (this.preSelected.includes(d1.id)) {
+          if (this.preSelected.includes(d2.id)) {
+            return 0
+          }
+          return -1
+        }
+        return 1
+      },
+    )
   }
 
   @Watch('selected')
@@ -90,7 +100,7 @@ export default class Documents extends Vue {
     this.selected = new Array(userStore.documents.length)
     if (this.preSelected) {
       for (const id of this.preSelected) {
-        const index = userStore.documents.findIndex(
+        const index = this.documents.findIndex(
           (d: DocumentListItem) => d.id === id,
         )
         if (index >= 0) {
