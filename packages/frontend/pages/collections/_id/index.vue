@@ -14,7 +14,7 @@
         :show-actions="false"
         class="mb-2"
       />
-      <div v-if="$vuetify.breakpoint.xs" class="pa-4">
+      <div v-if="$vuetify.breakpoint.xs && isAgent" class="pa-4">
         <v-btn block color="primary" @click="downloadZip">
           <v-icon class="ml-2 mr-4" small left>$folder</v-icon>
           {{ $t('agent.downloadZip') }}
@@ -50,7 +50,7 @@
       </nuxt-link>
     </template>
     <v-navigation-drawer
-      v-if="isAgent"
+      v-show="isAgent"
       clipped
       app
       fixed
@@ -147,23 +147,23 @@ export default class ViewCollection extends Vue {
 
   async findCollection() {
     let collection = (userStore.collections as CollectionListItem[]).find(
-      (c) => c.id === this.$route.params.id,
+      c => c.id === this.$route.params.id,
     )
     let sharedCollection: SharedCollectionListItem | undefined
     if (!collection)
       sharedCollection = ((userStore.sharedCollections as unknown) as SharedCollectionListItem[]).find(
-        (c) => c.collection.id === this.$route.params.id,
+        c => c.collection.id === this.$route.params.id,
       )
 
     if (!collection && !sharedCollection) {
       await this.$store.dispatch('user/getCollections')
       await this.$store.dispatch('user/getSharedCollections')
       collection = (userStore.collections as CollectionListItem[]).find(
-        (c) => c.id === this.$route.params.id,
+        c => c.id === this.$route.params.id,
       )
       if (!collection)
         sharedCollection = ((userStore.sharedCollections as unknown) as SharedCollectionListItem[]).find(
-          (c) => c.collection.id === this.$route.params.id,
+          c => c.collection.id === this.$route.params.id,
         )
     }
     if (collection) {

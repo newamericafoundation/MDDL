@@ -40,7 +40,7 @@ export default class User extends VuexModule {
   _collections: CollectionListItem[] = []
   _sharedCollections: SharedCollectionListItem[] = []
   _timeoutId: number | null
-  _role: UserRole = UserRole.CLIENT
+  _role: UserRole | null = null
 
   get documents() {
     return this._documents
@@ -95,25 +95,30 @@ export default class User extends VuexModule {
     if (storedRole !== null) {
       const role = parseInt(storedRole)
       if (isNaN(role) || !Object.keys(UserRole).includes(storedRole)) {
-        await this.setRole(UserRole.CLIENT)
+        await this.setRole(null)
       } else {
         await this.setRole(role)
       }
     } else {
-      await this.setRole(UserRole.CLIENT)
+      await this.setRole(null)
     }
     return this._role
   }
 
   @Mutation
-  _setRole(role: UserRole) {
+  _setRole(role: UserRole | null) {
     this._role = role
   }
 
   @Action({ commit: '_setRole' })
-  setRole(role: UserRole) {
-    localStorage.setItem('datalocker.role', role.toString())
-    return role
+  setRole(role: UserRole | null) {
+    if (role === null) {
+      localStorage.removeItem('datalocker.role')
+      return null
+    } else {
+      localStorage.setItem('datalocker.role', role.toString())
+      return role
+    }
   }
 
   @Mutation
@@ -124,7 +129,7 @@ export default class User extends VuexModule {
   @Action({ rawError: true, commit: '_setProfile' })
   fetchProfile(): Promise<ApiUser> {
     if (!this._userId) return Promise.reject(new Error('UserID not set'))
-    return api.user.getUser(this._userId).then((response) => {
+    return api.user.getUser(this._userId).then(response => {
       return response.data
     })
   }
@@ -132,7 +137,7 @@ export default class User extends VuexModule {
   @Action({ rawError: true, commit: '_setProfile' })
   acceptTerms(): Promise<ApiUser> {
     if (!this._userId) return Promise.reject(new Error('UserID not set'))
-    return api.user.acceptTerms(this._userId).then((response) => {
+    return api.user.acceptTerms(this._userId).then(response => {
       return response.data
     })
   }
@@ -189,7 +194,7 @@ export default class User extends VuexModule {
     await Promise.all(
       addResponse.data.files.map((documentFile, i) => {
         const options: AxiosRequestConfig = {
-          onUploadProgress: (e) => {
+          onUploadProgress: e => {
             uploadProgress[i] = e.loaded
             onUploadProgress(
               new ProgressEvent('upload', {
@@ -201,7 +206,7 @@ export default class User extends VuexModule {
         }
 
         const uploadLink = (documentFile.links as any[]).find(
-          (l) => l.type === 'POST',
+          l => l.type === 'POST',
         )
 
         if (!uploadLink)
@@ -222,7 +227,7 @@ export default class User extends VuexModule {
           )
 
         const formData = new FormData()
-        Object.keys(uploadLink.includeFormData).forEach((key) =>
+        Object.keys(uploadLink.includeFormData).forEach(key =>
           formData.append(key, uploadLink.includeFormData[key]),
         )
         formData.append('file', file!)
@@ -258,7 +263,7 @@ export default class User extends VuexModule {
       this._timeoutId = window.setTimeout(() => {
         api.user
           .listUserDocuments(this.ownerId!)
-          .then((response) => {
+          .then(response => {
             resolve(response.data.documents ? response.data.documents : [])
           })
           .catch(reject)
@@ -270,7 +275,7 @@ export default class User extends VuexModule {
   @Action({ rawError: true, commit: 'setDocuments' })
   getDocuments(): Promise<DocumentListItem[]> {
     if (!this.ownerId) return Promise.reject(new Error('UserID not set'))
-    return api.user.listUserDocuments(this.ownerId).then((response) => {
+    return api.user.listUserDocuments(this.ownerId).then(response => {
       return response.data.documents ? response.data.documents : []
     })
   }
@@ -278,7 +283,7 @@ export default class User extends VuexModule {
   @Action({ rawError: true, commit: 'setCollections' })
   getCollections(): Promise<CollectionListItem[]> {
     if (!this.ownerId) return Promise.reject(new Error('UserID not set'))
-    return api.user.listUserCollections(this.ownerId).then((response) => {
+    return api.user.listUserCollections(this.ownerId).then(response => {
       return response.data.collections ? response.data.collections : []
     })
   }
@@ -286,7 +291,7 @@ export default class User extends VuexModule {
   @Action({ rawError: true, commit: 'setSharedCollections' })
   getSharedCollections(): Promise<SharedCollectionListItem[]> {
     if (!this.ownerId) return Promise.reject(new Error('UserID not set'))
-    return api.user.listUserCollectionsShared(this.ownerId).then((response) => {
+    return api.user.listUserCollectionsShared(this.ownerId).then(response => {
       return (response.data.sharedCollections
         ? response.data.sharedCollections
         : []

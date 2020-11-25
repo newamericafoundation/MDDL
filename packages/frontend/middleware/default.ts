@@ -1,4 +1,3 @@
-import { UserRole } from '@/types/user'
 import { Context } from '@nuxt/types'
 import { userStore } from '@/plugins/store-accessor'
 
@@ -11,12 +10,22 @@ import { userStore } from '@/plugins/store-accessor'
  */
 export default async ({ store, route, redirect, $auth, app }: Context) => {
   if (store.state.auth.loggedIn) {
+    const promises: Promise<any>[] = []
     if (!userStore.userId) {
-      await userStore.setUserId($auth.user.username)
+      userStore.setUserId($auth.user.username)
     }
     if (!userStore.profile) {
-      await userStore.fetchProfile()
+      promises.push(userStore.fetchProfile())
     }
+    if (
+      userStore.role === null &&
+      !['/', '/agency', '/community']
+        .map(s => app.localePath(s))
+        .includes(route.path)
+    ) {
+      promises.push(userStore.fetchRole())
+    }
+    await Promise.all(promises)
     if (
       !userStore.profile!.termsOfUseAccepted &&
       route.path !== app.localePath('/terms-of-use')
