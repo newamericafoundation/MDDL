@@ -143,25 +143,21 @@ export default {
       resendInvite: 'Resend?',
     },
 
+    // Account Activity
     activity: {
-      pageTitle: 'Account Activity',
-      uploadNItems: 'uploaded {count} document | uploaded {count} documents',
-      deleteNDocuments: 'deleted {count} document | deleted {count} documents',
-
-      // TODO: wire up delegate events to Activity
-      gaveAccess: 'gave access to:', // will be followed by list of emails
-      acceptedAccess: 'accepted access to your account', // when invited delegate accepts access
-      declinedAccess: 'declined access to your account', // when invited delegate declines access
-      removeDelegate: 'was removed from your account', // when invited delegate declines access,
-
-      shared: 'shared',
-      added: 'added',
       accessed: 'accessed',
+      added: 'added',
+      delegateInvited: 'to access your account',
+      delegateAccepted: 'can now access your account',
+      delegateDeleted: 'has been removed from your account',
       deleted: 'deleted',
       edited: 'edited details of',
-      manage: 'can now manage and share files on your behalf',
       file: 'file',
       files: 'files',
+      invited: 'invited',
+      manage: 'can now manage and share files on your behalf',
+      pageTitle: 'Account Activity',
+      shared: 'shared',
       today: 'TODAY',
       you: 'You',
     },

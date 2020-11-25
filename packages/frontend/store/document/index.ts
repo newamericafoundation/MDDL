@@ -40,14 +40,14 @@ export default class DocumentStore extends VuexModule {
   }): Promise<string[]> {
     const { document, disposition } = payload
     return Promise.all(
-      document.files.map((file) =>
+      document.files.map(file =>
         api.document
           .downloadDocumentFileById(
             document.id,
             file.id,
             disposition ?? FileDownloadDispositionTypeEnum.Attachment,
           )
-          .then((r) => r.data.href),
+          .then(r => r.data.href),
       ),
     )
   }
@@ -65,7 +65,7 @@ export default class DocumentStore extends VuexModule {
         file.id,
         disposition ?? FileDownloadDispositionTypeEnum.Attachment,
       )
-      .then((r) => r.data.href)
+      .then(r => r.data.href)
   }
 
   @Action

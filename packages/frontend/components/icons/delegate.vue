@@ -19,5 +19,5 @@
 import { Vue, Component } from 'nuxt-property-decorator'
 
 @Component
-export default class OnBehalf extends Vue {}
+export default class Delegate extends Vue {}
 </script>

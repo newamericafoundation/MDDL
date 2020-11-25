@@ -11,24 +11,24 @@
         <hr v-else-if="!isDuplicate(activity, idx)" />
         <v-list-item v-if="!isDuplicate(activity, idx)" three-line>
           <v-list-item-avatar size="38" color="primary" class="mr-3">
-            <v-icon class="pa-1" size="24" color="white">
+            <v-icon class="pa-1" size="30" color="white">
               {{ actionIcon(activity.type) }}
             </v-icon>
           </v-list-item-avatar>
           <v-list-item-content class="mt-3">
             <v-list-item-title class="menu-2 mb-2">
-              <span class="text-heading-3 text-primary">
-                {{ principalName(activity.principal) }}
-              </span>
-              <span class="text-heading-3">{{ action(activity.type) }}</span>
+              <template v-if="canShowActionResult(activity)">
+                <span class="text-heading-3 text-primary">
+                  {{ principalName(activity.principal) }}
+                </span>
+                <span class="text-heading-3">{{ action(activity.type) }}</span>
+              </template>
 
               <template v-if="activity.relatedResources">
                 <span
                   class="text-heading-3"
-                  :class="{ 'text-primary': shouldHighlight(activity.type) }"
-                >
-                  {{ actionResultTranslator(activity) }}
-                </span>
+                  v-html="actionResultTranslator(activity)"
+                />
               </template>
               <template v-else-if="activity.resource">
                 <span class="text-heading-3">1 file</span>
@@ -173,8 +173,8 @@ import InfiniteLoading, { StateChanger } from 'vue-infinite-loading'
 import {
   ActivityResourceTypeEnumMessageMap,
   ActivityResourceTypeEnumIconMap,
-} from '@/types/transformed'
-import { ResourceMetadata } from '@/types/activity'
+  ResourceMetadata,
+} from '@/types/activity'
 import { format, getUnixTime, parseISO } from 'date-fns'
 import { cloneDeep, isEqual } from 'lodash'
 import { capitalize } from '../../assets/js/stringUtils'
@@ -224,7 +224,6 @@ export default class Account extends Vue {
     return ActivityResourceTypeEnumIconMap.get(action)
   }
 
-  // TODO: add delegate events
   /**
    * Displays an resulting action message to the UI specific to the action type
    * @param activity {Activity}
@@ -244,9 +243,41 @@ export default class Account extends Vue {
     } else if (
       [ActivityActionTypeEnum.DOCUMENTEDITED].includes(activity.type)
     ) {
-      return activity.resource.name
+      return `<span class='text-primary'>${activity.resource.name}</span>`
+    } else if (
+      [ActivityActionTypeEnum.DELEGATEDUSERINVITED].includes(activity.type)
+    ) {
+      return `<span class='text-primary'>${
+        activity.resource.name
+      }</span> ${this.$t('activity.delegateInvited')}`
+    } else if (
+      [ActivityActionTypeEnum.DELEGATEDUSERINVITEACCEPTED].includes(
+        activity.type,
+      )
+    ) {
+      return `<span class='text-primary'>${
+        activity.resource.name
+      }</span> ${this.$t('activity.delegateAccepted')}`
+    } else if (
+      [ActivityActionTypeEnum.DELEGATEDUSERDELETED].includes(activity.type)
+    ) {
+      return `<span class='text-primary'>${
+        activity.resource.name
+      }</span> ${this.$t('activity.delegateDeleted')}`
     }
     return false
+  }
+
+  /**
+   * Display logic to exclude some action types (e.g. some Delegate actions)
+   * @param activity {Activity}
+   */
+  canShowActionResult(activity: Activity) {
+    return (
+      activity.relatedResources &&
+      activity.type !== ActivityActionTypeEnum.DELEGATEDUSERINVITEACCEPTED &&
+      activity.type !== ActivityActionTypeEnum.DELEGATEDUSERDELETED
+    )
   }
 
   /**

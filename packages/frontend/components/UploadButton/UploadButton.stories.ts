@@ -21,7 +21,7 @@ const mockUploadStore = new Vuex.Store({
             onUploadProgress?: (e: ProgressEvent) => void
           },
         ): Promise<Document> {
-          const mockUploadPromise = new Promise<Document>((resolve) => {
+          const mockUploadPromise = new Promise<Document>(resolve => {
             let mockUploadIterations = 0
             const mockUploadInterval = window.setInterval(() => {
               if (mockUploadIterations <= 10) {

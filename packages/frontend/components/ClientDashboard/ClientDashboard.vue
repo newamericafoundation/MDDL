@@ -8,7 +8,7 @@
         <UploadButton prepend-icon="$plus" />
         <nuxt-link :to="localePath('/share')" class="nuxt-link">
           <v-btn class="ml-1 text-body-1 font-weight-medium" color="primary">
-            <v-icon left small>$send</v-icon>
+            <v-icon left>$send</v-icon>
             {{ $t('controls.share') }}
           </v-btn>
         </nuxt-link>

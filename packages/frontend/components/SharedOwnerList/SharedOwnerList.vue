@@ -80,7 +80,7 @@ export default class SharedOwnerList extends Vue {
           c: SharedCollectionListItem,
           i: number,
           arr: SharedCollectionListItem[],
-        ) => arr.findIndex((o) => o.owner.id === c.owner.id) === i,
+        ) => arr.findIndex(o => o.owner.id === c.owner.id) === i,
       )
       .map((c: SharedCollectionListItem) => ({
         ownerId: c.owner.id,

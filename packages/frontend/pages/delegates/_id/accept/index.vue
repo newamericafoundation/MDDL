@@ -43,7 +43,7 @@ export default class Accept extends Vue {
           snackbarStore.setVisible(true)
           this.$router.push(this.localePath('/'))
         })
-        .catch((e) => {
+        .catch(e => {
           this.error = true
         })
     } else {

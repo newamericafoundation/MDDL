@@ -125,7 +125,7 @@ export default class ClientList extends Vue {
   loadDelegatedClients() {
     return this.$store
       .dispatch('user/fetchDelegatedClients')
-      .then((clients) => (this.clients = clients))
+      .then(clients => (this.clients = clients))
   }
 }
 </script>
