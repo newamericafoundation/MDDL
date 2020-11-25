@@ -30,12 +30,10 @@ h1 {
   width: 300px;
 }
 .modal-dialog .banner-customizable {
-  /* TODO: replace (or remove?) with generic NA logo once supplied */
-  /* NYC Datalocker logo + mark SVG -- encoded from source SVG in ./assets */
-  background: url('__BANNER_BACKGROUND_URL__') no-repeat;
+  background: url('__BANNER_BACKGROUND_URL__') no-repeat center center;
   margin: 0 auto;
   width: 155px;
-  height: 83px;
+  height: 155px;
   background-size: contain;
 }
 a:hover {

@@ -30,7 +30,6 @@ export default {
 
     login: {
       getStarted: 'Get started',
-      loggingIn: 'Logging in...',
       welcomeTitle: 'welcome to Datalocker',
       welcomeMessage:
         "we're here to help you share documents with case managers in a way that's easy, convenient, and secure.",
@@ -146,14 +145,25 @@ export default {
 
     activity: {
       pageTitle: 'Account Activity',
-      accessedNItems: 'accessed {count} item | accessed {count} items',
-      sharedNItems: 'shared {count} item | shared {count} items',
       uploadNItems: 'uploaded {count} document | uploaded {count} documents',
       deleteNDocuments: 'deleted {count} document | deleted {count} documents',
+
+      // TODO: wire up delegate events to Activity
       gaveAccess: 'gave access to:', // will be followed by list of emails
       acceptedAccess: 'accepted access to your account', // when invited delegate accepts access
       declinedAccess: 'declined access to your account', // when invited delegate declines access
-      removeDelegate: 'was removed from your account', // when invited delegate declines access
+      removeDelegate: 'was removed from your account', // when invited delegate declines access,
+
+      shared: 'shared',
+      added: 'added',
+      accessed: 'accessed',
+      deleted: 'deleted',
+      edited: 'edited details of',
+      manage: 'can now manage and share files on your behalf',
+      file: 'file',
+      files: 'files',
+      today: 'TODAY',
+      you: 'You',
     },
 
     // Copy where you are viewing shared folders

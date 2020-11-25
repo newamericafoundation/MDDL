@@ -1,6 +1,7 @@
 import { Module, VuexModule, Action, Mutation } from 'vuex-module-decorators'
 import { api } from '@/plugins/api-accessor'
 import {
+  ActivityList,
   Collection,
   SharedCollectionListItem as ClientSharedCollectionListItem,
   CollectionCreate,
@@ -11,7 +12,6 @@ import {
   User as ApiUser,
   UserDelegatedAccessCreate,
   UserDelegatedAccess,
-  UserDelegatedAccessList,
   UserDelegatedAccessStatus,
 } from 'api-client'
 import { SharedCollectionListItem } from '@/types/transformed'
@@ -341,5 +341,13 @@ export default class User extends VuexModule {
     if (!this._userId) return Promise.reject(new Error('UserID not set'))
     const { data } = await api.user.addAccountDelegate(this._userId, payload)
     return data
+  }
+
+  @Action({ rawError: true })
+  getActivity(payload: any): Promise<ActivityList> {
+    const { id, token } = payload
+    return api.user.listAccountActivity(id, token).then((response) => {
+      return response.data
+    })
   }
 }

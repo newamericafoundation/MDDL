@@ -1,7 +1,7 @@
 <template>
   <v-row>
     <v-col cols="12" align="center">
-      <h3>{{ capitalize($t('login.loggingIn')) }}</h3>
+      <h3>{{ capitalize($t('navigation.loggingIn')) }}</h3>
       <v-progress-circular
         indeterminate
         color="primary"

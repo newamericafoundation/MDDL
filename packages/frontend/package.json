@@ -44,6 +44,7 @@
     "utif": "^3.1.0",
     "vee-validate": "^3.4.2",
     "vue-class-component": "^7.2.6",
+    "vue-infinite-loading": "^2.4.5",
     "vuex-module-decorators": "^0.17.0"
   },
   "devDependencies": {
@@ -54,6 +55,7 @@
     "@nuxtjs/google-analytics": "^2.4.0",
     "@nuxtjs/storybook": "^2.2.1",
     "@nuxtjs/vuetify": "^1.11.2",
+    "@types/lodash": "^4.14.165",
     "@vue/test-utils": "^1.1.0",
     "babel-jest": "^26.5.2",
     "eslint": "^7.10.0",

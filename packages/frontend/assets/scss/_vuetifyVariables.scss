@@ -1,3 +1,5 @@
+@import 'helpers';
+
 // Ref: https://github.com/nuxt-community/vuetify-module#customvariables
 
 $font-size-root: 16px;
@@ -72,6 +74,14 @@ $headings: (
       'font-family': $body-font-family,
       'text-transform': false,
     ),
+  'body-3': (
+    'size': rem(15px),
+    'weight': 400,
+    'line-height': rem(20.43px),
+    'letter-spacing': 0,
+    'font-family': $body-font-family,
+    'text-transform': false,
+  ),
   // ---- Button font ----
   'button':
     (
@@ -109,7 +119,27 @@ $headings: (
     'letter-spacing': 0,
     'font-family': $body-font-family,
     'text-transform': false,
-  )
+  ),
+  // ---- S1 List label font ----
+  'list-1':
+    (
+      'size': rem(17px),
+      'weight': 500,
+      'line-height': 135%,
+      'letter-spacing': 0,
+      'font-family': $body-font-family,
+      'text-transform': false,
+    ),
+  // ---- S2 List sublabel font ----
+  'list-2':
+    (
+      'size': rem(13px),
+      'weight': 400,
+      'line-height': rem(17.71px),
+      'letter-spacing': 0,
+      'font-family': $body-font-family,
+      'text-transform': false,
+    )
 );
 
 $material-light: (

@@ -2685,7 +2685,7 @@
     consola "^2.11.3"
     http-proxy-middleware "^1.0.4"
 
-"@nuxtjs/pwa@^3.2.2":
+"@nuxtjs/pwa@^3.0.2":
   version "3.2.2"
   resolved "https://registry.yarnpkg.com/@nuxtjs/pwa/-/pwa-3.2.2.tgz#e03c632e30f3df287a842d67323d945f36b97440"
   integrity sha512-B+2VKwmaw40Wyds0hOKuN9R8ODHg7de8B7uQbzaZpLNuCinfKioQOk8jjaLDKRf4sndNG4AYI90Et4M+MRQetQ==
@@ -18355,6 +18355,11 @@ vue-inbrowser-compiler-utils@^4.33.4:
   integrity sha512-8/YvqKy0s7UUUdR8eHLwbuAEb3qs5SfM4Og21E9scKxAwfFBw20YJCLnXB/uEbYsGGpuMg/oY0P7lehfBhm1Tw==
   dependencies:
     camelcase "^5.3.1"
+
+vue-infinite-loading@^2.4.5:
+  version "2.4.5"
+  resolved "https://registry.yarnpkg.com/vue-infinite-loading/-/vue-infinite-loading-2.4.5.tgz#cc20fd40af7f20188006443c99b60470cf1de1b3"
+  integrity sha512-xhq95Mxun060bRnsOoLE2Be6BR7jYwuC89kDe18+GmCLVrRA/dU0jrGb12Xu6NjmKs+iTW0AA6saSEmEW4cR7g==
 
 vue-jest@^3.0.7:
   version "3.0.7"

@@ -12,12 +12,16 @@ import CloseBold from '@/components/icons/close-bold.vue'
 import CloseCircleOutline from '@/components/icons/close-circle-outline.vue'
 import Cog from '@/components/icons/cog.vue'
 import Delete from '@/components/icons/delete.vue'
+import DeleteAlt from '@/components/icons/deleteAlt.vue'
 import Document from '@/components/icons/document.vue'
 import DotsHorizontal from '@/components/icons/dots-horizontal.vue'
 import Download from '@/components/icons/download.vue'
+import Eye from '@/components/icons/eye.vue'
+import File from '@/components/icons/file.vue'
 import Folder from '@/components/icons/folder.vue'
 import HomeOutline from '@/components/icons/home-outline.vue'
 import Menu from '@/components/icons/menu.vue'
+import OnBehalf from '@/components/icons/onBehalf.vue'
 import Pencil from '@/components/icons/pencil.vue'
 import Plus from '@/components/icons/plus.vue'
 import Profile from '@/components/icons/profile.vue'
@@ -100,6 +104,9 @@ const vuetifyOptions = (ctx: Context): Options => {
         delete: {
           component: Delete,
         },
+        deleteAlt: {
+          component: DeleteAlt,
+        },
         document: {
           component: Document,
         },
@@ -109,6 +116,12 @@ const vuetifyOptions = (ctx: Context): Options => {
         download: {
           component: Download,
         },
+        eye: {
+          component: Eye,
+        },
+        file: {
+          component: File,
+        },
         folder: {
           component: Folder,
         },
@@ -117,6 +130,9 @@ const vuetifyOptions = (ctx: Context): Options => {
         },
         menu: {
           component: Menu,
+        },
+        onBehalf: {
+          component: OnBehalf,
         },
         pencil: {
           component: Pencil,
