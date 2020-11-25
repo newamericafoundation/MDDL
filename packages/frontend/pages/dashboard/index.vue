@@ -4,6 +4,10 @@
     v-else-if="userStore.role === UserRole.CBO"
     :toggle-nav="toggleNav"
   />
+  <AgentDashboard
+    v-else-if="userStore.role === UserRole.AGENT"
+    :toggle-nav="toggleNav"
+  />
 </template>
 
 <script lang="ts">

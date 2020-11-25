@@ -40,9 +40,3 @@ export default class CboDashboard extends Vue {
   }
 }
 </script>
-
-<style lang="scss" scoped>
-.container {
-  min-height: 100vh;
-}
-</style>
