@@ -1,6 +1,12 @@
 import { formatApiGatewayResult, compose } from './middleware'
 import createError from 'http-errors'
 
+class MockAwsError extends Error {
+  statusCode: number
+  isRetryable: boolean
+  extendedRequestId: string
+}
+
 describe('formatApiGatewayResult', () => {
   it('formats HTTP error when given', async () => {
     expect(
@@ -16,6 +22,27 @@ describe('formatApiGatewayResult', () => {
         },
         "isBase64Encoded": false,
         "statusCode": 400,
+      }
+    `)
+  })
+  it('formats AWS error when given', async () => {
+    expect(
+      await formatApiGatewayResult<any>(() => {
+        const error = new MockAwsError('An error occurred')
+        error.statusCode = 400
+        error.isRetryable = false
+        error.extendedRequestId = '2134234'
+        throw error
+      })({}),
+    ).toMatchInlineSnapshot(`
+      Object {
+        "body": "{\\"message\\":\\"An internal error occurred\\"}",
+        "cookies": Array [],
+        "headers": Object {
+          "Content-Type": "application/json",
+        },
+        "isBase64Encoded": false,
+        "statusCode": 500,
       }
     `)
   })
