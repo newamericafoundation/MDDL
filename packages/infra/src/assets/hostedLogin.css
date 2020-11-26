@@ -42,6 +42,7 @@ a:hover {
 }
 form {
   margin-top: 10px;
+  text-align: left;
 }
 .background-customizable,
 .inputField-customizable,

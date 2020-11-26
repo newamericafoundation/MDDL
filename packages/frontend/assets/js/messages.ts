@@ -31,8 +31,14 @@ export default {
     login: {
       getStarted: 'Get started',
       welcomeTitle: 'welcome to Datalocker',
-      welcomeMessage:
-        "we're here to help you share documents with case managers in a way that's easy, convenient, and secure.",
+      welcomeMessage: {
+        CLIENT:
+          'We’re here to help you share documents with case managers in a way that’s easy, convenient, and secure.',
+        CBO:
+          'We’re here to help coordinate the secure collection and controlled distribution of client documents and files.',
+        AGENT:
+          'This platform helps facilitate the collection and distribution of documents between clients, case managers, and agencies.',
+      },
     },
 
     navigation: {

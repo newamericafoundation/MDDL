@@ -1,11 +1,11 @@
 <template>
   <div class="landing-container">
-    <CityLogo class="my-15" />
+    <CityLogo />
     <h2 class="text-heading-2 mt-4 mb-4 primary--text">
       {{ capitalize($t('login.welcomeTitle')) }}
     </h2>
     <div class="body-1 welcome-message mb-8">
-      {{ capitalize($t('login.welcomeMessage')) }}
+      {{ capitalize($t(message)) }}
     </div>
     <ButtonLarge
       :label="$t('login.getStarted')"
@@ -30,6 +30,11 @@ export default class Landing extends mixins(Login) {
   @Prop({ required: true }) role: UserRole
 
   capitalize = capitalize
+  message = ''
+
+  mounted() {
+    this.message = `login.welcomeMessage.${UserRole[this.role]}`
+  }
 }
 </script>
 
