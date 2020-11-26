@@ -173,6 +173,7 @@ import InfiniteLoading, { StateChanger } from 'vue-infinite-loading'
 import {
   ActivityResourceTypeEnumMessageMap,
   ActivityResourceTypeEnumIconMap,
+  RegisteredActivityActionTypes,
   ResourceMetadata,
 } from '@/types/activity'
 import { format, getUnixTime, parseISO } from 'date-fns'
@@ -199,7 +200,12 @@ export default class Account extends Vue {
     })
 
     if (data.activity.length) {
-      const arr = this.sortActivities(data.activity)
+      // filter and sort activity history
+      const arr = data.activity.filter((item: Activity) =>
+        RegisteredActivityActionTypes.includes(item.type),
+      )
+      this.sortActivities(arr)
+
       this.activities.push(...arr)
       this.token = data.nextToken
       $state.loaded()

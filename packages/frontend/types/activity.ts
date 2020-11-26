@@ -35,3 +35,15 @@ export const ActivityResourceTypeEnumIconMap: any = new Map([
   [ActivityActionTypeEnum.DELEGATEDUSERINVITEACCEPTED, '$delegate'],
   [ActivityActionTypeEnum.DELEGATEDUSERDELETED, '$delegate'],
 ])
+
+// Whitelist of accepted activity actions to display on the UI
+export const RegisteredActivityActionTypes: ActivityActionTypeEnum[] = [
+  ActivityActionTypeEnum.COLLECTIONCREATED,
+  ActivityActionTypeEnum.DOCUMENTCREATED,
+  ActivityActionTypeEnum.DOCUMENTACCESSED,
+  ActivityActionTypeEnum.DOCUMENTEDITED,
+  ActivityActionTypeEnum.DOCUMENTDELETED,
+  ActivityActionTypeEnum.DELEGATEDUSERINVITED,
+  ActivityActionTypeEnum.DELEGATEDUSERINVITEACCEPTED,
+  ActivityActionTypeEnum.DELEGATEDUSERDELETED,
+]
