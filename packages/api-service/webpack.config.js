@@ -13,9 +13,11 @@ const OUT_DIR = path.resolve(__dirname, 'build')
 const sourcePath = (name) => path.resolve(SRC_DIR, 'services', name)
 const directory = (filePath) => filePath.split('/').slice(0, -1).join('/')
 
-const lambdas = Object.fromEntries(
-  entrypoints.map((d) => [d.entrypoint, sourcePath(d.entrypoint + '.ts')]),
-)
+const lambdas = {}
+entrypoints.forEach((d) => {
+  lambdas[d.entrypoint] = sourcePath(d.entrypoint + '.ts')
+})
+
 const copyPatterns = [].concat(
   ...entrypoints
   .filter((e) => e.include && e.include.length)
@@ -27,7 +29,6 @@ const copyPatterns = [].concat(
   ),
 )
 
-console.log(copyPatterns)
 const config = {
   entry: lambdas,
   module: {
