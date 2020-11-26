@@ -2,7 +2,7 @@
   <div>
     <AppBar>
       <template v-slot:nav-action>
-        <v-app-bar-nav-icon color="grey-8" @click.stop="toggleNav" />
+        <v-app-bar-nav-icon color="grey-8" @click.stop="toggleSideNav" />
       </template>
       <template v-slot:actions>
         <UploadButton prepend-icon="$plus" />
@@ -40,12 +40,12 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from 'nuxt-property-decorator'
+import { Vue, Component, mixins, Watch } from 'nuxt-property-decorator'
 import { userStore } from '@/plugins/store-accessor'
+import Navigation from '@/mixins/navigation'
 
 @Component
-export default class ClientDashboard extends Vue {
-  @Prop({ required: true }) toggleNav: () => void
+export default class ClientDashboard extends mixins(Navigation) {
   currentTab = 'tab-docs'
 
   mounted() {

@@ -301,7 +301,7 @@ export default class Account extends Vue {
 
     const arr = cloneDeep(this.activities.slice(0, index))
 
-    const found = arr.find(item => {
+    const found = arr.find((item) => {
       if ([ActivityActionTypeEnum.DOCUMENTACCESSED].includes(item.type)) {
         const itemMetadata: ResourceMetadata = {
           principalId: item.principal.id,
@@ -377,7 +377,7 @@ export default class Account extends Vue {
   }
 
   relatedDocuments(resources?: ActivityResource[]) {
-    return resources?.filter(r =>
+    return resources?.filter((r) =>
       [
         ActivityResourceTypeEnum.DOCUMENT,
         ActivityResourceTypeEnum.DOCUMENTFILE,

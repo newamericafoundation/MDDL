@@ -7,6 +7,7 @@ import DocumentStore from '@/store/document'
 import collection from '@/store/collection'
 import snackbar from '@/store/snackbar'
 import delegate from '@/store/delegate'
+import navBar from '@/store/navBar'
 // import insertion point (do not change this text, it is being used by hygen cli)
 
 let userStore: user
@@ -14,6 +15,7 @@ let documentStore: DocumentStore
 let collectionStore: collection
 let snackbarStore: snackbar
 let delegateStore: delegate
+let navBarStore: navBar
 // variable insertion point (do not change this text, it is being used by hygen cli)
 
 export default ({ store }: { store: Store<any> }) => {
@@ -22,6 +24,7 @@ export default ({ store }: { store: Store<any> }) => {
   collectionStore = getModule(collection, store)
   snackbarStore = getModule(snackbar, store)
   delegateStore = getModule(delegate, store)
+  navBarStore = getModule(navBar, store)
   // extractVuexModule insertion point (do not change this text, it is being used by hygen cli)
 }
 
@@ -31,5 +34,6 @@ export {
   collectionStore,
   snackbarStore,
   delegateStore,
+  navBarStore,
   // export insertion point (do not change this text, it is being used by hygen cli)
 }

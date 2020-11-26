@@ -4,7 +4,7 @@ const config = {
   ssr: false,
   target: 'static',
   head: {
-    title: 'Datalocker',
+    title: 'Loading...',
     titleTemplate: '%s | Datalocker',
     meta: [
       {

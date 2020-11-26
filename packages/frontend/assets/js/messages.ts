@@ -36,14 +36,14 @@ export default {
     },
 
     navigation: {
-      account: 'account', // navigate to account settings in nav menu
+      account: 'account',
       activity: 'activity',
       loggingIn: 'logging in...',
       manageAccounts: 'Manage Clients',
-      dashboard: 'dashboard',
-      switchAccount: 'Switch Clients',
       signIn: 'sign in',
       signOut: 'sign out',
+      switchAccount: 'Switch Clients',
+      termsOfUse: 'Terms of Use',
     },
 
     document: {

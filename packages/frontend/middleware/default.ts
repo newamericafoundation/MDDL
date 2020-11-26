@@ -20,7 +20,7 @@ export default async ({ store, route, redirect, $auth, app }: Context) => {
     if (
       userStore.role === null &&
       !['/', '/agency', '/community']
-        .map(s => app.localePath(s))
+        .map((s) => app.localePath(s))
         .includes(route.path)
     ) {
       promises.push(userStore.fetchRole())

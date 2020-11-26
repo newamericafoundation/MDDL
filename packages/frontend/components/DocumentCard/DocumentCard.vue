@@ -85,7 +85,7 @@ export default class DocumentCard extends Vue {
   get thumbnail() {
     return (
       this.document &&
-      this.document.links.find(l => l.rel === 'thumbnail')?.href
+      this.document.links.find((l) => l.rel === 'thumbnail')?.href
     )
   }
 
@@ -103,7 +103,7 @@ export default class DocumentCard extends Vue {
   }
 
   get deleteProp() {
-    return this.document && this.document.links.some(l => l.rel === 'delete')
+    return this.document && this.document.links.some((l) => l.rel === 'delete')
       ? this.download
       : null
   }

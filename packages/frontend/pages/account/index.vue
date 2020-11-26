@@ -189,12 +189,12 @@ export default class Account extends Vue {
 
   get activeDelegates() {
     return this.delegates.filter(
-      d => d.status === UserDelegatedAccessStatus.ACTIVE,
+      (d) => d.status === UserDelegatedAccessStatus.ACTIVE,
     )
   }
 
   get pendingOrExpiredDelegates() {
-    return this.delegates.filter(d =>
+    return this.delegates.filter((d) =>
       [
         UserDelegatedAccessStatus.INVITATIONSENT,
         UserDelegatedAccessStatus.INVITATIONEXPIRED,
@@ -221,7 +221,7 @@ export default class Account extends Vue {
   loadDelegates() {
     return this.$store
       .dispatch('user/fetchDelegates')
-      .then(delegates => (this.delegates = delegates))
+      .then((delegates) => (this.delegates = delegates))
   }
 }
 </script>

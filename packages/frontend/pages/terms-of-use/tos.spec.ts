@@ -3,6 +3,12 @@ import TermsOfUse from '@/pages/terms-of-use/index.vue'
 import Layout from '@/layouts/default.vue'
 import Vuetify from 'vuetify'
 
+jest.mock('@/plugins/store-accessor', () => ({
+  userStore: {
+    profile: {},
+  },
+}))
+
 const localVue = createLocalVue()
 
 describe('TermsOfUse component', () => {

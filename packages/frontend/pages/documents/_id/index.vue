@@ -203,7 +203,7 @@ export default class ViewDocument extends Vue {
   get documentContentSize() {
     if (!this.document) return ''
     const totalBytes = this.document.files
-      .map(f => f.contentLength)
+      .map((f) => f.contentLength)
       .reduce(
         (fileContentLength, documentContentLength) =>
           fileContentLength + documentContentLength,
@@ -251,7 +251,7 @@ export default class ViewDocument extends Vue {
   }
 
   get deleteProp() {
-    return this.document && this.document.links.some(l => l.rel === 'delete')
+    return this.document && this.document.links.some((l) => l.rel === 'delete')
       ? this.deleteDoc
       : null
   }

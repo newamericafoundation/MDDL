@@ -16,11 +16,11 @@ const fullUserStore = new Vuex.Store({
       namespaced: true,
       actions: {
         getById() {
-          return new Promise(resolve => resolve(fullDoc))
+          return new Promise((resolve) => resolve(fullDoc))
         },
         update(_context: any, updated: Document) {
           fullDoc.name = updated.name!
-          return new Promise(resolve => {
+          return new Promise((resolve) => {
             window.setTimeout(resolve, 100)
           })
         },
@@ -55,11 +55,11 @@ const emptyUserStore = new Vuex.Store({
       namespaced: true,
       actions: {
         getById() {
-          return new Promise(resolve => resolve(emptyDoc))
+          return new Promise((resolve) => resolve(emptyDoc))
         },
         update(_context: any, updated: Document) {
           emptyDoc.name = updated.name!
-          return new Promise(resolve => {
+          return new Promise((resolve) => {
             window.setTimeout(resolve, 100)
           })
         },

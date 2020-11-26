@@ -2,7 +2,7 @@
   <v-main class="blue-super-light">
     <AppBar>
       <template v-slot:nav-action>
-        <v-app-bar-nav-icon color="grey-8" @click.stop="toggleNav" />
+        <v-app-bar-nav-icon color="grey-8" @click.stop="toggleSideNav" />
       </template>
     </AppBar>
     <v-window v-model="$route.query.tab">
@@ -29,12 +29,13 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from 'nuxt-property-decorator'
+import { Vue, Component, mixins } from 'nuxt-property-decorator'
+import Navigation from '@/mixins/navigation'
 
-@Component
-export default class CboDashboard extends Vue {
-  @Prop({ required: true }) toggleNav: () => void
-
+@Component({
+  mixins: [Navigation],
+})
+export default class CboDashboard extends mixins(Navigation) {
   get closeText() {
     return (this.$t('cbo.clickToRemove') as string).split('{close}')
   }

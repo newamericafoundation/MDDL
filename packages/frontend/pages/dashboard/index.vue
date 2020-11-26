@@ -1,13 +1,7 @@
 <template>
-  <ClientDashboard v-if="showClientDashboard" :toggle-nav="toggleNav" />
-  <CboDashboard
-    v-else-if="userStore.role === UserRole.CBO"
-    :toggle-nav="toggleNav"
-  />
-  <AgentDashboard
-    v-else-if="userStore.role === UserRole.AGENT"
-    :toggle-nav="toggleNav"
-  />
+  <ClientDashboard v-if="showClientDashboard" />
+  <CboDashboard v-else-if="userStore.role === UserRole.CBO" />
+  <AgentDashboard v-else-if="userStore.role === UserRole.AGENT" />
 </template>
 
 <script lang="ts">
@@ -35,11 +29,6 @@ export default class Documents extends Vue {
       snackbarStore.setVisible(true)
     }
     this.$store.dispatch('user/fetchRole')
-  }
-
-  toggleNav() {
-    this.$parent.$parent.$parent.$data.drawer = !this.$parent.$parent.$parent
-      .$data.drawer
   }
 
   get showClientDashboard() {

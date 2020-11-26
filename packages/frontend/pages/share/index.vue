@@ -293,7 +293,7 @@ export default class Share extends Vue {
     this.isLoading = true
     const collection = await this.$store.dispatch('user/createCollection', {
       name: this.name,
-      documentIds: this.selectedDocs.map(d => d.id),
+      documentIds: this.selectedDocs.map((d) => d.id),
       individualEmailAddresses: this.individualEmailAddresses,
       agencyOfficersEmailAddresses: [], // TODO: implement
     })

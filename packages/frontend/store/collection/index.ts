@@ -18,19 +18,19 @@ export default class Collection extends VuexModule {
   getDocuments(collectionId: string): Promise<DocumentListItem[]> {
     return api.collection
       .getCollectionDocuments(collectionId)
-      .then(response => {
+      .then((response) => {
         return response.data.documents ? response.data.documents : []
       })
   }
 
   @Action({ rawError: true })
   download(collectionId: string): Promise<DocumentsDownload> {
-    return new Promise<DocumentsDownload>(resolve => {
+    return new Promise<DocumentsDownload>((resolve) => {
       api.collection
         .downloadCollectionDocuments(collectionId, {
           format: DocumentsDownloadFormatEnum.ZIP,
         })
-        .then(res => {
+        .then((res) => {
           const data = res.data
           if (data.status === DocumentsDownloadStatusEnum.SUCCESS) {
             resolve(data)
@@ -38,7 +38,7 @@ export default class Collection extends VuexModule {
             const poll = setInterval(() => {
               api.collection
                 .getDownloadForCollectionDocuments(collectionId, data.id)
-                .then(downloadResponse => {
+                .then((downloadResponse) => {
                   const downloadStatus = downloadResponse.data
                   if (
                     downloadStatus.status ===

@@ -27,13 +27,13 @@ export default class Snackbar extends VuexModule {
 
   get linkActions() {
     return this._params.actions
-      ? this._params.actions.filter(a => a.to !== undefined)
+      ? this._params.actions.filter((a) => a.to !== undefined)
       : []
   }
 
   get clickActions() {
     return this._params.actions
-      ? this._params.actions.filter(a => a.do !== undefined)
+      ? this._params.actions.filter((a) => a.do !== undefined)
       : []
   }
 
