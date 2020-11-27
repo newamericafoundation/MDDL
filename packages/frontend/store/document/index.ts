@@ -9,6 +9,8 @@ import {
   DocumentUpdate,
   FileDownloadDispositionTypeEnum,
 } from 'api-client'
+import { UserRole } from '@/types/user'
+import { userStore } from '@/plugins/store-accessor'
 
 export type UpdateDocumentInput = DocumentUpdate & { id: string }
 
@@ -40,14 +42,21 @@ export default class DocumentStore extends VuexModule {
   }): Promise<string[]> {
     const { document, disposition } = payload
     return Promise.all(
-      document.files.map((file) =>
+      document.files.map((file, i) =>
         api.document
           .downloadDocumentFileById(
             document.id,
             file.id,
             disposition ?? FileDownloadDispositionTypeEnum.Attachment,
           )
-          .then((r) => r.data.href),
+          .then((r) => {
+            this.$ga.event({
+              eventCategory: 'document_accessed',
+              eventAction: `file-${i + 1}-of-${document.files.length}`,
+              eventLabel: UserRole[userStore.role!],
+            })
+            return r.data.href
+          }),
       ),
     )
   }
@@ -58,14 +67,21 @@ export default class DocumentStore extends VuexModule {
     file: DocumentFile
     disposition: FileDownloadDispositionTypeEnum | undefined
   }): Promise<string> {
-    const { document, file, disposition } = payload
+    const {
+      document,
+      file,
+      disposition = FileDownloadDispositionTypeEnum.Attachment,
+    } = payload
     return api.document
-      .downloadDocumentFileById(
-        document.id,
-        file.id,
-        disposition ?? FileDownloadDispositionTypeEnum.Attachment,
-      )
-      .then((r) => r.data.href)
+      .downloadDocumentFileById(document.id, file.id, disposition)
+      .then((r) => {
+        this.$ga.event({
+          eventCategory: 'document_accessed',
+          eventAction: disposition,
+          eventLabel: UserRole[userStore.role!],
+        })
+        return r.data.href
+      })
   }
 
   @Action

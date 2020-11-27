@@ -80,13 +80,6 @@ const config = {
   googleAnalytics: {
     id: process.env.GOOGLE_ANALYTICS_TRACKING_ID,
   },
-  // TODO: disabled until GTM is configured
-  // gtm: {
-  //   id: process.env.GTM_ID,
-  //   pageTracking: true,
-  //   pageViewEventName: 'navigation',
-  //   enabled: true,
-  // },
   vuetify: {
     treeShake: true,
     customVariables: ['@/assets/scss/_vuetifyVariables.scss'],

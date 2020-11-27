@@ -77,8 +77,8 @@ export default class DebugMenu extends Vue {
   sendEvent() {
     console.log('analytics instance:', this.$ga)
     this.$ga.event({
-      eventCategory: 'upload',
-      eventAction: 'file-input',
+      eventCategory: 'debug',
+      eventAction: 'click',
       eventLabel: 'client',
     })
   }

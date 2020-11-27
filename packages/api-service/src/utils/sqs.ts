@@ -4,8 +4,8 @@ import { chunk } from 'lodash'
 
 const sqsCLient = new SqsCLient()
 type FifoAttributes = {
-  MessageDeduplicationId: string
-  MessageGroupId: string
+  MessageDeduplicationId?: string
+  MessageGroupId?: string
 }
 
 type Message<T> = {

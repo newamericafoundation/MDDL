@@ -1,6 +1,8 @@
-import { Module, VuexModule, Mutation, Action } from 'vuex-module-decorators'
+import { Module, VuexModule, Action } from 'vuex-module-decorators'
 import { api } from '@/plugins/api-accessor'
 import { UserDelegatedAccess } from 'api-client'
+import { userStore } from '@/plugins/store-accessor'
+import { UserRole } from '@/types/user'
 
 @Module({
   name: 'delegate',
@@ -17,6 +19,11 @@ export default class Delegate extends VuexModule {
   @Action({ rawError: true })
   async acceptInvite(delegateId: string): Promise<UserDelegatedAccess> {
     const { data } = await api.delegate.acceptDelegatedAccount(delegateId)
+    this.$ga.event({
+      eventCategory: 'delegate_user_accepted',
+      eventAction: 'accepted',
+      eventLabel: UserRole[userStore.role!],
+    })
     return data
   }
 }

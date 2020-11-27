@@ -19,6 +19,7 @@ import axios, { AxiosResponse, AxiosRequestConfig } from 'axios'
 import { hashFile } from '@/assets/js/hash/'
 import { UserRole } from '@/types/user'
 import { Delegate, DelegatedClient } from '@/types/delegate'
+import { differenceInDays, isBefore } from 'date-fns'
 
 @Module({
   name: 'user',
@@ -138,6 +139,11 @@ export default class User extends VuexModule {
   acceptTerms(): Promise<ApiUser> {
     if (!this._userId) return Promise.reject(new Error('UserID not set'))
     return api.user.acceptTerms(this._userId).then((response) => {
+      this.$ga.event({
+        eventCategory: 'terms_of_use_accepted',
+        // eventAction: '', // TODO: we might want to track TOU version number here?
+        eventLabel: UserRole[this._role!],
+      })
       return response.data
     })
   }
@@ -235,6 +241,12 @@ export default class User extends VuexModule {
       }),
     )
 
+    this.$ga.event({
+      eventCategory: 'document_uploaded',
+      eventAction: 'complete', // we might also want "upload started" or something
+      eventLabel: UserRole[this._role!],
+    })
+
     return addResponse.data
   }
 
@@ -307,10 +319,47 @@ export default class User extends VuexModule {
     })
   }
 
-  @Action({ rawError: true, commit: 'setDocuments' })
+  @Action({ rawError: true })
   async createCollection(payload: CollectionCreate): Promise<Collection> {
     if (!this.ownerId) return Promise.reject(new Error('UserID not set'))
     const { data } = await api.user.addUserCollection(this.ownerId, payload)
+    const documents = await this.getDocuments()
+    const dates = documents.map((d) => new Date(d.createdDate))
+    const oldest = dates.reduce(
+      (oldest, current) => (isBefore(current, oldest) ? current : oldest),
+      dates[0],
+    )
+    const newest = dates.reduce(
+      (newest, current) => (isBefore(current, newest) ? newest : current),
+      dates[0],
+    )
+    const currentDate = Date.now()
+    const daysSinceOldest = differenceInDays(currentDate, oldest)
+    const daysSinceNewest = differenceInDays(currentDate, newest)
+    this.$ga.event({
+      eventCategory: 'collection_shared',
+      eventAction: 'number_of_recipients',
+      eventLabel: UserRole[this._role!],
+      eventValue: payload.individualEmailAddresses.length,
+    })
+    this.$ga.event({
+      eventCategory: 'collection_shared',
+      eventAction: 'number_of_documents',
+      eventLabel: UserRole[this._role!],
+      eventValue: payload.documentIds.length,
+    })
+    this.$ga.event({
+      eventCategory: 'collection_shared',
+      eventAction: 'days_since_oldest_document',
+      eventLabel: UserRole[this._role!],
+      eventValue: daysSinceOldest,
+    })
+    this.$ga.event({
+      eventCategory: 'collection_shared',
+      eventAction: 'days_since_newest_document',
+      eventLabel: UserRole[this._role!],
+      eventValue: daysSinceNewest,
+    })
     return data
   }
 
@@ -345,6 +394,13 @@ export default class User extends VuexModule {
   ): Promise<UserDelegatedAccess> {
     if (!this._userId) return Promise.reject(new Error('UserID not set'))
     const { data } = await api.user.addAccountDelegate(this._userId, payload)
+    const delegates = await this.fetchDelegates()
+    this.$ga.event({
+      eventCategory: 'delegate_user_invited',
+      eventAction: 'number_of_delegates',
+      eventLabel: UserRole[this.role!],
+      eventValue: delegates.length,
+    })
     return data
   }
 

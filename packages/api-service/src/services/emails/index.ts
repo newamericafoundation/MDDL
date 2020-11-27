@@ -6,7 +6,9 @@ const getQueueUrl = () =>
   requireConfiguration(EnvironmentVariable.EMAIL_PROCESSOR_SQS_QUEUE_URL)
 
 const sendEmailRequest = async (sendRequest: SendRequest) => {
-  await putMessage(sendRequest, getQueueUrl())
+  await putMessage(sendRequest, getQueueUrl(), {
+    MessageGroupId: sendRequest.template,
+  })
 }
 
 type SendSharedCollectionOptions = {

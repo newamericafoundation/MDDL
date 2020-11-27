@@ -1,5 +1,6 @@
 /* eslint-disable import/no-mutable-exports */
 
+import VueAnalytics from 'vue-analytics'
 import { Store } from 'vuex'
 import { getModule } from 'vuex-module-decorators'
 import user from '@/store/user'
@@ -18,14 +19,20 @@ let delegateStore: delegate
 let navBarStore: navBar
 // variable insertion point (do not change this text, it is being used by hygen cli)
 
-export default ({ store }: { store: Store<any> }) => {
+export default ({ store, $ga }: { store: Store<any>; $ga: VueAnalytics }) => {
   userStore = getModule(user, store)
+  userStore.$ga = $ga
   documentStore = getModule(DocumentStore, store)
+  documentStore.$ga = $ga
   collectionStore = getModule(collection, store)
+  collectionStore.$ga = $ga
   snackbarStore = getModule(snackbar, store)
+  snackbarStore.$ga = $ga
   delegateStore = getModule(delegate, store)
+  delegateStore.$ga = $ga
   navBarStore = getModule(navBar, store)
-  // extractVuexModule insertion point (do not change this text, it is being used by hygen cli)
+  navBarStore.$ga = $ga
+  // getModule insertion point (do not change this text, it is being used by hygen cli)
 }
 
 export {

@@ -144,14 +144,6 @@ export default class UploadButton extends Vue {
       ],
     })
 
-    const role = await this.$store.dispatch('user/fetchRole')
-
-    this.$ga.event({
-      eventCategory: 'upload',
-      eventAction: 'file-input',
-      eventLabel: UserRole[role],
-    })
-
     this.$store.dispatch('user/getDocuments')
     this.$store.dispatch('user/scheduleDocumentsRefresh')
 

@@ -4,8 +4,8 @@ import initialiseStores, { userStore } from '@/plugins/store-accessor'
 import {
   Document,
   FileDownloadDispositionTypeEnum,
-  UserDelegatedAccess,
-  UserDelegatedAccessStatus,
+  FileContentTypeEnum,
+  DocumentFile,
 } from 'api-client'
 import VueAnalytics from 'vue-analytics'
 import createMockGa from '@/__mocks__/vue-analytics'
@@ -13,18 +13,18 @@ import { UserRole } from '@/types/user'
 
 jest.mock('@/plugins/api-accessor', () => ({
   api: {
-    delegate: {
-      acceptDelegatedAccount: jest.fn((delegateId: string) =>
-        Promise.resolve({
-          data: {
-            id: '1',
-            email: 'delegate@twobulls.com',
-            allowsAccessToUser: undefined,
-            createdDate: '2020-11-22T00:00:00.000Z',
-            status: UserDelegatedAccessStatus.ACTIVE,
-            links: [],
-          } as UserDelegatedAccess,
-        }),
+    document: {
+      downloadDocumentFileById: jest.fn(
+        (
+          documentId: string,
+          fileId: string,
+          disposition: FileDownloadDispositionTypeEnum,
+        ) =>
+          Promise.resolve({
+            data: {
+              href: 'http://blah',
+            },
+          }),
       ),
     },
   },
@@ -55,22 +55,44 @@ const createTestStore = ($ga?: VueAnalytics) => {
   return store
 }
 
-test('DelegateStore.acceptInvite [Happy case]', async () => {
+test('DocumentStore.downloadFile [Happy case]', async () => {
   const mockGa = createMockGa()
   const store = createTestStore(mockGa)
   store.commit('user/_setRole', 0)
   expect.assertions(5)
-  await store.dispatch('delegate/acceptInvite', '1')
+  const documentFile = {
+    id: '1',
+    name: 'test_document.png',
+    contentType: FileContentTypeEnum.ImagePng,
+    sha256Checksum: 'a',
+    contentLength: 1,
+    createdDate: '2020-11-22T00:00:00.000Z',
+    links: [],
+  } as DocumentFile
+  await store.dispatch('document/downloadFile', {
+    document: {
+      id: '',
+      name: 'Test Document',
+      description: null,
+      createdDate: '2020-11-22T00:00:00.000Z',
+      files: [documentFile],
+      links: [],
+    } as Document,
+    file: documentFile,
+    disposition: FileDownloadDispositionTypeEnum.Attachment,
+  })
 
   expect(
-    (<jest.Mock<typeof api.delegate.acceptDelegatedAccount>>(
-      (api.delegate.acceptDelegatedAccount as any)
+    (<jest.Mock<typeof api.document.downloadDocumentFileById>>(
+      (api.document.downloadDocumentFileById as any)
     )).mock.calls.length,
   ).toBe(1)
 
   const eventCalls = (<jest.Mock>mockGa.event).mock.calls
   expect(eventCalls.length).toBe(1)
   expect(eventCalls[0][0].eventCategory).toBeDefined()
-  expect(eventCalls[0][0].eventAction).toBeDefined()
+  expect(eventCalls[0][0].eventAction).toBe(
+    FileDownloadDispositionTypeEnum.Attachment,
+  )
   expect(eventCalls[0][0].eventLabel).toBe(UserRole[UserRole.CLIENT])
 })

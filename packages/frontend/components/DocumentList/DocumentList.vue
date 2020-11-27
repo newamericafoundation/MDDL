@@ -58,10 +58,10 @@ import { DocumentListItem } from 'api-client'
 import { userStore } from '@/plugins/store-accessor'
 
 @Component
-export default class Documents extends Vue {
+export default class DocumentList extends Vue {
   @Prop({ default: false }) selectable: boolean
   @Prop({ default: null }) value: any
-  @Prop({ default: [] }) preSelected: string[]
+  @Prop({ default: () => [] }) preSelected: string[]
 
   loading = true
   selected: boolean[] = []
@@ -72,7 +72,7 @@ export default class Documents extends Vue {
 
   get documents() {
     // eslint-disable-next-line no-unused-expressions
-    return userStore.documents.sort(
+    return [...userStore.documents].sort(
       (d1: DocumentListItem, d2: DocumentListItem) => {
         if (this.preSelected.includes(d1.id)) {
           if (this.preSelected.includes(d2.id)) {

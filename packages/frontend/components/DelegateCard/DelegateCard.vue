@@ -35,7 +35,7 @@
       v-model="showUninviteConfirmation"
       title="delegateAccess.uninviteConfirmationTitle"
       body="delegateAccess.uninviteConfirmationBody"
-      :on-confirm="resendInvite"
+      :on-confirm="removeDelegate"
       :loading="loading"
     />
   </v-card>
@@ -61,8 +61,8 @@ export default class DelegateCard extends Vue {
     this.loading = true
     await this.$store.dispatch('delegate/delete', this.delegate.id)
     this.$emit('delete')
-    this.loading = false
     this.showRemoveConfirmation = false
+    this.loading = false
   }
 
   async resendInvite() {

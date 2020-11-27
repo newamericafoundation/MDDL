@@ -2,10 +2,16 @@ import snackbar from '@/store/snackbar'
 import { createStore } from '@/.nuxt/store'
 import initialiseStores from '@/plugins/store-accessor'
 import { ThemeColor } from '@/types/theme'
+import createMockGa from '@/__mocks__/vue-analytics'
+import VueAnalytics from 'vue-analytics'
 
-const createTestStore = () => {
+const createTestStore = ($ga?: VueAnalytics) => {
   const store = createStore()
-  initialiseStores({ store })
+  initialiseStores({
+    store,
+    $ga: $ga || createMockGa(),
+  })
+  store.commit('user/setUserId', 'ABC123')
   return store
 }
 

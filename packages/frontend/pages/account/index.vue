@@ -116,7 +116,7 @@
         <v-divider class="full-width my-5" />
         <DelegateCard
           v-for="(delegate, i) in activeDelegates"
-          :key="i"
+          :key="`active-${i}`"
           :delegate="delegate"
           @delete="loadDelegates"
         />
@@ -126,7 +126,7 @@
         />
         <DelegateCard
           v-for="(delegate, i) in pendingOrExpiredDelegates"
-          :key="i"
+          :key="`pending-${i}`"
           :delegate="delegate"
           @delete="loadDelegates"
         />

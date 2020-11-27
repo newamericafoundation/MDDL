@@ -34,29 +34,13 @@
         </v-list-item>
       </v-list>
     </v-menu>
-    <v-dialog v-model="showConfirmation" width="500">
-      <v-card>
-        <v-card-title class="headline grey lighten-2">
-          {{ capitalize($t('document.deleteConfirmationTitle')) }}
-        </v-card-title>
 
-        <v-card-text class="mt-2">
-          {{ $t('document.deleteConfirmationBody') }}
-        </v-card-text>
-
-        <v-divider></v-divider>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="primary" text @click="showConfirmation = false">
-            {{ capitalize($t('controls.cancel')) }}
-          </v-btn>
-          <v-btn color="primary" text @click="confirmDelete">
-            {{ capitalize($t('controls.confirm')) }}
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <ConfirmationDialog
+      v-model="showConfirmation"
+      body="document.deleteConfirmationBody"
+      title="document.deleteConfirmationTitle"
+      :on-confirm="confirmDelete"
+    />
   </div>
 </template>
 

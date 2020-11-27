@@ -31,3 +31,9 @@ declare module '@nuxt/types' {
     $api: ApiService
   }
 }
+
+declare module 'vuex-module-decorators' {
+  interface VuexModule {
+    $ga: VueAnalytics
+  }
+}
