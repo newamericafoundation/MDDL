@@ -65,6 +65,7 @@
                 href="#"
                 class="show-more-link"
                 @click.prevent="showMore(idx, 'Documents')"
+                @keydown.prevent="showMore(idx, 'Documents')"
               >
                 +
                 {{
@@ -113,6 +114,7 @@
                   href="#"
                   class="show-more-link"
                   @click.prevent="showMore(idx, 'People')"
+                  @keydown.prevent="showMore(idx, 'People')"
                 >
                   +
                   {{ splitLast(agent(activity.relatedResources)).length }}

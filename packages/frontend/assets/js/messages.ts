@@ -67,6 +67,7 @@ export default {
       fileName: 'file name', // shown as a label on edit details screen
 
       noDocuments: 'there are no files saved to your account', // shown on dashboard when there are no documents
+      previewOf: 'Preview of',
       uploadFirst: 'Add Your First File', // label on the empty state upload button
     },
 

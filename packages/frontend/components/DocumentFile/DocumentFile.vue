@@ -3,6 +3,7 @@
   <iframe
     v-else-if="isPdf"
     :src="url"
+    :title="`${$t('document.previewOf')} ${document.name}`"
     type="application/pdf"
     class="pdf viewer"
   >

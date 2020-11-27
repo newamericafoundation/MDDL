@@ -56,15 +56,21 @@ Workspace name: frontend
 
 - Programming language: TypeScript
 - Package manager: Yarn
-- UI framework: Vue 2
+- UI framework: Vue.js 2
 - Component library: Vuetify.js
 - Nuxt.js modules: Axios, Progressive Web App (PWA)
 - Linting tools: ESLint, Prettier, eslint-config-prettier
-- Testing frameworks: Jest, Storybook, (In future we will also use Browserstack)
+- Accessibility: eslint-plugin-vue-a11y lints static code; Vue Axe analyzes rendered components in the browser via the 
+developer console.
+- Testing frameworks: Jest, Storybook, (In future we will also use BrowserStack)
 - Rendering mode: Single Page App
 - Deployment target: Static
 - CSS Preprocessing: node-sass, sass-loader, @nuxtjs/style-resources
 - Vue modules: vue-class-component, nuxt-property-decorator, vuex-module-decorators
+
+## Accessibility
+
+ESLint includes an accessibility check of all Vue components. Futher accessibility 
 
 ## Static assets
 

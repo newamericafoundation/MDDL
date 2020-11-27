@@ -1,6 +1,7 @@
 <template>
   <div class="upload-container">
     <label
+      for="file-input"
       :class="[
         'upload-label',
         'font-weight-medium',
@@ -14,6 +15,7 @@
       <v-icon v-if="prependIcon" class="mr-4" small v-text="prependIcon" />
       {{ capitalize($t(label)) }}
       <input
+        id="file-input"
         type="file"
         :multiple="multiple"
         :disabled="isLoading"

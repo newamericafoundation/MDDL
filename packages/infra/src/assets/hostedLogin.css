@@ -129,7 +129,7 @@ p.redirect-customizable > a {
   white-space: break-spaces;
 }
 .passwordCheck-valid-customizable {
-  color: #2affb8; /* Success */
+  color: #26c281; /* Success */
   margin-bottom: 12px;
   display: flex;
   text-align: left;
