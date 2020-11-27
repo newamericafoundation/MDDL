@@ -14,7 +14,7 @@
       </template>
 
       <v-list>
-        <v-list-item>
+        <v-list-item v-if="editDetails">
           <v-btn class="justify-start" text @click="editDetails">
             <v-icon small class="mr-2" color="primary">$pencil</v-icon>
             {{ $t('controls.editDetails') }}

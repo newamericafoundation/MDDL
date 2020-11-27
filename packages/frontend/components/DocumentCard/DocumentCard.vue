@@ -19,7 +19,7 @@
       v-else-if="showActions"
       :download="download"
       :delete-doc="deleteProp"
-      :edit-details="showDetails"
+      :edit-details="showDetailsProp"
     />
     <v-row align="center" no-gutters>
       <v-col class="py-0" cols="auto">
@@ -121,6 +121,12 @@ export default class DocumentCard extends Vue {
       urls,
       fullDocument.files.map((f: DocumentFile) => f.name),
     )
+  }
+
+  get showDetailsProp() {
+    return this.document && this.document.links.some((l) => l.rel === 'update')
+      ? this.showDetails
+      : null
   }
 
   showDetails() {

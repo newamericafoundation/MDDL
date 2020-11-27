@@ -8,7 +8,7 @@
         <DocumentMenu
           :download="download"
           :delete-doc="deleteProp"
-          :edit-details="showDetails"
+          :edit-details="showDetailsProp"
         />
 
         <nuxt-link
@@ -225,6 +225,12 @@ export default class ViewDocument extends Vue {
       this.document.files.map((f: DocumentFile) => f.name),
     )
     this.loading = false
+  }
+
+  get showDetailsProp() {
+    return this.document && this.document.links.some((l) => l.rel === 'update')
+      ? this.showDetails
+      : null
   }
 
   showDetails() {

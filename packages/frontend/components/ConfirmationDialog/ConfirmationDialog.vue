@@ -1,6 +1,6 @@
 <template>
-  <v-dialog v-model="value" width="350">
-    <v-card>
+  <v-dialog v-model="value" width="350" persistent>
+    <v-card class="confirmation-card">
       <v-row v-if="closable" class="py-4">
         <v-btn absolute right icon :disabled="loading" @click="closeDialog">
           <v-icon>$close</v-icon>
@@ -48,3 +48,9 @@ export default class ConfirmationDialog extends Vue {
   }
 }
 </script>
+
+<style scoped lang="scss">
+.confirmation-card {
+  overflow-x: hidden;
+}
+</style>
