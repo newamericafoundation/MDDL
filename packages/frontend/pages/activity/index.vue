@@ -54,7 +54,9 @@
                 class="resources__item"
               >
                 <v-icon size="20" class="mr-4" color="primary">$file</v-icon>
-                <span class="text-body-3 grey-9">{{ document.name }}</span>
+                <span class="text-body-3 grey-9 text-truncate">
+                  {{ document.name }}
+                </span>
               </div>
 
               <a
@@ -86,7 +88,9 @@
                   class="resources__item"
                 >
                   <v-icon size="20" class="mr-4" color="primary">$file</v-icon>
-                  <span class="text-body-3 grey-9">{{ document.name }}</span>
+                  <span class="text-body-3 grey-9 text-truncate">
+                    {{ document.name }}
+                  </span>
                 </div>
               </div>
               <div v-if="agent(activity.relatedResources).length">
@@ -438,6 +442,9 @@ export default class Account extends Vue {
 .activity-card__title {
   height: rem(38px);
   padding: 0 0 0 rem(20px);
+}
+.resources {
+  width: 100%;
 }
 .resources--desktop {
   margin-left: 50px;
