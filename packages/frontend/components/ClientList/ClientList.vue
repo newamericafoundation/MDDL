@@ -28,44 +28,19 @@
       </v-list-item>
       <v-divider class="full-width" />
     </v-card>
-    <v-dialog v-model="showConfirmation" width="350">
-      <v-card v-if="clientToDelete">
-        <v-row class="py-4">
-          <v-btn
-            absolute
-            right
-            icon
-            :disabled="loading"
-            @click="showConfirmation = false"
-          >
-            <v-icon>$close</v-icon>
-          </v-btn>
-          <br />
-        </v-row>
-        <v-card-title class="text-heading-1 mx-2 font-weight-bold">
-          {{ capitalize($t('cbo.removeConfirmationTitle')) }}
-          <br />
-          <span class="pt-2 primary--text">
-            {{ clientToDelete.allowsAccessToUser.givenName }}
-            {{ clientToDelete.allowsAccessToUser.familyName }}
-          </span>
-        </v-card-title>
-
-        <v-card-text class="ma-2">
-          {{ capitalize($t('cbo.removeConfirmationBody')) }}
-        </v-card-text>
-
-        <v-card-actions class="px-8 pb-8">
-          <v-spacer></v-spacer>
-          <v-btn :disabled="loading" @click="showConfirmation = false">
-            {{ capitalize($t('controls.cancel')) }}
-          </v-btn>
-          <v-btn color="primary" :loading="loading" @click="removeClient">
-            {{ capitalize($t('controls.confirm')) }}
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <ConfirmationDialog
+      v-model="showConfirmation"
+      title="cbo.removeConfirmationTitle"
+      body="cbo.removeConfirmationBody"
+    >
+      <template v-slot:post-title>
+        <br />
+        <span class="pt-2 primary--text">
+          {{ clientToDelete.allowsAccessToUser.givenName }}
+          {{ clientToDelete.allowsAccessToUser.familyName }}
+        </span>
+      </template>
+    </ConfirmationDialog>
   </div>
   <v-progress-circular
     v-else-if="loading && !showConfirmation"

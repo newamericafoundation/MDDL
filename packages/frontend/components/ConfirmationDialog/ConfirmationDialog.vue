@@ -9,6 +9,7 @@
       </v-row>
       <v-card-title class="text-heading-1 mx-2">
         {{ capitalize($t(title)) }}
+        <slot name="post-title" />
       </v-card-title>
 
       <v-card-text class="ma-2">

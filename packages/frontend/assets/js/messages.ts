@@ -33,9 +33,9 @@ export default {
       welcomeTitle: 'welcome to Datalocker',
       welcomeMessage: {
         CLIENT:
-          'We’re here to help you share documents with case managers in a way that’s easy, convenient, and secure.',
+          "We're here to help you share documents with case managers in a way that's easy, convenient, and secure.",
         CBO:
-          'We’re here to help coordinate the secure collection and controlled distribution of client documents and files.',
+          "We're here to help coordinate the secure collection and controlled distribution of client documents and files.",
         AGENT:
           'This platform helps facilitate the collection and distribution of documents between clients, case managers, and agencies.',
       },
@@ -203,12 +203,11 @@ export default {
       sharedBy: 'Shared By', // label in side bar
     },
 
-    $vuetify: en,
-  },
-
-  // Special test language iso code
-  // see http://chaoticshiny.com/langreplace.php (sibilant 1)
-  test: {
-    $vuetify: es, // idk, just use spanish for the test language vuetify translations lol
+    $vuetify: {
+      ...en,
+      dataTable: {
+        sortBy: 'Sort by',
+      },
+    },
   },
 }

@@ -1,6 +1,7 @@
 <template>
   <div v-if="!loading">
     <v-data-table
+      v-show="$vuetify.breakpoint.smAndUp"
       :headers="headers"
       :items="collections"
       hide-default-footer
@@ -11,6 +12,23 @@
         <v-icon color="primary">$folder</v-icon>
       </template>
     </v-data-table>
+    <v-card
+      v-for="(collection, i) in collections"
+      v-show="$vuetify.breakpoint.xs"
+      :key="`sharedOwner-${i}`"
+      rounded="0"
+    >
+      <v-list-item class="grow py-4" @click="handleClick(collection)">
+        <v-icon left color="primary" size="24">$folder</v-icon>
+
+        <v-list-item-content>
+          <v-list-item-title class="subtitle-1">
+            {{ collection.name }}
+          </v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+      <v-divider class="my-0" />
+    </v-card>
   </div>
   <div v-else>
     <v-card
