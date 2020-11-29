@@ -362,7 +362,10 @@ export class CityStack extends Stack {
     }
 
     this.createAuditLogQueueProcessor(this.auditLogQueue)
-    this.createEmailQueueProcessor(this.emailProcessorQueue)
+    this.createEmailQueueProcessor(
+      this.emailProcessorQueue,
+      emailSender.address,
+    )
 
     // add user routes
     this.addUserRoutes(apiProps)
@@ -461,8 +464,12 @@ export class CityStack extends Stack {
   /**
    * Create the processor for the email queue
    * @param emailProcessorQueue The queue to read messages from
+   * @param emailSenderAddress The email address of the email sender
    */
-  private createEmailQueueProcessor(emailProcessorQueue: IQueue) {
+  private createEmailQueueProcessor(
+    emailProcessorQueue: IQueue,
+    emailSenderAddress: string,
+  ) {
     const lambda = this.createLambda(
       'ProcessEmailSendRequest',
       pathToApiServiceLambda('emails/processSendRequest'),
@@ -480,6 +487,17 @@ export class CityStack extends Stack {
     lambda.addEventSource(
       new SqsEventSource(emailProcessorQueue, {
         batchSize: 10,
+      }),
+    )
+    lambda.addToRolePolicy(
+      new PolicyStatement({
+        actions: ['ses:SendEmail'],
+        resources: ['*'],
+        conditions: {
+          StringEquals: {
+            'ses:FromAddress': emailSenderAddress,
+          },
+        },
       }),
     )
   }
