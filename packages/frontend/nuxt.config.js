@@ -1,3 +1,4 @@
+import Vue from 'vue'
 import messages from './assets/js/messages.ts'
 
 const config = {
@@ -52,7 +53,7 @@ const config = {
     '@nuxtjs/auth',
     '@nuxtjs/pwa',
     'nuxt-i18n',
-    '@nuxtjs/gtm',
+    '@nuxtjs/sentry',
   ],
   pwa: {
     // TODO: other PWA features like icon and colour scheme
@@ -159,6 +160,17 @@ if (process.env.MOBILE_TESTING === '1') {
       https: {
         key: fs.readFileSync(path.resolve(__dirname, 'local/localhost.key')),
         cert: fs.readFileSync(path.resolve(__dirname, 'local/localhost.crt')),
+      },
+    },
+  })
+}
+
+if (process.env.SENTRY_DSN) {
+  Object.assign(config, {
+    sentry: {
+      dsn: process.env.SENTRY_DSN,
+      config: {
+        environment: process.env.BUILD_ENVIRONMENT,
       },
     },
   })
