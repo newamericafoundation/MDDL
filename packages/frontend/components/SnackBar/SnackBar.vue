@@ -14,6 +14,7 @@
       <v-col cols="auto">
         <v-row justify="end">
           <v-btn
+            :title="`${$t('navigation.close')}`"
             v-if="isDismissable"
             class="px-0 close-button"
             text

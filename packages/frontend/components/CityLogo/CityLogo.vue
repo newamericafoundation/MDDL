@@ -1,5 +1,10 @@
 <template>
-  <v-img :src="cityLogo" :width="width" />
+  <v-img
+    img="role"
+    :alt="`${$t('datalocker')}`"
+    :src="cityLogo"
+    :width="width"
+  />
 </template>
 
 <script lang="ts">

@@ -24,14 +24,15 @@
     <v-row align="center" no-gutters>
       <v-col class="py-0" cols="auto">
         <v-lazy height="100" width="100" class="ma-4">
-          <v-img
+          <img
+            :alt="`${$t('document.thumbnailOf')} ${document.name}`"
             v-if="thumbnail"
             max-height="112"
             max-width="112"
             contain
             class="thumbnail"
             :src="thumbnail"
-          ></v-img>
+          />
           <v-skeleton-loader
             v-else
             type="image"

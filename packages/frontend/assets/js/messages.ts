@@ -6,6 +6,7 @@ const es: any = require('vuetify/lib/locale/es')
 
 export default {
   en: {
+    datalocker: 'Datalocker',
     name: 'name', // TODO: replace with filename
 
     // label appearing in tabular content (list of users, list of shared collections etc)
@@ -44,6 +45,9 @@ export default {
     navigation: {
       account: 'account',
       activity: 'activity',
+      back: 'Back',
+      close: 'Close',
+      loading: 'Loading',
       loggingIn: 'logging in...',
       manageAccounts: 'Manage Clients',
       signIn: 'sign in',
@@ -58,6 +62,7 @@ export default {
       // This is the body content of the confirmation dialog for deleting a document
       deleteConfirmationBody:
         'Anyone with shared access will no longer be able to view this file. This cannot be undone.',
+      documentMenu: 'Document menu',
       downloadZip: 'download Zip',
       downloadPdf: 'download PDF',
       description: 'description', // displayed beneath the document and expands to show description (if any)
@@ -69,6 +74,7 @@ export default {
       noDocuments: 'there are no files saved to your account', // shown on dashboard when there are no documents
       previewOf: 'Preview of',
       uploadFirst: 'Add Your First File', // label on the empty state upload button
+      thumbnailOf: 'Thumbnail of',
     },
 
     controls: {

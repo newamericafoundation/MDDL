@@ -24,7 +24,7 @@
           class="nuxt-link"
         >
           <v-btn class="ml-4 text-body-1 font-weight-medium" color="primary">
-            <v-icon>$send</v-icon>
+            <v-icon left>$send</v-icon>
             {{ $t('controls.share') }}
           </v-btn>
         </nuxt-link>
@@ -78,6 +78,7 @@
       <v-card>
         <v-toolbar flat>
           <v-btn
+            :title="`${$t('navigation.close')}`"
             class="mr-2"
             icon
             :disabled="loading"

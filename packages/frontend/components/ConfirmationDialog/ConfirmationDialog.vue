@@ -2,7 +2,14 @@
   <v-dialog v-model="value" width="350" persistent>
     <v-card class="confirmation-card">
       <v-row v-if="closable" class="py-4">
-        <v-btn absolute right icon :disabled="loading" @click="closeDialog">
+        <v-btn
+          :title="`${$t('navigation.close')}`"
+          absolute
+          right
+          icon
+          :disabled="loading"
+          @click="closeDialog"
+        >
           <v-icon>$close</v-icon>
         </v-btn>
         <br />

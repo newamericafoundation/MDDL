@@ -25,7 +25,7 @@
     </v-window-item>
     <v-window-item>
       <v-toolbar class="mb-2" flat>
-        <v-btn icon>
+        <v-btn :title="`${$t('navigation.back')}`" icon>
           <v-icon small class="mr-2" @click="prev">$chevron-left</v-icon>
         </v-btn>
         <v-toolbar-title>
@@ -87,7 +87,11 @@
               <span>{{ email }}</span>
             </v-col>
             <v-col cols="auto">
-              <v-btn icon @click="removeEmail(i)">
+              <v-btn
+                :title="`${$t('navigation.close')}`"
+                icon
+                @click="removeEmail(i)"
+              >
                 <v-icon>$close</v-icon>
               </v-btn>
             </v-col>
@@ -107,7 +111,7 @@
     </v-window-item>
     <v-window-item>
       <v-toolbar class="mb-8" flat>
-        <v-btn icon>
+        <v-btn :title="`${$t('navigation.back')}`" icon>
           <v-icon small class="mr-2" :disabled="isLoading" @click="prev">
             $chevron-left
           </v-icon>

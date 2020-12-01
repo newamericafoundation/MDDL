@@ -3,6 +3,7 @@
     <v-menu v-model="showMenu" absolute offset-y style="max-width: 600px">
       <template v-slot:activator="{ on, attrs }">
         <v-btn
+          :title="`${$t('document.documentMenu')}`"
           v-bind="attrs"
           icon
           class="ml-4 text-body-1 font-weight-medium documentMenu"

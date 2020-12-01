@@ -53,7 +53,11 @@
     </v-window-item>
     <v-window-item value="language">
       <v-toolbar flat>
-        <v-btn icon @click="step = 'top-level'">
+        <v-btn
+          :title="`${$t('navigation.back')}`"
+          icon
+          @click="step = 'top-level'"
+        >
           <v-icon>$chevron-left</v-icon>
         </v-btn>
         <v-toolbar-title>{{ $t('account.language') }}</v-toolbar-title>
@@ -71,7 +75,11 @@
     </v-window-item>
     <v-window-item value="delegate">
       <v-toolbar flat>
-        <v-btn icon @click="step = 'top-level'">
+        <v-btn
+          :title="`${$t('navigation.back')}`"
+          icon
+          @click="step = 'top-level'"
+        >
           <v-icon>$chevron-left</v-icon>
         </v-btn>
         <v-toolbar-title>{{ $t('delegateAccess.pageTitle') }}</v-toolbar-title>

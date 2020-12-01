@@ -5,7 +5,12 @@
         <span>{{ delegate.email }}</span>
       </v-col>
       <v-col cols="auto">
-        <v-btn style="min-height: 2rem" icon @click="onXButton">
+        <v-btn
+          :title="`${$t('navigation.close')}`"
+          style="min-height: 2rem"
+          icon
+          @click="onXButton"
+        >
           <v-icon>$close</v-icon>
         </v-btn>
       </v-col>

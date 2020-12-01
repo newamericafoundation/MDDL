@@ -1,5 +1,5 @@
 <template>
-  <v-btn icon @click="back">
+  <v-btn :title="`${$t('navigation.back')}`" icon @click="back">
     <v-icon small>$chevron-left</v-icon>
   </v-btn>
 </template>

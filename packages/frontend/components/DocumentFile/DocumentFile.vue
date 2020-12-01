@@ -10,7 +10,7 @@
     <p>PDF document: {{ document.name }}</p>
   </iframe>
   <div v-else class="d-flex justify-center image viewer">
-    <img :src="url" :alt="fileName" />
+    <img :src="url" :alt="`${documentName} (${fileName})`" />
   </div>
 </template>
 
@@ -47,6 +47,10 @@ export default class DocumentFile extends Vue {
 
   get fileName() {
     return this.file.name
+  }
+
+  get documentName() {
+    return this.document.name
   }
 
   get isTiff() {

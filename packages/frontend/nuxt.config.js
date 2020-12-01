@@ -37,7 +37,10 @@ const config = {
       '@/assets/scss/_helpers.scss',
     ],
   },
-  plugins: ['@/plugins/vee-validate.js'],
+  plugins: [
+    '@/plugins/vee-validate.js',
+    { src: '@/plugins/axe.ts', mode: 'client' },
+  ],
   components: true,
   buildModules: [
     '@nuxt/typescript-build',

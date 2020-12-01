@@ -152,7 +152,12 @@
     </div>
     <infinite-loading @infinite="fetchActivities">
       <div slot="spinner">
-        <v-progress-circular indeterminate color="primary" class="my-10" />
+        <v-progress-circular
+          :title="`${$t('navigation.loading')}`"
+          indeterminate
+          color="primary"
+          class="my-10"
+        />
       </div>
 
       <div slot="no-results">

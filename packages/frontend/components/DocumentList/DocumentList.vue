@@ -13,6 +13,7 @@
     </template>
     <div v-else class="mx-8">
       <v-img
+        alt=""
         max-width="30rem"
         class="mx-auto"
         :src="require('@/static/images/upload.svg')"

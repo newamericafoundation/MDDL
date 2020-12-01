@@ -15,6 +15,7 @@
         </v-list-item-content>
         <v-list-item-action v-if="deletable" class="my-0">
           <v-btn
+            :title="`${$t('navigation.close')}`"
             icon
             class="mx-4"
             @click="
@@ -50,6 +51,7 @@
   />
   <div v-else class="ma-12">
     <v-img
+      alt=""
       max-width="30rem"
       class="mx-auto"
       :src="require('@/static/images/upload.svg')"
