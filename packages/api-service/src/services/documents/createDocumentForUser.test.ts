@@ -182,7 +182,6 @@ describe('createDocumentForUser', () => {
             contentType: 'image/jpeg',
           },
         ],
-        links: [],
       }),
     )
     expect(getObjectKeys(response)).toMatchInlineSnapshot(`

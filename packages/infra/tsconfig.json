@@ -4,13 +4,18 @@
     "inlineSourceMap": true,
     "inlineSources": true,
     "esModuleInterop": true,
+    "declaration": false,
     "outDir": "dist",
     "rootDir": "src",
     "types": [
       "@types/node",
       "@types/jest",
-    ]
+    ],
+    "paths": {
+      "@/*": ["./*"]
+    },
+    "baseUrl": "./src"
   },
   "include": ["./src"],
-  "exclude": ["cdk.out"]
+  "exclude": ["node_modules", "dist", "cdk.out"]
 }

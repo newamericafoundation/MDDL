@@ -1,0 +1,5 @@
+[{
+  "entrypoint": "builds-bucket-event"
+}, {
+  "entrypoint": "create-db-and-user"
+}]

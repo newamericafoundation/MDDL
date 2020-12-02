@@ -23,9 +23,8 @@ import {
 } from '@aws-cdk/aws-s3'
 import { LambdaDestination } from '@aws-cdk/aws-s3-notifications'
 import { BuildSpec, Project } from '@aws-cdk/aws-codebuild'
-import { Runtime } from '@aws-cdk/aws-lambda'
+import { Runtime, Function, Code } from '@aws-cdk/aws-lambda'
 import { PolicyStatement, User } from '@aws-cdk/aws-iam'
-import { NodejsFunction } from '@aws-cdk/aws-lambda-nodejs'
 import path = require('path')
 
 interface StackConfiguration<T extends StackProps> {
@@ -172,9 +171,9 @@ export class CiCdStack extends Stack {
     })
 
     // create the notification handler for when a new build is put in the "/builds" bucket
-    const handler = new NodejsFunction(this, 'BuildBucketNotificationLambda', {
-      entry: path.join(__dirname, 'lambdas', 'builds-bucket-event.ts'),
-      minify: true,
+    const handler = new Function(this, 'BuildBucketNotificationLambda', {
+      code: Code.fromAsset(path.join('build', 'builds-bucket-event.zip')),
+      handler: 'index.handler',
       runtime: Runtime.NODEJS_12_X,
     })
 

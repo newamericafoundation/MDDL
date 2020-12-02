@@ -3,17 +3,25 @@ import {
   createJsonResponse,
   createStatusCodeResponse,
 } from '@/utils/api-gateway'
-import { APIGatewayProxyEventV2 } from 'aws-lambda'
+import {
+  APIGatewayProxyEventV2,
+  APIGatewayProxyStructuredResultV2,
+} from 'aws-lambda'
 import { AnySchema } from 'joi'
 import createError from 'http-errors'
 import pPipe from 'p-pipe'
 import { parseAndValidate } from './validation'
+import { wrapHandler as sentryWrapHandler } from './sentry'
 
 export const compose = pPipe
 
 export type Context = {
   context: Record<string, any>
 }
+
+export type Handler<E = APIGatewayProxyEventV2> = (
+  event: E,
+) => Promise<APIGatewayProxyStructuredResultV2>
 
 type EventProcessor = (request: APIGatewayRequest) => APIGatewayRequest
 type EventProcessorPromise = (
@@ -29,13 +37,15 @@ export type MiddlewareEventProcessor<R, T> =
 
 export const createAuthenticatedApiGatewayHandlerBase = <R, T = any>(
   ...middleware: MiddlewareEventProcessor<R, T>[]
-) => {
-  return formatApiGatewayResult(compose(combineRequest, ...middleware))
+): Handler => {
+  return sentryWrapHandler(
+    formatApiGatewayResult(compose(combineRequest, ...middleware)),
+  )
 }
 
 export const formatApiGatewayResult = <E = APIGatewayProxyEventV2>(
   innerFunction: (event: E) => any | void,
-) => async (event: E) => {
+): Handler<E> => async (event: E) => {
   try {
     const result = await innerFunction(event)
     if (result) {

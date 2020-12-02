@@ -11,3 +11,5 @@ cdk.pipeline.json
 
 # Parcel default cache directory
 .parcel-cache
+
+build/

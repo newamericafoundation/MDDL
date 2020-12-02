@@ -1,8 +1,9 @@
 import { SQSRecord } from 'aws-lambda'
 import SqsCLient from 'aws-sdk/clients/sqs'
 import { chunk } from 'lodash'
+import { captureAWSClient } from 'aws-xray-sdk'
 
-const sqsCLient = new SqsCLient()
+const sqsCLient = captureAWSClient(new SqsCLient())
 type FifoAttributes = {
   MessageDeduplicationId?: string
   MessageGroupId?: string

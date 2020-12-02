@@ -2,11 +2,14 @@ import { EnvironmentVariable, requireConfiguration } from '@/config'
 import { DocumentsPrefix } from '@/constants'
 import S3 from 'aws-sdk/clients/s3'
 import { readFileSync, writeFileSync } from 'fs'
+import { captureAWSClient } from 'aws-xray-sdk'
 
-const s3 = new S3({
-  signatureVersion: 'v4',
-  region: process.env.AWS_REGION || undefined,
-})
+const s3 = captureAWSClient(
+  new S3({
+    signatureVersion: 'v4',
+    region: process.env.AWS_REGION || undefined,
+  }),
+)
 const getDocumentsBucket = () =>
   requireConfiguration(EnvironmentVariable.DOCUMENTS_BUCKET)
 
@@ -76,7 +79,7 @@ export const uploadObject = async (
   otherParams: Partial<S3.PutObjectRequest> = {},
 ) => {
   const data = readFileSync(filePath)
-  const params = {
+  const params: S3.PutObjectRequest = {
     ...otherParams,
     Bucket: getDocumentsBucket(),
     Key: key,

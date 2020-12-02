@@ -17,9 +17,14 @@ import {
   StackProps,
 } from '@aws-cdk/core'
 import { Secret } from '@aws-cdk/aws-secretsmanager'
-import { NodejsFunction } from '@aws-cdk/aws-lambda-nodejs'
 import path = require('path')
-import { IFunction, Runtime } from '@aws-cdk/aws-lambda'
+import {
+  Code,
+  Function,
+  IFunction,
+  LayerVersion,
+  Runtime,
+} from '@aws-cdk/aws-lambda'
 
 export interface Props extends StackProps {
   /**
@@ -238,27 +243,41 @@ export class DataStoreStack extends Stack {
       Port.tcp(rdsPort),
     )
 
+    const { layer: mysqlLayer } = this.addMysqlLayer()
+
     // configure function used by the city stacks to create a new DB and user within this cluster
-    this.createDbUserFunction = new NodejsFunction(
-      this,
-      'CreateDbUserFunction',
-      {
-        entry: path.join(__dirname, 'lambdas', 'create-db-and-user.ts'),
-        runtime: Runtime.NODEJS_12_X,
-        vpc: this.vpc,
-        timeout: Duration.seconds(60),
-        securityGroups: [this.rdsAccessSecurityGroup],
-        environment: {
-          DB_HOST: rdsCluster.attrEndpointAddress,
-          DB_USER: rdsRootCredentialsSecret
-            .secretValueFromJson('username')
-            .toString(),
-          DB_PASSWORD: rdsRootCredentialsSecret
-            .secretValueFromJson('password')
-            .toString(),
-          DB_DEFAULT_DATABASE: databaseName,
-        },
+    this.createDbUserFunction = new Function(this, 'CreateDbUserFunction', {
+      code: Code.fromAsset(path.join('build', 'create-db-and-user.zip')),
+      handler: 'index.handler',
+      runtime: Runtime.NODEJS_12_X,
+      vpc: this.vpc,
+      timeout: Duration.seconds(60),
+      securityGroups: [this.rdsAccessSecurityGroup],
+      layers: [mysqlLayer],
+      environment: {
+        DB_HOST: rdsCluster.attrEndpointAddress,
+        DB_USER: rdsRootCredentialsSecret
+          .secretValueFromJson('username')
+          .toString(),
+        DB_PASSWORD: rdsRootCredentialsSecret
+          .secretValueFromJson('password')
+          .toString(),
+        DB_DEFAULT_DATABASE: databaseName,
       },
-    )
+    })
+  }
+
+  /**
+   * Adds the mysql lambda layer to the stack
+   */
+  private addMysqlLayer() {
+    return {
+      layer: new LayerVersion(this, 'MysqlLayer', {
+        code: Code.fromAsset(
+          path.join(__dirname, 'lambdas', 'sql-layer', 'layer.zip'),
+        ),
+        compatibleRuntimes: [Runtime.NODEJS_12_X],
+      }),
+    }
   }
 }

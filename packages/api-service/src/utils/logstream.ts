@@ -1,5 +1,7 @@
 import LogsClient, { InputLogEvent } from 'aws-sdk/clients/cloudwatchlogs'
-const logsClient = new LogsClient()
+import { captureAWSClient } from 'aws-xray-sdk'
+
+const logsClient = captureAWSClient(new LogsClient())
 
 export type LogStream = {
   logGroupName: string

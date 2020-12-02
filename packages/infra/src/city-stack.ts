@@ -15,9 +15,11 @@ import {
   Runtime,
   Code,
   FunctionProps,
+  CfnFunction,
+  Tracing,
 } from '@aws-cdk/aws-lambda'
 import { S3EventSource } from '@aws-cdk/aws-lambda-event-sources'
-import { Bucket, IBucket, HttpMethods, EventType } from '@aws-cdk/aws-s3'
+import { Bucket, HttpMethods, EventType } from '@aws-cdk/aws-s3'
 import {
   OriginAccessIdentity,
   CloudFrontWebDistribution,
@@ -33,8 +35,8 @@ import {
 } from '@aws-cdk/aws-logs'
 import { ISecret, Secret } from '@aws-cdk/aws-secretsmanager'
 import {
-  AccountPrincipal,
   AnyPrincipal,
+  Effect,
   Policy,
   PolicyStatement,
   Role,
@@ -50,6 +52,7 @@ import {
   CfnRoute,
   CfnAuthorizer,
   CfnIntegration,
+  CfnStage,
 } from '@aws-cdk/aws-apigatewayv2'
 import { ViewerCertificate } from '@aws-cdk/aws-cloudfront/lib/web_distribution'
 import {
@@ -100,6 +103,26 @@ interface JwtConfiguration {
    * The URL for User Info for this service
    */
   userInfoEndpoint: string
+}
+
+interface MonitoringConfiguration {
+  /**
+   * Sentry DSN
+   */
+  sentryDsn?: string
+}
+
+interface ThrottlingConfiguration {
+  /**
+   * Multiplyer for the burst limit throttling.
+   * @see https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-throttling.html
+   */
+  burstLimitMultiplier?: number
+  /**
+   * Multiplyer for the rate limit throttling.
+   * @see https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-throttling.html
+   */
+  rateLimitMultiplier?: number
 }
 
 export interface Props extends StackProps {
@@ -156,6 +179,14 @@ export interface Props extends StackProps {
    * For example, if the list is '@myspecificdomain.com','partialdomain.net' it will match 'name@myspecificdomain.com', 'name@partialdomain.com', 'name@mypartialdomain.com', 'name@my.partialdomain.com' but not match 'name@sub.myspecificdomain.com'
    */
   agencyEmailDomainsWhitelist?: string[]
+  /**
+   * Monitoring configuration
+   */
+  monitoring?: MonitoringConfiguration
+  /**
+   * Throttling configuration
+   */
+  throttling?: ThrottlingConfiguration
 }
 
 interface ApiProps {
@@ -183,6 +214,21 @@ interface LogGroupPermissions {
   includeWrite?: boolean
 }
 
+interface ThrottlingRouteSettings {
+  ThrottlingBurstLimit: number
+  ThrottlingRateLimit: number
+}
+
+const ReadRouteDefaultThrottling: ThrottlingRouteSettings = {
+  ThrottlingBurstLimit: 50,
+  ThrottlingRateLimit: 200,
+}
+
+const WriteRouteDefaultThrottling: ThrottlingRouteSettings = {
+  ThrottlingBurstLimit: 25,
+  ThrottlingRateLimit: 100,
+}
+
 enum EnvironmentVariables {
   DOCUMENTS_BUCKET = 'DOCUMENTS_BUCKET',
   USERINFO_ENDPOINT = 'USERINFO_ENDPOINT',
@@ -193,10 +239,18 @@ enum EnvironmentVariables {
   ACTIVITY_RECORD_SQS_QUEUE_URL = 'ACTIVITY_RECORD_SQS_QUEUE_URL',
   ACTIVITY_CLOUDWATCH_LOG_GROUP = 'ACTIVITY_CLOUDWATCH_LOG_GROUP',
   EMAIL_PROCESSOR_SQS_QUEUE_URL = 'EMAIL_PROCESSOR_SQS_QUEUE_URL',
+  SENTRY_DSN = 'SENTRY_DSN',
+  ENVIRONMENT_NAME = 'ENVIRONMENT_NAME',
 }
 
 const pathToApiServiceLambda = (name: string) =>
   path.join(__dirname, '..', '..', 'api-service', 'build', `${name}.zip`)
+
+// these variables get inserted to every lambda created by "createLambda" so use sparingly
+const commonEnvironmentVariables = [
+  EnvironmentVariables.SENTRY_DSN,
+  EnvironmentVariables.ENVIRONMENT_NAME,
+]
 
 export class CityStack extends Stack {
   public bucketNames: { [index: string]: string }
@@ -211,6 +265,8 @@ export class CityStack extends Stack {
   private emailProcessorQueue: IQueue
   private auditLogQueue: IQueue
   private auditLogGroup: ILogGroup
+  private routeSettings: { [index: string]: ThrottlingRouteSettings } = {}
+
   constructor(scope: Construct, id: string, props: Props) {
     super(scope, id, props)
 
@@ -229,6 +285,8 @@ export class CityStack extends Stack {
       additionalCallbackUrls = [],
       emailSender,
       agencyEmailDomainsWhitelist = [],
+      monitoring = {},
+      throttling = {},
     } = props
 
     // check auth stack is given if this stack expects it
@@ -314,7 +372,7 @@ export class CityStack extends Stack {
     const { layer: gmLayer } = this.addGraphicsMagickLayer()
 
     // add api
-    const { api, authorizer, corsOrigins } = this.addApi(
+    const { api, authorizer, corsOrigins, defaultStage } = this.addApi(
       webAppDomain,
       jwtConfiguration,
       apiDomainConfig,
@@ -359,6 +417,14 @@ export class CityStack extends Stack {
         .queueUrl,
       [EnvironmentVariables.EMAIL_PROCESSOR_SQS_QUEUE_URL]: this
         .emailProcessorQueue.queueUrl,
+      [EnvironmentVariables.ENVIRONMENT_NAME]: this.stackName,
+    }
+
+    if (monitoring) {
+      const { sentryDsn } = monitoring
+      if (sentryDsn) {
+        this.environmentVariables[EnvironmentVariables.SENTRY_DSN] = sentryDsn
+      }
     }
 
     this.createAuditLogQueueProcessor(this.auditLogQueue)
@@ -379,8 +445,23 @@ export class CityStack extends Stack {
     // add account delegate routes
     this.addAccountDelegateRoutes(apiProps)
 
-    // run database migrations
+    // add database migrations
     this.runMigrations(secret, mySqlLayer)
+
+    if (throttling && Object.keys(this.routeSettings).length) {
+      const { burstLimitMultiplier = 1, rateLimitMultiplier = 1 } = throttling
+      const routeSettings = this.routeSettings
+      for (const [key, value] of Object.entries(routeSettings)) {
+        routeSettings[key] = {
+          ...value,
+          ThrottlingBurstLimit:
+            value.ThrottlingBurstLimit * burstLimitMultiplier,
+          ThrottlingRateLimit: value.ThrottlingRateLimit * rateLimitMultiplier,
+        }
+      }
+
+      defaultStage.addPropertyOverride('RouteSettings', routeSettings)
+    }
   }
 
   /**
@@ -416,6 +497,56 @@ export class CityStack extends Stack {
       expiration: Duration.days(14),
       prefix: CityStack.documentsBucketCollectionsPrefix,
     })
+
+    // this will mean uploads will only be accepted over HTTPS
+    bucket.addToResourcePolicy(
+      new PolicyStatement({
+        sid: 'DenyRequestsOverInsecureTransport',
+        effect: Effect.DENY,
+        actions: ['s3:*'],
+        principals: [new AnyPrincipal()],
+        resources: [bucket.arnForObjects('*')],
+        conditions: {
+          Bool: {
+            'aws:SecureTransport': false,
+          },
+        },
+      }),
+    )
+
+    // this will mean server side encryption cannot be specified in the request
+    // and the default bucket encryption will be used (which is the KMS key specified above)
+    bucket.addToResourcePolicy(
+      new PolicyStatement({
+        sid: 'DenySpecifiedEncryptionHeader',
+        effect: Effect.DENY,
+        principals: [new AnyPrincipal()],
+        actions: ['s3:PutObject'],
+        resources: [bucket.arnForObjects('*')],
+        conditions: {
+          Null: {
+            's3:x-amz-server-side-encryption': false,
+          },
+        },
+      }),
+    )
+
+    // this will mean requests must be signed with Signature V4 which is the latest supported algorithm
+    bucket.addToResourcePolicy(
+      new PolicyStatement({
+        sid: 'DenyRequestsNotUsingSignatureV4',
+        effect: Effect.DENY,
+        principals: [new AnyPrincipal()],
+        actions: ['s3:*'],
+        resources: [bucket.arnForObjects('*')],
+        conditions: {
+          StringNotEquals: {
+            's3:signatureversion': 'AWS4-HMAC-SHA256',
+          },
+        },
+      }),
+    )
+
     return {
       bucket,
     }
@@ -804,7 +935,31 @@ export class CityStack extends Stack {
       new PolicyStatement({
         actions: ['kms:Decrypt', 'kms:GenerateDataKey*'],
         resources: ['*'],
-        principals: [new AccountPrincipal(this.account)],
+        principals: [new AnyPrincipal()],
+        conditions: {
+          StringEquals: {
+            'kms:ViaService': [
+              `s3.${this.region}.amazonaws.com`,
+              `sqs.${this.region}.amazonaws.com`,
+            ],
+            'kms:CallerAccount': this.account,
+          },
+        },
+      }),
+    )
+
+    // add permissions for cloudformation encryption of lambda variables
+    kmsKey.addToResourcePolicy(
+      new PolicyStatement({
+        actions: ['kms:Encrypt'],
+        resources: ['*'],
+        principals: [new AnyPrincipal()],
+        conditions: {
+          StringEquals: {
+            'kms:ViaService': `lambda.${this.region}.amazonaws.com`,
+            'kms:CallerAccount': this.account,
+          },
+        },
       }),
     )
 
@@ -827,6 +982,8 @@ export class CityStack extends Stack {
         },
       }),
     )
+
+    // TO DO - Add permissions to Lambda to be able to use key to encrypt variables
 
     return {
       kmsKey,
@@ -981,6 +1138,8 @@ export class CityStack extends Stack {
       },
       defaultDomainMapping,
     })
+    const defaultStage = api.node.findChild('DefaultStage').node
+      .defaultChild as CfnStage
 
     // create authorizer
     const authorizer = new CfnAuthorizer(this, 'ApiJwtAuthorizer', {
@@ -995,6 +1154,7 @@ export class CityStack extends Stack {
       api,
       authorizer,
       corsOrigins,
+      defaultStage,
     }
   }
 
@@ -1219,6 +1379,7 @@ export class CityStack extends Stack {
         },
       ),
       authorizer,
+      throttlingSettings: ReadRouteDefaultThrottling,
     })
 
     // add lambda and route to submit a document
@@ -1246,6 +1407,7 @@ export class CityStack extends Stack {
         },
       ),
       authorizer,
+      throttlingSettings: WriteRouteDefaultThrottling,
     })
 
     // add route and lambda to list users collections
@@ -1262,6 +1424,7 @@ export class CityStack extends Stack {
         },
       ),
       authorizer,
+      throttlingSettings: ReadRouteDefaultThrottling,
     })
 
     // add route and lambda to list collections shared to user
@@ -1281,6 +1444,7 @@ export class CityStack extends Stack {
         },
       ),
       authorizer,
+      throttlingSettings: ReadRouteDefaultThrottling,
     })
 
     // add route and lambda to submit a collection
@@ -1316,6 +1480,7 @@ export class CityStack extends Stack {
       routeKey: 'POST /users/{userId}/collections',
       lambdaFunction: createCollectionFunction,
       authorizer,
+      throttlingSettings: WriteRouteDefaultThrottling,
     })
 
     // add route and lambda to get users profile
@@ -1332,6 +1497,7 @@ export class CityStack extends Stack {
         },
       ),
       authorizer,
+      throttlingSettings: ReadRouteDefaultThrottling,
     })
 
     // add route and lambda to accept terms of use
@@ -1354,6 +1520,7 @@ export class CityStack extends Stack {
         },
       ),
       authorizer,
+      throttlingSettings: WriteRouteDefaultThrottling,
     })
 
     // add route and lambda to list account delegates
@@ -1376,6 +1543,7 @@ export class CityStack extends Stack {
         },
       ),
       authorizer,
+      throttlingSettings: ReadRouteDefaultThrottling,
     })
   }
 
@@ -1409,6 +1577,7 @@ export class CityStack extends Stack {
         },
       ),
       authorizer,
+      throttlingSettings: ReadRouteDefaultThrottling,
     })
 
     // add lambda and route to get a file download link
@@ -1437,6 +1606,7 @@ export class CityStack extends Stack {
         },
       ),
       authorizer,
+      throttlingSettings: WriteRouteDefaultThrottling,
     })
 
     // update thumbnail path for document
@@ -1514,6 +1684,7 @@ export class CityStack extends Stack {
         },
       ),
       authorizer,
+      throttlingSettings: WriteRouteDefaultThrottling,
     })
 
     // create lambda to delete a document
@@ -1544,6 +1715,7 @@ export class CityStack extends Stack {
       routeKey: 'DELETE /documents/{documentId}',
       lambdaFunction: deleteDocumentByIdLambda,
       authorizer,
+      throttlingSettings: WriteRouteDefaultThrottling,
     })
   }
 
@@ -1576,6 +1748,7 @@ export class CityStack extends Stack {
         },
       ),
       authorizer,
+      throttlingSettings: ReadRouteDefaultThrottling,
     })
 
     // add route and lambda to list collections grants
@@ -1592,6 +1765,7 @@ export class CityStack extends Stack {
         },
       ),
       authorizer,
+      throttlingSettings: ReadRouteDefaultThrottling,
     })
 
     // add lambda to create a zip of collection documents
@@ -1652,6 +1826,7 @@ export class CityStack extends Stack {
       routeKey: 'POST /collections/{collectionId}/documents/downloads',
       lambdaFunction: downloadCollectionDocuments,
       authorizer,
+      throttlingSettings: WriteRouteDefaultThrottling,
     })
 
     // add route and lambda to fetch a collection download
@@ -1681,6 +1856,7 @@ export class CityStack extends Stack {
         },
       ),
       authorizer,
+      throttlingSettings: ReadRouteDefaultThrottling,
     })
   }
 
@@ -1705,6 +1881,7 @@ export class CityStack extends Stack {
         },
       ),
       authorizer,
+      throttlingSettings: ReadRouteDefaultThrottling,
     })
 
     // add route and lambda to add account delegate
@@ -1732,6 +1909,7 @@ export class CityStack extends Stack {
         },
       ),
       authorizer,
+      throttlingSettings: WriteRouteDefaultThrottling,
     })
 
     // add route and lambda to delete account delegate
@@ -1754,6 +1932,7 @@ export class CityStack extends Stack {
         },
       ),
       authorizer,
+      throttlingSettings: WriteRouteDefaultThrottling,
     })
 
     // add route and lambda to accept account delegate invitation
@@ -1776,6 +1955,7 @@ export class CityStack extends Stack {
         },
       ),
       authorizer,
+      throttlingSettings: WriteRouteDefaultThrottling,
     })
   }
 
@@ -1790,10 +1970,17 @@ export class CityStack extends Stack {
       name: string
       routeKey: string
       lambdaFunction: IFunction
+      throttlingSettings: ThrottlingRouteSettings
       authorizer?: CfnAuthorizer
     },
   ) {
-    const { name, routeKey, lambdaFunction, authorizer } = props
+    const {
+      name,
+      routeKey,
+      lambdaFunction,
+      authorizer,
+      throttlingSettings,
+    } = props
     const grant = lambdaFunction.grantInvoke(
       new ServicePrincipal('apigateway.amazonaws.com'),
     )
@@ -1818,6 +2005,10 @@ export class CityStack extends Stack {
       authorizerId: authorizer ? authorizer.ref : undefined,
       authorizationType: authorizer ? authorizer.authorizerType : undefined,
     })
+
+    if (throttlingSettings) {
+      this.routeSettings[routeKey] = throttlingSettings
+    }
   }
 
   /**
@@ -1864,9 +2055,18 @@ export class CityStack extends Stack {
       NODE_ENV: 'production',
       ...dbParams,
     }
+
+    // add specified environment variables
     extraEnvironmentVariables.forEach((e) => {
       environment[e] = this.environmentVariables[e]
     })
+
+    // add common environment variables
+    commonEnvironmentVariables.forEach((e) => {
+      if (this.environmentVariables[e])
+        environment[e] = this.environmentVariables[e]
+    })
+
     const lambda = new Function(this, name, {
       ...extraFunctionProps,
       code: Code.fromAsset(path),
@@ -1880,7 +2080,10 @@ export class CityStack extends Stack {
       securityGroups: requiresDbConnectivity
         ? this.lambdaSecurityGroups
         : undefined,
+      tracing: Tracing.ACTIVE,
     })
+    const cfnLambda = lambda.node.defaultChild as CfnFunction
+    cfnLambda.addPropertyOverride('KmsKeyArn', this.kmsKey.keyArn)
     this.addPermissionsToLambda(lambda, props)
     return lambda
   }
@@ -1948,12 +2151,14 @@ export class CityStack extends Stack {
       },
     )
 
-    new CustomResource(this, 'RunMigrationsCustomResource', {
-      serviceToken: runMigrationsResourceProvider.serviceToken,
-      properties: {
-        // Dynamic prop to force execution each time
-        Execution: Math.random().toString(36).substr(2),
-      },
-    })
+    return {
+      resource: new CustomResource(this, 'RunMigrationsCustomResource', {
+        serviceToken: runMigrationsResourceProvider.serviceToken,
+        properties: {
+          // Dynamic prop to force execution each time
+          Execution: Math.random().toString(36).substr(2),
+        },
+      }),
+    }
   }
 }

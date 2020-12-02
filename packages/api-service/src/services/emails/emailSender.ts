@@ -8,8 +8,9 @@ import {
 } from '@/config'
 import { existsSync, readFileSync } from 'fs'
 import { join } from 'path'
+import { captureAWSClient } from 'aws-xray-sdk'
 
-const ses = new SES()
+const ses = captureAWSClient(new SES())
 
 const templatePath = 'templates'
 

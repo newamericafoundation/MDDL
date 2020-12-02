@@ -5,7 +5,8 @@
   "version": "0.1.0",
   "license": "MIT",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && webpack",
+    "compile": "tsc",
     "watch": "tsc -w",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -14,8 +15,10 @@
   },
   "devDependencies": {
     "@aws-cdk/assert": "^1.70.0",
+    "@types/copy-webpack-plugin": "^6.3.0",
     "@types/jest": "^26.0.14",
     "@types/node": "10.17.27",
+    "@types/zip-webpack-plugin": "^3.0.1",
     "@typescript-eslint/eslint-plugin": "^4.3.0",
     "aws-cdk": "^1.70.0",
     "eslint-config-prettier": "^6.12.0",
@@ -23,7 +26,6 @@
     "husky": "^4.3.0",
     "jest": "^26.4.2",
     "lint-staged": "^10.4.0",
-    "parcel": "2.0.0-beta.1",
     "prettier": "^2.1.2",
     "ts-jest": "^26.4.1",
     "ts-node": "^8.1.0",
@@ -43,7 +45,6 @@
     "@aws-cdk/aws-lambda": "^1.70.0",
     "@aws-cdk/aws-lambda-destinations": "^1.70.0",
     "@aws-cdk/aws-lambda-event-sources": "^1.66.0",
-    "@aws-cdk/aws-lambda-nodejs": "^1.70.0",
     "@aws-cdk/aws-logs": "^1.70.0",
     "@aws-cdk/aws-rds": "^1.70.0",
     "@aws-cdk/aws-s3-notifications": "^1.70.0",
@@ -54,8 +55,14 @@
     "@aws-cdk/pipelines": "^1.70.0",
     "aws-sdk": "^2.757.0",
     "constructs": "^3.0.4",
+    "copy-webpack-plugin": "^6.3.2",
     "mysql2": "^2.2.5",
-    "source-map-support": "^0.5.16"
+    "source-map-support": "^0.5.16",
+    "tsconfig-paths-webpack-plugin": "^3.3.0",
+    "webpack": "^5.0.0",
+    "webpack-bundle-analyzer": "^3.9.0",
+    "webpack-cli": "^4.0.0",
+    "zip-webpack-plugin": "^3.0.0"
   },
   "targets": {
     "cdk-lambda": {
