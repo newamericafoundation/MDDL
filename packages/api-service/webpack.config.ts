@@ -1,38 +1,37 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-const path = require('path')
-const ZipPlugin = require('zip-webpack-plugin')
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
-  .BundleAnalyzerPlugin
-const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
-  .TsconfigPathsPlugin
-const CopyPlugin = require('copy-webpack-plugin')
-const entrypoints = require('./entrypoints.json')
+import path from 'path'
+import ZipPlugin from 'zip-webpack-plugin'
+import { TsconfigPathsPlugin } from 'tsconfig-paths-webpack-plugin'
+import CopyPlugin from 'copy-webpack-plugin'
+import entrypoints from './entrypoints.json'
 
 const SRC_DIR = path.resolve(__dirname, 'src')
 const OUT_DIR = path.resolve(__dirname, 'build')
-const sourcePath = (name) => path.resolve(SRC_DIR, 'services', name)
-const directory = (filePath) => filePath.split('/').slice(0, -1).join('/')
+const sourcePath = (name: string) => path.resolve(SRC_DIR, 'services', name)
+const directory = (filePath: string) =>
+  filePath.split('/').slice(0, -1).join('/')
 
-const lambdas = {}
+const lambdas: { [index: string]: string } = {}
 entrypoints.forEach((d) => {
   lambdas[d.entrypoint] = sourcePath(d.entrypoint + '.ts')
 })
 
 const copyPatterns = [].concat(
-  ...entrypoints
-  .filter((e) => e.include && e.include.length)
-  .map((e) =>
-    e.include.map((fromPath) => ({
-      from: sourcePath(path.join(directory(e.entrypoint), fromPath)),
-      to: path.join(e.entrypoint, fromPath),
-    })),
-  ),
+  ...(entrypoints as any[])
+    .filter((e) => e.include && e.include.length)
+    .map((e) =>
+      e.include.map((fromPath: string) => ({
+        from: sourcePath(path.join(directory(e.entrypoint), fromPath)),
+        to: path.join(e.entrypoint, fromPath),
+      })),
+    ),
 )
 
 const config = {
   entry: lambdas,
   module: {
-    rules: [{
+    rules: [
+      {
         test: /\.ts$/,
         loader: 'ts-loader',
         exclude: /node_modules/,
@@ -58,24 +57,29 @@ const config = {
   target: 'node',
   plugins: [
     // new BundleAnalyzerPlugin(),
-    new CopyPlugin({
-      patterns: copyPatterns,
-    }),
+    ...(copyPatterns.length
+      ? [
+          new CopyPlugin({
+            patterns: copyPatterns,
+          }),
+        ]
+      : []),
     ...Object.keys(lambdas).map((filePath) => {
       return new ZipPlugin({
         filename: filePath.split('/').pop(),
         path: path.join(OUT_DIR, directory(filePath)),
         extension: 'zip',
         include: filePath,
-        pathMapper: (assetPath) => {
+        pathMapper: (assetPath: string) => {
           const match = filePath + '/'
           if (assetPath.startsWith(match)) {
-            return assetPath.replace(match, '', 1)
+            return assetPath.replace(match, '')
           }
+          return assetPath
         },
       })
     }),
   ],
 }
 
-module.exports = config
+export default config

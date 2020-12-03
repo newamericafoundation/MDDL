@@ -35,6 +35,7 @@ import { User } from '@/models/user'
 import { submitDelegatedUserInvitedEvent } from '../activity'
 import { queueDelegateUserInvitation } from '../emails'
 import { EnvironmentVariable, requireConfiguration } from '@/config'
+import { userName } from '../users'
 
 connectDatabase()
 type Request = {
@@ -63,13 +64,6 @@ export const handler = createAuthenticatedApiGatewayHandler(
       webAppDomain,
     } = request as Request
 
-    const delegateCount = await countAccountDelegates(ownerId)
-    if (delegateCount >= MaxDelegatesPerAccount) {
-      throw new createError.BadRequest(
-        `validation error: maximum delegates count of ${MaxDelegatesPerAccount} reached`,
-      )
-    }
-
     const { email } = body
     const existingDelegate = await findAccountDelegateForAccountByEmail(
       ownerId,
@@ -94,7 +88,7 @@ export const handler = createAuthenticatedApiGatewayHandler(
         await queueDelegateUserInvitation({
           acceptLink: `https://${webAppDomain}/delegates/${existingDelegate.id}/accept`,
           email,
-          userName: `${user.givenName} ${user.familyName}`,
+          userName: userName(user),
         })
 
         return toUserDelegatedAccess(updated, userId, user.email)
@@ -104,6 +98,13 @@ export const handler = createAuthenticatedApiGatewayHandler(
           `validation error: account delegate already exists with provided email`,
         )
       }
+    }
+
+    const delegateCount = await countAccountDelegates(ownerId)
+    if (delegateCount >= MaxDelegatesPerAccount) {
+      throw new createError.BadRequest(
+        `validation error: maximum delegates count of ${MaxDelegatesPerAccount} reached`,
+      )
     }
 
     const accountDelegateCreate: CreateAccountDelegateInput = {
@@ -136,7 +137,7 @@ export const handler = createAuthenticatedApiGatewayHandler(
     await queueDelegateUserInvitation({
       acceptLink: `https://${webAppDomain}/delegates/${createdAccountDelegate.id}/accept`,
       email,
-      userName: `${user.givenName} ${user.familyName}`,
+      userName: userName(user),
     })
 
     return toUserDelegatedAccess(createdAccountDelegate, userId, user.email)

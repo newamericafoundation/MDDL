@@ -9,8 +9,7 @@
 
         <v-list-item-content>
           <v-list-item-title class="subtitle-1">
-            {{ client.allowsAccessToUser.givenName }}
-            {{ client.allowsAccessToUser.familyName }}
+            {{ client.allowsAccessToUser.name }}
           </v-list-item-title>
         </v-list-item-content>
         <v-list-item-action v-if="deletable" class="my-0">
@@ -37,8 +36,7 @@
       <template v-slot:post-title>
         <br />
         <span class="pt-2 primary--text">
-          {{ clientToDelete.allowsAccessToUser.givenName }}
-          {{ clientToDelete.allowsAccessToUser.familyName }}
+          {{ clientToDelete.allowsAccessToUser.name }}
         </span>
       </template>
     </ConfirmationDialog>

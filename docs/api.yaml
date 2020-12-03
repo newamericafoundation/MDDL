@@ -807,6 +807,7 @@ components:
         - id
         - givenName
         - familyName
+        - name
       properties:
         id:
           type: string
@@ -814,12 +815,18 @@ components:
           description: The user id
         givenName:
           type: string
+          nullable: true
           example: Sam
           description: The users given name
         familyName:
           type: string
+          nullable: true
           description: The users family name
           example: Citizen
+        name:
+          type: string
+          description: The users name or email address, if name not provided
+          example: sam.citizen@example.com
       type: object
     User:
       description: A user
@@ -827,6 +834,8 @@ components:
         - id
         - givenName
         - familyName
+        - email
+        - name
         - links
       properties:
         id:
@@ -835,16 +844,27 @@ components:
           description: The user id
         givenName:
           type: string
+          nullable: true
           example: Sam
           description: The users given name
         familyName:
           type: string
+          nullable: true
           description: The users family name
           example: Citizen
         termsOfUseAccepted:
           type: boolean
           description: Whether the terms of use have been accepted for the current user for this application
           example: false
+        email:
+          type: string
+          nullable: true
+          description: The users email address
+          example: sam.citizen@example.com
+        name:
+          type: string
+          description: The users name or email address, if name not provided
+          example: sam.citizen@example.com
         links:
           $ref: '#/components/schemas/Links'
       type: object

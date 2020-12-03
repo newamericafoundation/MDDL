@@ -7,8 +7,7 @@ const config = {
   head: {
     title: 'Loading...',
     titleTemplate: '%s | Datalocker',
-    meta: [
-      {
+    meta: [{
         charset: 'utf-8',
       },
       {
@@ -21,13 +20,11 @@ const config = {
         content: process.env.npm_package_description || '',
       },
     ],
-    link: [
-      {
-        rel: 'icon',
-        type: 'image/x-icon',
-        href: '/favicon.ico',
-      },
-    ],
+    link: [{
+      rel: 'icon',
+      type: 'image/x-icon',
+      href: '/favicon.ico',
+    }, ],
   },
   css: ['@/assets/scss/main.scss'],
   styleResources: {
@@ -39,7 +36,10 @@ const config = {
   },
   plugins: [
     '@/plugins/vee-validate.js',
-    { src: '@/plugins/axe.ts', mode: 'client' },
+    {
+      src: '@/plugins/axe.ts',
+      mode: 'client',
+    },
   ],
   components: true,
   buildModules: [
@@ -81,9 +81,6 @@ const config = {
       'Noto Sans': [300, 400, 500, 600, 700],
     },
   },
-  googleAnalytics: {
-    id: process.env.GOOGLE_ANALYTICS_TRACKING_ID,
-  },
   vuetify: {
     treeShake: true,
     customVariables: ['@/assets/scss/_vuetifyVariables.scss'],
@@ -91,13 +88,15 @@ const config = {
   },
   publicRuntimeConfig: {
     agencyEmailDomainsWhitelist: process.env.AGENCY_EMAIL_DOMAINS_WHITELIST,
-    authorizationEndpoint: process.env.AUTH_URL + '/login',
+    authorizationEndpoint: process.env.AUTH_URL,
     buildNumber: process.env.BUILD_NUMBER,
     buildTime: process.env.CODEBUILD_START_TIME,
     googleAnalytics: {
       id: process.env.GOOGLE_ANALYTICS_TRACKING_ID,
     },
     showBuildInfo: process.env.SHOW_BUILD_INFO,
+    authStrategy: 'oauth2',
+    authTokenIdClaim: process.env.AUTH_TOKEN_ID_CLAIM || 'sub',
   },
   build: {
     // TODO: disabled due to issues with hot reloading
@@ -133,9 +132,9 @@ const config = {
         _scheme: 'oauth2',
         audience: process.env.API_URL,
         codeChallengeMethod: 'S256',
-        authorization_endpoint: process.env.AUTH_URL + '/login',
-        userinfo_endpoint: process.env.AUTH_URL + '/oauth2/userInfo',
-        scope: ['openid', 'profile', 'email'],
+        authorization_endpoint: process.env.AUTH_URL,
+        userinfo_endpoint: false,
+        scope: (process.env.AUTH_SCOPES || '').split(','),
         client_id: process.env.AUTH_CLIENT_ID,
         token_type: 'Bearer',
         token_key: 'access_token',
@@ -164,6 +163,14 @@ if (process.env.MOBILE_TESTING === '1') {
         key: fs.readFileSync(path.resolve(__dirname, 'local/localhost.key')),
         cert: fs.readFileSync(path.resolve(__dirname, 'local/localhost.crt')),
       },
+    },
+  })
+}
+
+if (process.env.GOOGLE_ANALYTICS_TRACKING_ID) {
+  Object.assign(config, {
+    googleAnalytics: {
+      id: process.env.GOOGLE_ANALYTICS_TRACKING_ID,
     },
   })
 }

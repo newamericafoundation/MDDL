@@ -55,16 +55,19 @@ export const formatSharedCollections = (
   users: User[],
   permissions: CollectionPermission[],
 ) => ({
-  sharedCollections: collections.map(
-    (collection): SharedCollectionListItem => {
+  sharedCollections: collections
+    .map((collection): SharedCollectionListItem | null => {
       const { ownerId } = collection
       const owner = users.find((u) => u.id == ownerId)
+      if (!owner) {
+        return null
+      }
       return {
         collection: formatCollectionListItem(collection, permissions),
-        owner: userToApiOwner(owner ?? { id: ownerId }),
+        owner: userToApiOwner(owner),
       }
-    },
-  ),
+    })
+    .filter((c) => c !== null) as SharedCollectionListItem[],
 })
 
 export const getCollectionDetails = async (collectionId: string) => {

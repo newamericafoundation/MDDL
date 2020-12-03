@@ -42,7 +42,7 @@ describe('acceptTerms', () => {
     )
     expect(await acceptTerms(event)).toMatchInlineSnapshot(`
       Object {
-        "body": "{\\"id\\":\\"myUserId\\",\\"givenName\\":\\"Jane\\",\\"familyName\\":\\"Citizen\\",\\"termsOfUseAccepted\\":true,\\"links\\":[]}",
+        "body": "{\\"id\\":\\"myUserId\\",\\"givenName\\":\\"Jane\\",\\"familyName\\":\\"Citizen\\",\\"email\\":\\"jcitizen@example.com\\",\\"name\\":\\"Jane Citizen\\",\\"termsOfUseAccepted\\":true,\\"links\\":[]}",
         "cookies": Array [],
         "headers": Object {
           "Content-Type": "application/json",

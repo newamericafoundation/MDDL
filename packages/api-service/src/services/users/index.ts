@@ -3,7 +3,7 @@ import { findAccountDelegateForAccountByEmail } from '@/models/accountDelegate'
 import { getUserById, insertUser, updateUser, User } from '@/models/user'
 import {
   requireToken,
-  requireTokenIssuedAt,
+  requireTokenTimestamp,
   requireUserId,
 } from '@/utils/api-gateway'
 import { APIGatewayRequest } from '@/utils/middleware'
@@ -21,7 +21,7 @@ export const requireUserData = async (
   const userData = await getUserData(
     userId,
     requireToken(request.event),
-    requireTokenIssuedAt(request.event),
+    requireTokenTimestamp(request.event),
   )
   if (requireTermsOfUseAcceptance && !hasAcceptedTermsOfUse(userData)) {
     throw new createError.Forbidden(
@@ -34,16 +34,16 @@ export const requireUserData = async (
 export const getUserData = async (
   id: string,
   token: string,
-  issuedAt: string,
+  timestamp: string,
 ) => {
   // try to fetch the user from DB
   const user = await getUserById(id)
   if (
     user &&
     user.syncTimestamp &&
-    parseInt(issuedAt) <= parseInt(user.syncTimestamp)
+    parseInt(timestamp) <= parseInt(user.syncTimestamp)
   ) {
-    // user in DB has been at least since this token was used
+    // user in DB has been synced at least since this token was used
     // so its ok to use it
     return user
   }
@@ -62,20 +62,21 @@ export const getUserData = async (
       givenName,
       familyName,
       email,
-      syncTimestamp: issuedAt,
+      syncTimestamp: timestamp,
     })
   }
 
   user.givenName = givenName
   user.familyName = familyName
   user.email = email
-  user.syncTimestamp = issuedAt
+  user.syncTimestamp = timestamp
+
   // update user
   return await updateUser(id, {
     givenName,
     familyName,
     email,
-    syncTimestamp: issuedAt,
+    syncTimestamp: timestamp,
   })
 }
 
@@ -98,10 +99,12 @@ export const userToApiOwner = (user: {
   id: string
   givenName?: string
   familyName?: string
+  email?: string
 }): Owner => ({
   id: user.id,
-  givenName: user.givenName ?? 'Unknown',
-  familyName: user.familyName ?? 'Unknown',
+  givenName: user.givenName || null,
+  familyName: user.familyName || null,
+  name: userName(user),
 })
 
 export const hasAcceptedTermsOfUse = (user: { attributes?: any }) => {
@@ -114,11 +117,24 @@ export const userToApiUser = (user: {
   id: string
   givenName?: string
   familyName?: string
+  email?: string
   attributes?: any
 }): ApiUser => ({
   id: user.id,
-  givenName: user.givenName ?? 'Unknown',
-  familyName: user.familyName ?? 'Unknown',
+  givenName: user.givenName || null,
+  familyName: user.familyName || null,
+  email: user.email || null,
+  name: userName(user),
   termsOfUseAccepted: hasAcceptedTermsOfUse(user),
   links: [],
 })
+
+export const userName = (user: {
+  id: string
+  givenName?: string
+  familyName?: string
+  email?: string
+}): string =>
+  user.givenName && user.familyName
+    ? `${user.givenName} ${user.familyName}`
+    : user.email || user.id

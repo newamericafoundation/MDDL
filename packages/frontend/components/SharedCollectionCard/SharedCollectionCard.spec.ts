@@ -19,6 +19,7 @@ describe('SharedCollectionCard component', () => {
           owner: {
             familyName: 'Testman',
             givenName: 'Testy',
+            name: 'Testy Testman',
           },
         },
       },

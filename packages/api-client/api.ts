@@ -697,13 +697,19 @@ export interface Owner {
      * @type {string}
      * @memberof Owner
      */
-    givenName: string;
+    givenName: string | null;
     /**
      * The users family name
      * @type {string}
      * @memberof Owner
      */
-    familyName: string;
+    familyName: string | null;
+    /**
+     * The users name or email address, if name not provided
+     * @type {string}
+     * @memberof Owner
+     */
+    name: string;
 }
 /**
  * A result containing a list of shared collections
@@ -754,19 +760,31 @@ export interface User {
      * @type {string}
      * @memberof User
      */
-    givenName: string;
+    givenName: string | null;
     /**
      * The users family name
      * @type {string}
      * @memberof User
      */
-    familyName: string;
+    familyName: string | null;
     /**
      * Whether the terms of use have been accepted for the current user for this application
      * @type {boolean}
      * @memberof User
      */
     termsOfUseAccepted?: boolean;
+    /**
+     * The users email address
+     * @type {string}
+     * @memberof User
+     */
+    email: string | null;
+    /**
+     * The users name or email address, if name not provided
+     * @type {string}
+     * @memberof User
+     */
+    name: string;
     /**
      * An array of Links
      * @type {Array<Link>}

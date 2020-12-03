@@ -19,6 +19,7 @@
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator'
 import { UserRole } from '@/types/user'
+import decode from 'jwt-claims'
 
 @Component
 export default class DebugMenu extends Vue {
@@ -42,9 +43,13 @@ export default class DebugMenu extends Vue {
   delegateToAccept = ''
 
   mounted() {
-    if (this.$auth.user)
-      this.$store.commit('user/setUserId', this.$auth.user.username)
-    else {
+    if (this.$auth.loggedIn) {
+      const claims = decode(this.$auth.getToken(this.$config.authStrategy))
+      this.$store.commit(
+        'user/setUserId',
+        claims[this.$config.authTokenIdClaim],
+      )
+    } else {
       this.$store.commit('user/setUserId', 'testUserId')
     }
     this.$store.dispatch('user/fetchRole').then((role: UserRole) => {
@@ -53,7 +58,7 @@ export default class DebugMenu extends Vue {
   }
 
   expireToken() {
-    this.$auth.setToken('oauth2', 'bleh')
+    this.$auth.setToken(this.$config.authStrategy, 'bleh')
   }
 
   logIn() {

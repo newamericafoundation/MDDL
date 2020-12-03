@@ -105,7 +105,7 @@ export default class SharedOwnerList extends Vue {
       .map((c: SharedCollectionListItem) => ({
         ownerId: c.owner.id,
         collectionId: c.collection.id,
-        name: `${c.owner.givenName} ${c.owner.familyName}`,
+        name: c.owner.name,
         createdDate: format(c.collection.createdDate, 'LLL d, yyyy'),
       }))
   }

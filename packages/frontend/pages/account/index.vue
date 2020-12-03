@@ -43,7 +43,7 @@
                 <v-icon large>$profile</v-icon>
               </v-col>
               <v-col cols="10" sm="" class="grey-8--text">
-                <p v-text="accountName" />
+                <p v-if="!accountEmailIsName" v-text="accountName" />
                 <p class="mb-0" v-text="accountEmail" />
               </v-col>
             </v-row>
@@ -186,13 +186,15 @@ export default class Account extends Vue {
   userStore = userStore
 
   get accountName() {
-    return userStore.profile
-      ? `${userStore.profile.givenName} ${userStore.profile.familyName}`
-      : ''
+    return userStore.profile ? userStore.profile.name : ''
   }
 
   get accountEmail() {
-    return `${this.$auth.user.email}`
+    return userStore.profile ? userStore.profile.email : ''
+  }
+
+  get accountEmailIsName() {
+    return this.accountName === this.accountEmail
   }
 
   get activeDelegates() {

@@ -91,19 +91,18 @@ export const mockUserData = (
   userId: string,
   email = 'jcitizen@example.com',
   attributes?: any,
+  hasName = true,
 ) => {
   const data = {
     id: userId,
-    givenName: 'Jane',
-    familyName: 'Citizen',
+    givenName: hasName ? 'Jane' : undefined,
+    familyName: hasName ? 'Citizen' : undefined,
     email,
     attributes,
   }
-  toMockedFunction(requireUserData).mockImplementation(
-    async (request, requireTermsOfUseAcceptance) => {
-      await setContext('userId', () => userId)(request)
-      return User.fromJson(data)
-    },
-  )
+  toMockedFunction(requireUserData).mockImplementation(async (request) => {
+    await setContext('userId', () => userId)(request)
+    return User.fromJson(data)
+  })
   return data
 }

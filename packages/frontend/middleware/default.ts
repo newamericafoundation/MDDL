@@ -1,5 +1,6 @@
 import { Context } from '@nuxt/types'
 import { userStore } from '@/plugins/store-accessor'
+import decode from 'jwt-claims'
 
 /**
  * Check user role + logged in status and perform appropriate redirect
@@ -8,11 +9,19 @@ import { userStore } from '@/plugins/store-accessor'
  * @param redirect
  * @param $auth
  */
-export default async ({ store, route, redirect, $auth, app }: Context) => {
+export default async ({
+  store,
+  route,
+  redirect,
+  $auth,
+  app,
+  $config,
+}: Context) => {
   if (store.state.auth.loggedIn) {
     const promises: Promise<any>[] = []
     if (!userStore.userId) {
-      userStore.setUserId($auth.user.username)
+      const claims = decode($auth.getToken($config.authStrategy))
+      userStore.setUserId(claims[$config.authTokenIdClaim])
     }
     if (!userStore.profile) {
       promises.push(userStore.fetchProfile())

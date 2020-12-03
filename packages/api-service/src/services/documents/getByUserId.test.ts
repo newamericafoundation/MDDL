@@ -16,6 +16,7 @@ jest.mock('@/models/document')
 jest.mock('@/services/users')
 jest.mock('@/services/users/authorization')
 jest.mock('@/utils/s3')
+jest.mock('@/config')
 
 describe('getByUserId', () => {
   const userId = 'myUserId'

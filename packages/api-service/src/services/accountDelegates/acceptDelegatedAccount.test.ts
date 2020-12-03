@@ -95,7 +95,7 @@ describe('acceptDelegatedAccount', () => {
     })
     expect(await acceptDelegatedAccount(event)).toMatchInlineSnapshot(`
       Object {
-        "body": "{\\"createdDate\\":\\"2015-01-12T13:14:15.000Z\\",\\"email\\":\\"myEmail\\",\\"id\\":\\"myAccountDelegateId\\",\\"links\\":[{\\"href\\":\\"/delegates/myAccountDelegateId\\",\\"rel\\":\\"delete\\",\\"type\\":\\"DELETE\\"},{\\"href\\":\\"/delegates/myAccountDelegateId/accept\\",\\"rel\\":\\"accept\\",\\"type\\":\\"POST\\"}],\\"status\\":\\"ACTIVE\\",\\"allowsAccessToUser\\":{\\"id\\":\\"otherAccountId\\",\\"givenName\\":\\"otherAccountId\\",\\"familyName\\":\\"otherAccountId\\"}}",
+        "body": "{\\"createdDate\\":\\"2015-01-12T13:14:15.000Z\\",\\"email\\":\\"myEmail\\",\\"id\\":\\"myAccountDelegateId\\",\\"links\\":[{\\"href\\":\\"/delegates/myAccountDelegateId\\",\\"rel\\":\\"delete\\",\\"type\\":\\"DELETE\\"},{\\"href\\":\\"/delegates/myAccountDelegateId/accept\\",\\"rel\\":\\"accept\\",\\"type\\":\\"POST\\"}],\\"status\\":\\"ACTIVE\\",\\"allowsAccessToUser\\":{\\"id\\":\\"otherAccountId\\",\\"givenName\\":\\"otherAccountId\\",\\"familyName\\":\\"otherAccountId\\",\\"name\\":\\"otherAccountId otherAccountId\\"}}",
         "cookies": Array [],
         "headers": Object {
           "Content-Type": "application/json",

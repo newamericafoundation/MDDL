@@ -26,6 +26,7 @@ import { queueSharedCollectionNotification } from '../emails'
 import { EnvironmentVariable, requireConfiguration } from '@/config'
 import { submitCollectionCreatedEvent } from '../activity'
 import { User } from '@/models/user'
+import { userName } from '../users'
 
 connectDatabase()
 
@@ -117,7 +118,7 @@ export const handler = createAuthenticatedApiGatewayHandler(
       await queueSharedCollectionNotification({
         collection: {
           link: `https://${webAppDomain}/collections/${collection.id}`,
-          name: `${user.givenName} ${user.familyName}`,
+          name: userName(user),
         },
         emails: individualEmailAddresses,
       })

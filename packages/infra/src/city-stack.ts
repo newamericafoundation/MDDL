@@ -1,7 +1,9 @@
 import {
+  CfnResource,
   Construct,
   CustomResource,
   Duration,
+  IConstruct,
   RemovalPolicy,
   Stack,
   StackProps,
@@ -78,6 +80,7 @@ import { Queue, IQueue } from '@aws-cdk/aws-sqs'
 import { MinimalCloudFrontTarget } from './minimal-cloudfront-target'
 import { EmailSender } from './email-sender'
 import { getCognitoHostedLoginCss } from './utils'
+import { StringParameter, IStringParameter } from '@aws-cdk/aws-ssm'
 
 interface ApiHostedDomain extends HostedDomain {
   /**
@@ -92,17 +95,47 @@ interface JwtConfiguration {
   /**
    * The audience (aud) of the JWT token
    */
-  audience: string[]
+  audience?: string[]
 
   /**
    * The issuer (iss) of the JWT token
    */
-  issuer: string
+  issuer?: string
 
   /**
    * The URL for User Info for this service
    */
   userInfoEndpoint: string
+
+  /**
+   * The integration type, defaults to OAUTH
+   */
+  integrationType?: 'OAUTH' | 'NYCID_OAUTH'
+
+  /**
+   * If provided, will be resolved to a SSM Parameter Store String parameter for the shared secret signing key for auth integration
+   */
+  signingKeyParameterPath?: string
+}
+
+interface MonitoringConfiguration {
+  /**
+   * Sentry DSN
+   */
+  sentryDsn?: string
+}
+
+interface ThrottlingConfiguration {
+  /**
+   * Multiplyer for the burst limit throttling.
+   * @see https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-throttling.html
+   */
+  burstLimitMultiplier?: number
+  /**
+   * Multiplyer for the rate limit throttling.
+   * @see https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-throttling.html
+   */
+  rateLimitMultiplier?: number
 }
 
 interface MonitoringConfiguration {
@@ -217,6 +250,7 @@ interface LogGroupPermissions {
 interface ThrottlingRouteSettings {
   ThrottlingBurstLimit: number
   ThrottlingRateLimit: number
+  Route?: CfnResource
 }
 
 const ReadRouteDefaultThrottling: ThrottlingRouteSettings = {
@@ -241,6 +275,8 @@ enum EnvironmentVariables {
   EMAIL_PROCESSOR_SQS_QUEUE_URL = 'EMAIL_PROCESSOR_SQS_QUEUE_URL',
   SENTRY_DSN = 'SENTRY_DSN',
   ENVIRONMENT_NAME = 'ENVIRONMENT_NAME',
+  AUTH_SIGNING_KEY = 'AUTH_SIGNING_KEY',
+  AUTH_INTEGRATION_TYPE = 'AUTH_INTEGRATION_TYPE',
 }
 
 const pathToApiServiceLambda = (name: string) =>
@@ -252,6 +288,12 @@ const commonEnvironmentVariables = [
   EnvironmentVariables.ENVIRONMENT_NAME,
 ]
 
+const authEnvironmentVariables = [
+  EnvironmentVariables.USERINFO_ENDPOINT,
+  EnvironmentVariables.AUTH_SIGNING_KEY,
+  EnvironmentVariables.AUTH_INTEGRATION_TYPE,
+]
+
 export class CityStack extends Stack {
   public bucketNames: { [index: string]: string }
   private static documentsBucketDocumentsPrefix = 'documents/'
@@ -259,7 +301,7 @@ export class CityStack extends Stack {
   private lambdaVpc: IVpc
   private lambdaSecurityGroups: ISecurityGroup[]
   private rdsEndpoint: string
-  private environmentVariables: { [key: string]: string }
+  private environmentVariables: { [key: string]: string } = {}
   private uploadsBucket: Bucket
   private kmsKey: IKey
   private emailProcessorQueue: IQueue
@@ -305,6 +347,22 @@ export class CityStack extends Stack {
     // check jwt auth is given if auth stack is not
     if (!expectsAuthStack && !jwtAuth) {
       throw new Error('jwtAuth must be provided when expectsAuthStack is false')
+    }
+
+    // read in the signing key parameter if its provided
+    if (jwtAuth && jwtAuth.signingKeyParameterPath) {
+      const signingKeyParameter = StringParameter.fromStringParameterName(
+        this,
+        'SigningKeyParameter',
+        jwtAuth.signingKeyParameterPath,
+      )
+      this.environmentVariables[EnvironmentVariables.AUTH_SIGNING_KEY] =
+        signingKeyParameter.stringValue
+    } else if (jwtAuth && jwtAuth.integrationType === 'NYCID_OAUTH') {
+      // verify requirements for NYC.ID
+      throw new Error(
+        'jwtConfiguration.signingKeyParameterPath must be provided for NYCID_OAUTH integration',
+      )
     }
 
     // check data store stack is given - it is "optional" to allow for configuration
@@ -403,6 +461,7 @@ export class CityStack extends Stack {
     ).queue
 
     this.environmentVariables = {
+      ...this.environmentVariables,
       [EnvironmentVariables.DOCUMENTS_BUCKET]: this.uploadsBucket.bucketName,
       [EnvironmentVariables.USERINFO_ENDPOINT]:
         jwtConfiguration.userInfoEndpoint,
@@ -418,6 +477,9 @@ export class CityStack extends Stack {
       [EnvironmentVariables.EMAIL_PROCESSOR_SQS_QUEUE_URL]: this
         .emailProcessorQueue.queueUrl,
       [EnvironmentVariables.ENVIRONMENT_NAME]: this.stackName,
+      [EnvironmentVariables.AUTH_INTEGRATION_TYPE]: jwtConfiguration.integrationType
+        ? jwtConfiguration.integrationType
+        : 'OAUTH',
     }
 
     if (monitoring) {
@@ -448,12 +510,20 @@ export class CityStack extends Stack {
     // add database migrations
     this.runMigrations(secret, mySqlLayer)
 
-    if (throttling && Object.keys(this.routeSettings).length) {
+    if (Object.keys(this.routeSettings).length) {
       const { burstLimitMultiplier = 1, rateLimitMultiplier = 1 } = throttling
       const routeSettings = this.routeSettings
+
+      // add dependency so stage is deployed after routes
+      Object.values(routeSettings).forEach((s) => {
+        if (s.Route) {
+          defaultStage.addDependsOn(s.Route)
+        }
+      })
+
+      // build route settings for all routes
       for (const [key, value] of Object.entries(routeSettings)) {
         routeSettings[key] = {
-          ...value,
           ThrottlingBurstLimit:
             value.ThrottlingBurstLimit * burstLimitMultiplier,
           ThrottlingRateLimit: value.ThrottlingRateLimit * rateLimitMultiplier,
@@ -711,7 +781,7 @@ export class CityStack extends Stack {
     apiDomainConfig?: HostedDomain,
     jwtAuth?: JwtConfiguration,
     appUrl?: string,
-  ) {
+  ): { jwtConfiguration: JwtConfiguration } {
     // if JWT Auth is given, shortcut out
     if (jwtAuth) {
       return { jwtConfiguration: jwtAuth }
@@ -777,6 +847,7 @@ export class CityStack extends Stack {
         audience: [client.userPoolClientId],
         issuer: `https://cognito-idp.${this.region}.amazonaws.com/${userPool.userPoolId}`,
         userInfoEndpoint: `${authStack.authUrl}/oauth2/userInfo`,
+        integrationType: 'OAUTH',
       },
     }
   }
@@ -1142,13 +1213,7 @@ export class CityStack extends Stack {
       .defaultChild as CfnStage
 
     // create authorizer
-    const authorizer = new CfnAuthorizer(this, 'ApiJwtAuthorizer', {
-      apiId: api.httpApiId,
-      authorizerType: 'JWT',
-      jwtConfiguration: jwtConfiguration,
-      identitySource: ['$request.header.Authorization'],
-      name: 'JwtAuthorizer',
-    })
+    const authorizer = this.createAuthorizer(api.httpApiId, jwtConfiguration)
 
     return {
       api,
@@ -1156,6 +1221,45 @@ export class CityStack extends Stack {
       corsOrigins,
       defaultStage,
     }
+  }
+
+  private createAuthorizer(
+    apiId: string,
+    jwtConfiguration: JwtConfiguration,
+  ): CfnAuthorizer {
+    if (jwtConfiguration.integrationType == 'NYCID_OAUTH') {
+      // NYC ID tokens use the HS256 algorithm so we need to use our own lambda to verify them
+      const lambdaAuthorizer = this.createLambda(
+        'ApiJwtLambdaAuthorizerFunction',
+        pathToApiServiceLambda('jwtAuthorizer/index'),
+        {
+          extraEnvironmentVariables: [EnvironmentVariables.AUTH_SIGNING_KEY],
+        },
+      )
+      const grant = lambdaAuthorizer.grantInvoke(
+        new ServicePrincipal('apigateway.amazonaws.com'),
+      )
+      const authorizer = new CfnAuthorizer(this, 'ApiJwtLambdaAuthorizer', {
+        apiId,
+        authorizerType: 'REQUEST',
+        identitySource: ['$request.header.Authorization'],
+        name: 'JwtLambdaAuthorizer',
+        authorizerPayloadFormatVersion: '2.0',
+        authorizerResultTtlInSeconds: 300,
+        enableSimpleResponses: true,
+        authorizerUri: `arn:${this.partition}:apigateway:${this.region}:lambda:path/2015-03-31/functions/${lambdaAuthorizer.functionArn}/invocations`,
+      })
+      grant.applyBefore(authorizer)
+      return authorizer
+    }
+
+    return new CfnAuthorizer(this, 'ApiJwtAuthorizer', {
+      apiId,
+      authorizerType: 'JWT',
+      jwtConfiguration,
+      identitySource: ['$request.header.Authorization'],
+      name: 'JwtAuthorizer',
+    })
   }
 
   private determineBucketPermissions(
@@ -1369,8 +1473,8 @@ export class CityStack extends Stack {
           dbSecret,
           layers: [mySqlLayer],
           extraEnvironmentVariables: [
+            ...authEnvironmentVariables,
             EnvironmentVariables.DOCUMENTS_BUCKET,
-            EnvironmentVariables.USERINFO_ENDPOINT,
           ],
           // permission needed to create presigned urls for thumbnails
           documentBucketPermissions: {
@@ -1393,8 +1497,8 @@ export class CityStack extends Stack {
           dbSecret,
           layers: [mySqlLayer],
           extraEnvironmentVariables: [
+            ...authEnvironmentVariables,
             EnvironmentVariables.DOCUMENTS_BUCKET,
-            EnvironmentVariables.USERINFO_ENDPOINT,
             EnvironmentVariables.ACTIVITY_RECORD_SQS_QUEUE_URL,
           ],
           // permission needed to create presigned upload url
@@ -1420,7 +1524,7 @@ export class CityStack extends Stack {
         {
           dbSecret,
           layers: [mySqlLayer],
-          extraEnvironmentVariables: [EnvironmentVariables.USERINFO_ENDPOINT],
+          extraEnvironmentVariables: [...authEnvironmentVariables],
         },
       ),
       authorizer,
@@ -1438,7 +1542,7 @@ export class CityStack extends Stack {
           dbSecret,
           layers: [mySqlLayer],
           extraEnvironmentVariables: [
-            EnvironmentVariables.USERINFO_ENDPOINT,
+            ...authEnvironmentVariables,
             EnvironmentVariables.AGENCY_EMAIL_DOMAINS_WHITELIST,
           ],
         },
@@ -1455,7 +1559,7 @@ export class CityStack extends Stack {
         dbSecret,
         layers: [mySqlLayer],
         extraEnvironmentVariables: [
-          EnvironmentVariables.USERINFO_ENDPOINT,
+          ...authEnvironmentVariables,
           EnvironmentVariables.WEB_APP_DOMAIN,
           EnvironmentVariables.AGENCY_EMAIL_DOMAINS_WHITELIST,
           EnvironmentVariables.ACTIVITY_RECORD_SQS_QUEUE_URL,
@@ -1493,7 +1597,7 @@ export class CityStack extends Stack {
         {
           dbSecret,
           layers: [mySqlLayer],
-          extraEnvironmentVariables: [EnvironmentVariables.USERINFO_ENDPOINT],
+          extraEnvironmentVariables: [...authEnvironmentVariables],
         },
       ),
       authorizer,
@@ -1511,7 +1615,7 @@ export class CityStack extends Stack {
           dbSecret,
           layers: [mySqlLayer],
           extraEnvironmentVariables: [
-            EnvironmentVariables.USERINFO_ENDPOINT,
+            ...authEnvironmentVariables,
             EnvironmentVariables.ACTIVITY_RECORD_SQS_QUEUE_URL,
           ],
           auditLogSqsPermissions: {
@@ -1534,7 +1638,7 @@ export class CityStack extends Stack {
           dbSecret,
           layers: [mySqlLayer],
           extraEnvironmentVariables: [
-            EnvironmentVariables.USERINFO_ENDPOINT,
+            ...authEnvironmentVariables,
             EnvironmentVariables.ACTIVITY_CLOUDWATCH_LOG_GROUP,
           ],
           auditLogGroupPermissions: {
@@ -1566,8 +1670,8 @@ export class CityStack extends Stack {
           dbSecret,
           layers: [mySqlLayer],
           extraEnvironmentVariables: [
+            ...authEnvironmentVariables,
             EnvironmentVariables.DOCUMENTS_BUCKET,
-            EnvironmentVariables.USERINFO_ENDPOINT,
             EnvironmentVariables.AGENCY_EMAIL_DOMAINS_WHITELIST,
           ],
           documentBucketPermissions: {
@@ -1591,8 +1695,8 @@ export class CityStack extends Stack {
           dbSecret,
           layers: [mySqlLayer],
           extraEnvironmentVariables: [
+            ...authEnvironmentVariables,
             EnvironmentVariables.DOCUMENTS_BUCKET,
-            EnvironmentVariables.USERINFO_ENDPOINT,
             EnvironmentVariables.AGENCY_EMAIL_DOMAINS_WHITELIST,
             EnvironmentVariables.ACTIVITY_RECORD_SQS_QUEUE_URL,
           ],
@@ -1675,7 +1779,7 @@ export class CityStack extends Stack {
           dbSecret,
           layers: [mySqlLayer],
           extraEnvironmentVariables: [
-            EnvironmentVariables.USERINFO_ENDPOINT,
+            ...authEnvironmentVariables,
             EnvironmentVariables.ACTIVITY_RECORD_SQS_QUEUE_URL,
           ],
           auditLogSqsPermissions: {
@@ -1695,8 +1799,8 @@ export class CityStack extends Stack {
         dbSecret,
         layers: [mySqlLayer],
         extraEnvironmentVariables: [
+          ...authEnvironmentVariables,
           EnvironmentVariables.DOCUMENTS_BUCKET,
-          EnvironmentVariables.USERINFO_ENDPOINT,
           EnvironmentVariables.ACTIVITY_RECORD_SQS_QUEUE_URL,
         ],
         // permission needed to create presigned urls (for get and put)
@@ -1737,7 +1841,7 @@ export class CityStack extends Stack {
           dbSecret,
           layers: [mySqlLayer],
           extraEnvironmentVariables: [
-            EnvironmentVariables.USERINFO_ENDPOINT,
+            ...authEnvironmentVariables,
             EnvironmentVariables.DOCUMENTS_BUCKET,
             EnvironmentVariables.AGENCY_EMAIL_DOMAINS_WHITELIST,
           ],
@@ -1761,7 +1865,7 @@ export class CityStack extends Stack {
         {
           dbSecret,
           layers: [mySqlLayer],
-          extraEnvironmentVariables: [EnvironmentVariables.USERINFO_ENDPOINT],
+          extraEnvironmentVariables: [...authEnvironmentVariables],
         },
       ),
       authorizer,
@@ -1803,7 +1907,7 @@ export class CityStack extends Stack {
         dbSecret,
         layers: [mySqlLayer],
         extraEnvironmentVariables: [
-          EnvironmentVariables.USERINFO_ENDPOINT,
+          ...authEnvironmentVariables,
           EnvironmentVariables.DOCUMENTS_BUCKET,
           EnvironmentVariables.CREATE_COLLECTION_ZIP_FUNCTION_NAME,
           EnvironmentVariables.AGENCY_EMAIL_DOMAINS_WHITELIST,
@@ -1841,7 +1945,7 @@ export class CityStack extends Stack {
           dbSecret,
           layers: [mySqlLayer],
           extraEnvironmentVariables: [
-            EnvironmentVariables.USERINFO_ENDPOINT,
+            ...authEnvironmentVariables,
             EnvironmentVariables.DOCUMENTS_BUCKET,
             EnvironmentVariables.AGENCY_EMAIL_DOMAINS_WHITELIST,
             EnvironmentVariables.ACTIVITY_RECORD_SQS_QUEUE_URL,
@@ -1877,7 +1981,7 @@ export class CityStack extends Stack {
         {
           dbSecret,
           layers: [mySqlLayer],
-          extraEnvironmentVariables: [EnvironmentVariables.USERINFO_ENDPOINT],
+          extraEnvironmentVariables: [...authEnvironmentVariables],
         },
       ),
       authorizer,
@@ -1895,7 +1999,7 @@ export class CityStack extends Stack {
           dbSecret,
           layers: [mySqlLayer],
           extraEnvironmentVariables: [
-            EnvironmentVariables.USERINFO_ENDPOINT,
+            ...authEnvironmentVariables,
             EnvironmentVariables.ACTIVITY_RECORD_SQS_QUEUE_URL,
             EnvironmentVariables.WEB_APP_DOMAIN,
             EnvironmentVariables.EMAIL_PROCESSOR_SQS_QUEUE_URL,
@@ -1923,7 +2027,7 @@ export class CityStack extends Stack {
           dbSecret,
           layers: [mySqlLayer],
           extraEnvironmentVariables: [
-            EnvironmentVariables.USERINFO_ENDPOINT,
+            ...authEnvironmentVariables,
             EnvironmentVariables.ACTIVITY_RECORD_SQS_QUEUE_URL,
           ],
           auditLogSqsPermissions: {
@@ -1946,7 +2050,7 @@ export class CityStack extends Stack {
           dbSecret,
           layers: [mySqlLayer],
           extraEnvironmentVariables: [
-            EnvironmentVariables.USERINFO_ENDPOINT,
+            ...authEnvironmentVariables,
             EnvironmentVariables.ACTIVITY_RECORD_SQS_QUEUE_URL,
           ],
           auditLogSqsPermissions: {
@@ -1998,16 +2102,30 @@ export class CityStack extends Stack {
     })
     grant.applyBefore(integration)
 
-    new CfnRoute(this, `${name}Route`, {
+    let authorizerId: string | undefined = undefined,
+      authorizationType: string | undefined = undefined
+
+    if (authorizer) {
+      authorizerId = authorizer.ref
+      authorizationType =
+        authorizer.authorizerType === 'REQUEST'
+          ? 'CUSTOM'
+          : authorizer.authorizerType
+    }
+
+    const route = new CfnRoute(this, `${name}Route`, {
       apiId: api.httpApiId,
       routeKey: routeKey,
       target: `integrations/${integration.ref}`,
-      authorizerId: authorizer ? authorizer.ref : undefined,
-      authorizationType: authorizer ? authorizer.authorizerType : undefined,
+      authorizerId,
+      authorizationType,
     })
 
     if (throttlingSettings) {
-      this.routeSettings[routeKey] = throttlingSettings
+      this.routeSettings[routeKey] = {
+        ...throttlingSettings,
+        Route: route,
+      }
     }
   }
 
@@ -2058,7 +2176,8 @@ export class CityStack extends Stack {
 
     // add specified environment variables
     extraEnvironmentVariables.forEach((e) => {
-      environment[e] = this.environmentVariables[e]
+      if (this.environmentVariables[e])
+        environment[e] = this.environmentVariables[e]
     })
 
     // add common environment variables

@@ -185,9 +185,7 @@ export default class ViewCollection extends Vue {
   }
 
   get sharerName() {
-    return this.sharedCollection
-      ? `${this.sharedCollection.owner.givenName} ${this.sharedCollection.owner.familyName}`
-      : ''
+    return this.sharedCollection ? this.sharedCollection.owner.name : ''
   }
 }
 </script>

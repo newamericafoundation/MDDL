@@ -17,6 +17,7 @@ import { CollectionGrantType } from 'api-client'
 jest.mock('@/utils/database')
 jest.mock('@/models/collection')
 jest.mock('@/services/users')
+jest.mock('@/config')
 
 describe('getGrantsByCollectionId', () => {
   const userId = 'myUserId'

@@ -19,7 +19,7 @@ import { capitalize } from '@/assets/js/stringUtils'
 })
 export default class Login extends Vue {
   mounted() {
-    this.$auth.loginWith('oauth2')
+    this.$auth.loginWith(this.$config.authStrategy)
   }
 }
 </script>

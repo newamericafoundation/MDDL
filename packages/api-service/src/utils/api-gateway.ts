@@ -3,6 +3,10 @@ import {
   APIGatewayProxyStructuredResultV2,
 } from 'aws-lambda'
 import createError from 'http-errors'
+import {
+  getTokenTimestampClaimKey,
+  getUserIdClaimKey,
+} from './oauthIntegration'
 
 export const requirePathParameter = (
   event: APIGatewayProxyEventV2,
@@ -73,31 +77,50 @@ export const getHeader = (
 }
 
 export const requireUserId = (event: APIGatewayProxyEventV2): string =>
-  requireTokenClaim(event, 'sub') as string
+  '' + requireAuthorizerContext(event, getUserIdClaimKey())
 
-export const requireTokenIssuedAt = (event: APIGatewayProxyEventV2): string =>
-  requireTokenClaim(event, 'iat') as string
+export const requireTokenTimestamp = (event: APIGatewayProxyEventV2): string =>
+  '' + requireAuthorizerContext(event, getTokenTimestampClaimKey())
 
-export const requireTokenClaim = (
+export const requireAuthorizerContext = (
   event: APIGatewayProxyEventV2,
-  claimName: string,
+  contextKey: string,
 ): string | number | boolean | string[] => {
-  const claim = getTokenClaim(event, claimName)
-  if (!claim) throw new createError.BadRequest(`${claimName} claim not found`)
-  return claim
+  const contextValue = getAuthorizerContext(event, contextKey)
+  if (contextValue) {
+    return contextValue
+  }
+  throw new createError.BadRequest(
+    `${contextKey} authorizer context key not found`,
+  )
 }
 
-export const getTokenClaim = (
+type AuthorizerContext = {
+  jwt: {
+    claims: { [name: string]: string | number | boolean | string[] }
+    scopes: string[]
+  }
+  lambda: { [name: string]: string | number | boolean | string[] | any }
+}
+
+export const getAuthorizerContext = (
   event: APIGatewayProxyEventV2,
-  claimName: string,
+  contextKey: string,
 ): string | number | boolean | string[] | undefined => {
-  if (
-    !event.requestContext.authorizer ||
-    !event.requestContext.authorizer.jwt ||
-    !event.requestContext.authorizer.jwt.claims[claimName]
-  )
+  if (!event.requestContext.authorizer) {
     return undefined
-  return event.requestContext.authorizer.jwt.claims[claimName]
+  }
+
+  const authorizerContext = event.requestContext.authorizer as AuthorizerContext
+
+  if (authorizerContext.jwt && authorizerContext.jwt.claims[contextKey])
+    return authorizerContext.jwt.claims[contextKey]
+
+  if (authorizerContext.lambda && authorizerContext.lambda[contextKey]) {
+    return authorizerContext.lambda[contextKey]
+  }
+
+  return undefined
 }
 
 export const createJsonResponse = <T = any>(

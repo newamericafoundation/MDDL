@@ -16,6 +16,7 @@ import { APIGatewayProxyEventV2 } from 'aws-lambda'
 import { handler as listAccountDelegates } from './listAccountDelegates'
 import createError from 'http-errors'
 
+jest.mock('@/config')
 jest.mock('@/utils/database')
 jest.mock('@/models/user')
 jest.mock('@/services/users')
@@ -77,11 +78,12 @@ describe('listAccountDelegates', () => {
     })
     toMockedFunction(getUsersById).mockImplementation(
       async (userIds: string[]) => {
-        return userIds.map((userId) =>
+        return userIds.map((userId, index) =>
           User.fromDatabaseJson({
             id: userId,
-            givenName: userId,
-            familyName: userId,
+            givenName: index % 2 ? undefined : userId,
+            familyName: index % 2 ? undefined : userId,
+            email: index % 2 ? userId : undefined,
           }),
         )
       },
@@ -194,6 +196,7 @@ describe('listAccountDelegates', () => {
               "familyName": "otherUser3",
               "givenName": "otherUser3",
               "id": "otherUser3",
+              "name": "otherUser3 otherUser3",
             },
             "createdDate": "2015-01-12T13:14:15.000Z",
             "email": "myEmail",
@@ -214,9 +217,10 @@ describe('listAccountDelegates', () => {
           },
           Object {
             "allowsAccessToUser": Object {
-              "familyName": "otherUser4",
-              "givenName": "otherUser4",
+              "familyName": null,
+              "givenName": null,
               "id": "otherUser4",
+              "name": "otherUser4",
             },
             "createdDate": "2015-01-12T13:14:15.000Z",
             "email": "myEmail",
@@ -240,6 +244,7 @@ describe('listAccountDelegates', () => {
               "familyName": "otherUser5",
               "givenName": "otherUser5",
               "id": "otherUser5",
+              "name": "otherUser5 otherUser5",
             },
             "createdDate": "2015-01-12T13:14:15.000Z",
             "email": "myEmail",

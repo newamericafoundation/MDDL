@@ -22,9 +22,8 @@ export default class OwnerCollections extends Vue {
 
   mounted() {
     if (userStore.profile) {
-      this.title = `${this.$t('tabTitles.sharedBy')} ${
-        userStore.profile.givenName
-      }`
+      const { givenName, name } = userStore.profile
+      this.title = `${this.$t('tabTitles.sharedBy')} ${givenName || name}`
     } else {
       this.title = this.$t('tabTitles.shared') as string
     }

@@ -111,6 +111,8 @@ jest.mock('@/plugins/api-accessor', () => ({
             givenName: '',
             familyName: '',
             termsOfUseAccepted: true,
+            name: 'name',
+            email: 'email',
             links: [],
           } as User,
         }),

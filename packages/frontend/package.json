@@ -38,6 +38,7 @@
     "eslint-plugin-vue-a11y": "^0.0.31",
     "flush-promises": "^1.0.2",
     "hygen": "^6.0.4",
+    "jwt-claims": "^1.0.1",
     "lodash": "^4.17.20",
     "nuxt": "^2.14.6",
     "nuxt-i18n": "^6.15.1",

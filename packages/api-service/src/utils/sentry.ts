@@ -1,5 +1,6 @@
 import { EnvironmentVariable, getConfiguration } from '@/config'
 import { AWSLambda } from '@sentry/serverless'
+import { CaptureContext } from '@sentry/types'
 import { Handler as MiddlewareHandler } from './middleware'
 import * as SentryTracing from '@sentry/tracing'
 
@@ -28,4 +29,14 @@ export const wrapHandler = (handler: MiddlewareHandler): MiddlewareHandler => {
   return useSentry
     ? (AWSLambda.wrapHandler(handler) as MiddlewareHandler)
     : handler
+}
+
+export const captureException = (
+  exception: any,
+  captureContext?: CaptureContext,
+) => {
+  initialize()
+  if (useSentry) {
+    AWSLambda.captureException(exception, captureContext)
+  }
 }
