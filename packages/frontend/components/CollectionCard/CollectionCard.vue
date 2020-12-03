@@ -1,11 +1,14 @@
 <template>
   <v-card
+    class="a11y-focus"
+    tabindex="0"
     outlined
     :class="[
       { 'mx-4': $vuetify.breakpoint.smAndUp },
       { mobile: $vuetify.breakpoint.xs },
     ]"
     @click.native="onClick"
+    @keydown.native.enter="onClick"
   >
     <v-checkbox
       v-if="selectable"

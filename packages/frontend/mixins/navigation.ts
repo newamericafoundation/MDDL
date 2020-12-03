@@ -7,8 +7,11 @@ export default class Navigation extends Vue {
     return this.$store.commit('navBar/setSideNav', value)
   }
 
-  toggleSideNav() {
-    return this.$store.commit('navBar/setSideNav', !navBarStore.side)
+  toggleSideNav(keyInput: boolean = false) {
+    this.$store.commit('navBar/setSideNav', !navBarStore.side)
+    if (keyInput) {
+      this.$nuxt.$emit('focusSideNav')
+    }
   }
 
   closeSideNav() {

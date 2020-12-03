@@ -26,7 +26,8 @@ export default class ButtonLarge extends Vue {
   font-size: 1.0625rem;
   letter-spacing: -0.03em;
 
-  &:hover {
+  &:hover,
+  &:focus {
     background-color: var(--primary-dark);
   }
 }

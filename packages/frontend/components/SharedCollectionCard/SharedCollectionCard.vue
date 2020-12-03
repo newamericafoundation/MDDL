@@ -3,6 +3,7 @@
     outlined
     :class="['mx-auto', 'mb-2', { mobile: $vuetify.breakpoint.xs }]"
     @click.native="onClick"
+    @keydown.native.enter="onClick"
   >
     <v-card-title class="headline">
       {{ collectionListItem.collection.name }}

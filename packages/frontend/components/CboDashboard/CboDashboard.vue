@@ -2,7 +2,13 @@
   <v-main class="blue-super-light">
     <AppBar>
       <template v-slot:nav-action>
-        <v-app-bar-nav-icon color="grey-8" @click.stop="toggleSideNav" />
+        <v-app-bar-nav-icon
+          class="a11y-focus"
+          role="button"
+          color="grey-8"
+          @click.prevent="toggleSideNav"
+          @keydown.prevent.enter="toggleSideNav(true)"
+        />
       </template>
     </AppBar>
     <v-window v-model="$route.query.tab">

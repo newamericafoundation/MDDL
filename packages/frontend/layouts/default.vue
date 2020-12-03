@@ -2,7 +2,7 @@
   <v-app>
     <AppBar>
       <template v-slot:nav-action>
-        <BackButton />
+        <BackButton tabindex="0" />
       </template>
     </AppBar>
     <v-main>

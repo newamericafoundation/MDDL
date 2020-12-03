@@ -1,5 +1,12 @@
 <template>
-  <v-navigation-drawer v-model="isVisible" fixed temporary>
+  <v-navigation-drawer
+    v-model="isVisible"
+    tabindex="-1"
+    ref="sideNav"
+    fixed
+    temporary
+    class="a11y-focus-hide"
+  >
     <NavItemList :items="navItems" />
     <v-footer fixed class="pa-0">
       <div v-if="$config.showBuildInfo" class="px-4 mt-4">
@@ -16,7 +23,7 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, mixins } from 'nuxt-property-decorator'
+import { Component, mixins } from 'nuxt-property-decorator'
 import { format } from 'date-fns'
 import { userStore, navBarStore } from '@/plugins/store-accessor'
 import { UserRole } from '@/types/user'
@@ -30,6 +37,7 @@ import Navigation from '@/mixins/navigation'
 export default class SideNav extends mixins(Navigation) {
   format = format
   navBarStore = navBarStore
+  focusTimer: number = 0
 
   get isVisible() {
     return navBarStore.side
@@ -77,6 +85,10 @@ export default class SideNav extends mixins(Navigation) {
   ]
 
   async mounted() {
+    this.$nuxt.$on('focusSideNav', this.focusSideNav)
+
+    window.addEventListener('keydown', this.keyCloseMenu, true)
+
     await this.$store.dispatch('user/fetchRole')
     if (userStore.role === UserRole.CBO) {
       const delegatedClients = await this.$store.dispatch(
@@ -84,6 +96,24 @@ export default class SideNav extends mixins(Navigation) {
       )
       this.numDelegatedClients = delegatedClients.length
     }
+  }
+
+  focusSideNav() {
+    this.focusTimer = window.setTimeout(() => {
+      const sideNavEl = (this as any).$refs.sideNav.$el
+      sideNavEl.focus()
+    }, 1000) // small buffer to counter el render delay
+  }
+
+  keyCloseMenu(e: any): void {
+    if (e.key === 'Escape') {
+      this.closeSideNav()
+    }
+  }
+
+  beforeDestroy() {
+    window.removeEventListener('keydown', this.keyCloseMenu, true)
+    clearTimeout(this.focusTimer)
   }
 
   get cboNavItems() {

@@ -37,9 +37,7 @@
       class="mx-auto mb-4"
       max-width="700"
       outlined
-    >
-      <v-skeleton-loader type="list-item-two-line"></v-skeleton-loader>
-    </v-card>
+    ></v-card>
   </div>
 </template>
 

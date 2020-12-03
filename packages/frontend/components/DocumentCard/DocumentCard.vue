@@ -1,12 +1,15 @@
 <template>
   <v-card
     outlined
+    class="a11y-focus"
+    tabindex="0"
     :class="[
       { 'pr-8': selectable },
       { mobile: $vuetify.breakpoint.xs },
       { 'mx-4': $vuetify.breakpoint.smAndUp },
     ]"
-    @click.native="onClick"
+    @click.native.stop="onClick"
+    @keydown.native.self.stop.enter="onClick"
   >
     <v-checkbox
       v-if="selectable"
@@ -16,6 +19,7 @@
       @change="emitChange"
     />
     <DocumentMenu
+      class="a11y-focus"
       v-else-if="showActions"
       :download="download"
       :delete-doc="deleteProp"
@@ -177,6 +181,7 @@ export default class DocumentCard extends Vue {
     position: absolute;
     right: 1rem;
     top: 0.5rem;
+    min-height: 36px !important;
   }
 }
 </style>

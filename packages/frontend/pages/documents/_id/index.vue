@@ -2,7 +2,7 @@
   <div>
     <AppBar>
       <template v-slot:nav-action>
-        <BackButton />
+        <BackButton tabindex="0" />
       </template>
       <template v-slot:actions>
         <DocumentMenu
@@ -13,6 +13,7 @@
 
         <nuxt-link
           v-if="document"
+          tabindex="0"
           :to="
             localeRoute({
               path: '/share',
@@ -23,7 +24,11 @@
           "
           class="nuxt-link"
         >
-          <v-btn class="ml-4 text-body-1 font-weight-medium" color="primary">
+          <v-btn
+            tabindex="-1"
+            class="ml-4 text-body-1 font-weight-medium"
+            color="primary"
+          >
             <v-icon left>$send</v-icon>
             {{ $t('controls.share') }}
           </v-btn>
@@ -78,11 +83,12 @@
       <v-card>
         <v-toolbar flat>
           <v-btn
+            class="mr-2 a11y-focus"
             :title="`${$t('navigation.close')}`"
-            class="mr-2"
             icon
             :disabled="loading"
             @click.stop="closeDetails"
+            tabindex="0"
           >
             <v-icon small>$chevron-left</v-icon>
           </v-btn>
@@ -139,12 +145,10 @@
 </template>
 
 <script lang="ts">
-import fs from 'fs'
 import { Vue, Component, Watch } from 'nuxt-property-decorator'
 import {
   Document,
   DocumentFile,
-  FileContentTypeEnum,
   FileDownloadDispositionTypeEnum,
 } from 'api-client'
 import { format } from 'date-fns'

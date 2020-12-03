@@ -2,12 +2,22 @@
   <div>
     <AppBar>
       <template v-slot:nav-action>
-        <v-app-bar-nav-icon color="grey-8" @click.stop="toggleSideNav" />
+        <v-app-bar-nav-icon
+          class="a11y-focus"
+          role="button"
+          color="grey-8"
+          @click.prevent="toggleSideNav"
+          @keydown.prevent.enter="toggleSideNav(true)"
+        />
       </template>
       <template v-slot:actions>
         <UploadButton prepend-icon="$plus" />
-        <nuxt-link :to="localePath('/share')" class="nuxt-link">
-          <v-btn class="ml-1 text-body-1 font-weight-medium" color="primary">
+        <nuxt-link :to="localePath('/share')" class="nuxt-link" tabindex="0">
+          <v-btn
+            tabindex="-1"
+            class="ml-1 text-body-1 font-weight-medium"
+            color="primary"
+          >
             <v-icon left>$send</v-icon>
             {{ $t('controls.share') }}
           </v-btn>
@@ -15,10 +25,10 @@
       </template>
       <template v-slot:extension>
         <v-tabs v-model="currentTab" slider-color="primary" color="#000">
-          <v-tab href="#tab-docs">
+          <v-tab href="#tab-docs" class="a11y-focus">
             <span>{{ $t('controls.allFiles') }}</span>
           </v-tab>
-          <v-tab href="#tab-collections">
+          <v-tab href="#tab-collections" class="a11y-focus">
             <span>{{ $t('controls.shared') }}</span>
           </v-tab>
         </v-tabs>
@@ -27,10 +37,10 @@
     <v-main>
       <template>
         <v-tabs-items v-model="currentTab">
-          <v-tab-item value="tab-docs">
+          <v-tab-item value="tab-docs" tabindex="0">
             <DocumentList />
           </v-tab-item>
-          <v-tab-item value="tab-collections">
+          <v-tab-item value="tab-collections" tabindex="0">
             <CollectionList />
           </v-tab-item>
         </v-tabs-items>

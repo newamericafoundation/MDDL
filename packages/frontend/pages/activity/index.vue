@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div tabindex="0">
     <div v-for="(activity, idx) in activities" :key="idx">
       <v-card class="activity-card mx-auto" rounded="0">
         <v-card-title
@@ -65,7 +65,7 @@
                 href="#"
                 class="show-more-link"
                 @click.prevent="showMore(idx, 'Documents')"
-                @keydown.prevent="showMore(idx, 'Documents')"
+                @keydown.prevent.enter="showMore(idx, 'Documents')"
               >
                 +
                 {{
@@ -114,7 +114,7 @@
                   href="#"
                   class="show-more-link"
                   @click.prevent="showMore(idx, 'People')"
-                  @keydown.prevent="showMore(idx, 'People')"
+                  @keydown.prevent.enter="showMore(idx, 'People')"
                 >
                   +
                   {{ splitLast(agent(activity.relatedResources)).length }}

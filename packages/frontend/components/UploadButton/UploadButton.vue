@@ -1,5 +1,9 @@
 <template>
-  <div class="upload-container">
+  <button
+    class="upload-container"
+    tabindex="0"
+    @keydown.enter="openFileInput()"
+  >
     <label
       for="file-input"
       :class="[
@@ -15,10 +19,10 @@
       <v-icon v-if="prependIcon" class="mr-4" small v-text="prependIcon" />
       {{ capitalize($t(label)) }}
       <input
+        ref="fileInput"
         id="file-input"
         type="file"
         :multiple="multiple"
-        :disabled="isLoading"
         class="fileInput"
         accept="application/pdf, image/jpeg, image/png, image/tiff"
         @change="onFileInput"
@@ -35,7 +39,10 @@
       </template>
       <v-card>
         <v-toolbar flat>
-          <v-icon class="mr-2" @click.stop="reset">$chevron-left</v-icon>
+          <v-btn class="mr-2 a11y-focus" icon @click.stop="reset">
+            <v-icon>$chevron-left</v-icon>
+          </v-btn>
+
           <v-toolbar-title>{{ $t('details') }}</v-toolbar-title>
           <v-spacer />
           <v-btn
@@ -43,6 +50,7 @@
             text
             :disabled="!documentName"
             @click="uploadDocument"
+            @keydown.enter="uploadDocument"
           >
             {{ $t('controls.upload') }}
           </v-btn>
@@ -68,16 +76,14 @@
         </v-container>
       </v-card>
     </v-dialog>
-  </div>
+  </button>
 </template>
 
 <script lang="ts">
 import { Vue, Component, Prop } from 'nuxt-property-decorator'
-import { userStore, snackbarStore } from '@/plugins/store-accessor'
-import { Document } from 'api-client'
+import { snackbarStore } from '@/plugins/store-accessor'
 import { ValidationObserver, ValidationProvider } from 'vee-validate'
 import { capitalize } from '@/assets/js/stringUtils'
-import { UserRole } from '@/types/user'
 
 @Component({
   components: {
@@ -154,6 +160,10 @@ export default class UploadButton extends Vue {
 
   get isLoading() {
     return snackbarStore.isVisible && snackbarStore.progress !== null
+  }
+
+  openFileInput() {
+    ;(this as any).$refs.fileInput.click()
   }
 
   reset() {

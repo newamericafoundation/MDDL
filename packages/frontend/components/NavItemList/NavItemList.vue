@@ -3,6 +3,7 @@
     <template v-for="(item, i) in items">
       <v-divider v-if="item.divider" :key="i" class="mx-6 my-3" />
       <nuxt-link
+        tabindex="0"
         v-else-if="item.to"
         :key="i"
         class="nuxt-link"

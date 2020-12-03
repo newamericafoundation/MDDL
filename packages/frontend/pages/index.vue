@@ -7,7 +7,11 @@
     <div class="body-1 welcome-message mb-8">
       {{ capitalize($t('login.welcomeMessage.CLIENT')) }}
     </div>
-    <ButtonLarge :label="$t('login.getStarted')" @click.native="gotoLogin" />
+    <ButtonLarge
+      :label="$t('login.getStarted')"
+      @click.native="gotoLogin"
+      @keydown.native.enter="gotoLogin"
+    />
   </div>
 </template>
 

@@ -2,6 +2,7 @@
   <div v-if="!loading">
     <template v-if="documents.length">
       <DocumentCard
+        tabindex="0"
         v-for="(document, i) in documents"
         :key="i"
         v-model="selected[i]"
@@ -19,11 +20,15 @@
         :src="require('@/static/images/upload.svg')"
       />
       <p class="capitalize text-center">{{ $t('document.noDocuments') }}</p>
-      <UploadButton
-        class="text-center"
-        label="uploadFirst"
-        :text-button="true"
-      />
+      <v-row>
+        <v-col class="d-flex justify-center">
+          <UploadButton
+            class="text-center"
+            :label="$t('document.uploadFirst')"
+            :text-button="true"
+          />
+        </v-col>
+      </v-row>
     </div>
   </div>
   <div v-else>

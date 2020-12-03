@@ -2,7 +2,7 @@
   <v-window v-model="step">
     <v-window-item :class="{ mobile: $vuetify.breakpoint.xs }">
       <v-toolbar v-model="step" flat>
-        <BackButton />
+        <BackButton tabindex="0" />
         <v-toolbar-title>{{ $t('sharing.selectFilesTitle') }}</v-toolbar-title>
         <v-spacer />
         <v-btn
@@ -25,8 +25,14 @@
     </v-window-item>
     <v-window-item>
       <v-toolbar class="mb-2" flat>
-        <v-btn :title="`${$t('navigation.back')}`" icon>
-          <v-icon small class="mr-2" @click="prev">$chevron-left</v-icon>
+        <v-btn
+          icon
+          :title="`${$t('navigation.back')}`"
+          class="a11y-focus"
+          @click="prev"
+          tabindex="0"
+        >
+          <v-icon small class="mr-2">$chevron-left</v-icon>
         </v-btn>
         <v-toolbar-title>
           {{ $t('sharing.addRecipientsTitle') }}

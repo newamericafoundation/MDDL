@@ -1,14 +1,16 @@
 <template>
   <v-dialog v-model="value" width="350" persistent>
-    <v-card class="confirmation-card">
+    <v-card class="confirmation-card a11y-focus" ref="confirmationDialog">
       <v-row v-if="closable" class="py-4">
         <v-btn
+          class="close-button a11y-focus"
           :title="`${$t('navigation.close')}`"
           absolute
           right
           icon
           :disabled="loading"
           @click="closeDialog"
+          @keydown.enter="closeDialog"
         >
           <v-icon>$close</v-icon>
         </v-btn>
@@ -25,10 +27,21 @@
 
       <v-card-actions class="px-8 pb-8">
         <v-spacer></v-spacer>
-        <v-btn :disabled="loading" @click="closeDialog">
+        <v-btn
+          class="a11y-focus"
+          :disabled="loading"
+          @click="closeDialog"
+          @keydown.enter="closeDialog"
+        >
           {{ capitalize($t('controls.cancel')) }}
         </v-btn>
-        <v-btn color="primary" :loading="loading" @click="onConfirm">
+        <v-btn
+          class="a11y-focus-darker"
+          color="primary"
+          :loading="loading"
+          @click="onConfirm"
+          @keydown.enter="onConfirm"
+        >
           {{ capitalize($t('controls.confirm')) }}
         </v-btn>
       </v-card-actions>
@@ -51,8 +64,19 @@ export default class ConfirmationDialog extends Vue {
 
   capitalize = capitalize
 
+  mounted() {
+    this.$nuxt.$on('focusConfirmationDialog', this.focusConfirmationDialog)
+  }
+
   closeDialog() {
     this.$emit('input', false)
+  }
+
+  focusConfirmationDialog() {
+    setTimeout(() => {
+      const confirmationDialogEl = (this as any).$refs.confirmationDialog.$el
+      confirmationDialogEl.focus()
+    }, 1000) // small buffer to counter el render delay
   }
 }
 </script>
@@ -60,5 +84,8 @@ export default class ConfirmationDialog extends Vue {
 <style scoped lang="scss">
 .confirmation-card {
   overflow-x: hidden;
+}
+.close-button {
+  min-height: 36px !important;
 }
 </style>

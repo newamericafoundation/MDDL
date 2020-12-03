@@ -1,0 +1,17 @@
+/**
+ * Accessibility style helpers to augment Vuetify's partial a11y support
+ */
+$a11y-outline: rgb(0, 95, 204); // match default Vuetify focus co
+$a11y-outline-darker: rgb(0, 64, 138); // match default Vuetify focus co
+
+#__nuxt {
+  .a11y-focus:focus-visible {
+    border: 2px solid $a11y-outline !important;
+    border-color: $a11y-outline !important;
+  }
+
+  .a11y-focus-darker:focus-visible {
+    border: 2px solid $a11y-outline-darker !important;
+    border-color: $a11y-outline-darker !important;
+  }
+}

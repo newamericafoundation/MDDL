@@ -2,10 +2,10 @@
   <v-window v-model="step">
     <v-window-item value="top-level">
       <v-toolbar flat>
-        <BackButton />
+        <BackButton tabindex="0" />
         <v-toolbar-title>{{ $t('navigation.account') }}</v-toolbar-title>
       </v-toolbar>
-      <div class="window-container ma-8">
+      <div class="window-container ma-8 mt-0">
         <v-btn
           text
           width="100%"

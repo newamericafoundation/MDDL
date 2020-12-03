@@ -44,8 +44,8 @@ export default {
 
     navigation: {
       account: 'account',
-      activity: 'activity',
       back: 'Back',
+      activity: 'activity',
       close: 'Close',
       loading: 'Loading',
       loggingIn: 'logging in...',
@@ -73,7 +73,7 @@ export default {
 
       noDocuments: 'there are no files saved to your account', // shown on dashboard when there are no documents
       previewOf: 'Preview of',
-      uploadFirst: 'Add Your First File', // label on the empty state upload button
+      uploadFirst: 'Add your first file', // label on the empty state upload button
       thumbnailOf: 'Thumbnail of',
     },
 

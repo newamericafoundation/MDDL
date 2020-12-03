@@ -2,7 +2,7 @@
   <div>
     <AppBar v-if="hasAccepted">
       <template v-slot:nav-action>
-        <BackButton />
+        <BackButton tabindex="0" />
       </template>
     </AppBar>
     <SideNav v-if="hasAccepted" />

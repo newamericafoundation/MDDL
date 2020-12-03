@@ -1,9 +1,9 @@
 <template>
   <div v-if="loading">
     <v-skeleton-loader
-      class="my-2"
+      class="ma-2"
       type="list-item-three-line, image, list-item"
-    ></v-skeleton-loader>
+    />
   </div>
   <div v-else class="main">
     <template v-if="documents.length">

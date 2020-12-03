@@ -10,6 +10,7 @@
     <ButtonLarge
       :label="$t('login.getStarted')"
       @click.native="setRoleLoginRedirect(role)"
+      @keydown.native.enter="setRoleLoginRedirect(role)"
     />
   </div>
 </template>

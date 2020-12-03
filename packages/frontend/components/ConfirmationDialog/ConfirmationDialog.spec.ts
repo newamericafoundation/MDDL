@@ -3,7 +3,13 @@ import ConfirmationDialog from '@/components/ConfirmationDialog/ConfirmationDial
 
 describe('ConfirmationDialog component', () => {
   it('exports a valid component', () => {
-    const wrapper = shallowMount(ConfirmationDialog)
+    const wrapper = shallowMount(ConfirmationDialog, {
+      mocks: {
+        $nuxt: {
+          $on: () => {},
+        },
+      },
+    })
     expect(wrapper.html()).toBeTruthy()
   })
 })

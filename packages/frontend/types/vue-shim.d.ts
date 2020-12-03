@@ -4,7 +4,6 @@ import VueRouter, { Route } from 'vue-router'
 import { Auth } from 'nuxtjs__auth'
 import VueAnalytics from 'vue-analytics'
 import VueI18n, { IVueI18n } from 'vue-i18n'
-import { Context } from '@nuxt/types'
 // eslint-disable-next-line import/named
 import { NuxtVueI18n } from 'nuxt-i18n'
 

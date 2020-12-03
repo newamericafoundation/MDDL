@@ -24,13 +24,14 @@
   </div>
   <div v-else>
     <v-card
+      height="84"
       v-for="i in new Array(5)"
       :key="i"
       outlined
-      :class="[{ 'mx-4': $vuetify.breakpoint.smAndUp }, { 'mb-2': true }]"
+      :class="[{ 'mx-4': $vuetify.breakpoint.smAndUp }, { 'mb-4': true }]"
     >
       <v-row align="center" no-gutters>
-        <v-col class="py-0 mx-8" cols="auto">
+        <v-col class="py-0 mx-8 mt-3" cols="auto">
           <v-icon>$folder</v-icon>
         </v-col>
         <v-col>
