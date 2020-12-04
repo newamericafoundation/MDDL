@@ -19,8 +19,8 @@
       <v-icon v-if="prependIcon" class="mr-4" small v-text="prependIcon" />
       {{ capitalize($t(label)) }}
       <input
-        ref="fileInput"
         id="file-input"
+        ref="fileInput"
         type="file"
         :multiple="multiple"
         class="fileInput"

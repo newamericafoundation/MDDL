@@ -1,30 +1,27 @@
 <template>
   <div>
     <AppBar>
-      <template v-slot:nav-action>
-        <v-app-bar-nav-icon
-          class="a11y-focus"
-          role="button"
-          color="grey-8"
-          @click.prevent="toggleSideNav"
-          @keydown.prevent.enter="toggleSideNav(true)"
-        />
+      <template v-if="userStore.isClient" v-slot:actions>
+        <v-btn text class="white--text" :to="localePath('/account')">
+          <v-icon left>$cog</v-icon>
+          {{ $t('navigation.account') }}
+        </v-btn>
+        <template v-if="$vuetify.breakpoint.xs">
+          <ShareButton class="float-right" />
+          <UploadButton prepend-icon="$plus" class="float-right ml-2" />
+        </template>
       </template>
-      <template v-slot:actions>
-        <UploadButton prepend-icon="$plus" />
-        <nuxt-link :to="localePath('/share')" class="nuxt-link" tabindex="0">
-          <v-btn
-            tabindex="-1"
-            class="ml-1 text-body-1 font-weight-medium"
-            color="primary"
-          >
-            <v-icon left>$send</v-icon>
-            {{ $t('controls.share') }}
-          </v-btn>
-        </nuxt-link>
+      <template v-slot:actionsBeneath>
+        <ShareButton class="float-right" />
+        <UploadButton prepend-icon="$plus" class="float-right ml-2" />
       </template>
-      <template v-slot:extension>
-        <v-tabs v-model="currentTab" slider-color="primary" color="#000">
+      <template v-slot:extensions>
+        <v-tabs
+          v-model="currentTab"
+          slider-color="primary"
+          color="black"
+          class="ml-0 white--text"
+        >
           <v-tab href="#tab-docs" class="a11y-focus">
             <span>{{ $t('controls.allFiles') }}</span>
           </v-tab>
@@ -38,10 +35,10 @@
       <template>
         <v-tabs-items v-model="currentTab">
           <v-tab-item value="tab-docs" tabindex="0">
-            <DocumentList />
+            <DocumentList class="mx-sm-8" />
           </v-tab-item>
           <v-tab-item value="tab-collections" tabindex="0">
-            <CollectionList />
+            <CollectionList class="mx-sm-8" />
           </v-tab-item>
         </v-tabs-items>
       </template>
@@ -50,18 +47,22 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, mixins, Watch } from 'nuxt-property-decorator'
+import { Vue, Component, Watch } from 'nuxt-property-decorator'
 import { userStore } from '@/plugins/store-accessor'
-import Navigation from '@/mixins/navigation'
 
 @Component
-export default class ClientDashboard extends mixins(Navigation) {
+export default class ClientDashboard extends Vue {
   currentTab = 'tab-docs'
+  userStore = userStore
 
   mounted() {
     if (this.$route.query.tab) {
       this.currentTab = this.$route.query.tab as string
     }
+  }
+
+  get extendAppBar() {
+    return userStore.isClient && this.$vuetify.breakpoint.smAndUp
   }
 
   get documents() {

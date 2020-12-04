@@ -137,6 +137,7 @@
           :key="`pending-${i}`"
           :delegate="delegate"
           @delete="loadDelegates"
+          @resend="loadDelegates"
         />
       </div>
       <ConfirmationDialog

@@ -1,42 +1,27 @@
 <template>
   <div>
-    <AppBar>
-      <template v-slot:nav-action>
+    <AppBar :empty="$vuetify.breakpoint.xs" :breadcrumbs="breadcrumbs">
+      <template v-if="$vuetify.breakpoint.xs" v-slot:nav-action>
         <BackButton tabindex="0" />
       </template>
-      <template v-slot:actions>
-        <DocumentMenu
-          :download="download"
-          :delete-doc="deleteProp"
-          :edit-details="showDetailsProp"
-        />
-
-        <nuxt-link
-          v-if="document"
-          tabindex="0"
-          :to="
-            localeRoute({
-              path: '/share',
-              query: {
-                selected: [document.id],
-              },
-            })
-          "
-          class="nuxt-link"
-        >
-          <v-btn
-            tabindex="-1"
-            class="ml-4 text-body-1 font-weight-medium"
-            color="primary"
-          >
-            <v-icon left>$send</v-icon>
-            {{ $t('controls.share') }}
-          </v-btn>
-        </nuxt-link>
+      <template
+        v-if="!!document && userStore.isClient && $vuetify.breakpoint.xs"
+        v-slot:actions
+      >
+        <DocumentMenu color="primary" :on-delete="onDelete" />
+        <ShareButton :preselected="[document.id]" />
+      </template>
+      <template
+        v-else-if="
+          !!document && userStore.isClient && $vuetify.breakpoint.smAndUp
+        "
+        v-slot:actionsBeneath
+      >
+        <ShareButton :preselected="[document.id]" />
       </template>
     </AppBar>
     <v-main>
-      <v-container v-if="document" class="px-2">
+      <v-container v-if="document" class="pa-2 pa-sm-12">
         <template v-if="document.files.length === 1">
           <DocumentFile :document="document" :file="document.files[0]" />
         </template>
@@ -72,6 +57,19 @@
         ></v-skeleton-loader>
       </div>
     </v-main>
+    <DesktopSideBar>
+      <DocumentActions :document="document" />
+      <v-divider />
+      <div class="pl-8">
+        <span class="font-weight-bold">
+          {{ $t('dateAdded') }}
+        </span>
+        <br />
+        <span class="grey-7--text">
+          {{ documentDate }}
+        </span>
+      </div>
+    </DesktopSideBar>
 
     <v-dialog
       v-if="document"
@@ -80,15 +78,15 @@
       hide-overlay
       transition="dialog-bottom-transition"
     >
-      <v-card>
+      <v-card rounded="0">
         <v-toolbar flat>
           <v-btn
             class="mr-2 a11y-focus"
             :title="`${$t('navigation.close')}`"
             icon
             :disabled="loading"
-            @click.stop="closeDetails"
             tabindex="0"
+            @click.stop="closeDetails"
           >
             <v-icon small>$chevron-left</v-icon>
           </v-btn>
@@ -156,6 +154,9 @@ import { ValidationObserver, ValidationProvider } from 'vee-validate'
 import { capitalize } from '@/assets/js/stringUtils'
 import download from '@/assets/js/download'
 import { UpdateDocumentInput } from '@/store/document'
+import { Breadcrumb } from '@/types/nav'
+import { userStore } from '@/plugins/store-accessor'
+import { UserRole } from '../../../types/user'
 
 @Component({
   layout: 'empty',
@@ -180,6 +181,7 @@ export default class ViewDocument extends Vue {
   newDescription = ''
   recompute = false
   title = ''
+  userStore = userStore
 
   async mounted() {
     this.title = capitalize(this.$t('tabTitles.document') as string)
@@ -194,7 +196,9 @@ export default class ViewDocument extends Vue {
 
     this.loading = false
 
-    if (this.$route.query.showDetails) this.showDialog = true
+    if (this.$route.query.showDetails === 'true') {
+      this.showDialog = true
+    }
     this.title = this.document.name
   }
 
@@ -202,7 +206,7 @@ export default class ViewDocument extends Vue {
     if (this.document) {
       return format(new Date(this.document.createdDate), 'LLL d, yyyy')
     }
-    return new Date()
+    return ''
   }
 
   get documentContentSize() {
@@ -216,30 +220,6 @@ export default class ViewDocument extends Vue {
       )
     const mb = totalBytes / 1000000
     return mb.toFixed(2)
-  }
-
-  async download() {
-    if (!this.document) return
-    this.loading = true
-    const urls = await this.$store.dispatch('document/download', {
-      document: this.document,
-      disposition: FileDownloadDispositionTypeEnum.Attachment,
-    })
-    download(
-      urls,
-      this.document.files.map((f: DocumentFile) => f.name),
-    )
-    this.loading = false
-  }
-
-  get showDetailsProp() {
-    return this.document && this.document.links.some((l) => l.rel === 'update')
-      ? this.showDetails
-      : null
-  }
-
-  showDetails() {
-    this.showDialog = true
   }
 
   async editDetails() {
@@ -261,17 +241,8 @@ export default class ViewDocument extends Vue {
     this.loading = false
   }
 
-  get deleteProp() {
-    return this.document && this.document.links.some((l) => l.rel === 'delete')
-      ? this.deleteDoc
-      : null
-  }
-
-  async deleteDoc() {
-    this.loading = true
-    await this.$store.dispatch('document/delete', this.document)
+  onDelete() {
     this.$router.push(this.localePath('/'))
-    this.loading = false
   }
 
   closeDetails() {
@@ -298,6 +269,31 @@ export default class ViewDocument extends Vue {
     setTimeout(() => {
       this.recompute = !this.recompute
     }, 100)
+  }
+
+  get breadcrumbs() {
+    const crumbs: Breadcrumb[] = [
+      {
+        title: userStore.isClient
+          ? 'navigation.dashboard'
+          : 'navigation.clients',
+        to: '/dashboard',
+      },
+    ]
+    if (
+      !userStore.isClient &&
+      this.$route.query.ownerName &&
+      this.$route.query.ownerId
+    )
+      crumbs.push({
+        title: this.$route.query.ownerName as string,
+        to: `/collections/owner/${this.$route.query.ownerId}`,
+      })
+    if (this.document)
+      crumbs.push({
+        title: this.document.name,
+      })
+    return crumbs
   }
 }
 </script>

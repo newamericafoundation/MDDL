@@ -7,7 +7,7 @@
       <v-col cols="auto">
         <v-btn
           :title="`${$t('navigation.close')}`"
-          style="min-height: 2rem"
+          style="min-height: 32px"
           icon
           @click="onXButton"
         >

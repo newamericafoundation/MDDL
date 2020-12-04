@@ -67,8 +67,20 @@ export default class User extends VuexModule {
     return this._role
   }
 
-  get isActingAsDelegate() {
-    return this._ownerId && this._userId !== this._ownerId
+  get isClient() {
+    return this._role === UserRole.CLIENT
+  }
+
+  get isAgent() {
+    return this._role === UserRole.AGENT
+  }
+
+  get isCbo() {
+    return this._role === UserRole.CBO
+  }
+
+  get isActingAsDelegate(): boolean {
+    return !!this._ownerId && this._userId !== this._ownerId
   }
 
   get profile() {

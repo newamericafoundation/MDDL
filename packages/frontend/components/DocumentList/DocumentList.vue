@@ -1,15 +1,38 @@
 <template>
   <div v-if="!loading">
     <template v-if="documents.length">
+      <v-data-table
+        v-show="$vuetify.breakpoint.smAndUp"
+        :headers="headers"
+        :items="documents"
+        hide-default-footer
+        :item-class="() => 'clickable'"
+        @click:row="previewDocument"
+      >
+        <template v-slot:item.icon="{ item }">
+          <DocumentThumbnail :document="item" />
+        </template>
+
+        <template v-slot:item.createdDate="{ item }">
+          {{ format(new Date(item.createdDate), 'LLL d, yyyy') }}
+        </template>
+
+        <template v-slot:item.actions="{ item }">
+          <DocumentMenu :on-delete="reload" :document="item" />
+        </template>
+      </v-data-table>
       <DocumentCard
-        tabindex="0"
         v-for="(document, i) in documents"
+        v-show="$vuetify.breakpoint.xs"
         :key="i"
         v-model="selected[i]"
+        tabindex="0"
         :document="document"
         :class="{ 'mb-4': $vuetify.breakpoint.smAndUp }"
         :selectable="selectable"
         :reload="reload"
+        :owner="owner"
+        :show-actions="showActions"
       />
     </template>
     <div v-else class="mx-8">
@@ -60,25 +83,68 @@
 
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'nuxt-property-decorator'
-import { DocumentListItem } from 'api-client'
+import { DocumentListItem, Owner } from 'api-client'
 import { userStore } from '@/plugins/store-accessor'
+import { DataTableHeader } from 'vuetify'
+import { format } from 'date-fns'
+import { RawLocation } from 'vue-router'
 
 @Component
 export default class DocumentList extends Vue {
   @Prop({ default: false }) selectable: boolean
   @Prop({ default: null }) value: any
   @Prop({ default: () => [] }) preSelected: string[]
+  @Prop({ default: null }) fetchDocumentsProp:
+    | (() => Promise<DocumentListItem[]>)
+    | null
+
+  @Prop({ default: null }) owner: Owner | null
+  @Prop({ default: true }) showActions: boolean
 
   loading = true
   selected: boolean[] = []
+  headers: DataTableHeader[] = []
+  format = format
+  _documents: DocumentListItem[] = []
 
   async mounted() {
     await this.reload()
+    // We have to define headers in mounted function since this.$i18n is undefined otherwise
+    this.headers = [
+      {
+        text: '',
+        class: 'blue-super-light',
+        align: 'start',
+        sortable: false,
+        value: 'icon',
+        width: '3rem',
+      },
+      {
+        text: this.$t('name') as string,
+        class: 'blue-super-light',
+        align: 'start',
+        sortable: true,
+        value: 'name',
+      },
+      {
+        text: this.$t('dateAdded') as string,
+        class: 'blue-super-light',
+        value: 'createdDate',
+        sortable: true,
+      },
+    ]
+    if (this.showActions)
+      this.headers.push({
+        text: '',
+        class: 'blue-super-light',
+        value: 'actions',
+        sortable: false,
+      })
   }
 
   get documents() {
     // eslint-disable-next-line no-unused-expressions
-    return [...userStore.documents].sort(
+    return [...this._documents].sort(
       (d1: DocumentListItem, d2: DocumentListItem) => {
         if (this.preSelected.includes(d1.id)) {
           if (this.preSelected.includes(d2.id)) {
@@ -101,12 +167,34 @@ export default class DocumentList extends Vue {
     )
   }
 
+  previewDocument(document: DocumentListItem) {
+    if (this.owner) {
+      this.$router.push(
+        this.localeRoute({
+          path: `/documents/${document.id}`,
+          query: {
+            ownerId: this.owner.id,
+            ownerName: `${this.owner?.name}`,
+          },
+        }) as RawLocation,
+      )
+    } else {
+      this.$router.push(this.localePath(`/documents/${document.id}`))
+    }
+  }
+
+  fetchDocuments() {
+    return this.fetchDocumentsProp
+      ? this.fetchDocumentsProp()
+      : this.$store.dispatch('user/getDocuments')
+  }
+
   async reload() {
-    await this.$store.dispatch('user/getDocuments')
-    this.selected = new Array(userStore.documents.length)
+    this._documents = await this.fetchDocuments()
+    this.selected = new Array(this._documents.length)
     if (this.preSelected) {
       for (const id of this.preSelected) {
-        const index = this.documents.findIndex(
+        const index = this._documents.findIndex(
           (d: DocumentListItem) => d.id === id,
         )
         if (index >= 0) {

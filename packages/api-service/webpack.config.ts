@@ -9,7 +9,10 @@ const SRC_DIR = path.resolve(__dirname, 'src')
 const OUT_DIR = path.resolve(__dirname, 'build')
 const sourcePath = (name: string) => path.resolve(SRC_DIR, 'services', name)
 const directory = (filePath: string) =>
-  filePath.split('/').slice(0, -1).join('/')
+  filePath
+    .split('/')
+    .slice(0, -1)
+    .join('/')
 
 const lambdas: { [index: string]: string } = {}
 entrypoints.forEach((d) => {

@@ -7,6 +7,7 @@ import flushPromises from 'flush-promises'
 jest.mock('@/plugins/store-accessor', () => ({
   userStore: {
     collections: [],
+    sharedCollections: [],
   },
 }))
 

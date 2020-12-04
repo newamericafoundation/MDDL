@@ -1,8 +1,8 @@
 <template>
   <v-navigation-drawer
+    ref="sideNav"
     v-model="isVisible"
     tabindex="-1"
-    ref="sideNav"
     fixed
     temporary
     class="a11y-focus-hide"
@@ -80,7 +80,10 @@ export default class SideNav extends mixins(Navigation) {
     },
     {
       label: 'navigation.signOut',
-      click: this.logOut,
+      click: async () => {
+        await this.$auth.logout()
+        this.$router.push(this.localePath('/'))
+      },
     },
   ]
 
@@ -90,7 +93,7 @@ export default class SideNav extends mixins(Navigation) {
     window.addEventListener('keydown', this.keyCloseMenu, true)
 
     await this.$store.dispatch('user/fetchRole')
-    if (userStore.role === UserRole.CBO) {
+    if (userStore.isCbo) {
       const delegatedClients = await this.$store.dispatch(
         'user/fetchDelegatedClients',
       )
@@ -171,11 +174,6 @@ export default class SideNav extends mixins(Navigation) {
         // UserRole.CLIENT
         return this.clientNavItems
     }
-  }
-
-  async logOut() {
-    await this.$auth.logout()
-    this.$router.push('/')
   }
 }
 </script>

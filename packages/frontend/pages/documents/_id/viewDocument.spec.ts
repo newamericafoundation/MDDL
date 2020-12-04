@@ -3,9 +3,20 @@ import { shallowMount } from '@vue/test-utils'
 import ViewDocument from '@/pages/documents/_id/index.vue'
 import Layout from '@/layouts/default.vue'
 import flushPromises from 'flush-promises'
+import Vuetify from 'vuetify'
+
+jest.mock('@/plugins/store-accessor', () => ({
+  userStore: {
+    isCbo: false,
+    isAgent: false,
+    isClient: true,
+  },
+}))
 
 describe('Documents component', () => {
   let store: any
+  let vuetify: Vuetify
+
   beforeEach(() => {
     store = new Vuex.Store({
       modules: {
@@ -29,6 +40,7 @@ describe('Documents component', () => {
         },
       },
     })
+    vuetify = new Vuetify()
   })
 
   it('exports a valid page', async () => {
@@ -45,6 +57,7 @@ describe('Documents component', () => {
           dispatch: () => '',
         },
       },
+      vuetify,
     })
     await flushPromises()
     expect(wrapper.html()).toBeTruthy()

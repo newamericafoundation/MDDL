@@ -2,8 +2,8 @@
   <v-btn
     :title="`${$t('navigation.back')}`"
     icon
-    @click="back"
     class="a11y-focus"
+    @click="back"
   >
     <v-icon small>$chevron-left</v-icon>
   </v-btn>

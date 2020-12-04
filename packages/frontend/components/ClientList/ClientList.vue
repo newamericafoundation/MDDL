@@ -1,7 +1,44 @@
 <template>
   <div v-if="clients.length">
-    <slot />
-    <v-card v-for="(client, i) in clients" :key="i" rounded="0">
+    <v-data-table
+      v-show="$vuetify.breakpoint.smAndUp"
+      :headers="headers"
+      :items="clients"
+      hide-default-footer
+      :item-class="() => (deletable ? '' : 'clickable')"
+      class="mx-5"
+      @click:row="impersonate"
+    >
+      <template v-slot:item.icon>
+        <v-icon color="primary">$profile</v-icon>
+      </template>
+      <template v-slot:item.name="{ item }">
+        {{ item.allowsAccessToUser.name }}
+      </template>
+      <template v-slot:item.createdDate="{ item }">
+        {{ format(new Date(item.createdDate), 'LLL d, yyyy') }}
+      </template>
+      <template v-slot:item.close="{ item }">
+        <v-btn
+          :title="`${$t('navigation.close')}`"
+          icon
+          class="mx-4"
+          @click="
+            clientToDelete = item
+            showConfirmation = true
+          "
+        >
+          <v-icon>$close</v-icon>
+        </v-btn>
+      </template>
+    </v-data-table>
+    <v-card
+      v-for="(client, i) in clients"
+      v-show="$vuetify.breakpoint.xs"
+      :key="i"
+      rounded="0"
+    >
+      <v-divider v-if="i === 0" class="full-width my-0" />
       <v-list-item class="grow py-4" @click="impersonate(client)">
         <v-list-item-avatar>
           <v-icon right size="24">$profile</v-icon>
@@ -26,17 +63,18 @@
           </v-btn>
         </v-list-item-action>
       </v-list-item>
-      <v-divider class="full-width" />
+      <v-divider class="full-width my-0" />
     </v-card>
     <ConfirmationDialog
       v-model="showConfirmation"
       title="cbo.removeConfirmationTitle"
       body="cbo.removeConfirmationBody"
+      :on-confirm="removeClient"
     >
       <template v-slot:post-title>
         <br />
         <span class="pt-2 primary--text">
-          {{ clientToDelete.allowsAccessToUser.name }}
+          {{ clientToDeleteName }}
         </span>
       </template>
     </ConfirmationDialog>
@@ -54,7 +92,10 @@
       class="mx-auto"
       :src="require('@/static/images/upload.svg')"
     />
-    <p class="capitalize text-center">{{ $t('cbo.noClients') }}</p>
+    <div style="max-width: 256px" class="mx-auto">
+      <p class="text-center font-weight-bold">{{ $t('cbo.noClientsTitle') }}</p>
+      <p class="text-center">{{ $t('cbo.noClientsBody') }}</p>
+    </div>
   </div>
 </template>
 
@@ -63,6 +104,8 @@ import { Vue, Component, Prop } from 'nuxt-property-decorator'
 import { DelegatedClient } from '@/types/delegate'
 import { capitalize } from '@/assets/js/stringUtils'
 import { userStore } from '@/plugins/store-accessor'
+import { DataTableHeader } from 'vuetify'
+import { format } from 'date-fns'
 
 @Component
 export default class ClientList extends Vue {
@@ -72,11 +115,52 @@ export default class ClientList extends Vue {
   showConfirmation = false
   loading = true
   capitalize = capitalize
+  headers: DataTableHeader[] = []
+  format = format
 
   mounted() {
     this.loadDelegatedClients().then((clients: DelegatedClient[]) => {
       this.loading = false
     })
+    // We have to define headers in mounted function since this.$i18n is undefined otherwise
+    this.headers = [
+      {
+        text: '',
+        class: 'blue-super-light',
+        align: 'start',
+        sortable: false,
+        value: 'icon',
+        width: '3rem',
+      },
+      {
+        text: this.$t('agent.sharedFolderNameLabel') as string,
+        class: 'blue-super-light',
+        align: 'start',
+        sortable: true,
+        value: 'name',
+      },
+      {
+        text: this.$t('dateAdded') as string,
+        class: 'blue-super-light',
+        value: 'createdDate',
+        sortable: true,
+      },
+    ]
+    if (this.deletable)
+      this.headers.push({
+        text: '',
+        class: 'blue-super-light',
+        align: 'end',
+        sortable: false,
+        value: 'close',
+        width: '3rem',
+      })
+  }
+
+  get clientToDeleteName() {
+    return this.clientToDelete
+      ? `${this.clientToDelete.allowsAccessToUser.name}`
+      : ''
   }
 
   async removeClient() {

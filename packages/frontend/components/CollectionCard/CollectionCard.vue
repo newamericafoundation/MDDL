@@ -64,10 +64,9 @@ export default class CollectionCard extends Vue {
 <style lang="scss">
 .v-card {
   max-width: 40rem;
-  cursor: pointer;
   &.mobile {
-    &:first-of-type {
-      border-bottom: initial;
+    &:last-of-type {
+      border-bottom: thin solid var(--grey-4);
     }
     border-radius: 0;
     border-bottom: none;

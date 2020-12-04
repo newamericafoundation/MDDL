@@ -1,11 +1,11 @@
 <template>
   <v-app>
-    <AppBar>
+    <AppBar :empty="true">
       <template v-slot:nav-action>
         <BackButton tabindex="0" />
       </template>
     </AppBar>
-    <v-main>
+    <v-main class="blue-super-light">
       <v-container>
         <nuxt />
       </v-container>

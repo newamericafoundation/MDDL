@@ -6,10 +6,10 @@
       :items="collections"
       hide-default-footer
       :item-class="() => 'clickable'"
-      @click:row="handleClick"
+      @click:row="previewCollection"
     >
       <template v-slot:item.icon>
-        <v-icon color="primary">$folder</v-icon>
+        <v-icon small color="primary" class="my-2">$folder</v-icon>
       </template>
     </v-data-table>
     <v-card
@@ -18,7 +18,7 @@
       :key="`sharedOwner-${i}`"
       rounded="0"
     >
-      <v-list-item class="grow py-4" @click="handleClick(collection)">
+      <v-list-item class="grow py-4" @click="previewCollection(collection)">
         <v-icon left color="primary" size="24">$folder</v-icon>
 
         <v-list-item-content>
@@ -60,6 +60,7 @@ export default class SharedCollectionList extends Vue {
     this.headers = [
       {
         text: '',
+        class: 'blue-super-light',
         align: 'start',
         sortable: false,
         value: 'icon',
@@ -67,12 +68,14 @@ export default class SharedCollectionList extends Vue {
       },
       {
         text: this.$t('agent.sharedFolderNameLabel') as string,
+        class: 'blue-super-light',
         align: 'start',
         sortable: true,
         value: 'name',
       },
       {
         text: this.$t('dateAdded') as string,
+        class: 'blue-super-light',
         value: 'createdDate',
         sortable: true,
       },
@@ -93,7 +96,7 @@ export default class SharedCollectionList extends Vue {
       }))
   }
 
-  handleClick(collectionRowItem: any) {
+  previewCollection(collectionRowItem: any) {
     this.$router.push(this.localePath(`/collections/${collectionRowItem.id}`))
   }
 }

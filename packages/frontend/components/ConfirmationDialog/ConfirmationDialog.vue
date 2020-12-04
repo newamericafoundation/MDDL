@@ -1,6 +1,6 @@
 <template>
   <v-dialog v-model="value" width="350" persistent>
-    <v-card class="confirmation-card a11y-focus" ref="confirmationDialog">
+    <v-card ref="confirmationDialog" class="confirmation-card a11y-focus">
       <v-row v-if="closable" class="py-4">
         <v-btn
           class="close-button a11y-focus"

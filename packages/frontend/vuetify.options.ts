@@ -47,9 +47,11 @@ const vuetifyOptions = (ctx: Context): Options => {
           success: '#2affb8',
           'grey-2': '#f8f8f9',
           'grey-5': '#b4b8bf',
-          'grey-8': '#55585e',
           'grey-7': '#6b6e76',
-          'blue-mid-light': '#e5e5e5',
+          'grey-8': '#55585e',
+          'grey-9': '#2f3033',
+          'blue-mid-light': '#f0f3f9',
+          'blue-light': '#6489ec',
           'blue-super-light': '#fafcff',
         },
         dark: {
@@ -92,7 +94,7 @@ const vuetifyOptions = (ctx: Context): Options => {
         close: {
           component: Close,
         },
-        closeBold: {
+        'close-bold': {
           component: CloseBold,
         },
         'close-circle-outline': {

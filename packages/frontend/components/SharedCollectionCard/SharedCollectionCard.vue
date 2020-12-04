@@ -28,7 +28,7 @@ export default class CollectionCard extends Vue {
 }
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
 .v-card {
   max-width: 40rem;
   cursor: pointer;

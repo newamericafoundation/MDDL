@@ -5,3 +5,8 @@ export interface NavItem {
   icon?: string
   divider?: boolean // makes it render as a v-divider
 }
+
+export interface Breadcrumb {
+  title: string
+  to?: string
+}

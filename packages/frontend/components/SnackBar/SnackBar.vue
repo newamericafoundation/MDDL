@@ -14,13 +14,13 @@
       <v-col cols="auto">
         <v-row justify="end">
           <v-btn
-            :title="`${$t('navigation.close')}`"
             v-if="isDismissable"
+            :title="`${$t('navigation.close')}`"
             class="px-0 close-button"
             text
             @click="close"
           >
-            <v-icon small>$closeBold</v-icon>
+            <v-icon small>$close-bold</v-icon>
           </v-btn>
         </v-row>
         <v-row

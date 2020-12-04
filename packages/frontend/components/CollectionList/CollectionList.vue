@@ -1,8 +1,24 @@
 <template>
   <div v-if="!loading">
     <template v-if="collections.length">
+      <v-data-table
+        v-show="$vuetify.breakpoint.smAndUp"
+        :headers="headers"
+        :items="collections"
+        hide-default-footer
+        :item-class="() => 'clickable'"
+        @click:row="previewCollection"
+      >
+        <template v-slot:item.createdDate="{ item }">
+          {{ format(new Date(item.createdDate), 'LLL d, yyyy') }}
+        </template>
+        <template v-slot:item.icon>
+          <v-icon small color="primary" class="my-2">$folder</v-icon>
+        </template>
+      </v-data-table>
       <CollectionCard
         v-for="(collection, i) in collections"
+        v-show="$vuetify.breakpoint.xs"
         :key="i"
         v-model="selected[i]"
         :collection="collection"
@@ -24,9 +40,9 @@
   </div>
   <div v-else>
     <v-card
-      height="84"
       v-for="i in new Array(5)"
       :key="i"
+      height="84"
       outlined
       :class="[{ 'mx-4': $vuetify.breakpoint.smAndUp }, { 'mb-4': true }]"
     >
@@ -47,17 +63,45 @@ import { Vue, Component, Prop, Watch } from 'nuxt-property-decorator'
 import { userStore } from '@/plugins/store-accessor'
 import { CollectionListItem } from 'api-client'
 import { capitalize } from '@/assets/js/stringUtils'
+import { DataTableHeader } from 'vuetify'
+import { format } from 'date-fns'
 
 @Component
 export default class CollectionList extends Vue {
   @Prop({ default: false }) selectable: boolean
   @Prop({ default: null }) value: any
 
+  format = format
   loading = true
   selected: boolean[] = []
   capitalize = capitalize
+  headers: DataTableHeader[] = []
 
   async mounted() {
+    // We have to define headers in mounted function since this.$i18n is undefined otherwise
+    this.headers = [
+      {
+        text: '',
+        class: 'blue-super-light',
+        align: 'start',
+        sortable: false,
+        value: 'icon',
+        width: '3rem',
+      },
+      {
+        text: this.$t('name') as string,
+        class: 'blue-super-light',
+        align: 'start',
+        sortable: true,
+        value: 'name',
+      },
+      {
+        text: this.$t('dateAdded') as string,
+        class: 'blue-super-light',
+        value: 'createdDate',
+        sortable: true,
+      },
+    ]
     await this.$store.dispatch('user/getCollections')
     this.selected = new Array(userStore.collections.length)
     this.loading = false
@@ -75,6 +119,10 @@ export default class CollectionList extends Vue {
         (_: CollectionListItem, i: number) => this.selected[i],
       ),
     )
+  }
+
+  previewCollection(collectionRowItem: any) {
+    this.$router.push(this.localePath(`/collections/${collectionRowItem.id}`))
   }
 }
 </script>

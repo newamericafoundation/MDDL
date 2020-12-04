@@ -2,12 +2,14 @@ import Vuex from 'vuex'
 import { shallowMount } from '@vue/test-utils'
 import Dashboard from '@/pages/dashboard/index.vue'
 import Layout from '@/layouts/default.vue'
-import { UserRole } from '@/types/user'
 
 jest.mock('@/plugins/store-accessor', () => ({
   userStore: {
     role: 0,
     isActingAsDelegate: false,
+    isCbo: false,
+    isAgent: false,
+    isClient: true,
   },
   snackbarStore: {
     setVisible: (v: boolean) => {

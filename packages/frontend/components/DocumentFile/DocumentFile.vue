@@ -107,6 +107,7 @@ export default class DocumentFile extends Vue {
     img {
       width: 100%;
       object-fit: contain;
+      border-radius: 0.5rem;
     }
   }
 }

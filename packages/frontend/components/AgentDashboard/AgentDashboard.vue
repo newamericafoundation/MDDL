@@ -1,24 +1,24 @@
 <template>
   <v-main class="blue-super-light">
     <AppBar>
-      <template v-slot:nav-action>
-        <v-app-bar-nav-icon
-          class="a11y-focus"
-          role="button"
-          color="grey-8"
-          @click.prevent="toggleSideNav"
-          @keydown.prevent.enter="toggleSideNav(true)"
-        />
+      <template v-slot:extensions>
+        <v-row no-gutters class="white" outlined rounded="0">
+          <v-col cols="12">
+            <div class="pa-3">
+              {{ $t('agent.selectClient') }}
+            </div>
+          </v-col>
+        </v-row>
       </template>
     </AppBar>
+    <DesktopSideBar />
     <SharedOwnerList />
   </v-main>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, mixins } from 'nuxt-property-decorator'
+import { Vue, Component, Prop } from 'nuxt-property-decorator'
 import { capitalize } from '@/assets/js/stringUtils'
-import Navigation from '@/mixins/navigation'
 
 @Component({
   head() {
@@ -26,7 +26,6 @@ import Navigation from '@/mixins/navigation'
       title: capitalize(this.$t('tabTitles.shared') as string),
     }
   },
-  mixins: [Navigation],
 })
-export default class AgentDashboard extends mixins(Navigation) {}
+export default class AgentDashboard extends Vue {}
 </script>

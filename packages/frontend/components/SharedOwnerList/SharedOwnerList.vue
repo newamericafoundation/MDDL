@@ -6,8 +6,9 @@
         :headers="headers"
         :items="collections"
         hide-default-footer
-        :item-class="() => 'clickable'"
-        @click:row="handleClick"
+        :item-class="itemClass"
+        :class="{ 'ma-8': $vuetify.breakpoint.smAndUp }"
+        @click:row="previewCollection"
       >
         <template v-slot:item.icon>
           <v-icon color="primary">$profile</v-icon>
@@ -19,7 +20,7 @@
         :key="`sharedOwner-${i}`"
         rounded="0"
       >
-        <v-list-item class="grow py-4" @click="handleClick(collection)">
+        <v-list-item class="grow py-4" @click="previewCollection(collection)">
           <v-list-item-avatar>
             <v-icon size="24">$profile</v-icon>
           </v-list-item-avatar>
@@ -70,6 +71,7 @@ export default class SharedOwnerList extends Vue {
     this.headers = [
       {
         text: '',
+        class: 'blue-super-light',
         align: 'start',
         sortable: false,
         value: 'icon',
@@ -77,12 +79,14 @@ export default class SharedOwnerList extends Vue {
       },
       {
         text: this.$t('agent.clientNameLabel') as string,
+        class: 'blue-super-light',
         align: 'start',
         sortable: true,
         value: 'name',
       },
       {
         text: this.$t('dateAdded') as string,
+        class: 'blue-super-light',
         value: 'createdDate',
         sortable: true,
       },
@@ -110,10 +114,18 @@ export default class SharedOwnerList extends Vue {
       }))
   }
 
-  handleClick(ownerRowItem: any) {
+  previewCollection(ownerRowItem: any) {
     this.$router.push(
       this.localePath(`/collections/owner/${ownerRowItem.ownerId}`),
     )
+  }
+
+  itemClass(item: SharedCollectionListItem, i: number) {
+    const classes = ['clickable']
+    if (i === 0) {
+      classes.push('border-bottom')
+    }
+    return classes.join(' ')
   }
 }
 </script>

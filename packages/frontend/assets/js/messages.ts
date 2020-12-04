@@ -10,7 +10,8 @@ export default {
     name: 'name', // TODO: replace with filename
 
     // label appearing in tabular content (list of users, list of shared collections etc)
-    dateAdded: 'date added',
+    // as well as side bar on document view
+    dateAdded: 'Date Added',
     termsOfUse: {
       body:
         'Aenean lacinia bibendum nulla sed consectetur. Vestibulum id ligula porta felis euismod semper. Curabitur blandit tempus porttitor. Integer posuere erat a ante venenatis dapibus posuere velit aliquet. Nullam quis risus eget urna mollis ornare vel eu leo. Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit. Curabitur blandit tempus porttitor. Nullam id dolor id nibh ultricies vehicula ut id elit. Nullam id dolor id nibh ultricies vehicula ut id elit. Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Aenean lacinia bibendum nulla sed consectetur. Maecenas faucibus mollis interdum. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Duis mollis, est non commodo luctus, nisi erat porttitor ligula',
@@ -23,7 +24,7 @@ export default {
       downloadLoadingState: 'preparing download',
       collectionCreated: 'shared folder created.',
       sharingComplete: 'sharing complete.',
-      switchAccount: 'switch account',
+      switchAccount: 'switch clients',
       uploading: 'adding file...', // displayed while a file is uploading
       uploadComplete: 'file added',
       fileDeletedConfirmation: 'file deleted.',
@@ -43,15 +44,17 @@ export default {
     },
 
     navigation: {
-      account: 'account',
+      account: 'Account',
+      activity: 'Activity',
       back: 'Back',
-      activity: 'activity',
+      clients: 'Clients', // navigate back to agent view desktop
       close: 'Close',
+      dashboard: 'Dashboard',
       loading: 'Loading',
-      loggingIn: 'logging in...',
+      loggingIn: 'Logging in...',
       manageAccounts: 'Manage Clients',
-      signIn: 'sign in',
-      signOut: 'sign out',
+      signIn: 'Sign in',
+      signOut: 'Sign out',
       switchAccount: 'Switch Clients',
       termsOfUse: 'Terms of Use',
     },
@@ -190,15 +193,17 @@ export default {
     },
 
     cbo: {
-      selectClient: 'select client to access shared files.',
-      clickToRemove: 'click {close} to remove client',
-      noClients:
-        "Once a client adds you to their datalocker account, you'll be able to manage and share files on their behalf from this screen. A client can provide access by navigating to the Account menu in the Datalocker app.",
+      selectClient: 'Select a client to access their account',
+      clickToRemove: 'Click {close} to remove a client',
+      noClientsTitle: 'No clients added yet',
+      noClientsBody:
+        'A client can provide access by navigating to their Account menu.',
       removeConfirmationTitle:
         'Are you sure you want to remove this client from your Datalocker?',
       removeConfirmationBody:
         "You'll no longer have access to shared files. This cannot be undone.",
-      errorAcceptingInvite: 'Invite could not be accepted.',
+      errorAcceptingInvite:
+        'Invite could not be accepted. Please ensure you are logged in with the email address that received the invite.',
     },
 
     agent: {
@@ -208,13 +213,19 @@ export default {
       downloadZip: 'Download Zip',
       dateShared: 'Date Shared', // label in side bar
       sharedBy: 'Shared By', // label in side bar
+      selectClient: 'Select a client to view their files',
     },
 
     $vuetify: {
       ...en,
       dataTable: {
         sortBy: 'Sort by',
+        ariaLabel: {
+          sortNone: 'Do not sort',
+          activateAscending: 'Sort ascending',
+        },
       },
+      noDataText: 'No data',
     },
   },
 }

@@ -10,14 +10,6 @@
     margin: 20px 0;
   }
 
-  // Color helpers
-  .text-primary {
-    color: var(--primary);
-  }
-  .text-grey-7 {
-    color: var(--grey-7);
-  }
-
   .container {
     padding: 0;
   }
@@ -200,6 +192,15 @@
     .v-btn__content {
       text-transform: capitalize;
     }
+    // for some reason :to on a button gives it a weird background, this removes it
+    &.v-btn--router.v-btn--active {
+      &:before {
+        opacity: 0;
+      }
+      &:hover:before {
+        opacity: 0.05;
+      }
+    }
   }
 
   .v-input--checkbox {
@@ -234,17 +235,54 @@
 
   // Data Table
   .v-data-table {
-    tbody tr.clickable {
-      cursor: pointer;
-    }
-    .v-data-table-header {
-      th.text-start {
-        @extend .capitalize;
-        &.sortable {
-          span {
-            margin-right: 0.5rem;
+    tbody {
+      tr {
+        &:first-child {
+          td {
+            border-top: 1pt solid var(--grey-4) !important;
+            &:first-child {
+              border-top-left-radius: 0.25rem;
+            }
+            &:last-child {
+              border-top-right-radius: 0.25rem;
+            }
           }
         }
+        &:last-child {
+          td {
+            &:first-child {
+              border-bottom-left-radius: 0.25rem;
+            }
+            &:last-child {
+              border-bottom-right-radius: 0.25rem;
+            }
+          }
+        }
+        td {
+          border-bottom: 1pt solid var(--grey-4) !important;
+          &:first-child {
+            border-left: 1pt solid var(--grey-4);
+          }
+          &:last-child {
+            border-right: 1pt solid var(--grey-4);
+          }
+        }
+        &.clickable {
+          cursor: pointer;
+        }
+      }
+    }
+    .v-data-table-header {
+      th {
+        &.text-start {
+          @extend .capitalize;
+          &.sortable {
+            span {
+              margin-right: 0.5rem;
+            }
+          }
+        }
+        border-bottom: none;
       }
     }
   }

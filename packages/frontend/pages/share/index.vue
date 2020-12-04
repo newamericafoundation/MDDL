@@ -29,8 +29,8 @@
           icon
           :title="`${$t('navigation.back')}`"
           class="a11y-focus"
-          @click="prev"
           tabindex="0"
+          @click="prev"
         >
           <v-icon small class="mr-2">$chevron-left</v-icon>
         </v-btn>

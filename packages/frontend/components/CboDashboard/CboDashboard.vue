@@ -1,32 +1,36 @@
 <template>
   <v-main class="blue-super-light">
     <AppBar>
-      <template v-slot:nav-action>
-        <v-app-bar-nav-icon
-          class="a11y-focus"
-          role="button"
-          color="grey-8"
-          @click.prevent="toggleSideNav"
-          @keydown.prevent.enter="toggleSideNav(true)"
-        />
+      <template v-slot:extensions>
+        <v-row no-gutters class="nav-message" outlined rounded="0">
+          <v-col>
+            <div class="pa-3 font-weight-medium grey-9--text">
+              <template v-if="onSwitchPage">
+                {{ $t('cbo.selectClient') }}
+              </template>
+              <template v-else>
+                {{ closeText[0] }}
+                <v-icon small>$close</v-icon>
+                {{ closeText[1] }}
+              </template>
+            </div>
+          </v-col>
+          <v-col v-show="$vuetify.breakpoint.smAndUp" cols="auto">
+            <v-btn v-if="onSwitchPage" text color="primary" :to="manageRoute">
+              <v-icon left color="primary" small>$cog</v-icon>
+              {{ $t('navigation.manageAccounts') }}
+            </v-btn>
+            <SwitchAccountButton v-else color="primary" />
+          </v-col>
+        </v-row>
       </template>
     </AppBar>
     <v-window v-model="$route.query.tab">
       <v-window-item value="switch">
-        <ClientList>
-          <p class="menu-2 capitalize py-4 mb-0 mx-8 font-weight-medium">
-            {{ $t('cbo.selectClient') }}
-          </p>
-          <v-divider class="full-width" />
-        </ClientList>
+        <ClientList />
       </v-window-item>
       <v-window-item value="manage">
         <ClientList :deletable="true">
-          <p class="menu-2 capitalize py-4 mb-0 mx-8 font-weight-medium">
-            {{ closeText[0] }}
-            <v-icon small>$close</v-icon>
-            {{ closeText[1] }}
-          </p>
           <v-divider class="full-width" />
         </ClientList>
       </v-window-item>
@@ -36,14 +40,35 @@
 
 <script lang="ts">
 import { Vue, Component, mixins } from 'nuxt-property-decorator'
-import Navigation from '@/mixins/navigation'
+import { userStore } from '@/plugins/store-accessor'
+import { RawLocation } from 'vue-router'
 
-@Component({
-  mixins: [Navigation],
-})
-export default class CboDashboard extends mixins(Navigation) {
+@Component
+export default class CboDashboard extends Vue {
+  userStore = userStore
+
+  get manageRoute() {
+    return this.localeRoute({
+      path: '/dashboard',
+      query: {
+        tab: 'manage',
+      },
+    })
+  }
+
   get closeText() {
     return (this.$t('cbo.clickToRemove') as string).split('{close}')
   }
+
+  get onSwitchPage() {
+    return this.$route.query.tab === 'switch'
+  }
 }
 </script>
+
+<style lang="scss" scoped>
+.nav-message {
+  border-bottom: 1pt solid var(--grey-4);
+  background-color: white !important;
+}
+</style>
