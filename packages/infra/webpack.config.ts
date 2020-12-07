@@ -36,7 +36,12 @@ const config = {
   },
   // aws-sdk is already available in the Node.js Lambda environment
   //  so it should not be included in function bundles
-  externals: ['aws-sdk', 'mysql2'],
+  externals: [
+    'aws-sdk',
+    'aws-sdk/clients/secretsmanager',
+    'mysql2',
+    'mysql2/promise',
+  ],
   output: {
     path: OUT_DIR,
     filename: '[name]/index.js',

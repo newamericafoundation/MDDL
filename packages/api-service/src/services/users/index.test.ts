@@ -37,7 +37,7 @@ describe('getUserData', () => {
   })
   it('inserts user when not existing', async () => {
     const data = { ...janeCitizenData, syncTimestamp: issuedAt }
-    toMockedFunction(getUserById).mockImplementationOnce(async () => null)
+    toMockedFunction(getUserById).mockImplementationOnce(async () => undefined)
     toMockedFunction(insertUser).mockImplementationOnce(async () =>
       User.fromDatabaseJson(data),
     )

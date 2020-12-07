@@ -18,7 +18,7 @@ test.skip('Default Stack', () => {
       region: 'us-west-2',
     },
     synthesizer: new DefaultStackSynthesizer(),
-    stage1Configuration: {
+    developStageConfiguration: {
       dataStoreStackProps: {
         name: 'DataStoreStack',
         props: {},

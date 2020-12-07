@@ -18,25 +18,13 @@ test('Fails validation for auth stack', () => {
   expect(() => {
     new CityStack(app, 'MyTestStack1', {
       dataStoreStack,
-      expectsAuthStack: true,
-      emailSender: {
-        address: 'myemail',
-        name: 'Me',
-      },
-    })
-  }).toThrowError(/authStack must be provided when expectsAuthStack is true/)
-  expect(() => {
-    new CityStack(app, 'MyTestStack2', {
-      dataStoreStack,
-      authStack,
-      expectsAuthStack: false,
       emailSender: {
         address: 'myemail',
         name: 'Me',
       },
     })
   }).toThrowError(
-    /authStack should not be provided when expectsAuthStack is false/,
+    `jwtAuth must be provided when authStack is not provided in stack MyTestStack1`,
   )
 })
 test('Default Stack', () => {
@@ -45,7 +33,6 @@ test('Default Stack', () => {
   const dataStoreStack = new DataStoreStack(app, 'MyTestDataStoreStack', {})
   const stack = new CityStack(app, 'MyTestStack', {
     dataStoreStack,
-    expectsAuthStack: false,
     jwtAuth: {
       audience: ['https://my-audience.com'],
       issuer: 'https://my-audience.com',

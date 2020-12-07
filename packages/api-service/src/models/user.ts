@@ -28,7 +28,7 @@ export class User extends BaseModel {
   }
 }
 
-export const getUserById = async (id: string): Promise<User | null> => {
+export const getUserById = async (id: string): Promise<User | undefined> => {
   return await User.query().findById(id)
 }
 

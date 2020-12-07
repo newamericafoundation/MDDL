@@ -25,6 +25,7 @@ import { LambdaDestination } from '@aws-cdk/aws-s3-notifications'
 import { BuildSpec, Project } from '@aws-cdk/aws-codebuild'
 import { Runtime, Function, Code } from '@aws-cdk/aws-lambda'
 import { PolicyStatement, User } from '@aws-cdk/aws-iam'
+import { CfnNotificationRule } from '@aws-cdk/aws-codestarnotifications'
 import path = require('path')
 
 interface StackConfiguration<T extends StackProps> {
@@ -46,7 +47,7 @@ interface CityStageActions {
   cityStacksProps: StackConfiguration<CityStackProps>[]
 }
 
-interface Stage1Configuration {
+interface IntegratedStageConfiguration {
   /**
    * The configuration for the Auth Stack
    */
@@ -84,17 +85,27 @@ interface CityStackArtifactBuildConfiguration {
 
 export interface Props extends StackProps {
   /**
-   * Deployment Stage 1 configuration.
-   * This stage will include the "base" stacks (Data Store and Auth if required), a "Develop" City stack, and any QA related tasks.
+   * The SNS topic to deliver pipeline notifications to
+   */
+  pipelineNotificationsSnsTopicArn?: string
+  /**
+   * Development Deployment configuration.
+   * This stage will include the "base" stacks for develop (Data Store and Auth), a "Develop" City stack, and any QA related tasks.
    * We keep these to a single stage so that the base stacks cannot change until the QA tasks are completed (passed/failed)
    */
-  stage1Configuration: Stage1Configuration
+  developStageConfiguration: IntegratedStageConfiguration
 
   /**
-   * Deployment Stage 2 configuration.
-   * This stage only includes further City stages that can be deployed sequentially after Deployment Stage 1 is completed
+   * Staging Deployment configuration.
+   * This stage only includes further City stages that can be deployed after Development Deployment Stage is completed
    */
-  stage2Configuration?: CityStageActions
+  stagingStageConfiguration?: CityStageActions
+
+  /**
+   * Production Deployment configuration.
+   * This stage will include the "base" stacks for production (Data Store and Auth if required), and all Production City stacks.
+   */
+  prodStageConfiguration?: IntegratedStageConfiguration
 }
 
 export class CiCdStack extends Stack {
@@ -115,7 +126,10 @@ export class CiCdStack extends Stack {
       cloudAssemblyArtifact,
       codePipeline,
       sourceArtifact,
-    } = this.createCodePipeline(buildsBucket)
+    } = this.createCodePipeline(
+      buildsBucket,
+      props.pipelineNotificationsSnsTopicArn,
+    )
 
     // create the CDK pipeline components
     this.createCdkPipeline(
@@ -359,7 +373,10 @@ export class CiCdStack extends Stack {
    * Create the CodePipeline pipeline and add base stages and actions
    * @param bucket The builds source bucket
    */
-  private createCodePipeline(bucket: IBucket) {
+  private createCodePipeline(
+    bucket: IBucket,
+    pipelineNotificationsSnsTopicArn: string | undefined,
+  ) {
     // create artifacts
     const sourceArtifact = new Artifact()
     const cloudAssemblyArtifact = new Artifact('cloudAssembly')
@@ -368,6 +385,29 @@ export class CiCdStack extends Stack {
     const codePipeline = new Pipeline(this, 'Pipeline', {
       restartExecutionOnUpdate: true,
     })
+
+    // add notifications
+    if (pipelineNotificationsSnsTopicArn) {
+      new CfnNotificationRule(this, 'NotificationRule', {
+        name: `${this.stackName}PipelineNotifications`,
+        detailType: 'FULL',
+        resource: codePipeline.pipelineArn,
+        eventTypeIds: [
+          'codepipeline-pipeline-pipeline-execution-failed',
+          'codepipeline-pipeline-pipeline-execution-canceled',
+          'codepipeline-pipeline-pipeline-execution-started',
+          'codepipeline-pipeline-pipeline-execution-resumed',
+          'codepipeline-pipeline-pipeline-execution-succeeded',
+          'codepipeline-pipeline-manual-approval-needed',
+        ],
+        targets: [
+          {
+            targetType: 'SNS',
+            targetAddress: pipelineNotificationsSnsTopicArn,
+          },
+        ],
+      })
+    }
 
     // create the CodeBuild project that will run the build job
     const { project } = this.createBuildCloudAssemblyProject()
@@ -432,12 +472,16 @@ export class CiCdStack extends Stack {
     const cloudAssembly = app.synth()
 
     // read out configuration to consts
-    const { stage1Configuration, stage2Configuration } = props
     const {
-      authStackProps,
-      dataStoreStackProps,
-      cityStacksProps: stage1CityStacksProps = [],
-    } = stage1Configuration
+      developStageConfiguration,
+      stagingStageConfiguration,
+      prodStageConfiguration,
+    } = props
+    const {
+      authStackProps: nonProdAuthStackProps,
+      dataStoreStackProps: nonProdDataStoreStackProps,
+      cityStacksProps: developStageCityStacksProps = [],
+    } = developStageConfiguration
 
     // determine city stacks that will need to be built, and their args
     const cityStacks = CiCdStack.getCityStacksProps(props)
@@ -536,49 +580,51 @@ export class CiCdStack extends Stack {
 
     // Add and configure deployment stage 1
     // Data Store Stack, Auth Stack and any "lower" environments such as DEV
-    const stage1 = cdkPipeline.addStage('DeploymentStage1')
-    const baseStackOptions = this.addStack(
-      stage1,
-      this.getStack(cloudAssembly, dataStoreStackProps),
+    const developStage = cdkPipeline.addStage('DevelopDeploymentStage')
+    const developBaseStackOptions = this.addStack(
+      developStage,
+      this.getStack(cloudAssembly, nonProdDataStoreStackProps),
     )
-    if (authStackProps) {
+    if (nonProdAuthStackProps) {
       this.addStack(
-        stage1,
-        this.getStack(cloudAssembly, authStackProps),
-        baseStackOptions,
+        developStage,
+        this.getStack(cloudAssembly, nonProdAuthStackProps),
+        developBaseStackOptions,
       )
     }
-    const numberOfBaseActions = stage1.nextSequentialRunOrder()
-    stage1CityStacksProps.forEach((cityStackProps) =>
-      addCityStackToStage(stage1, cityStackProps),
+    const numberOfBaseActions = developStage.nextSequentialRunOrder()
+    developStageCityStacksProps.forEach((cityStackProps) =>
+      addCityStackToStage(developStage, cityStackProps),
     )
 
     // Add and configure deployment stage 2
     // this is generally "higher" environments such as Staging (for non-production) or Production
-    if (stage2Configuration) {
+    if (stagingStageConfiguration) {
       // read out stage 2 config
-      const { cityStacksProps: stage2CityStacksProps } = stage2Configuration
+      const {
+        cityStacksProps: stage2CityStacksProps,
+      } = stagingStageConfiguration
 
       // create stage 2
-      const stage2 = cdkPipeline.addStage('DeploymentStage2')
-      let currentRunOrder = stage2.nextSequentialRunOrder()
+      const stagingStage = cdkPipeline.addStage('StagingDeploymentStage')
+      let currentRunOrder = stagingStage.nextSequentialRunOrder()
       while (currentRunOrder < numberOfBaseActions) {
-        currentRunOrder = stage2.nextSequentialRunOrder()
+        currentRunOrder = stagingStage.nextSequentialRunOrder()
       }
 
       // add manual approval
-      stage2.addActions(
+      stagingStage.addActions(
         new ManualApprovalAction({
-          actionName: `ApproveDeploymentStage2`,
-          additionalInformation: `Approve to continue deployment to stage 2 environments.`,
-          runOrder: stage2.nextSequentialRunOrder(),
+          actionName: `ApproveStagingDeploymentStage`,
+          additionalInformation: `Approve to continue deployment to staging environments.`,
+          runOrder: stagingStage.nextSequentialRunOrder(),
         }),
       )
 
       // calculate options to execute deployments in parallel
-      const runOrder = stage2.nextSequentialRunOrder()
-      const approvalOrder = stage2.nextSequentialRunOrder()
-      const executeRunOrder = stage2.nextSequentialRunOrder()
+      const runOrder = stagingStage.nextSequentialRunOrder()
+      const approvalOrder = stagingStage.nextSequentialRunOrder()
+      const executeRunOrder = stagingStage.nextSequentialRunOrder()
       const parallelOptions: AddStackOptions = {
         runOrder,
         executeRunOrder,
@@ -586,16 +632,49 @@ export class CiCdStack extends Stack {
 
       // add each city to the current stage
       stage2CityStacksProps.forEach((cityStackProps) => {
-        addCityStackToStage(stage2, cityStackProps, parallelOptions)
+        addCityStackToStage(stagingStage, cityStackProps, parallelOptions)
       })
 
       // add manual approval action in change set calculation and execution
-      stage2.addActions(
+      stagingStage.addActions(
         new ManualApprovalAction({
-          actionName: `ApproveChangeSetsStage2`,
-          additionalInformation: `Approve to execute change sets for stage 2 environments.`,
+          actionName: `ApproveStagingChangeSets`,
+          additionalInformation: `Approve to execute change sets for staging environments.`,
           runOrder: approvalOrder,
         }),
+      )
+    }
+
+    if (prodStageConfiguration) {
+      const {
+        authStackProps: prodAuthStackProps,
+        dataStoreStackProps: prodDataStoreStackProps,
+        cityStacksProps: prodStageCityStacksProps = [],
+      } = prodStageConfiguration
+
+      // Add and configure production deployment stage
+      const prodStage = cdkPipeline.addStage('ProductionDeploymentStage')
+      // add manual approval
+      prodStage.addActions(
+        new ManualApprovalAction({
+          actionName: `ApproveProductionDeploymentStage`,
+          additionalInformation: `Approve to continue deployment to production environments.`,
+          runOrder: prodStage.nextSequentialRunOrder(),
+        }),
+      )
+      const prodBaseStackOptions = this.addStack(
+        prodStage,
+        this.getStack(cloudAssembly, prodDataStoreStackProps),
+      )
+      if (prodAuthStackProps) {
+        this.addStack(
+          prodStage,
+          this.getStack(cloudAssembly, prodAuthStackProps),
+          prodBaseStackOptions,
+        )
+      }
+      prodStageCityStacksProps.forEach((cityStackProps) =>
+        addCityStackToStage(prodStage, cityStackProps),
       )
     }
 
@@ -645,12 +724,16 @@ export class CiCdStack extends Stack {
    */
   private static getCityStacksProps(props: Props) {
     const {
-      stage1Configuration,
-      stage2Configuration = { cityStacksProps: [] },
+      developStageConfiguration,
+      stagingStageConfiguration = { cityStacksProps: [] },
+      prodStageConfiguration = { cityStacksProps: [] },
     } = props
-    const { cityStacksProps: stage1CityStacks = [] } = stage1Configuration
-    const { cityStacksProps: stage2CityStacks } = stage2Configuration
-    return [...stage1CityStacks, ...stage2CityStacks]
+    const {
+      cityStacksProps: developStageCityStacks = [],
+    } = developStageConfiguration
+    const { cityStacksProps: stagingCityStacks } = stagingStageConfiguration
+    const { cityStacksProps: prodCityStacks = [] } = prodStageConfiguration
+    return [...developStageCityStacks, ...stagingCityStacks, ...prodCityStacks]
   }
 
   /**
@@ -660,35 +743,58 @@ export class CiCdStack extends Stack {
    */
   public static buildApp(props: Props, app = new App()) {
     // read out configuration
-    const { stage1Configuration } = props
-    const { authStackProps, dataStoreStackProps } = stage1Configuration
+    const { developStageConfiguration, prodStageConfiguration } = props
     const cityStacksProps = CiCdStack.getCityStacksProps(props)
     const createdStacks: { name: string; stack: Stack }[] = []
-
-    // add auth stack
-    let authStack: AuthStack | undefined = undefined
-    if (authStackProps) {
-      authStack = new AuthStack(app, authStackProps.name, authStackProps.props)
-      createdStacks.push({ name: authStackProps.name, stack: authStack })
+    const integratedConfigs = [developStageConfiguration]
+    if (prodStageConfiguration) {
+      integratedConfigs.push(prodStageConfiguration)
     }
 
-    // add data store stack
-    const dataStoreStack = new DataStoreStack(
-      app,
-      dataStoreStackProps.name,
-      dataStoreStackProps.props,
-    )
-    createdStacks.push({
-      name: dataStoreStackProps.name,
-      stack: dataStoreStack,
-    })
+    for (const integratedConfig of integratedConfigs) {
+      const { authStackProps, dataStoreStackProps } = integratedConfig
+
+      // add auth stack
+      if (authStackProps) {
+        const authStack = new AuthStack(
+          app,
+          authStackProps.name,
+          authStackProps.props,
+        )
+        createdStacks.push({ name: authStackProps.name, stack: authStack })
+      }
+
+      // add data store stack
+      const dataStoreStack = new DataStoreStack(
+        app,
+        dataStoreStackProps.name,
+        dataStoreStackProps.props,
+      )
+      createdStacks.push({
+        name: dataStoreStackProps.name,
+        stack: dataStoreStack,
+      })
+    }
 
     // add all city stacks
     cityStacksProps.map((stackProps) => {
       const { name, props } = stackProps
+
+      // find auth stack, if any
+      const authStack = props.authStackName
+        ? (createdStacks.find((cs) => cs.name == props.authStackName)
+            ?.stack as AuthStack)
+        : undefined
+
+      // find data store stack
+      const dataStoreStack = createdStacks.find(
+        (cs) => cs.name == props.dataStoreStackName,
+      )?.stack as DataStoreStack
+
+      // add stack
       const stack = new CityStack(app, name, {
-        authStack: props.expectsAuthStack ? authStack : undefined,
         ...props,
+        authStack,
         dataStoreStack,
       })
       createdStacks.push({ name, stack })

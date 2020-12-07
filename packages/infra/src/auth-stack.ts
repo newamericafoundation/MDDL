@@ -21,12 +21,11 @@ import {
   HostedZone,
   RecordTarget,
   HostedZoneAttributes,
+  CfnRecordSet,
 } from '@aws-cdk/aws-route53'
 import { Bucket, RedirectProtocol } from '@aws-cdk/aws-s3'
 import { BucketWebsiteTarget } from '@aws-cdk/aws-route53-targets'
 import { MinimalCloudFrontTarget } from './minimal-cloudfront-target'
-import path = require('path')
-import fs = require('fs')
 import { EmailSender } from './email-sender'
 import { getCognitoHostedLoginCss } from './utils'
 
@@ -66,17 +65,26 @@ export class AuthStack extends Stack {
    * The URL of the hosted authentication pages
    */
   public authUrl: string
+
+  /**
+   * The Cognito Custom Domain takes a few minutes to apply.
+   * To work around this, deploy first with this flag set to false.
+   */
+  private deployUiCustomization = true
   constructor(scope: Construct, id: string, props: Props) {
     super(scope, id, props)
     const { userPoolName, emailSender, customDomain } = props
 
     // create the user pool
-    const { userPool } = this.addUserPool(userPoolName, emailSender)
+    const { userPool, uiCustomization } = this.addUserPool(
+      userPoolName,
+      emailSender,
+    )
     this.userPoolId = userPool.userPoolId
 
     // attach the custom domain
     if (customDomain) {
-      this.addCustomDomain(userPool, customDomain)
+      this.addCustomDomain(userPool, customDomain, uiCustomization)
       this.authUrl = `https://${customDomain.domain}`
     } else {
       this.authUrl = userPool.userPoolProviderUrl
@@ -177,18 +185,21 @@ export class AuthStack extends Stack {
     }
 
     // CSS for hosted login
-    new CfnUserPoolUICustomizationAttachment(
-      this,
-      'UserPoolUICustomizationAttachment',
-      {
-        clientId: 'ALL',
-        userPoolId: userPool.userPoolId,
-        css: getCognitoHostedLoginCss(),
-      },
-    )
+    const uiCustomization = this.deployUiCustomization
+      ? new CfnUserPoolUICustomizationAttachment(
+          this,
+          'UserPoolUICustomizationAttachment',
+          {
+            clientId: 'ALL',
+            userPoolId: userPool.userPoolId,
+            css: getCognitoHostedLoginCss(),
+          },
+        )
+      : undefined
 
     return {
       userPool,
+      uiCustomization,
     }
   }
 
@@ -200,6 +211,7 @@ export class AuthStack extends Stack {
   private addCustomDomain(
     userPool: UserPool,
     customDomain: CustomHostedDomain,
+    uiCustomization?: CfnUserPoolUICustomizationAttachment,
   ) {
     // read out configuration
     const {
@@ -256,12 +268,16 @@ export class AuthStack extends Stack {
     userPoolDomain.node.addDependency(...dependencies)
 
     // create A record for custom domain
-    new ARecord(this, `CustomDomainAliasRecord`, {
+    const aRecord = new ARecord(this, `CustomDomainAliasRecord`, {
       zone: hostedZone,
       recordName: domain,
       target: RecordTarget.fromAlias(
         new MinimalCloudFrontTarget(this, userPoolDomain.cloudFrontDomainName),
       ),
     })
+
+    if (uiCustomization) {
+      uiCustomization.addDependsOn(aRecord.node.defaultChild as CfnRecordSet)
+    }
   }
 }

@@ -137,7 +137,10 @@ describe('AccountDelegateModel', () => {
     const delegateEmail = uuidv4()
     it('returns undefined on none found', async () => {
       expect(
-        await findAccountDelegateForAccountByEmail(accountId, delegateEmail),
+        (await findAccountDelegateForAccountByEmail(
+          accountId,
+          delegateEmail,
+        )) as any,
       ).toStrictEqual(undefined)
     })
     it('finds a matching record', async () => {
@@ -162,7 +165,9 @@ describe('AccountDelegateModel', () => {
 
   describe('getAccountDelegateById', () => {
     it('returns undefined on none found', async () => {
-      expect(await getAccountDelegateById(uuidv4())).toStrictEqual(undefined)
+      expect((await getAccountDelegateById(uuidv4())) as any).toStrictEqual(
+        undefined,
+      )
     })
     it('finds a matching record', async () => {
       const id = uuidv4()
@@ -187,9 +192,9 @@ describe('AccountDelegateModel', () => {
     const delegateEmail = uuidv4()
     it('returns undefined on none found', async () => {
       expect(
-        await updateAccountDelegate(uuidv4(), accountId, {
+        (await updateAccountDelegate(uuidv4(), accountId, {
           status: UserDelegatedAccessStatus.ACTIVE,
-        }),
+        })) as any,
       ).toStrictEqual(undefined)
     })
     it('updates the matching record', async () => {

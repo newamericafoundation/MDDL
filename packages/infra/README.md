@@ -20,6 +20,7 @@ yarn infra cdk bootstrap YOUR_ACCOUNT_NUMBER/YOUR_REGION --cloudformation-execut
 ```
 
 Update the `cloudformation-execution-policies` to more restrictive policies as needed.
+Add `--trust ACCOUNT_ID` where ACCOUNT_ID is your CI/CD account, if you are deploying across account.
 
 ## Configuring the Pipeline
 
@@ -204,6 +205,48 @@ For full reference of properties, see:
 
 For first time deployment, after bootstrapping and configuring the pipeline settings, you'll need to complete the following steps:
 
+### SES Set Up
+
+The Auth Stack (which uses Cognito) and the application layer use SES to send notifications to users on collection sharing and sign up, etc.
+You'll need a verified identity (individual email address) in SES in the region of your application and your account out of the SES sandbox.
+There are two Identity Policies that need to be applied to the sending identity, which are:
+
+1. AllowIAMAccess
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam::ACCOUNT_ID:root"
+      },
+      "Action": ["SES:SendEmail", "SES:SendRawEmail"],
+      "Resource": "arn:aws:ses:REGION:ACCOUNT_ID:identity/email@example.com"
+    }
+  ]
+}
+```
+
+1. AllowCognitoAccess
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "cognito-idp.amazonaws.com"
+      },
+      "Action": ["SES:SendEmail", "SES:SendRawEmail"],
+      "Resource": "arn:aws:ses:REGION:ACCOUNT_ID:identity/email@example.com"
+    }
+  ]
+}
+```
+
 ### (Optional) Create Hosted Zone and ACM Certificates
 
 If you do not want a specific domain for your hosted API and web app, you can use the default cloudfront distribution and API Gateway URLs instead, and you can skip this step. Just don't define the `apiDomainConfig`, `webAppDomainConfig` or `hostedZoneAttributes` above.
@@ -214,7 +257,26 @@ If you do want a specific domain, at the minimum you'll need to:
 2. A wildcard certificate in your application region (above, this is `us-west-2`) - can be validated by the above Hosted Zone
 3. A wildcard certificate in `us-east-1` for the cloudfront hosting for the web app - can be validated by the above Hosted Zone
 
-If you want fully qualified certificates, you'll need 1 certificate for the API (in the application region) and one certificate for the web app hosting (in `us-east-1`) for each "city stack".
+If you want fully qualified certificates, you'll need:
+
+1. 1 certificate for the API in the application region for each "city stack".
+1. 1 certificate for the web app hosting in `us-east-1` for each "city stack".
+1. [If using the auth stack] 1 certificate for the auth hosted domain in `us-east-1`.
+
+### Initial Environment Deployments
+
+It can be easier for first time deployments to deploy the stacks manually to resolve any "teething" issues faster.
+The suggested order for deployment is:
+
+1. Auth Stacks
+2. Data Store Stacks
+3. City Stacks
+
+#### Auth Stack Deployment notes
+
+There is an issue with bringing up Cognito and Styling the UI in a single change set.
+The `UserPoolUICustomizationAttachment` resource requires the domain to already be attached, but the `CustomDomain` resource returns before it is "active" (which can take up to 15 minutes).
+To assist with this, switch the `deployUiCustomization` flag to `false` for first time deploy, and then once the Domain is "active" in Cognito, set it to `true` and redeploy.
 
 ### Initial CI/CD Deployment
 

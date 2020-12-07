@@ -56,7 +56,7 @@ import {
   CfnIntegration,
   CfnStage,
 } from '@aws-cdk/aws-apigatewayv2'
-import { ViewerCertificate } from '@aws-cdk/aws-cloudfront/lib/web_distribution'
+import { ViewerCertificate } from '@aws-cdk/aws-cloudfront'
 import {
   ARecord,
   HostedZone,
@@ -80,7 +80,7 @@ import { Queue, IQueue } from '@aws-cdk/aws-sqs'
 import { MinimalCloudFrontTarget } from './minimal-cloudfront-target'
 import { EmailSender } from './email-sender'
 import { getCognitoHostedLoginCss } from './utils'
-import { StringParameter, IStringParameter } from '@aws-cdk/aws-ssm'
+import { StringParameter } from '@aws-cdk/aws-ssm'
 
 interface ApiHostedDomain extends HostedDomain {
   /**
@@ -164,17 +164,21 @@ export interface Props extends StackProps {
    */
   authStack?: AuthStack
   /**
+   * The name of the auth stack to integrate with this stack (used by CI/CD)
+   */
+  authStackName?: string
+  /**
    * The JWT Authorizer settings if not using the auth stack
    */
   jwtAuth?: JwtConfiguration
   /**
-   * Whether or not an auth stack should be provided for this
-   */
-  expectsAuthStack: boolean
-  /**
    * The data stack that contains resources and access to the database
    */
   dataStoreStack?: DataStoreStack
+  /**
+   * The name of the data store stack to integrate with this stack (used by CI/CD)
+   */
+  dataStoreStackName?: string
   /**
    * Key-value build parameters for the web app
    */
@@ -319,7 +323,6 @@ export class CityStack extends Stack {
     const {
       dataStoreStack,
       authStack,
-      expectsAuthStack,
       apiDomainConfig,
       webAppDomainConfig,
       hostedZoneAttributes,
@@ -331,22 +334,12 @@ export class CityStack extends Stack {
       throttling = {},
     } = props
 
-    // check auth stack is given if this stack expects it
-    if (expectsAuthStack && !authStack) {
-      throw new Error(
-        'authStack must be provided when expectsAuthStack is true',
-      )
-    }
-
-    // check auth stack is not given if this stack doesn't expect it
-    if (!expectsAuthStack && authStack) {
-      throw new Error(
-        'authStack should not be provided when expectsAuthStack is false',
-      )
-    }
     // check jwt auth is given if auth stack is not
-    if (!expectsAuthStack && !jwtAuth) {
-      throw new Error('jwtAuth must be provided when expectsAuthStack is false')
+    if (!authStack && !jwtAuth) {
+      throw new Error(
+        'jwtAuth must be provided when authStack is not provided in stack ' +
+          this.stackName,
+      )
     }
 
     // read in the signing key parameter if its provided
@@ -1710,7 +1703,7 @@ export class CityStack extends Stack {
         },
       ),
       authorizer,
-      throttlingSettings: WriteRouteDefaultThrottling,
+      throttlingSettings: ReadRouteDefaultThrottling,
     })
 
     // update thumbnail path for document
