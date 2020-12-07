@@ -34,12 +34,12 @@
         <v-divider class="my-0" />
       </v-card>
     </template>
-    <div v-else>
-      <!-- TODO: proper empty state -->
-      <p class="d-flex justify-center capitalize">
-        {{ $t('sharedFolder.noSharedDocuments') }}
-      </p>
-    </div>
+    <EmptyState
+      v-else
+      body="sharedFolder.noSharedDocuments"
+      class="ma-12"
+      image-size="256px"
+    />
   </div>
   <div v-else>
     <v-card

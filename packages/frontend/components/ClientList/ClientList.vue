@@ -85,18 +85,12 @@
     :size="50"
     color="primary"
   />
-  <div v-else class="ma-12">
-    <v-img
-      alt=""
-      max-width="30rem"
-      class="mx-auto"
-      :src="require('@/static/images/upload.svg')"
-    />
-    <div style="max-width: 256px" class="mx-auto">
-      <p class="text-center font-weight-bold">{{ $t('cbo.noClientsTitle') }}</p>
-      <p class="text-center">{{ $t('cbo.noClientsBody') }}</p>
-    </div>
-  </div>
+  <EmptyState
+    v-else
+    class="ma-12"
+    title="cbo.noClientsTitle"
+    body="cbo.noClientsBody"
+  />
 </template>
 
 <script lang="ts">

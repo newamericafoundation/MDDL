@@ -19,7 +19,7 @@ import { capitalize } from '@/assets/js/stringUtils'
     }
   },
 })
-export default class Documents extends Vue {
+export default class DashboardPage extends Vue {
   userStore = userStore
 
   mounted() {

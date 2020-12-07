@@ -107,6 +107,8 @@ export default {
 
     // All copy related to the create shared folder flow
     sharing: {
+      defaultName: 'Shared Docs {date}',
+
       confirmSharedFiles: 'file to be shared | files to be shared',
       plusNMore: '+ {count} more',
       recipients: 'recipients',
@@ -189,7 +191,7 @@ export default {
       returnDashboard: 'return to dashboard', // call to action
 
       // empty state for list of clients who have shared collections with user
-      noSharedDocuments: 'No documents have been shared with you yet.',
+      noSharedDocuments: "You haven't received any shared files yet.",
     },
 
     cbo: {

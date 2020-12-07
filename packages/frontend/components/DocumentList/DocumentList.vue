@@ -35,24 +35,15 @@
         :show-actions="showActions"
       />
     </template>
-    <div v-else class="mx-8">
-      <v-img
-        alt=""
-        max-width="30rem"
-        class="mx-auto"
-        :src="require('@/static/images/upload.svg')"
-      />
-      <p class="capitalize text-center">{{ $t('document.noDocuments') }}</p>
-      <v-row>
-        <v-col class="d-flex justify-center">
-          <UploadButton
-            class="text-center"
-            :label="$t('document.uploadFirst')"
-            :text-button="true"
-          />
-        </v-col>
-      </v-row>
-    </div>
+    <EmptyState body="document.noDocuments">
+      <template v-slot:action>
+        <UploadButton
+          class="text-center"
+          :label="$t('document.uploadFirst')"
+          :text-button="true"
+        />
+      </template>
+    </EmptyState>
   </div>
   <div v-else>
     <v-card

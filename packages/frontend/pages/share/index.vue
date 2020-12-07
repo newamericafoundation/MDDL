@@ -223,6 +223,7 @@ import { RawLocation } from 'vue-router'
 import { VeeObserver } from 'vee-validate/dist/types/types'
 import { ValidationContext } from 'vee-validate/dist/types/components/common'
 import { snackbarStore } from '@/plugins/store-accessor'
+import { format } from 'date-fns'
 
 @Component({
   layout: 'empty',
@@ -253,7 +254,9 @@ export default class Share extends Vue {
 
   async mounted() {
     const collections = await this.$store.dispatch('user/getCollections')
-    this.name = `Collection ${collections.length + 1}`
+    this.name = this.$t('sharing.defaultName', {
+      date: format(Date.now(), 'LLL d, yyyy'),
+    }) as string
 
     // we wait until mounted to assign this since jest cannot mock $config
     // until the component is mounted
