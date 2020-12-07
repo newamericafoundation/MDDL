@@ -12,11 +12,6 @@ export default {
     // label appearing in tabular content (list of users, list of shared collections etc)
     // as well as side bar on document view
     dateAdded: 'Date Added',
-    termsOfUse: {
-      body:
-        'Aenean lacinia bibendum nulla sed consectetur. Vestibulum id ligula porta felis euismod semper. Curabitur blandit tempus porttitor. Integer posuere erat a ante venenatis dapibus posuere velit aliquet. Nullam quis risus eget urna mollis ornare vel eu leo. Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit. Curabitur blandit tempus porttitor. Nullam id dolor id nibh ultricies vehicula ut id elit. Nullam id dolor id nibh ultricies vehicula ut id elit. Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Aenean lacinia bibendum nulla sed consectetur. Maecenas faucibus mollis interdum. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Duis mollis, est non commodo luctus, nisi erat porttitor ligula',
-      title: 'Terms Of Use',
-    },
 
     toast: {
       acceptedDelegateInvite: 'Delegate access accepted.',
@@ -133,11 +128,12 @@ export default {
     },
 
     tabTitles: {
-      shared: 'shared', // used in share flow
-      sharedBy: 'shared by', // used in share flow
+      about: 'About',
+      authorizing: 'authorizing', // not important - used while logging in
       dashboard: 'dashboard',
       document: 'document', // used for document preview while page is loading, then changes to document title
-      authorizing: 'authorizing', // not important - used while logging in
+      shared: 'shared', // used in share flow
+      sharedBy: 'shared by', // used in share flow
       termsOfUse: 'Terms of Use', // used while viewing TOU
     },
 

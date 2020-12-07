@@ -1,4 +1,3 @@
-import Vue from 'vue'
 import messages from './assets/js/messages.ts'
 
 const config = {
@@ -7,7 +6,8 @@ const config = {
   head: {
     title: 'Loading...',
     titleTemplate: '%s | Datalocker',
-    meta: [{
+    meta: [
+      {
         charset: 'utf-8',
       },
       {
@@ -20,11 +20,13 @@ const config = {
         content: process.env.npm_package_description || '',
       },
     ],
-    link: [{
-      rel: 'icon',
-      type: 'image/x-icon',
-      href: '/favicon.ico',
-    }, ],
+    link: [
+      {
+        rel: 'icon',
+        type: 'image/x-icon',
+        href: '/favicon.ico',
+      },
+    ],
   },
   css: ['@/assets/scss/main.scss'],
   styleResources: {
@@ -57,7 +59,11 @@ const config = {
     '@nuxtjs/pwa',
     'nuxt-i18n',
     '@nuxtjs/sentry',
+    '@nuxt/content',
   ],
+  content: {
+    liveEdit: false,
+  },
   pwa: {
     // TODO: other PWA features like icon and colour scheme
     manifest: {

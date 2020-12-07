@@ -16,7 +16,8 @@
       "@nuxt/types",
       "nuxt-i18n",
       "@nuxtjs/vuetify",
-      "@types/nuxtjs__auth"
+      "@types/nuxtjs__auth",
+      "@nuxt/content"
     ],
     "typeRoots": ["./types"]
   },

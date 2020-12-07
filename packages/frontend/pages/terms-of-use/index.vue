@@ -12,10 +12,12 @@
           <CityLogo v-if="$vuetify.breakpoint.xs" width="96px" class="my-12" />
           <CityLogo v-else class="my-12" />
         </v-col>
-        <v-col class="px-12 mb-4 text-heading-2 primary--text" cols="12">
-          {{ $t('termsOfUse.title') }}
+        <v-col v-if="page" class="px-12" cols="12">
+          <article class="mt-8">
+            <h1>{{ page.title }}</h1>
+            <nuxt-content :document="page" />
+          </article>
         </v-col>
-        <v-col class="px-12" cols="12">{{ $t('termsOfUse.body') }}</v-col>
       </v-row>
       <v-row v-if="!hasAccepted" no-gutters justify="end" class="pa-12">
         <v-btn
@@ -39,6 +41,9 @@
 import { Vue, Component, mixins } from 'nuxt-property-decorator'
 import { userStore } from '@/plugins/store-accessor'
 import Navigation from '@/mixins/navigation'
+import { $content as contentFunc } from '@nuxt/content'
+import { IContentDocument } from '@nuxt/content/types/content'
+import VueI18n, { IVueI18n } from 'vue-i18n'
 
 @Component({
   layout: 'empty',
@@ -51,6 +56,26 @@ import Navigation from '@/mixins/navigation'
 })
 export default class TermsOfUse extends mixins(Navigation) {
   loading = false
+  page: IContentDocument | IContentDocument[] | null = null
+
+  async asyncData({
+    $content,
+    app,
+  }: {
+    $content: typeof contentFunc
+    app: {
+      i18n: VueI18n & IVueI18n
+    }
+  }) {
+    const locale = app.i18n.locale
+    const page = await $content(`terms-of-use/${locale}`)
+      .fetch()
+      .catch(async () => {
+        const fallbackPage = await $content(`terms-of-use/en`).fetch()
+        return fallbackPage
+      })
+    return { page }
+  }
 
   get hasAccepted() {
     return userStore.profile && userStore.profile.termsOfUseAccepted
