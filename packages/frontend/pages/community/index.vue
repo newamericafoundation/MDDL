@@ -3,19 +3,15 @@
 </template>
 
 <script lang="ts">
-import { Component, mixins } from 'nuxt-property-decorator'
-import { capitalize } from '@/assets/js/stringUtils'
-import { Login } from '@/mixins/login'
+import { Component, Vue } from 'nuxt-property-decorator'
 import { UserRole } from '@/types/user'
 
 @Component({
-  name: 'AgencyLanding',
+  name: 'CommunityLanding',
   layout: 'landing',
   auth: false,
-  mixins: [Login],
 })
-export default class Landing extends mixins(Login) {
-  capitalize = capitalize
+export default class CommunityLandingPage extends Vue {
   UserRole = UserRole
 }
 </script>

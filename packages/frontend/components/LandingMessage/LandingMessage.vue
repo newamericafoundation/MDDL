@@ -20,6 +20,7 @@ import { Component, mixins, Prop } from 'nuxt-property-decorator'
 import { capitalize } from '@/assets/js/stringUtils'
 import { Login } from '@/mixins/login'
 import { UserRole } from '@/types/user'
+import { userStore } from '@/plugins/store-accessor'
 
 @Component({
   name: 'LandingMessage',
@@ -27,14 +28,19 @@ import { UserRole } from '@/types/user'
   auth: false,
   mixins: [Login],
 })
-export default class Landing extends mixins(Login) {
+export default class LandingMessage extends mixins(Login) {
   @Prop({ required: true }) role: UserRole
 
   capitalize = capitalize
   message = ''
 
-  mounted() {
+  async mounted() {
     this.message = `login.welcomeMessage.${UserRole[this.role]}`
+    await userStore.fetchRole()
+    console.log(this.role, userStore.role)
+    if (this.role === userStore.role && !this.$auth.loggedIn) {
+      this.$auth.login()
+    }
   }
 }
 </script>
