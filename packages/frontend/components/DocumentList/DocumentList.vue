@@ -35,7 +35,7 @@
         :show-actions="showActions"
       />
     </template>
-    <EmptyState body="document.noDocuments">
+    <EmptyState v-else body="document.noDocuments">
       <template v-slot:action>
         <UploadButton
           class="text-center"

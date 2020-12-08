@@ -1,7 +1,8 @@
-import { shallowMount } from '@vue/test-utils'
+import { shallowMount, createLocalVue } from '@vue/test-utils'
 import Vuex from 'vuex'
 import Layout from '@/layouts/default.vue'
 import ClientDashboard from '@/components/ClientDashboard/ClientDashboard.vue'
+import Vuetify from 'vuetify'
 
 jest.mock('@/plugins/store-accessor', () => ({
   userStore: {
@@ -9,10 +10,15 @@ jest.mock('@/plugins/store-accessor', () => ({
   },
 }))
 
+const localVue = createLocalVue()
+
 describe('ClientDashboard component', () => {
   let store: any
   let actions
+  let vuetify: Vuetify
+
   beforeEach(() => {
+    vuetify = new Vuetify()
     actions = {
       getDocuments: () => Promise.resolve([]),
     }
@@ -31,6 +37,7 @@ describe('ClientDashboard component', () => {
 
   it('exports a valid component', () => {
     const wrapper = shallowMount(ClientDashboard, {
+      vuetify,
       store,
       stubs: { Layout },
       mocks: {
@@ -44,6 +51,7 @@ describe('ClientDashboard component', () => {
           },
         },
       },
+      localVue,
     })
     expect(wrapper.html()).toBeTruthy()
   })

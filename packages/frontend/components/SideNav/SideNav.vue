@@ -69,6 +69,10 @@ export default class SideNav extends mixins(Navigation) {
 
   footerNavItems: NavItem[] = [
     {
+      label: 'navigation.about',
+      to: '/about',
+    },
+    {
       label: 'navigation.termsOfUse',
       click: () => {
         this.closeSideNav()

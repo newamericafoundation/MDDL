@@ -39,6 +39,7 @@ export default {
     },
 
     navigation: {
+      about: 'About',
       account: 'Account',
       activity: 'Activity',
       back: 'Back',
@@ -135,6 +136,7 @@ export default {
       shared: 'shared', // used in share flow
       sharedBy: 'shared by', // used in share flow
       termsOfUse: 'Terms of Use', // used while viewing TOU
+      welcome: 'Welcome', // displayed on the initial landing page
     },
 
     delegateAccess: {

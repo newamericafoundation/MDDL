@@ -11,7 +11,7 @@
           <UploadButton prepend-icon="$plus" class="float-right ml-2" />
         </template>
       </template>
-      <template v-slot:actionsBeneath>
+      <template v-if="$vuetify.breakpoint.smAndUp" v-slot:actionsBeneath>
         <ShareButton class="float-right" />
         <UploadButton prepend-icon="$plus" class="float-right ml-2" />
       </template>

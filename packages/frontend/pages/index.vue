@@ -23,6 +23,11 @@ import { UserRole } from '@/types/user'
 @Component({
   layout: 'centered',
   auth: false,
+  head() {
+    return {
+      title: this.$t('tabTitles.welcome') as string,
+    }
+  },
 })
 export default class Landing extends Vue {
   capitalize = capitalize
