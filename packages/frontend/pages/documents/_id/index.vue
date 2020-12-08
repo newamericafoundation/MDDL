@@ -139,6 +139,7 @@
         </v-container>
       </v-card>
     </v-dialog>
+    <FooterLinks />
   </div>
 </template>
 
@@ -156,7 +157,7 @@ import download from '@/assets/js/download'
 import { UpdateDocumentInput } from '@/store/document'
 import { Breadcrumb } from '@/types/nav'
 import { userStore } from '@/plugins/store-accessor'
-import { UserRole } from '../../../types/user'
+import { UserRole } from '@/types/user'
 
 @Component({
   layout: 'empty',

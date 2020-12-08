@@ -1,11 +1,12 @@
 <template>
   <div>
-    <AppBar v-if="hasAccepted">
+    <AppBar v-if="hasAccepted" :empty="true">
       <template v-slot:nav-action>
         <BackButton tabindex="0" />
       </template>
     </AppBar>
     <SideNav v-if="hasAccepted" />
+    <v-divider class="mt-13 mb-0" />
     <v-container :class="{ 'mt-8': hasAccepted }">
       <v-row no-gutters align="center" justify="center">
         <v-col align="center" cols="12">

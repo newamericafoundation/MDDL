@@ -148,6 +148,7 @@
         :loading="loading"
       />
     </v-window-item>
+    <FooterLinks />
   </v-window>
 </template>
 

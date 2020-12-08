@@ -210,6 +210,7 @@
         {{ capitalize($t('sharing.shareSettingsDisclaimer')) }}
       </v-footer>
     </v-window-item>
+    <FooterLinks />
   </v-window>
 </template>
 

@@ -10,6 +10,7 @@
         <nuxt />
       </v-container>
     </v-main>
+    <FooterLinks />
     <SnackBar />
   </v-app>
 </template>

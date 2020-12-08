@@ -2,6 +2,7 @@
   <v-app>
     <SideNav />
     <nuxt />
+    <FooterLinks />
     <SnackBar />
   </v-app>
 </template>

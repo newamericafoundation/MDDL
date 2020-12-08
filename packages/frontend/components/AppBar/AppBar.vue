@@ -9,9 +9,11 @@
   >
     <slot name="nav-action" />
     <template v-if="!empty">
-      <span
+      <v-btn
         v-if="$vuetify.breakpoint.smAndUp"
-        class="white--text d-flex text-heading-1 align-start"
+        text
+        class="white--text d-flex text-heading-1 align-center"
+        :to="localePath('/dashboard')"
       >
         <v-img
           contain
@@ -20,10 +22,9 @@
           class="mr-2"
         />
         Datalocker
-      </span>
+      </v-btn>
       <v-app-bar-nav-icon v-else color="grey-8" @click.stop="toggleSideNav" />
     </template>
-    <v-spacer v-if="$vuetify.breakpoint.smAndUp" />
     <v-spacer />
     <SwitchAccountButton
       v-if="userStore.isCbo && userStore.isActingAsDelegate"
