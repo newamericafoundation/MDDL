@@ -45,9 +45,9 @@ For full reference of properties, see:
     "account": "111111111111",
     "region": "us-west-2"
   },
-  "stage1Configuration": {
+  "developStageConfiguration": {
     "authStackProps": {
-      "name": "AuthStack",
+      "name": "NonProdAuth",
       "props": {
         "userPoolName": "DataLockerUserPool",
         "env": {
@@ -70,7 +70,7 @@ For full reference of properties, see:
       }
     },
     "dataStoreStackProps": {
-      "name": "DataStoreStack",
+      "name": "NonProdDataStore",
       "props": {
         "env": {
           "account": "111111111111",
@@ -88,13 +88,14 @@ For full reference of properties, see:
     },
     "cityStacksProps": [
       {
-        "name": "DevCityStack",
+        "name": "DevCity",
         "props": {
           "env": {
             "account": "111111111111",
             "region": "us-west-2"
           },
-          "expectsAuthStack": true,
+          "authStackName": "NonProdAuth",
+          "dataStoreStackName": "NonProdDataStore",
           "webAppBuildVariables": {
             "API_URL": "https://dev-city-api.datalocker.example.com",
             "AUTH_URL": "https://auth.datalocker.example.com",
@@ -126,23 +127,24 @@ For full reference of properties, see:
       }
     ]
   },
-  "stage2Configuration": {
+  "stagingStageConfiguration": {
     "cityStacksProps": [
       {
-        "name": "MyCity1Stack",
+        "name": "MyCity1Staging",
         "props": {
           "env": {
             "account": "111111111111",
             "region": "us-west-2"
           },
-          "expectsAuthStack": true,
+          "authStackName": "NonProdAuth",
+          "dataStoreStackName": "NonProdDataStore",
           "webAppBuildVariables": {
             "API_URL": "https://my-city1-api.datalocker.example.com",
             "AUTH_URL": "https://auth.datalocker.example.com",
             "AUTH_CLIENT_ID": "5984716e12bf48bbb7a96ada8ed7311f",
             "GOOGLE_ANALYTICS_TRACKING_ID": "UA-123456789-1"
           },
-          "staticAssetsPath": "MyCity1Stack",
+          "staticAssetsPath": "MyCity1",
           "apiDomainConfig": {
             "certificateArn": "arn:aws:acm:us-west-2:111111111111:certificate/cccccccc-cccc-cccc-cccc-cccccccccccc",
             "domain": "my-city1-api.datalocker.example.com"
@@ -163,20 +165,21 @@ For full reference of properties, see:
         }
       },
       {
-        "name": "MyCity2Stack",
+        "name": "MyCity2Staging",
         "props": {
           "env": {
             "account": "111111111111",
             "region": "us-west-2"
           },
-          "expectsAuthStack": true,
+          "authStackName": "NonProdAuth",
+          "dataStoreStackName": "NonProdDataStore",
           "webAppBuildVariables": {
             "API_URL": "https://my-city2-api.datalocker.example.com",
             "AUTH_URL": "https://auth.datalocker.example.com",
             "AUTH_CLIENT_ID": "5984716e12bf48bbb7a96ada8ed7311f",
             "GOOGLE_ANALYTICS_TRACKING_ID": "UA-123456789-1"
           },
-          "staticAssetsPath": "MyCity2Stack",
+          "staticAssetsPath": "MyCity2",
           "apiDomainConfig": {
             "certificateArn": "arn:aws:acm:us-west-2:111111111111:certificate/cccccccc-cccc-cccc-cccc-cccccccccccc",
             "domain": "my-city2-api.datalocker.example.com"
@@ -191,6 +194,120 @@ For full reference of properties, see:
           },
           "emailSender": {
             "address": "noreply@datalocker.example.com",
+            "name": "Data Locker"
+          },
+          "agencyEmailDomainsWhitelist": ["@mycity2.gov"]
+        }
+      }
+    ]
+  },
+  "prodStageConfiguration": {
+    "authStackProps": {
+      "name": "ProdAuth",
+      "props": {
+        "userPoolName": "DataLockerUserPool",
+        "env": {
+          "account": "222222222222",
+          "region": "us-west-2"
+        },
+        "emailSender": {
+          "address": "noreply@datalocker.example.com",
+          "name": "Data Locker"
+        },
+        "customDomain": {
+          "certificateArn": "arn:aws:acm:us-east-1:222222222222:certificate/cccccccc-cccc-cccc-cccc-cccccccccccc",
+          "domain": "auth.datalocker.example.com",
+          "shouldCreateRootARecord": true,
+          "hostedZoneAttributes": {
+            "hostedZoneId": "AAAAAAAAAAAAAAA",
+            "zoneName": "datalocker.example.com"
+          }
+        }
+      }
+    },
+    "dataStoreStackProps": {
+      "name": "ProdDataStore",
+      "props": {
+        "env": {
+          "account": "222222222222",
+          "region": "us-west-2"
+        },
+        "vpcConfig": {
+          "natGatewaysCount": 1,
+          "maxAzs": 2
+        },
+        "rdsConfig": {
+          "backupRetentionDays": 7,
+          "maxCapacity": 2
+        }
+      }
+    },
+    "cityStacksProps": [
+      {
+        "name": "MyCity1Prod",
+        "props": {
+          "env": {
+            "account": "222222222222",
+            "region": "us-west-2"
+          },
+          "authStackName": "ProdAuth",
+          "dataStoreStackName": "ProdDataStore",
+          "webAppBuildVariables": {
+            "API_URL": "https://my-city1-api.datalocker.prod.com",
+            "AUTH_URL": "https://auth.datalocker.prod.com",
+            "AUTH_CLIENT_ID": "5984716e12bf48bbb7a96ada8ed7311f",
+            "GOOGLE_ANALYTICS_TRACKING_ID": "UA-123456789-1"
+          },
+          "staticAssetsPath": "MyCity1",
+          "apiDomainConfig": {
+            "certificateArn": "arn:aws:acm:us-west-2:222222222222:certificate/cccccccc-cccc-cccc-cccc-cccccccccccc",
+            "domain": "my-city1-api.datalocker.prod.com"
+          },
+          "webAppDomainConfig": {
+            "certificateArn": "arn:aws:acm:us-east-1:222222222222:certificate/cccccccc-cccc-cccc-cccc-cccccccccccc",
+            "domain": "my-city1.datalocker.prod.com"
+          },
+          "hostedZoneAttributes": {
+            "hostedZoneId": "AAAAAAAAAAAAAAA",
+            "zoneName": "datalocker.prod.com"
+          },
+          "emailSender": {
+            "address": "noreply@datalocker.prod.com",
+            "name": "Data Locker"
+          },
+          "agencyEmailDomainsWhitelist": ["@mycity1.gov"]
+        }
+      },
+      {
+        "name": "MyCity2Prod",
+        "props": {
+          "env": {
+            "account": "222222222222",
+            "region": "us-west-2"
+          },
+          "authStackName": "ProdAuth",
+          "dataStoreStackName": "ProdDataStore",
+          "webAppBuildVariables": {
+            "API_URL": "https://my-city2-api.datalocker.prod.com",
+            "AUTH_URL": "https://auth.datalocker.prod.com",
+            "AUTH_CLIENT_ID": "5984716e12bf48bbb7a96ada8ed7311f",
+            "GOOGLE_ANALYTICS_TRACKING_ID": "UA-123456789-1"
+          },
+          "staticAssetsPath": "MyCity2",
+          "apiDomainConfig": {
+            "certificateArn": "arn:aws:acm:us-west-2:222222222222:certificate/cccccccc-cccc-cccc-cccc-cccccccccccc",
+            "domain": "my-city2-api.datalocker.prod.com"
+          },
+          "webAppDomainConfig": {
+            "certificateArn": "arn:aws:acm:us-east-1:222222222222:certificate/cccccccc-cccc-cccc-cccc-cccccccccccc",
+            "domain": "my-city2.datalocker.prod.com"
+          },
+          "hostedZoneAttributes": {
+            "hostedZoneId": "AAAAAAAAAAAAAAA",
+            "zoneName": "datalocker.prod.com"
+          },
+          "emailSender": {
+            "address": "noreply@datalocker.prod.com",
             "name": "Data Locker"
           },
           "agencyEmailDomainsWhitelist": ["@mycity2.gov"]
@@ -287,6 +404,127 @@ yarn infra cdk deploy CiCd -e
 ```
 
 This will set up the pipeline and create necessary other resources.
+
+### (Optional) Using your own KMS Key with the Data Store and City Stacks
+
+If you do not want a KMS key provisioned by the stack, a KMS Key ARN can be provided in the stack configuration for both Data Store and City Stacks by using the `providedKmsKey` element.
+
+The suggested key policy is as follows, please see the "Sid" elements for the purpose of each statement:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowKeyAdministration",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam::ACCOUNTID:root"
+      },
+      "Action": [
+        "kms:Create*",
+        "kms:Describe*",
+        "kms:Enable*",
+        "kms:List*",
+        "kms:Put*",
+        "kms:Update*",
+        "kms:Revoke*",
+        "kms:Disable*",
+        "kms:Get*",
+        "kms:Delete*",
+        "kms:ScheduleKeyDeletion",
+        "kms:CancelKeyDeletion",
+        "kms:GenerateDataKey",
+        "kms:TagResource",
+        "kms:UntagResource"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "AllowKeyUseViaS3AndSQS",
+      "Effect": "Allow",
+      "Principal": { "AWS": "*" },
+      "Action": ["kms:Decrypt", "kms:GenerateDataKey*"],
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "kms:CallerAccount": "ACCOUNTID",
+          "kms:ViaService": [
+            "s3.REGION.amazonaws.com",
+            "sqs.REGION.amazonaws.com"
+          ]
+        }
+      }
+    },
+    {
+      "Sid": "AllowKeyUseForLambdaEnvironmentVariables",
+      "Effect": "Allow",
+      "Principal": { "AWS": "*" },
+      "Action": "kms:Encrypt",
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "kms:CallerAccount": "ACCOUNTID",
+          "kms:ViaService": "lambda.REGION.amazonaws.com"
+        }
+      }
+    },
+    {
+      "Sid": "AllowCloudwatchLogGroupEncryption",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "logs.REGION.amazonaws.com"
+      },
+      "Action": [
+        "kms:Encrypt*",
+        "kms:Decrypt*",
+        "kms:ReEncrypt*",
+        "kms:GenerateDataKey*",
+        "kms:Describe*"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "ArnEquals": {
+          "kms:EncryptionContext:aws:logs:arn": "arn:aws:logs:REGION:ACCOUNTID:log-group:*"
+        }
+      }
+    },
+    {
+      "Sid": "AllowKeyUseViaSecretsManager",
+      "Effect": "Allow",
+      "Principal": { "AWS": "*" },
+      "Action": [
+        "kms:Encrypt",
+        "kms:Decrypt",
+        "kms:ReEncrypt*",
+        "kms:GenerateDataKey*",
+        "kms:CreateGrant",
+        "kms:DescribeKey"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "kms:CallerAccount": "ACCOUNTID",
+          "kms:ViaService": "secretsmanager.REGION.amazonaws.com"
+        }
+      }
+    },
+    {
+      "Sid": "AllowKeyUseViaRDS",
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": ["kms:Decrypt", "kms:GenerateDataKey*"],
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "kms:ViaService": "rds.REGION.amazonaws.com",
+          "kms:CallerAccount": "ACCOUNTID"
+        }
+      }
+    }
+  ]
+}
+```
 
 ## (Optional) Upload static resources for different city stacks
 

@@ -6,8 +6,12 @@ import {
   SubnetType,
   Vpc,
 } from '@aws-cdk/aws-ec2'
-import { AccountRootPrincipal, PolicyStatement } from '@aws-cdk/aws-iam'
-import { Key } from '@aws-cdk/aws-kms'
+import {
+  AccountRootPrincipal,
+  AnyPrincipal,
+  PolicyStatement,
+} from '@aws-cdk/aws-iam'
+import { IKey, Key } from '@aws-cdk/aws-kms'
 import { CfnDBCluster, CfnDBSubnetGroup } from '@aws-cdk/aws-rds'
 import {
   Construct,
@@ -25,6 +29,7 @@ import {
   LayerVersion,
   Runtime,
 } from '@aws-cdk/aws-lambda'
+import { ProvidedKeyDetails } from './provided-key'
 
 export interface Props extends StackProps {
   /**
@@ -55,22 +60,10 @@ export interface Props extends StackProps {
    */
   rdsConfig?: {
     /**
-     * The time window each day to take a backup/snapshot of the database
-     * @default 16:00-17:00 (UTC)
-     */
-    backupWindowDaily?: string
-
-    /**
      * The number of days backups should be kept
      * @default 30
      */
     backupRetentionDays?: number
-
-    /**
-     * The time window each week to perform pending maintenance operations
-     * @default 16:00-17:00 (UTC)
-     */
-    maintenanceWindowWeekly?: string
 
     /**
      * The minimum RDS Aurora Serverless capacity
@@ -84,6 +77,12 @@ export interface Props extends StackProps {
      */
     maxCapacity?: number
   }
+
+  /**
+   * KMS key to use instead of generating a specific one for this stack.
+   * Please see the readme for how to configure this key.
+   */
+  providedKmsKey?: ProvidedKeyDetails
 }
 
 export class DataStoreStack extends Stack {
@@ -96,34 +95,45 @@ export class DataStoreStack extends Stack {
     super(scope, id, props)
 
     // read out config and set defaults
-    const { vpcConfig = {}, rdsConfig = {} } = props
+    const { vpcConfig = {}, rdsConfig = {}, providedKmsKey } = props
     const {
       cidrBlock = '10.0.0.0/16',
       maxAzs = 2,
       natGatewaysCount = 2,
     } = vpcConfig
     const {
-      backupWindowDaily = '16:00-17:00',
-      maintenanceWindowWeekly = 'mon:17:30-mon:18:30',
       backupRetentionDays = 30,
       minCapacity = 1,
       maxCapacity = 8,
     } = rdsConfig
 
-    // create new KMS key for the data store to use
-    const kmsKey = new Key(this, 'Key', {
-      description: `KMS Key for ${this.stackName} stack`,
-      enableKeyRotation: true,
-    })
+    let kmsKey: IKey
+    if (providedKmsKey) {
+      // import key
+      kmsKey = Key.fromKeyArn(this, 'ProvidedKey', providedKmsKey.keyArn)
+    } else {
+      // create new KMS key for the data store to use
+      kmsKey = new Key(this, 'Key', {
+        description: `KMS Key for ${this.stackName} stack`,
+        enableKeyRotation: true,
+      })
 
-    // allow encrypt and decrypt operations for root, so permissions can be managed via IAM
-    kmsKey.addToResourcePolicy(
-      new PolicyStatement({
-        actions: ['kms:Encrypt', 'kms:Decrypt', 'kms:ReEncrypt*'],
-        resources: ['*'],
-        principals: [new AccountRootPrincipal()],
-      }),
-    )
+      // allow RDS to use the KMS key
+      // https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Overview.Encryption.Keys.html
+      kmsKey.addToResourcePolicy(
+        new PolicyStatement({
+          actions: ['kms:Decrypt', 'kms:GenerateDataKey*'],
+          resources: ['*'],
+          principals: [new AnyPrincipal()],
+          conditions: {
+            StringEquals: {
+              'kms:ViaService': `rds.${this.region}.amazonaws.com`,
+              'kms:CallerAccount': this.account,
+            },
+          },
+        }),
+      )
+    }
 
     // create the VPC
     this.vpc = new Vpc(this, 'Vpc', {

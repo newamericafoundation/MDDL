@@ -81,6 +81,7 @@ import { MinimalCloudFrontTarget } from './minimal-cloudfront-target'
 import { EmailSender } from './email-sender'
 import { getCognitoHostedLoginCss } from './utils'
 import { StringParameter } from '@aws-cdk/aws-ssm'
+import { ProvidedKeyDetails } from './provided-key'
 
 interface ApiHostedDomain extends HostedDomain {
   /**
@@ -224,6 +225,11 @@ export interface Props extends StackProps {
    * Throttling configuration
    */
   throttling?: ThrottlingConfiguration
+  /**
+   * KMS key to use instead of generating a specific one for this stack.
+   * Please see the readme for how to configure this key.
+   */
+  providedKmsKey?: ProvidedKeyDetails
 }
 
 interface ApiProps {
@@ -332,6 +338,7 @@ export class CityStack extends Stack {
       agencyEmailDomainsWhitelist = [],
       monitoring = {},
       throttling = {},
+      providedKmsKey,
     } = props
 
     // check jwt auth is given if auth stack is not
@@ -406,13 +413,17 @@ export class CityStack extends Stack {
       `https://${webAppDomain}`,
     )
 
-    // create the city key used for encryption of resources in this stack
-    const { kmsKey } = this.addKmsKey()
-    this.kmsKey = kmsKey
+    // create/reference the city key used for encryption of resources in this stack
+    if (providedKmsKey) {
+      this.kmsKey = Key.fromKeyArn(this, 'ProvidedKey', providedKmsKey.keyArn)
+    } else {
+      const { kmsKey } = this.addKmsKey()
+      this.kmsKey = kmsKey
+    }
 
     // create the DB and access credentials for this city
     const { secret } = this.addDbAndCredentials(
-      kmsKey,
+      this.kmsKey,
       dataStoreStack.createDbUserFunction,
     )
 
@@ -438,18 +449,24 @@ export class CityStack extends Stack {
     }
 
     // create dead letter queue
-    const { queue: deadLetterQueue } = this.createDeadLetterQueue(kmsKey)
+    const { queue: deadLetterQueue } = this.createDeadLetterQueue(this.kmsKey)
 
     // create uploads bucket
-    this.uploadsBucket = this.createUploadsBucket(kmsKey, corsOrigins).bucket
+    this.uploadsBucket = this.createUploadsBucket(
+      this.kmsKey,
+      corsOrigins,
+    ).bucket
 
     // create audit log group and queue
-    this.auditLogGroup = this.createAuditLogGroup(kmsKey).logGroup
-    this.auditLogQueue = this.createAuditLogQueue(kmsKey, deadLetterQueue).queue
+    this.auditLogGroup = this.createAuditLogGroup(this.kmsKey).logGroup
+    this.auditLogQueue = this.createAuditLogQueue(
+      this.kmsKey,
+      deadLetterQueue,
+    ).queue
 
     // create email processing queue
     this.emailProcessorQueue = this.createEmailProcessorQueue(
-      kmsKey,
+      this.kmsKey,
       deadLetterQueue,
     ).queue
 
@@ -1046,8 +1063,6 @@ export class CityStack extends Stack {
         },
       }),
     )
-
-    // TO DO - Add permissions to Lambda to be able to use key to encrypt variables
 
     return {
       kmsKey,

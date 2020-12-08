@@ -1,4 +1,10 @@
-import { App, Construct, Stack, StackProps } from '@aws-cdk/core'
+import {
+  App,
+  Construct,
+  DefaultStackSynthesizer,
+  Stack,
+  StackProps,
+} from '@aws-cdk/core'
 import {
   DataStoreStack,
   Props as DataStoreStackProps,
@@ -24,7 +30,7 @@ import {
 import { LambdaDestination } from '@aws-cdk/aws-s3-notifications'
 import { BuildSpec, Project } from '@aws-cdk/aws-codebuild'
 import { Runtime, Function, Code } from '@aws-cdk/aws-lambda'
-import { PolicyStatement, User } from '@aws-cdk/aws-iam'
+import { PolicyStatement, Role, User } from '@aws-cdk/aws-iam'
 import { CfnNotificationRule } from '@aws-cdk/aws-codestarnotifications'
 import path = require('path')
 
@@ -106,6 +112,14 @@ export interface Props extends StackProps {
    * This stage will include the "base" stacks for production (Data Store and Auth if required), and all Production City stacks.
    */
   prodStageConfiguration?: IntegratedStageConfiguration
+}
+
+const getCrossAccountDeployRoleArn = (
+  partition: string,
+  accountId: string,
+  region: string,
+) => {
+  return `arn:${partition}:iam::${accountId}:role/cdk-${DefaultStackSynthesizer.DEFAULT_QUALIFIER}-deploy-role-${accountId}-${region}`
 }
 
 export class CiCdStack extends Stack {
@@ -548,6 +562,15 @@ export class CiCdStack extends Stack {
             synthesizedStack.bucketNames['WebApp'],
           ),
           runOrder: s3DeployRunOrder,
+          role: Role.fromRoleArn(
+            this,
+            `${name}.WebAppDeployRole`,
+            getCrossAccountDeployRoleArn(
+              this.partition,
+              cityStack.environment.account,
+              cityStack.environment.region,
+            ),
+          ),
         }),
       )
     }
