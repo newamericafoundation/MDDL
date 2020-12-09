@@ -3,27 +3,31 @@
     :color="color"
     fixed
     app
-    height="52px"
     clipped-right
-    :extension-height="$slots.actionsBeneath ? '98px' : '46px'"
+    :extension-height="`${extensionHeight}px`"
   >
     <slot name="nav-action" />
     <template v-if="!empty">
       <v-btn
         v-if="$vuetify.breakpoint.smAndUp"
         text
-        class="white--text d-flex text-heading-1 align-center"
         :to="localePath('/dashboard')"
+        class="white--text d-flex text-heading-1 align-start py-2"
       >
         <v-img
           contain
           style="max-width: 24px"
           :src="require('@/static/images/city-icon.svg')"
-          class="mr-2"
+          class="mr-2 mb-1"
         />
         Datalocker
       </v-btn>
       <v-app-bar-nav-icon v-else color="grey-8" @click.stop="toggleSideNav" />
+    </template>
+    <template v-if="$vuetify.breakpoint.xs && title">
+      <v-toolbar-title>
+        {{ $t(title) }}
+      </v-toolbar-title>
     </template>
     <v-spacer />
     <SwitchAccountButton
@@ -50,18 +54,20 @@
       </v-btn>
     </template>
     <template v-if="showExtension" v-slot:extension>
-      <v-row
-        v-if="
-          !!$slots.actionsBeneath || !!$slots.extensions || breadcrumbs.length
-        "
-        no-gutters
-        class="white"
-      >
+      <v-row id="extension" no-gutters class="white">
         <v-col
-          v-if="!!$slots.actionsBeneath"
+          v-if="
+            !!$slots.actionsBeneath || (title && $vuetify.breakpoint.smAndUp)
+          "
           cols="12"
-          class="pt-2 pr-2 d-flex justify-end"
+          class="pr-2 d-flex justify-end align-center white"
         >
+          <v-toolbar-title
+            v-show="title && $vuetify.breakpoint.smAndUp"
+            class="flex-grow-1 px-4"
+          >
+            {{ $t(title) }}
+          </v-toolbar-title>
           <slot name="actionsBeneath" />
         </v-col>
         <v-col v-if="!!$slots.extensions || breadcrumbs.length" cols="12">
@@ -105,6 +111,8 @@
             </v-col>
           </v-row>
           <slot name="extensions" />
+        </v-col>
+        <v-col cols="12">
           <v-divider class="my-0" />
         </v-col>
       </v-row>
@@ -141,6 +149,11 @@
         </div>
       </v-navigation-drawer>
     </template>
+    <v-divider
+      v-if="empty && !showExtension"
+      class="my-0 full-width"
+      style="position: absolute; left: 0; bottom: 0"
+    />
   </v-app-bar>
 </template>
 
@@ -156,10 +169,18 @@ import { userStore } from '@/plugins/store-accessor'
 export default class AppBar extends mixins(Navigation) {
   @Prop({ default: false }) empty: boolean
   @Prop({ default: () => [] }) breadcrumbs: Breadcrumb[]
+  @Prop({ default: '' }) title: string
 
   showActivity = false
-
   userStore = userStore
+  recompute = false
+
+  mounted() {
+    this.recompute = !this.recompute
+    setTimeout(() => {
+      this.recompute = !this.recompute
+    }, 1000)
+  }
 
   get color() {
     return !this.empty && this.$vuetify.breakpoint.smAndUp ? 'black' : 'white'
@@ -169,8 +190,24 @@ export default class AppBar extends mixins(Navigation) {
     return (
       !!this.$slots.extensions ||
       this.breadcrumbs.length ||
-      !!this.$slots.actionsBeneath
+      !!this.$slots.actionsBeneath ||
+      (this.title && this.$vuetify.breakpoint.smAndUp)
     )
+  }
+
+  get extensionElement() {
+    // for some reason a ref doesn't work here
+    // referencing recompute causes vue to search DOM at time element exists
+    // eslint-disable-next-line no-unused-expressions
+    this.recompute
+    return document.getElementById('extension')
+  }
+
+  get extensionHeight() {
+    if (this.extensionElement) {
+      return this.extensionElement.clientHeight
+    }
+    return 0
   }
 
   async signOut() {

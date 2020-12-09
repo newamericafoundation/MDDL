@@ -17,8 +17,7 @@ export default {
       acceptedDelegateInvite: 'Delegate access accepted.',
       accountRemoved: 'account removed',
       downloadLoadingState: 'preparing download',
-      collectionCreated: 'shared folder created.',
-      sharingComplete: 'sharing complete.',
+      sharingComplete: 'Sharing complete',
       switchAccount: 'switch clients',
       uploading: 'adding file...', // displayed while a file is uploading
       uploadComplete: 'file added',
@@ -105,27 +104,27 @@ export default {
     sharing: {
       defaultName: 'Shared Docs {date}',
 
-      confirmSharedFiles: 'file to be shared | files to be shared',
+      confirmSharedFiles: 'File to be shared | Files to be shared',
       plusNMore: '+ {count} more',
-      recipients: 'recipients',
+      recipients: 'Recipients',
 
       // placeholder text for the add recipient email field
-      addRecipientPlaceholder: 'enter email address',
+      addRecipientPlaceholder: 'Enter email address',
 
       // step titles in the share flow
       confirmTitle: 'Confirm Sharing',
       addRecipientsTitle: 'Share With',
       selectFilesTitle: 'Select Files',
 
-      disclaimer: 'disclaimer',
+      disclaimerTitle: 'Reminder',
       shareDocumentDisclaimer:
-        'never send your documents to anyone who is not a government official.',
+        'Datalocker facilitates document sharing with {emails} email accounts',
       shareSettingsDisclaimer:
         'you can change these settings any time in the collections information menu.',
 
       // on the confirmation step, could be "recipient" or "recipients" depending on number of items
-      confirmRecipientsLabel: 'recipient | recipients',
-      tooManyRecipients: 'you can share with up to {count} people', // error text when trying to add more than 10 recipients
+      confirmRecipientsLabel: 'Recipient | Recipients',
+      tooManyRecipients: 'You can share with up to {count} people', // error text when trying to add more than 10 recipients
     },
 
     tabTitles: {

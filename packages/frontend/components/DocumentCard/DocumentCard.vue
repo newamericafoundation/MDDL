@@ -48,7 +48,7 @@ import { RawLocation } from 'vue-router'
 export default class DocumentCard extends Vue {
   @Prop({ required: true }) document: DocumentListItem
   @Prop({ default: false }) selectable: boolean
-  @Prop({ default: null }) value: boolean
+  @Prop({ default: null }) value: DocumentListItem[]
   @Prop({ default: null }) owner: Owner | null
   @Prop({ default: true }) showActions: boolean
   @Prop({
@@ -61,7 +61,9 @@ export default class DocumentCard extends Vue {
   checked = false
 
   mounted() {
-    if (this.value) this.checked = true
+    this.checked = this.value
+      .map((document: DocumentListItem) => document.id)
+      .includes(this.document.id)
   }
 
   get documentDate() {
@@ -70,8 +72,16 @@ export default class DocumentCard extends Vue {
 
   onClick() {
     if (this.selectable) {
+      if (this.checked) {
+        this.emitChange(
+          this.value.filter(
+            (document: DocumentListItem) => document.id !== this.document.id,
+          ),
+        )
+      } else {
+        this.emitChange(this.value.concat([this.document]))
+      }
       this.checked = !this.checked
-      this.emitChange(this.checked)
     } else if (this.owner) {
       this.$router.push(
         this.localeRoute({

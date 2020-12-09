@@ -5,6 +5,7 @@ import colors from 'vuetify/es5/util/colors'
 
 import Agency from '@/components/icons/agency.vue'
 import Alert from '@/components/icons/alert.vue'
+import Arrow from '@/components/icons/arrow.vue'
 import ChevronLeft from '@/components/icons/chevron-left.vue'
 import Clock from '@/components/icons/clock.vue'
 import Close from '@/components/icons/close.vue'
@@ -73,11 +74,14 @@ const vuetifyOptions = (ctx: Context): Options => {
     icons: {
       iconfont: 'mdi',
       values: {
+        agency: {
+          component: Agency,
+        },
         alert: {
           component: Alert,
         },
-        agency: {
-          component: Agency,
+        'arrow-left': {
+          component: Arrow,
         },
         'chevron-left': {
           component: ChevronLeft,

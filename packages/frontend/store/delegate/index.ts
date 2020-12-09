@@ -19,7 +19,7 @@ export default class Delegate extends VuexModule {
   @Action({ rawError: true })
   async acceptInvite(delegateId: string): Promise<UserDelegatedAccess> {
     const { data } = await api.delegate.acceptDelegatedAccount(delegateId)
-    this.$ga.event({
+    await this.$ga.event({
       eventCategory: 'delegate_user_accepted',
       eventAction: 'accepted',
       eventLabel: UserRole[userStore.role!],

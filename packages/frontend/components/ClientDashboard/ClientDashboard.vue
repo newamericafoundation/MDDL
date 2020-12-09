@@ -12,8 +12,8 @@
         </template>
       </template>
       <template v-if="$vuetify.breakpoint.smAndUp" v-slot:actionsBeneath>
-        <ShareButton class="float-right" />
-        <UploadButton prepend-icon="$plus" class="float-right ml-2" />
+        <ShareButton class="float-right my-2" />
+        <UploadButton prepend-icon="$plus" class="float-right my-2 ml-2" />
       </template>
       <template v-slot:extensions>
         <v-tabs

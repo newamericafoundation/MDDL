@@ -17,7 +17,7 @@
         "
         v-slot:actionsBeneath
       >
-        <ShareButton :preselected="[document.id]" />
+        <ShareButton class="my-2" :preselected="[document.id]" />
       </template>
     </AppBar>
     <v-main>

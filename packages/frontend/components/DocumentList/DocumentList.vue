@@ -3,9 +3,11 @@
     <template v-if="documents.length">
       <v-data-table
         v-show="$vuetify.breakpoint.smAndUp"
+        v-model="selected"
         :headers="headers"
         :items="documents"
         hide-default-footer
+        :show-select="selectable"
         :item-class="() => 'clickable'"
         @click:row="previewDocument"
       >
@@ -25,7 +27,7 @@
         v-for="(document, i) in documents"
         v-show="$vuetify.breakpoint.xs"
         :key="i"
-        v-model="selected[i]"
+        v-model="selected"
         tabindex="0"
         :document="document"
         :class="{ 'mb-4': $vuetify.breakpoint.smAndUp }"
@@ -83,7 +85,7 @@ import { RawLocation } from 'vue-router'
 @Component
 export default class DocumentList extends Vue {
   @Prop({ default: false }) selectable: boolean
-  @Prop({ default: null }) value: any
+  @Prop({ default: null }) value: DocumentListItem[]
   @Prop({ default: () => [] }) preSelected: string[]
   @Prop({ default: null }) fetchDocumentsProp:
     | (() => Promise<DocumentListItem[]>)
@@ -93,7 +95,7 @@ export default class DocumentList extends Vue {
   @Prop({ default: true }) showActions: boolean
 
   loading = true
-  selected: boolean[] = []
+  selected: DocumentListItem[] = []
   headers: DataTableHeader[] = []
   format = format
   _documents: DocumentListItem[] = []
@@ -131,6 +133,15 @@ export default class DocumentList extends Vue {
         value: 'actions',
         sortable: false,
       })
+    if (this.selectable)
+      this.headers.push({
+        text: '',
+        class: 'blue-super-light',
+        align: 'start',
+        sortable: false,
+        value: 'data-table-select',
+        width: '3rem',
+      })
   }
 
   get documents() {
@@ -150,16 +161,21 @@ export default class DocumentList extends Vue {
 
   @Watch('selected')
   emitSelect() {
-    this.$emit(
-      'input',
-      this.documents.filter(
-        (_: DocumentListItem, i: number) => this.selected[i],
-      ),
-    )
+    this.$emit('input', this.selected)
   }
 
   previewDocument(document: DocumentListItem) {
-    if (this.owner) {
+    if (this.selectable) {
+      if (
+        this.selected.map((selectedDoc) => selectedDoc.id).includes(document.id)
+      ) {
+        this.selected = this.selected.filter(
+          (selectedDoc: DocumentListItem) => selectedDoc.id !== document.id,
+        )
+      } else {
+        this.selected.push(document)
+      }
+    } else if (this.owner) {
       this.$router.push(
         this.localeRoute({
           path: `/documents/${document.id}`,
@@ -182,14 +198,14 @@ export default class DocumentList extends Vue {
 
   async reload() {
     this._documents = await this.fetchDocuments()
-    this.selected = new Array(this._documents.length)
+    this.selected = []
     if (this.preSelected) {
       for (const id of this.preSelected) {
-        const index = this._documents.findIndex(
+        const document = this._documents.find(
           (d: DocumentListItem) => d.id === id,
         )
-        if (index >= 0) {
-          this.$set(this.selected, index, true)
+        if (document) {
+          this.selected.push(document)
         }
       }
     }

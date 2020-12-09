@@ -1,8 +1,8 @@
 import { shallowMount } from '@vue/test-utils'
-import DocumentCard from '@/components/DocumentCard/DocumentCard.vue'
+import CollectionCard from '@/components/CollectionCard/CollectionCard.vue'
 import Vuetify from 'vuetify'
 
-describe('DocumentCard component', () => {
+describe('CollectionCard component', () => {
   let vuetify: Vuetify
 
   beforeEach(() => {
@@ -10,10 +10,10 @@ describe('DocumentCard component', () => {
   })
 
   it('exports a valid component', () => {
-    const wrapper = shallowMount(DocumentCard, {
+    const wrapper = shallowMount(CollectionCard, {
       vuetify,
       propsData: {
-        document: {
+        collection: {
           name: 'test',
           id: '1',
           createdDate: '2020-01-02T10:11:12.345Z',

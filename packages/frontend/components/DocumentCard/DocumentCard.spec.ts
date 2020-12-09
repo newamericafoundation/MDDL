@@ -19,6 +19,7 @@ describe('DocumentCard component', () => {
           createdDate: '2020-01-02T10:11:12.345Z',
           links: [],
         },
+        value: [],
       },
     })
     expect(wrapper.html()).toBeTruthy()

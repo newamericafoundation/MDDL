@@ -1,155 +1,166 @@
 <template>
-  <v-window v-model="step">
-    <v-window-item value="top-level">
-      <v-toolbar flat>
-        <BackButton tabindex="0" />
-        <v-toolbar-title>{{ $t('navigation.account') }}</v-toolbar-title>
-      </v-toolbar>
-      <div class="window-container ma-8 mt-0">
-        <v-btn
-          text
-          width="100%"
-          class="font-weight-bold"
-          @click="step = 'delegate'"
-        >
-          {{ $t('delegateAccess.menuTitle') }}
-          <v-spacer />
-          <v-icon small class="mx-1">$chevron-right</v-icon>
-        </v-btn>
-        <v-divider />
-        <v-btn
-          text
-          width="100%"
-          class="font-weight-bold"
-          append-icon="chevron-right"
-          @click="step = 'language'"
-        >
-          {{ $t('account.language') }}
-          <v-spacer />
-          <v-icon small class="mx-1">$chevron-right</v-icon>
-        </v-btn>
-        <v-divider />
-        <v-footer v-if="userStore.profile" fixed class="pa-8">
-          <v-card
-            outlined
-            :class="[
-              $vuetify.breakpoint.xs ? 'full-width' : '',
-              'grey-2--text',
-              'px-4',
-            ]"
+  <div>
+    <AppBar :empty="true" :title="toolbarTitle">
+      <template v-slot:nav-action>
+        <BackButton tabindex="0" class="mt-1" />
+      </template>
+    </AppBar>
+    <v-window v-model="step">
+      <v-window-item value="top-level">
+        <v-toolbar flat>
+          <BackButton tabindex="0" />
+          <v-toolbar-title>{{ $t('navigation.account') }}</v-toolbar-title>
+        </v-toolbar>
+        <div class="window-container ma-8 mt-0">
+          <v-btn
+            text
+            width="100%"
+            class="font-weight-bold"
+            @click="step = 'delegate'"
           >
-            <v-row align="center">
-              <v-col cols="2" sm="auto">
-                <v-icon large>$profile</v-icon>
-              </v-col>
-              <v-col cols="10" sm="" class="grey-8--text">
-                <p v-if="!accountEmailIsName" v-text="accountName" />
-                <p class="mb-0" v-text="accountEmail" />
-              </v-col>
-            </v-row>
-          </v-card>
-        </v-footer>
-      </div>
-    </v-window-item>
-    <v-window-item value="language">
-      <v-toolbar flat>
-        <v-btn
-          :title="`${$t('navigation.back')}`"
-          icon
-          @click="step = 'top-level'"
-        >
-          <v-icon>$chevron-left</v-icon>
-        </v-btn>
-        <v-toolbar-title>{{ $t('account.language') }}</v-toolbar-title>
-      </v-toolbar>
-      <div class="window-container ma-8">
-        <v-select
-          v-if="$i18n"
-          v-model="$i18n.locale"
-          :items="$i18n.locales"
-          :label="$t('account.language')"
-          class="mt-4"
-          dense
-        />
-      </div>
-    </v-window-item>
-    <v-window-item value="delegate">
-      <v-toolbar flat>
-        <v-btn
-          :title="`${$t('navigation.back')}`"
-          icon
-          @click="step = 'top-level'"
-        >
-          <v-icon>$chevron-left</v-icon>
-        </v-btn>
-        <v-toolbar-title>{{ $t('delegateAccess.pageTitle') }}</v-toolbar-title>
-      </v-toolbar>
-      <div class="window-container ma-8">
-        <ValidationObserver ref="observer">
-          <v-form @submit.prevent>
-            <ValidationProvider
-              v-slot="{ errors, valid }"
-              mode="eager"
-              name="email"
-              rules="required|email|max:255"
+            {{ $t('delegateAccess.menuTitle') }}
+            <v-spacer />
+            <v-icon small class="mx-1">$chevron-right</v-icon>
+          </v-btn>
+          <v-divider />
+          <v-btn
+            text
+            width="100%"
+            class="font-weight-bold"
+            append-icon="chevron-right"
+            @click="step = 'language'"
+          >
+            {{ $t('account.language') }}
+            <v-spacer />
+            <v-icon small class="mx-1">$chevron-right</v-icon>
+          </v-btn>
+          <v-divider />
+          <v-footer v-if="userStore.profile" fixed class="pa-8">
+            <v-card
+              outlined
+              :class="[
+                $vuetify.breakpoint.xs ? 'full-width' : '',
+                'grey-2--text',
+                'px-4',
+              ]"
             >
-              <v-text-field
-                v-model="email"
-                :disabled="delegates.length >= 10"
-                :error-messages="
-                  delegates.length >= 10
-                    ? [capitalize($tc('delegateAccess.tooManyDelegates', 10))]
-                    : errors
-                "
-                outlined
-                :placeholder="capitalize($t('delegateAccess.emailPlaceholder'))"
-                type="email"
-              />
-              <v-row justify="end">
-                <v-col cols="auto" class="pb-1">
-                  <v-btn
-                    class="body-1 font-weight-medium"
-                    color="primary"
-                    :disabled="!valid || delegates.length >= 10"
-                    @click="showConfirmation = true"
-                  >
-                    {{ $t('controls.add') }}
-                  </v-btn>
+              <v-row align="center">
+                <v-col cols="2" sm="auto">
+                  <v-icon large>$profile</v-icon>
+                </v-col>
+                <v-col cols="10" sm="" class="grey-8--text">
+                  <p v-if="!accountEmailIsName" v-text="accountName" />
+                  <p class="mb-0" v-text="accountEmail" />
                 </v-col>
               </v-row>
-            </ValidationProvider>
-          </v-form>
-        </ValidationObserver>
+            </v-card>
+          </v-footer>
+        </div>
+      </v-window-item>
+      <v-window-item value="language">
+        <v-toolbar flat>
+          <v-btn
+            :title="`${$t('navigation.back')}`"
+            icon
+            @click="step = 'top-level'"
+          >
+            <v-icon>$chevron-left</v-icon>
+          </v-btn>
+          <v-toolbar-title>{{ $t('account.language') }}</v-toolbar-title>
+        </v-toolbar>
+        <div class="window-container ma-8">
+          <v-select
+            v-if="$i18n"
+            v-model="$i18n.locale"
+            :items="$i18n.locales"
+            :label="$t('account.language')"
+            class="mt-4"
+            dense
+          />
+        </div>
+      </v-window-item>
+      <v-window-item value="delegate">
+        <v-toolbar flat>
+          <v-btn
+            :title="`${$t('navigation.back')}`"
+            icon
+            @click="step = 'top-level'"
+          >
+            <v-icon>$chevron-left</v-icon>
+          </v-btn>
+          <v-toolbar-title>
+            {{ $t('delegateAccess.pageTitle') }}
+          </v-toolbar-title>
+        </v-toolbar>
+        <div class="window-container ma-8">
+          <ValidationObserver ref="observer">
+            <v-form @submit.prevent>
+              <ValidationProvider
+                v-slot="{ errors, valid }"
+                mode="eager"
+                name="email"
+                rules="required|email|max:255"
+              >
+                <v-text-field
+                  v-model="email"
+                  :disabled="delegates.length >= 10"
+                  :error-messages="
+                    delegates.length >= 10
+                      ? [capitalize($tc('delegateAccess.tooManyDelegates', 10))]
+                      : errors
+                  "
+                  outlined
+                  :placeholder="
+                    capitalize($t('delegateAccess.emailPlaceholder'))
+                  "
+                  type="email"
+                />
+                <v-row justify="end">
+                  <v-col cols="auto" class="pb-1">
+                    <v-btn
+                      class="body-1 font-weight-medium"
+                      color="primary"
+                      :disabled="!valid || delegates.length >= 10"
+                      @click="showConfirmation = true"
+                    >
+                      {{ $t('controls.add') }}
+                    </v-btn>
+                  </v-col>
+                </v-row>
+              </ValidationProvider>
+            </v-form>
+          </ValidationObserver>
 
-        <v-divider class="full-width my-5" />
-        <DelegateCard
-          v-for="(delegate, i) in activeDelegates"
-          :key="`active-${i}`"
-          :delegate="delegate"
-          @delete="loadDelegates"
+          <v-divider class="full-width my-5" />
+          <DelegateCard
+            v-for="(delegate, i) in activeDelegates"
+            :key="`active-${i}`"
+            :delegate="delegate"
+            @delete="loadDelegates"
+          />
+          <v-divider
+            v-if="activeDelegates.length && pendingOrExpiredDelegates.length"
+            class="full-width my-5"
+          />
+          <DelegateCard
+            v-for="(delegate, i) in pendingOrExpiredDelegates"
+            :key="`pending-${i}`"
+            :delegate="delegate"
+            @delete="loadDelegates"
+            @resend="loadDelegates"
+          />
+        </div>
+        <ConfirmationDialog
+          v-model="showConfirmation"
+          title="delegateAccess.addConfirmationTitle"
+          body="delegateAccess.addConfirmationBody"
+          :on-confirm="confirmDelegate"
+          :loading="loading"
         />
-        <v-divider
-          v-if="activeDelegates.length && pendingOrExpiredDelegates.length"
-          class="full-width my-5"
-        />
-        <DelegateCard
-          v-for="(delegate, i) in pendingOrExpiredDelegates"
-          :key="`pending-${i}`"
-          :delegate="delegate"
-          @delete="loadDelegates"
-          @resend="loadDelegates"
-        />
-      </div>
-      <ConfirmationDialog
-        v-model="showConfirmation"
-        title="delegateAccess.addConfirmationTitle"
-        body="delegateAccess.addConfirmationBody"
-        :on-confirm="confirmDelegate"
-        :loading="loading"
-      />
-    </v-window-item>
-    <FooterLinks />
-  </v-window>
+      </v-window-item>
+      <FooterLinks />
+    </v-window>
+  </div>
 </template>
 
 <script lang="ts">

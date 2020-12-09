@@ -1,59 +1,71 @@
 <template>
-  <v-window v-model="step">
-    <v-window-item :class="{ mobile: $vuetify.breakpoint.xs }">
-      <v-toolbar v-model="step" flat>
-        <BackButton tabindex="0" />
-        <v-toolbar-title>{{ $t('sharing.selectFilesTitle') }}</v-toolbar-title>
-        <v-spacer />
+  <v-window v-model="step" :class="{ 'pt-12': $vuetify.breakpoint.smAndUp }">
+    <AppBar :empty="$vuetify.breakpoint.xs" :title="toolbarTitle">
+      <template v-if="$vuetify.breakpoint.xs" v-slot:nav-action>
+        <BackButton v-show="step === 0" tabindex="0" class="mt-1" />
         <v-btn
-          color="primary"
-          text
-          class="font-weight-bold body-1"
-          :disabled="selectedDocs.length === 0"
-          @click="next"
-        >
-          {{ $t('controls.next') }}
-        </v-btn>
-      </v-toolbar>
-      <div class="window-container">
-        <DocumentList
-          v-model="selectedDocs"
-          :selectable="true"
-          :pre-selected="preSelected"
-        />
-      </div>
-    </v-window-item>
-    <v-window-item>
-      <v-toolbar class="mb-2" flat>
-        <v-btn
+          v-show="step > 0"
           icon
           :title="`${$t('navigation.back')}`"
-          class="a11y-focus"
+          class="a11y-focus mt-1"
           tabindex="0"
           @click="prev"
         >
           <v-icon small class="mr-2">$chevron-left</v-icon>
         </v-btn>
-        <v-toolbar-title>
-          {{ $t('sharing.addRecipientsTitle') }}
-        </v-toolbar-title>
-        <v-spacer />
+      </template>
+      <template v-if="$vuetify.breakpoint.xs" v-slot:actions>
         <v-btn
           color="primary"
-          text
-          :disabled="!emailInputValid || !individualEmailAddresses.length"
-          class="font-weight-bold body-1"
+          class="body-1"
+          :disabled="isNextDisabled"
           @click="next"
         >
           {{ $t('controls.next') }}
         </v-btn>
-      </v-toolbar>
-      <div class="window-container px-8">
+      </template>
+      <template v-else-if="$vuetify.breakpoint.smAndUp" v-slot:actionsBeneath>
+        <v-btn
+          v-show="step > 0"
+          text
+          :title="`${$t('navigation.back')}`"
+          class="a11y-focus body-1 mx-2"
+          tabindex="0"
+          @click="prev"
+        >
+          <v-icon small>$arrow-left</v-icon>
+          <span class="px-2 grey-8--text">{{ $t('navigation.back') }}</span>
+        </v-btn>
+        <v-btn
+          color="primary"
+          class="body-1 my-2"
+          :disabled="isNextDisabled"
+          @click="next"
+        >
+          {{ $t('controls.next') }}
+        </v-btn>
+      </template>
+    </AppBar>
+    <v-window-item
+      :class="[{ mobile: $vuetify.breakpoint.xs }, 'blue-super-light']"
+    >
+      <div class="window-container pt-3">
+        <DocumentList
+          v-model="selectedDocs"
+          :selectable="true"
+          :pre-selected="preSelected"
+          :show-actions="false"
+          class="mx-8"
+        />
+      </div>
+    </v-window-item>
+    <v-window-item :class="[{ mobile: $vuetify.breakpoint.xs }]">
+      <div class="window-container px-8 pt-8" style="max-width: 564px">
         <v-row>
           <v-col cols="auto" class="pr-0">
             <v-icon v-if="true" class="mb-2">$profile</v-icon>
           </v-col>
-          <v-col class="capitalize font-weight-medium">
+          <v-col class="font-weight-medium">
             {{ $t('sharing.recipients') }}
           </v-col>
         </v-row>
@@ -104,111 +116,82 @@
           </v-row>
         </v-card>
       </div>
-      <v-footer outlined class="pa-8 d-flex">
-        <div class="disclaimer capitalize">
-          <span class="font-weight-bold">
-            {{ $t('sharing.disclaimer') }}:&nbsp;
-          </span>
-          <span class="font-weight-normal">
-            {{ capitalize($t('sharing.shareDocumentDisclaimer')) }}
-          </span>
-        </div>
-      </v-footer>
+      <FooterCard
+        title="sharing.disclaimerTitle"
+        :body="
+          $t('sharing.shareDocumentDisclaimer', {
+            emails: domainsList,
+          })
+        "
+      />
     </v-window-item>
     <v-window-item>
-      <v-toolbar class="mb-8" flat>
-        <v-btn :title="`${$t('navigation.back')}`" icon>
-          <v-icon small class="mr-2" :disabled="isLoading" @click="prev">
-            $chevron-left
-          </v-icon>
-        </v-btn>
-        <v-toolbar-title>{{ $t('sharing.confirmTitle') }}</v-toolbar-title>
-        <v-spacer />
-        <v-btn
-          color="primary"
-          text
-          class="font-weight-bold body-1"
-          @click="cancel"
-        >
-          {{ $t('controls.cancel') }}
-        </v-btn>
-        <v-btn
-          class="font-weight-bold body-1"
-          color="primary"
-          text
-          :disabled="isLoading"
-          @click="submit"
-        >
-          {{ $t('controls.done') }}
-        </v-btn>
-      </v-toolbar>
-      <div class="window-container px-8">
-        <p class="capitalize font-weight-medium pt-4">
-          {{ $tc('sharing.confirmSharedFiles', selectedDocs.length) }}:
-        </p>
-        <v-card
-          v-for="(doc, i) in selectedDocs.slice(0, sliceFiles)"
-          :key="`file-${i}`"
-          rounded
-          class="invitee px-4 py-4 mb-2 grey-2"
-        >
-          <v-row align="center" no-gutters>
-            <v-col class="pr-4" cols="auto">
-              <v-icon>$document</v-icon>
-            </v-col>
-            <v-col>
-              <span>{{ doc.name }}</span>
-            </v-col>
-          </v-row>
-        </v-card>
-        <v-btn
-          v-if="selectedDocs.length > sliceFiles"
-          class="float-right"
-          text
-          @click="sliceFiles = 10"
-        >
-          {{ $tc('sharing.plusNMore', selectedDocs.length - sliceFiles) }}
-        </v-btn>
-        <p class="capitalize font-weight-medium pt-8">
-          {{
-            $tc(
-              'sharing.confirmRecipientsLabel',
-              individualEmailAddresses.length,
-            )
-          }}:
-        </p>
-        <v-card
-          v-for="(email, i) in individualEmailAddresses.slice(0, 5)"
-          :key="`recipient-${i}`"
-          rounded
-          class="invitee px-4 py-4 mb-2 d-flex grey-2"
-        >
-          <v-row align="center" no-gutters>
-            <v-col class="pr-4" cols="auto">
-              <v-icon>$profile</v-icon>
-            </v-col>
-            <v-col>
-              <span>{{ email }}</span>
-            </v-col>
-          </v-row>
-        </v-card>
-        <v-btn
-          v-if="individualEmailAddresses.length > sliceRecipients"
-          class="float-right"
-          text
-          @click="sliceRecipients = 10"
-        >
-          {{
-            $tc(
-              'sharing.plusNMore',
-              individualEmailAddresses.length - sliceRecipients,
-            )
-          }}
-        </v-btn>
+      <div class="window-container px-8 pt-12 d-flex justify-center">
+        <div>
+          <p class="font-weight-bold pt-4">
+            {{ $tc('sharing.confirmSharedFiles', selectedDocs.length) }}:
+          </p>
+          <v-card
+            v-for="(doc, i) in selectedDocs.slice(0, sliceFiles)"
+            :key="`file-${i}`"
+            rounded
+            class="invitee px-4 py-4 mb-2 grey-2"
+          >
+            <v-row align="center" no-gutters>
+              <v-col class="pr-4" cols="auto">
+                <v-icon>$document</v-icon>
+              </v-col>
+              <v-col>
+                <span>{{ doc.name }}</span>
+              </v-col>
+            </v-row>
+          </v-card>
+          <v-btn
+            v-if="selectedDocs.length > sliceFiles"
+            class="float-right"
+            text
+            @click="sliceFiles = 10"
+          >
+            {{ $tc('sharing.plusNMore', selectedDocs.length - sliceFiles) }}
+          </v-btn>
+          <p class="font-weight-bold pt-8">
+            {{
+              $tc(
+                'sharing.confirmRecipientsLabel',
+                individualEmailAddresses.length,
+              )
+            }}:
+          </p>
+          <v-card
+            v-for="(email, i) in individualEmailAddresses.slice(0, 5)"
+            :key="`recipient-${i}`"
+            rounded
+            class="invitee px-4 py-4 mb-2 d-flex grey-2"
+          >
+            <v-row align="center" no-gutters>
+              <v-col class="pr-4" cols="auto">
+                <v-icon>$profile</v-icon>
+              </v-col>
+              <v-col>
+                <span>{{ email }}</span>
+              </v-col>
+            </v-row>
+          </v-card>
+          <v-btn
+            v-if="individualEmailAddresses.length > sliceRecipients"
+            class="float-right"
+            text
+            @click="sliceRecipients = 10"
+          >
+            {{
+              $tc(
+                'sharing.plusNMore',
+                individualEmailAddresses.length - sliceRecipients,
+              )
+            }}
+          </v-btn>
+        </div>
       </div>
-      <v-footer outlined class="pa-8">
-        {{ capitalize($t('sharing.shareSettingsDisclaimer')) }}
-      </v-footer>
     </v-window-item>
     <FooterLinks />
   </v-window>
@@ -265,11 +248,41 @@ export default class Share extends Vue {
   }
 
   next() {
-    this.step += this.step < this.length ? 1 : 0
+    if (this.step < this.length - 1) {
+      this.step += 1
+    } else {
+      this.submit()
+    }
   }
 
   prev() {
     this.step -= this.step > 0 ? 1 : 0
+    ;(this.$refs.observer as any).reset()
+  }
+
+  get domainsList() {
+    const domains = this.$config.agencyEmailDomainsWhitelist.split(',')
+    return `${domains.slice(0, -1).join('; ')} ${
+      domains.length > 1 ? 'and ' : ''
+    }${domains[domains.length - 1]} `
+  }
+
+  get isNextDisabled() {
+    return (
+      (this.step >= 2 && this.individualEmailAddresses.length >= 10) ||
+      (this.step >= 1 &&
+        (!this.emailInputValid || !this.individualEmailAddresses.length)) ||
+      this.selectedDocs.length === 0 ||
+      this.isLoading
+    )
+  }
+
+  get toolbarTitle() {
+    return ({
+      0: 'sharing.selectFilesTitle',
+      1: 'sharing.addRecipientsTitle',
+      2: 'sharing.confirmTitle',
+    } as Record<number, string>)[this.step]
   }
 
   get emailInputValid() {
@@ -313,9 +326,7 @@ export default class Share extends Vue {
     })
 
     await snackbarStore.setParams({
-      message: `${capitalize(
-        this.$t('toast.sharingComplete') as string,
-      )}.\n${capitalize(this.$t('toast.collectionCreated') as string)}`,
+      message: `${this.$t('toast.sharingComplete') as string}`,
       actions: [
         {
           name: 'view',
@@ -323,6 +334,8 @@ export default class Share extends Vue {
         },
       ],
     })
+
+    await snackbarStore.setVisible(true)
 
     if (window.history.length) {
       this.$router.back()
@@ -359,30 +372,11 @@ export default class Share extends Vue {
 <style lang="scss">
 .v-window {
   height: 100vh;
-  .v-toolbar {
-    position: fixed;
-    width: 100vw;
-    z-index: 2;
-  }
-  .v-footer {
-    background-color: var(--white);
-    border-bottom: none;
-    border-left: none;
-    border-right: none;
-    margin: 0 auto;
-  }
   .window-container {
-    padding-top: 5rem;
-    margin: 0 auto 6rem auto;
-  }
-  .v-window-item.mobile .window-container {
-    padding: 5rem 0 0 0;
+    margin: 4rem auto 6rem auto;
   }
 }
 .v-card.invitee {
   max-width: 40rem;
-}
-.disclaimer {
-  font-size: rem(13px);
 }
 </style>

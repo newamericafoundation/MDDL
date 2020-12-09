@@ -1,6 +1,5 @@
 <template>
   <div>
-    <v-divider class="my-0" />
     <article v-if="page" class="ma-8">
       <h1>{{ page.title }}</h1>
       <nuxt-content :document="page" />
