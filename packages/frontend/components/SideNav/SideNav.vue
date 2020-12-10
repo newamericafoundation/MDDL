@@ -69,8 +69,8 @@ export default class SideNav extends mixins(Navigation) {
 
   footerNavItems: NavItem[] = [
     {
-      label: 'navigation.about',
-      to: '/about',
+      label: 'navigation.faq',
+      to: '/faq',
     },
     {
       label: 'navigation.termsOfUse',
@@ -78,6 +78,10 @@ export default class SideNav extends mixins(Navigation) {
         this.closeSideNav()
         this.$router.push(this.localePath('/terms-of-use'))
       },
+    },
+    {
+      label: 'navigation.about',
+      to: '/about',
     },
     {
       divider: true,

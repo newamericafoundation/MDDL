@@ -1,9 +1,9 @@
 import { shallowMount } from '@vue/test-utils'
-import About from '@/pages/about/index.vue'
+import Faq from '@/pages/faq/index.vue'
 
-describe('About component', () => {
+describe('FAQ Page', () => {
   it('exports a valid page', () => {
-    const wrapper = shallowMount(About)
+    const wrapper = shallowMount(Faq)
     expect(wrapper.html()).toBeTruthy()
   })
 })

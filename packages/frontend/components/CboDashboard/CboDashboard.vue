@@ -2,7 +2,7 @@
   <v-main class="blue-super-light">
     <AppBar>
       <template v-slot:extensions>
-        <v-row no-gutters class="nav-message" outlined rounded="0">
+        <v-row no-gutters class="white" outlined rounded="0">
           <v-col>
             <div class="pa-3 font-weight-medium grey-9--text">
               <template v-if="onSwitchPage">
@@ -30,9 +30,7 @@
         <ClientList />
       </v-window-item>
       <v-window-item value="manage">
-        <ClientList :deletable="true">
-          <v-divider class="full-width" />
-        </ClientList>
+        <ClientList :deletable="true" />
       </v-window-item>
     </v-window>
   </v-main>
@@ -65,10 +63,3 @@ export default class CboDashboard extends Vue {
   }
 }
 </script>
-
-<style lang="scss" scoped>
-.nav-message {
-  border-bottom: 1pt solid var(--grey-4);
-  background-color: white !important;
-}
-</style>

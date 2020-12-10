@@ -45,6 +45,7 @@ export default {
       clients: 'Clients', // navigate back to agent view desktop
       close: 'Close',
       dashboard: 'Dashboard',
+      faq: 'FAQ',
       loading: 'Loading',
       loggingIn: 'Logging in...',
       manageAccounts: 'Manage Clients',
@@ -132,6 +133,7 @@ export default {
       authorizing: 'authorizing', // not important - used while logging in
       dashboard: 'dashboard',
       document: 'document', // used for document preview while page is loading, then changes to document title
+      faq: 'FAQ',
       shared: 'shared', // used in share flow
       sharedBy: 'shared by', // used in share flow
       termsOfUse: 'Terms of Use', // used while viewing TOU

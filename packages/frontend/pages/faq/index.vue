@@ -1,5 +1,5 @@
 <template>
-  <MarkdownContent content-path="about" class="ma-8" />
+  <MarkdownContent content-path="faq" class="ma-8" />
 </template>
 
 <script lang="ts">
@@ -11,9 +11,9 @@ import VueI18n, { IVueI18n } from 'vue-i18n'
 @Component({
   head() {
     return {
-      title: this.$t('tabTitles.about') as string,
+      title: this.$t('tabTitles.faq') as string,
     }
   },
 })
-export default class AboutPage extends Vue {}
+export default class FaqPage extends Vue {}
 </script>

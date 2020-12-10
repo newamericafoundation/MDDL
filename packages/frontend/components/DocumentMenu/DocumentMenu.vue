@@ -20,7 +20,6 @@
       <DocumentActions
         ref="documentMenuList"
         :document="document"
-        :on-delete="onDelete"
         class="a11y-focus"
         tabindex="-1"
       />
