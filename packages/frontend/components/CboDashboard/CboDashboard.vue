@@ -61,7 +61,7 @@ export default class CboDashboard extends Vue {
   }
 
   get onSwitchPage() {
-    return this.$route.query.tab === 'switch'
+    return this.$route.query.tab === 'switch' || !this.$route.query.tab
   }
 }
 </script>

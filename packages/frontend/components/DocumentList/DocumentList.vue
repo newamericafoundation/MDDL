@@ -87,7 +87,7 @@ export default class DocumentList extends Vue {
   @Prop({ default: false }) selectable: boolean
   @Prop({ default: null }) value: DocumentListItem[]
   @Prop({ default: () => [] }) preSelected: string[]
-  @Prop({ default: null }) fetchDocumentsProp:
+  @Prop({ default: null }) fetchDocuments:
     | (() => Promise<DocumentListItem[]>)
     | null
 
@@ -190,14 +190,10 @@ export default class DocumentList extends Vue {
     }
   }
 
-  fetchDocuments() {
-    return this.fetchDocumentsProp
-      ? this.fetchDocumentsProp()
-      : this.$store.dispatch('user/getDocuments')
-  }
-
   async reload() {
-    this._documents = await this.fetchDocuments()
+    this._documents = this.fetchDocuments
+      ? await this.fetchDocuments()
+      : await this.$store.dispatch('user/getDocuments')
     this.selected = []
     if (this.preSelected) {
       for (const id of this.preSelected) {
