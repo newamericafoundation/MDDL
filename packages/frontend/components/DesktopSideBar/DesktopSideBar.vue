@@ -1,11 +1,10 @@
 <template>
   <v-navigation-drawer
-    :value="true"
+    :value="$vuetify.breakpoint.smAndUp"
     clipped
     app
     fixed
     right
-    mobile-breakpoint="xs"
     class="blue-mid-light"
   >
     <div class="pa-4">
