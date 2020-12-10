@@ -36,6 +36,7 @@
     <slot name="actions" />
     <template v-if="!empty">
       <v-btn
+        v-if="showActivityButton"
         text
         color="white"
         @click.prevent="showActivity = !showActivity"
@@ -162,6 +163,7 @@ import { Vue, Component, Prop, mixins } from 'nuxt-property-decorator'
 import Navigation from '@/mixins/navigation'
 import { Breadcrumb } from '@/types/nav'
 import { userStore } from '@/plugins/store-accessor'
+import { UserRole } from '../../types/user'
 
 @Component({
   mixins: [Navigation],
@@ -180,6 +182,12 @@ export default class AppBar extends mixins(Navigation) {
     setTimeout(() => {
       this.recompute = !this.recompute
     }, 1000)
+  }
+
+  get showActivityButton() {
+    return (
+      userStore.isClient || (userStore.isCbo && userStore.isActingAsDelegate)
+    )
   }
 
   get color() {
