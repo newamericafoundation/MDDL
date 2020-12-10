@@ -3,7 +3,6 @@ import {
   Construct,
   CustomResource,
   Duration,
-  IConstruct,
   RemovalPolicy,
   Stack,
   StackProps,
@@ -82,6 +81,8 @@ import { EmailSender } from './email-sender'
 import { getCognitoHostedLoginCss } from './utils'
 import { StringParameter } from '@aws-cdk/aws-ssm'
 import { ProvidedKeyDetails } from './provided-key'
+import { SnsAction } from '@aws-cdk/aws-cloudwatch-actions'
+import { Topic } from '@aws-cdk/aws-sns'
 
 interface ApiHostedDomain extends HostedDomain {
   /**
@@ -144,6 +145,10 @@ interface MonitoringConfiguration {
    * Sentry DSN
    */
   sentryDsn?: string
+  /**
+   * The SNS topic to deliver alert notifications to
+   */
+  alertsSnsTopicArn?: string
 }
 
 interface ThrottlingConfiguration {
@@ -520,6 +525,65 @@ export class CityStack extends Stack {
     // add database migrations
     this.runMigrations(secret, mySqlLayer)
 
+    // set up throttling
+    this.configureThrottling(defaultStage, throttling)
+
+    // set up alerts
+    if (monitoring.alertsSnsTopicArn) {
+      this.configureAlerts(monitoring.alertsSnsTopicArn, api, deadLetterQueue, [
+        this.auditLogQueue,
+        this.emailProcessorQueue,
+      ])
+    }
+  }
+
+  private configureAlerts(
+    alertsSnsTopicArn: string,
+    api: HttpApi,
+    deadLetterQueue: IQueue,
+    processorQueues: IQueue[],
+  ) {
+    const alarms = [
+      // TODO alarm for server errors from the API - needs some metric math to be a percentile
+      // api
+      //   .metricServerError({
+      //     statistic: 'sum',
+      //   })
+      //   .createAlarm(this, 'ServerErrorsAlarm', {
+      //     evaluationPeriods: 1,
+      //     threshold: 0.2,
+      //   }),
+
+      // alarm for any messages on the dead letter queue
+      deadLetterQueue
+        .metricApproximateNumberOfMessagesVisible()
+        .createAlarm(this, 'DeadLetterQueueMessagesVisible', {
+          threshold: 1,
+          evaluationPeriods: 1,
+        }),
+
+      // alarm for any queue that has had a message sitting on it for 24 hours or more
+      ...processorQueues.map((q) =>
+        q
+          .metricApproximateAgeOfOldestMessage()
+          .createAlarm(this, `ProcessingStalled${q.queueName}`, {
+            threshold: Duration.days(1).toSeconds(),
+            evaluationPeriods: 1,
+          }),
+      ),
+    ]
+
+    const alertTopic = Topic.fromTopicArn(this, 'AlertTopic', alertsSnsTopicArn)
+
+    alarms.forEach((a) => {
+      a.addAlarmAction(new SnsAction(alertTopic))
+    })
+  }
+
+  private configureThrottling(
+    defaultStage: CfnStage,
+    throttling: ThrottlingConfiguration,
+  ) {
     if (Object.keys(this.routeSettings).length) {
       const { burstLimitMultiplier = 1, rateLimitMultiplier = 1 } = throttling
       const routeSettings = this.routeSettings

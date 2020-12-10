@@ -446,6 +446,7 @@ export class CiCdStack extends Stack {
         new CodeBuildAction({
           actionName: 'Build',
           project: project,
+          variablesNamespace: 'Build',
           input: sourceArtifact,
           outputs: [cloudAssemblyArtifact],
         }),
@@ -639,7 +640,7 @@ export class CiCdStack extends Stack {
       stagingStage.addActions(
         new ManualApprovalAction({
           actionName: `ApproveStagingDeploymentStage`,
-          additionalInformation: `Approve to continue deployment to staging environments.`,
+          additionalInformation: `Approve to continue deployment of #{Build.BUILD_NUMBER} to staging environments.`,
           runOrder: stagingStage.nextSequentialRunOrder(),
         }),
       )
@@ -681,23 +682,70 @@ export class CiCdStack extends Stack {
       prodStage.addActions(
         new ManualApprovalAction({
           actionName: `ApproveProductionDeploymentStage`,
-          additionalInformation: `Approve to continue deployment to production environments.`,
+          additionalInformation: `Approve to continue deployment of #{Build.BUILD_NUMBER} to production environments.`,
           runOrder: prodStage.nextSequentialRunOrder(),
         }),
       )
-      const prodBaseStackOptions = this.addStack(
+
+      // we're going to run the Data and Auth stack actions in parallel, so resolve action order now
+      const preApplicationRunOrder = prodStage.nextSequentialRunOrder()
+      const preApplicationApprovalOrder = prodStage.nextSequentialRunOrder()
+      const preApplicationExecuteRunOrder = prodStage.nextSequentialRunOrder()
+      const preApplicationParallelOptions: AddStackOptions = {
+        runOrder: preApplicationRunOrder,
+        executeRunOrder: preApplicationExecuteRunOrder,
+      }
+
+      // add data stack
+      this.addStack(
         prodStage,
         this.getStack(cloudAssembly, prodDataStoreStackProps),
+        preApplicationParallelOptions,
       )
+
+      // add auth stack, if applicable
       if (prodAuthStackProps) {
         this.addStack(
           prodStage,
           this.getStack(cloudAssembly, prodAuthStackProps),
-          prodBaseStackOptions,
+          preApplicationParallelOptions,
         )
       }
-      prodStageCityStacksProps.forEach((cityStackProps) =>
-        addCityStackToStage(prodStage, cityStackProps),
+
+      // add manual approval of change sets
+      prodStage.addActions(
+        new ManualApprovalAction({
+          actionName: `ApproveProductionDataAndAuthApplyStage`,
+          additionalInformation: `Approve to apply DataStore and Auth Stack change sets from Build #{Build.BUILD_NUMBER} to production environments.`,
+          runOrder: preApplicationApprovalOrder,
+        }),
+      )
+
+      // we're going to run all the city stack actions in parallel, so resolve action order now
+      const applicationRunOrder = prodStage.nextSequentialRunOrder()
+      const applicationApprovalOrder = prodStage.nextSequentialRunOrder()
+      const applicationExecuteRunOrder = prodStage.nextSequentialRunOrder()
+      const applicationParallelOptions: AddStackOptions = {
+        runOrder: applicationRunOrder,
+        executeRunOrder: applicationApprovalOrder,
+      }
+
+      // add each city to the current stage
+      prodStageCityStacksProps.forEach((cityStackProps) => {
+        addCityStackToStage(
+          prodStage,
+          cityStackProps,
+          applicationParallelOptions,
+        )
+      })
+
+      // add manual approval action in change set calculation and execution
+      prodStage.addActions(
+        new ManualApprovalAction({
+          actionName: `ApproveProductionCityApplyStage`,
+          additionalInformation: `Approve to apply City change sets from Build #{Build.BUILD_NUMBER} to production environments.`,
+          runOrder: applicationExecuteRunOrder,
+        }),
       )
     }
 
