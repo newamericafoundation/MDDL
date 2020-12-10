@@ -70,6 +70,7 @@
       title="cbo.removeConfirmationTitle"
       body="cbo.removeConfirmationBody"
       :on-confirm="removeClient"
+      :loading="loading"
     >
       <template v-slot:post-title>
         <br />

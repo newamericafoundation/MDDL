@@ -1,26 +1,44 @@
 <template>
   <v-main class="blue-super-light">
     <AppBar>
+      <template v-if="onSwitchPage" v-slot:actions>
+        <v-btn text color="white" :to="manageRoute">
+          <v-icon left color="white" small>$cog</v-icon>
+          {{ $t('navigation.manageAccounts') }}
+        </v-btn>
+      </template>
       <template v-slot:extensions>
-        <v-row no-gutters class="white" outlined rounded="0">
+        <v-row
+          no-gutters
+          class="white pa-1"
+          align="center"
+          outlined
+          rounded="0"
+        >
           <v-col>
-            <div class="pa-3 font-weight-medium grey-9--text">
+            <div class="font-weight-bold grey-9--text pl-3 py-2">
               <template v-if="onSwitchPage">
                 {{ $t('cbo.selectClient') }}
               </template>
               <template v-else>
                 {{ closeText[0] }}
-                <v-icon small>$close</v-icon>
+                <v-icon small class="grey-9--text">$close-bold</v-icon>
                 {{ closeText[1] }}
               </template>
             </div>
           </v-col>
-          <v-col v-show="$vuetify.breakpoint.smAndUp" cols="auto">
-            <v-btn v-if="onSwitchPage" text color="primary" :to="manageRoute">
-              <v-icon left color="primary" small>$cog</v-icon>
-              {{ $t('navigation.manageAccounts') }}
+          <v-col
+            v-show="!onSwitchPage && $vuetify.breakpoint.smAndUp"
+            cols="auto"
+          >
+            <v-btn
+              color="primary"
+              class="white--text"
+              :to="switchRoute"
+              min-height="40px"
+            >
+              {{ $t('controls.done') }}
             </v-btn>
-            <SwitchAccountButton v-else color="primary" />
           </v-col>
         </v-row>
       </template>
@@ -44,6 +62,15 @@ import { RawLocation } from 'vue-router'
 @Component
 export default class CboDashboard extends Vue {
   userStore = userStore
+
+  get switchRoute() {
+    return this.localeRoute({
+      path: '/dashboard',
+      query: {
+        tab: 'switch',
+      },
+    })
+  }
 
   get manageRoute() {
     return this.localeRoute({

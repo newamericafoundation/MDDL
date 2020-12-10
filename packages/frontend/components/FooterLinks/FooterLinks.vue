@@ -9,7 +9,7 @@
       >
         {{ $t('navigation.termsOfUse') }}
       </v-btn>
-      <div class="d-inline grey-5--text">·</div>
+      <div class="d-inline grey-5--text dot">·</div>
       <v-btn
         min-height="12px"
         class="grey-5--text px-1"
@@ -18,7 +18,7 @@
       >
         {{ $t('navigation.about') }}
       </v-btn>
-      <div class="d-inline grey-5--text">·</div>
+      <div class="d-inline grey-5--text dot">·</div>
       <v-btn
         min-height="12px"
         class="grey-5--text px-1"
@@ -37,3 +37,9 @@ import { Vue, Component } from 'nuxt-property-decorator'
 @Component
 export default class FooterLinks extends Vue {}
 </script>
+
+<style scoped lang="scss">
+.dot {
+  margin-top: 1px;
+}
+</style>

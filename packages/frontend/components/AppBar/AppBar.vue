@@ -122,12 +122,12 @@
         fixed
         right
         mobile-breakpoint="xs"
-        class="mt-13"
+        class="mt-16"
         floating
         width="24rem"
         style="
           box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.25);
-          height: calc(100vh - 52px);
+          height: calc(100vh - 64px);
         "
       >
         <div class="px-4">
