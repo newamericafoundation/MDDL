@@ -1,0 +1,28 @@
+.infinite-loading-container[data-v-644ea9c9] {
+  clear: both;
+  text-align: center;
+}
+.infinite-loading-container[data-v-644ea9c9] [class^='loading-'] {
+  display: inline-block;
+  margin: 5px 0;
+  width: 28px;
+  height: 28px;
+  font-size: 28px;
+  line-height: 28px;
+  border-radius: 50%;
+}
+.btn-try-infinite[data-v-644ea9c9] {
+  margin-top: 5px;
+  padding: 5px 10px;
+  color: #999;
+  font-size: 14px;
+  line-height: 1;
+  background: transparent;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+}
+.btn-try-infinite[data-v-644ea9c9]:not(:active):hover {
+  opacity: 0.8;
+}

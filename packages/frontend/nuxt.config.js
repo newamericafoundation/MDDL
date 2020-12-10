@@ -1,4 +1,8 @@
+import CspHtmlWebpackPlugin from 'csp-html-webpack-plugin'
+import { CspEnum } from './types/environment'
 import messages from './assets/js/messages.ts'
+import { envConfig } from './plugins/env-config.ts'
+import { getSrc } from './assets/js/csp.ts'
 
 const config = {
   ssr: false,
@@ -38,17 +42,17 @@ const config = {
   },
   plugins: [
     '@/plugins/vee-validate.js',
-    {
-      src: '@/plugins/axe.ts',
-      mode: 'client',
-    },
+    // consider re-enabling when https://github.com/vue-a11y/vue-axe/issues/32 is resolved
+    // {
+    //   src: '@/plugins/axe.ts',
+    //   mode: 'client',
+    // },
   ],
   components: true,
   buildModules: [
     '@nuxt/typescript-build',
     '@nuxtjs/vuetify',
     '@nuxtjs/dotenv',
-    '@nuxtjs/google-fonts',
     '@nuxtjs/google-analytics',
     '@nuxtjs/pwa',
   ],
@@ -82,32 +86,52 @@ const config = {
     },
     strategy: 'no_prefix',
   },
-  googleFonts: {
-    families: {
-      'Noto Sans': [300, 400, 500, 600, 700],
-    },
-  },
   vuetify: {
     treeShake: true,
+    defaultAssets: false,
     customVariables: ['@/assets/scss/_vuetifyVariables.scss'],
     optionsPath: './vuetify.options.ts',
   },
-  publicRuntimeConfig: {
-    agencyEmailDomainsWhitelist: process.env.AGENCY_EMAIL_DOMAINS_WHITELIST,
-    authorizationEndpoint: process.env.AUTH_URL,
-    buildNumber: process.env.BUILD_NUMBER,
-    buildTime: process.env.CODEBUILD_START_TIME,
-    googleAnalytics: {
-      id: process.env.GOOGLE_ANALYTICS_TRACKING_ID,
-    },
-    showBuildInfo: process.env.SHOW_BUILD_INFO,
-    authStrategy: 'oauth2',
-    authTokenIdClaim: process.env.AUTH_TOKEN_ID_CLAIM || 'sub',
-  },
+  publicRuntimeConfig: envConfig,
+
   build: {
-    // TODO: disabled due to issues with hot reloading
-    //   extractCSS: true,
     transpile: ['vee-validate/dist/rules'],
+    extractCSS: {
+      ignoreOrder: true,
+    },
+    extend(config, { isClient }) {
+      // Extend only webpack config for client-bundle
+      if (isClient) {
+        config.devtool = 'inline-source-map' // prevents eval() execution - see: https://github.com/webpack/webpack/issues/5627#issuecomment-374386048
+      }
+    },
+    plugins: [
+      new CspHtmlWebpackPlugin(
+        {
+          'default-src': ["'self'"],
+          'base-uri': ["'self'"],
+          'img-src': getSrc(CspEnum.IMAGE, process.env.CSP_IMG_SRC),
+          'worker-src': ["'self'"],
+          'style-src': ["'self'"],
+          'script-src': getSrc(CspEnum.SCRIPT, process.env.CSP_SCRIPT_SRC),
+          'connect-src': getSrc(CspEnum.CONNECT, process.env.CSP_CONNECT_SRC),
+          'form-action': ["'self'"],
+          'object-src': ["'none'"],
+        },
+        {
+          enabled: true,
+          hashingMethod: 'sha256',
+          hashEnabled: {
+            'script-src': false,
+            'style-src': false,
+          },
+          nonceEnabled: {
+            'script-src': true,
+            'style-src': true,
+          },
+        },
+      ),
+    ],
   },
   generate: {
     dir: 'dist/' + process.env.OUTPUT_DIR,
@@ -151,7 +175,11 @@ const config = {
     redirect: {
       callback: '/authorize',
     },
-    plugins: ['@plugins/store-accessor.ts', '@/plugins/api-accessor.ts'],
+    plugins: [
+      '@plugins/store-accessor.ts',
+      '@/plugins/api-accessor.ts',
+      '@/plugins/env-config.ts',
+    ],
   },
 }
 

@@ -182,7 +182,7 @@ export default {
     // Copy where you are viewing shared folders
     sharedFolder: {
       // empty state for list of shared folders
-      noCollections: "you haven't shared any documents yet.", // message
+      noCollections: "You haven't shared any documents yet.", // message
       shareFirstDocument: 'share your first document', // call to action
 
       // empty state for an individual shared folder

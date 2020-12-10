@@ -34,7 +34,7 @@ const vuetifyOptions = (ctx: Context): Options => {
   return {
     theme: {
       dark: false,
-      disable: false,
+      disable: true,
       default: false,
       options: {},
       themes: {
@@ -66,11 +66,7 @@ const vuetifyOptions = (ctx: Context): Options => {
         },
       },
     },
-    defaultAssets: {
-      font: {
-        family: 'Noto Sans',
-      },
-    },
+    defaultAssets: false,
     icons: {
       iconfont: 'mdi',
       values: {

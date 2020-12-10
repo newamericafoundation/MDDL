@@ -1,0 +1,365 @@
+/*
+ * Vuetify-generated theme values should be managed here instead of Vuetify config options.
+ *
+ * Although not ideal, this is required to avoid Vuetify inlining a <style> tag that would otherwise violate the
+ * style-src Content Security policy
+ */
+.v-application a {
+  color: var(--blue);
+}
+.v-application .primary {
+  background-color: var(--blue) !important;
+  border-color: var(--blue) !important;
+}
+.v-application .primary--text {
+  color: var(--blue) !important;
+  caret-color: var(--blue) !important;
+}
+.v-application .primary.lighten-5 {
+  background-color: #d3d9ff !important;
+  border-color: #d3d9ff !important;
+}
+.v-application .primary--text.text--lighten-5 {
+  color: #d3d9ff !important;
+  caret-color: #d3d9ff !important;
+}
+.v-application .primary.lighten-4 {
+  background-color: #b3bdff !important;
+  border-color: #b3bdff !important;
+}
+.v-application .primary--text.text--lighten-4 {
+  color: #b3bdff !important;
+  caret-color: #b3bdff !important;
+}
+.v-application .primary.lighten-3 {
+  background-color: #94a2ff !important;
+  border-color: #94a2ff !important;
+}
+.v-application .primary--text.text--lighten-3 {
+  color: #94a2ff !important;
+  caret-color: #94a2ff !important;
+}
+.v-application .primary.lighten-2 {
+  background-color: #7388ff !important;
+  border-color: #7388ff !important;
+}
+.v-application .primary--text.text--lighten-2 {
+  color: #7388ff !important;
+  caret-color: #7388ff !important;
+}
+.v-application .primary.lighten-1 {
+  background-color: #506fff !important;
+  border-color: #506fff !important;
+}
+.v-application .primary--text.text--lighten-1 {
+  color: #506fff !important;
+  caret-color: #506fff !important;
+}
+.v-application .primary.darken-1 {
+  background-color: #0040c7 !important;
+  border-color: #0040c7 !important;
+}
+.v-application .primary--text.text--darken-1 {
+  color: #0040c7 !important;
+  caret-color: #0040c7 !important;
+}
+.v-application .primary.darken-2 {
+  background-color: #002bab !important;
+  border-color: #002bab !important;
+}
+.v-application .primary--text.text--darken-2 {
+  color: #002bab !important;
+  caret-color: #002bab !important;
+}
+.v-application .primary.darken-3 {
+  background-color: #001890 !important;
+  border-color: #001890 !important;
+}
+.v-application .primary--text.text--darken-3 {
+  color: #001890 !important;
+  caret-color: #001890 !important;
+}
+.v-application .primary.darken-4 {
+  background-color: #000375 !important;
+  border-color: #000375 !important;
+}
+.v-application .primary--text.text--darken-4 {
+  color: #000375 !important;
+  caret-color: #000375 !important;
+}
+.v-application .secondary {
+  background-color: #d81b60 !important;
+  border-color: #d81b60 !important;
+}
+.v-application .secondary--text {
+  color: #d81b60 !important;
+  caret-color: #d81b60 !important;
+}
+.v-application .secondary.lighten-5 {
+  background-color: #ffbbe4 !important;
+  border-color: #ffbbe4 !important;
+}
+.v-application .secondary--text.text--lighten-5 {
+  color: #ffbbe4 !important;
+  caret-color: #ffbbe4 !important;
+}
+.v-application .secondary.lighten-4 {
+  background-color: #ff9dc8 !important;
+  border-color: #ff9dc8 !important;
+}
+.v-application .secondary--text.text--lighten-4 {
+  color: #ff9dc8 !important;
+  caret-color: #ff9dc8 !important;
+}
+.v-application .secondary.lighten-3 {
+  background-color: #ff80ad !important;
+  border-color: #ff80ad !important;
+}
+.v-application .secondary--text.text--lighten-3 {
+  color: #ff80ad !important;
+  caret-color: #ff80ad !important;
+}
+.v-application .secondary.lighten-2 {
+  background-color: #ff6292 !important;
+  border-color: #ff6292 !important;
+}
+.v-application .secondary--text.text--lighten-2 {
+  color: #ff6292 !important;
+  caret-color: #ff6292 !important;
+}
+.v-application .secondary.lighten-1 {
+  background-color: #f74379 !important;
+  border-color: #f74379 !important;
+}
+.v-application .secondary--text.text--lighten-1 {
+  color: #f74379 !important;
+  caret-color: #f74379 !important;
+}
+.v-application .secondary.darken-1 {
+  background-color: #b90049 !important;
+  border-color: #b90049 !important;
+}
+.v-application .secondary--text.text--darken-1 {
+  color: #b90049 !important;
+  caret-color: #b90049 !important;
+}
+.v-application .secondary.darken-2 {
+  background-color: #9a0032 !important;
+  border-color: #9a0032 !important;
+}
+.v-application .secondary--text.text--darken-2 {
+  color: #9a0032 !important;
+  caret-color: #9a0032 !important;
+}
+.v-application .secondary.darken-3 {
+  background-color: #7b001e !important;
+  border-color: #7b001e !important;
+}
+.v-application .secondary--text.text--darken-3 {
+  color: #7b001e !important;
+  caret-color: #7b001e !important;
+}
+.v-application .secondary.darken-4 {
+  background-color: #5e0004 !important;
+  border-color: #5e0004 !important;
+}
+.v-application .secondary--text.text--darken-4 {
+  color: #5e0004 !important;
+  caret-color: #5e0004 !important;
+}
+.v-application .accent {
+  background-color: #37474f !important;
+  border-color: #37474f !important;
+}
+.v-application .accent--text {
+  color: #37474f !important;
+  caret-color: #37474f !important;
+}
+.v-application .accent.lighten-5 {
+  background-color: #b5c7d0 !important;
+  border-color: #b5c7d0 !important;
+}
+.v-application .accent--text.text--lighten-5 {
+  color: #b5c7d0 !important;
+  caret-color: #b5c7d0 !important;
+}
+.v-application .accent.lighten-4 {
+  background-color: #9aacb5 !important;
+  border-color: #9aacb5 !important;
+}
+.v-application .accent--text.text--lighten-4 {
+  color: #9aacb5 !important;
+  caret-color: #9aacb5 !important;
+}
+.v-application .accent.lighten-3 {
+  background-color: #80919a !important;
+  border-color: #80919a !important;
+}
+.v-application .accent--text.text--lighten-3 {
+  color: #80919a !important;
+  caret-color: #80919a !important;
+}
+.v-application .accent.lighten-2 {
+  background-color: #677780 !important;
+  border-color: #677780 !important;
+}
+.v-application .accent--text.text--lighten-2 {
+  color: #677780 !important;
+  caret-color: #677780 !important;
+}
+.v-application .accent.lighten-1 {
+  background-color: #4e5f67 !important;
+  border-color: #4e5f67 !important;
+}
+.v-application .accent--text.text--lighten-1 {
+  color: #4e5f67 !important;
+  caret-color: #4e5f67 !important;
+}
+.v-application .accent.darken-1 {
+  background-color: #213138 !important;
+  border-color: #213138 !important;
+}
+.v-application .accent--text.text--darken-1 {
+  color: #213138 !important;
+  caret-color: #213138 !important;
+}
+.v-application .accent.darken-2 {
+  background-color: #0c1c23 !important;
+  border-color: #0c1c23 !important;
+}
+.v-application .accent--text.text--darken-2 {
+  color: #0c1c23 !important;
+  caret-color: #0c1c23 !important;
+}
+.v-application .accent.darken-3 {
+  background-color: #00010d !important;
+  border-color: #00010d !important;
+}
+.v-application .accent--text.text--darken-3 {
+  color: #00010d !important;
+  caret-color: #00010d !important;
+}
+.v-application .accent.darken-4 {
+  background-color: #000000 !important;
+  border-color: #000000 !important;
+}
+.v-application .accent--text.text--darken-4 {
+  color: #000000 !important;
+  caret-color: #000000 !important;
+}
+.v-application .error {
+  background-color: var(--error) !important;
+  border-color: var(--error) !important;
+}
+.v-application .error--text {
+  color: var(--error) !important;
+  caret-color: var(--error) !important;
+}
+.v-application .error.lighten-5 {
+  background-color: #ffece7 !important;
+  border-color: #ffece7 !important;
+}
+.v-application .error--text.text--lighten-5 {
+  color: #ffece7 !important;
+  caret-color: #ffece7 !important;
+}
+.v-application .error.lighten-4 {
+  background-color: #ffcfcb !important;
+  border-color: #ffcfcb !important;
+}
+.v-application .error--text.text--lighten-4 {
+  color: #ffcfcb !important;
+  caret-color: #ffcfcb !important;
+}
+.v-application .error.lighten-3 {
+  background-color: #ffb2af !important;
+  border-color: #ffb2af !important;
+}
+.v-application .error--text.text--lighten-3 {
+  color: #ffb2af !important;
+  caret-color: #ffb2af !important;
+}
+.v-application .error.lighten-2 {
+  background-color: #ff9595 !important;
+  border-color: #ff9595 !important;
+}
+.v-application .error--text.text--lighten-2 {
+  color: #ff9595 !important;
+  caret-color: #ff9595 !important;
+}
+.v-application .error.lighten-1 {
+  background-color: #ff797b !important;
+  border-color: #ff797b !important;
+}
+.v-application .error--text.text--lighten-1 {
+  color: #ff797b !important;
+  caret-color: #ff797b !important;
+}
+.v-application .error.darken-1 {
+  background-color: #df3e4a !important;
+  border-color: #df3e4a !important;
+}
+.v-application .error--text.text--darken-1 {
+  color: #df3e4a !important;
+  caret-color: #df3e4a !important;
+}
+.v-application .error.darken-2 {
+  background-color: #c01b34 !important;
+  border-color: #c01b34 !important;
+}
+.v-application .error--text.text--darken-2 {
+  color: #c01b34 !important;
+  caret-color: #c01b34 !important;
+}
+.v-application .error.darken-3 {
+  background-color: #a0001e !important;
+  border-color: #a0001e !important;
+}
+.v-application .error--text.text--darken-3 {
+  color: #a0001e !important;
+  caret-color: #a0001e !important;
+}
+.v-application .error.darken-4 {
+  background-color: #820008 !important;
+  border-color: #820008 !important;
+}
+.v-application .error--text.text--darken-4 {
+  color: #820008 !important;
+  caret-color: #820008 !important;
+}
+.v-application .info {
+  background-color: #64b5f6 !important;
+  border-color: #64b5f6 !important;
+}
+.v-application .info--text {
+  color: #64b5f6 !important;
+  caret-color: #64b5f6 !important;
+}
+.v-application .info.lighten-5 {
+  background-color: #fbffff !important;
+  border-color: #fbffff !important;
+}
+.v-application .info--text.text--lighten-5 {
+  color: #fbffff !important;
+  caret-color: #fbffff !important;
+}
+.v-application .info.lighten-4 {
+  background-color: #ddffff !important;
+  border-color: #ddffff !important;
+}
+.v-application .info--text.text--lighten-4 {
+  color: #ddffff !important;
+  caret-color: #ddffff !important;
+}
+.v-application .info.lighten-3 {
+  background-color: #bfffff !important;
+  border-color: #bfffff !important;
+}
+.v-application .info--text.text--lighten-3 {
+  color: #bfffff !important;
+  caret-color: #bfffff !important;
+}
+.v-application .info.lighten-2 {
+  background-color: #a1edff !important;
+  border-color: #a1edff !important;
+}

@@ -173,3 +173,7 @@ form[name='signupform'] > div:nth-child(5):before {
   line-height: 20px;
   color: #000000;
 }
+
+#div-forgot-password-msg {
+  margin-bottom: 30px;
+}
