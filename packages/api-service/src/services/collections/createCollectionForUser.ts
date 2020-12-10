@@ -27,6 +27,7 @@ import { EnvironmentVariable, requireConfiguration } from '@/config'
 import { submitCollectionCreatedEvent } from '../activity'
 import { User } from '@/models/user'
 import { userName } from '../users'
+import { captureException } from '@/utils/sentry'
 
 connectDatabase()
 
@@ -114,17 +115,13 @@ export const handler = createAuthenticatedApiGatewayHandler(
       )
     }
 
-    try {
-      await queueSharedCollectionNotification({
-        collection: {
-          link: `https://${webAppDomain}/collections/${collection.id}`,
-          name: userName(user),
-        },
-        emails: individualEmailAddresses,
-      })
-    } catch (err) {
-      console.error('An error occurred sending email: ', err)
-    }
+    await queueSharedCollectionNotification({
+      collection: {
+        link: `https://${webAppDomain}/collections/${collection.id}`,
+        name: userName(user),
+      },
+      emails: individualEmailAddresses,
+    })
 
     // return response
     return formatCollectionListItem(createdCollection, [

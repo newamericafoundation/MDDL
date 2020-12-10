@@ -11,7 +11,10 @@ import { AnySchema } from 'joi'
 import createError from 'http-errors'
 import pPipe from 'p-pipe'
 import { parseAndValidate } from './validation'
-import { captureException, wrapHandler as sentryWrapHandler } from './sentry'
+import {
+  captureException,
+  wrapMiddlewareHandler as sentryWrapHandler,
+} from './sentry'
 
 export const compose = pPipe
 

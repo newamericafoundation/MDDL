@@ -3,6 +3,12 @@ import { AWSLambda } from '@sentry/serverless'
 import { CaptureContext } from '@sentry/types'
 import { Handler as MiddlewareHandler } from './middleware'
 import * as SentryTracing from '@sentry/tracing'
+import { Handler as LambdaHandler } from 'aws-lambda'
+import { WrapperOptions } from '@sentry/serverless/dist/awslambda'
+
+export type AsyncHandler<TEvent = any, TResult = any> = (
+  event: TEvent,
+) => Promise<TResult>
 
 let inited = false
 let useSentry = false
@@ -24,7 +30,23 @@ const initialize = () => {
   inited = true
 }
 
-export const wrapHandler = (handler: MiddlewareHandler): MiddlewareHandler => {
+export const wrapAsyncHandler = <TEvent = any, TResult = any>(
+  handler: AsyncHandler<TEvent, TResult>,
+  wrapOptions?: Partial<WrapperOptions>,
+): AsyncHandler<TEvent, TResult | undefined> => {
+  initialize()
+  if (useSentry) {
+    return AWSLambda.wrapHandler(handler, wrapOptions) as AsyncHandler<
+      TEvent,
+      TResult
+    >
+  }
+  return handler
+}
+
+export const wrapMiddlewareHandler = (
+  handler: MiddlewareHandler,
+): MiddlewareHandler => {
   initialize()
   return useSentry
     ? (AWSLambda.wrapHandler(handler) as MiddlewareHandler)

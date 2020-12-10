@@ -1,5 +1,6 @@
 import { EnvironmentVariable, requireConfiguration } from '@/config'
 import { getLogStreamNextSequenceToken, putLogEvents } from '@/utils/logstream'
+import { captureException, wrapAsyncHandler } from '@/utils/sentry'
 import { deleteMessages } from '@/utils/sqs'
 import { SQSEvent } from 'aws-lambda'
 import groupBy from 'lodash/groupBy'
@@ -35,42 +36,49 @@ const deleteSequenceToken = (logStreamName: string) => {
   }
 }
 
-export const handler = async (event: SQSEvent) => {
-  // group by message group ID which is going to be our log stream name (should be the users ID)
-  const groupedRecords = groupBy(
-    event.Records,
-    (r) => r.attributes.MessageGroupId,
-  )
+export const handler = wrapAsyncHandler(
+  async (event: SQSEvent) => {
+    // group by message group ID which is going to be our log stream name (should be the users ID)
+    const groupedRecords = groupBy(
+      event.Records,
+      (r) => r.attributes.MessageGroupId,
+    )
 
-  // then process each group of messages
-  for (const logStreamName in groupedRecords) {
-    // get the records in the group
-    const records = groupedRecords[logStreamName]
-    const sequenceToken = await getSequenceToken(logStreamName)
+    // then process each group of messages
+    for (const logStreamName in groupedRecords) {
+      // get the records in the group
+      const records = groupedRecords[logStreamName]
+      const sequenceToken = await getSequenceToken(logStreamName)
 
-    try {
-      // try to put the events into the log stream, using the latest sequence token we know about
-      const nextSequenceToken = await putLogEvents(
-        {
-          logGroupName,
-          logStreamName,
-        },
-        records.map((r) => ({
-          // these are both unix timestamps in milliseconds, but the SQS message is given as a string ¯\_(ツ)_/¯
-          timestamp: parseInt('' + r.attributes.SentTimestamp),
-          message: r.body,
-        })),
-        sequenceToken,
-      )
-      setSequenceToken(logStreamName, nextSequenceToken)
-    } catch (ex) {
-      console.error('An error occurred putting log events', ex)
-      // clean up sequence token as we may have cached the wrong value
-      deleteSequenceToken(logStreamName)
-      // we need to throw so that unprocessed messages are put back on the queue
-      throw ex
+      try {
+        // try to put the events into the log stream, using the latest sequence token we know about
+        const nextSequenceToken = await putLogEvents(
+          {
+            logGroupName,
+            logStreamName,
+          },
+          records.map((r) => ({
+            // these are both unix timestamps in milliseconds, but the SQS message is given as a string ¯\_(ツ)_/¯
+            timestamp: parseInt('' + r.attributes.SentTimestamp),
+            message: r.body,
+          })),
+          sequenceToken,
+        )
+        setSequenceToken(logStreamName, nextSequenceToken)
+      } catch (ex) {
+        console.error('An error occurred putting log events', ex)
+        captureException(ex)
+        // clean up sequence token as we may have cached the wrong value
+        deleteSequenceToken(logStreamName)
+        // we need to throw so that unprocessed messages are put back on the queue
+        throw ex
+      }
+      // clean up messages in this group
+      await deleteMessages(queueUrl, records)
     }
-    // clean up messages in this group
-    await deleteMessages(queueUrl, records)
-  }
-}
+    return event.Records.length
+  },
+  {
+    rethrowAfterCapture: true,
+  },
+)

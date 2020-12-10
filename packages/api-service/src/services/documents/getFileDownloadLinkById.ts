@@ -19,7 +19,6 @@ import { Document, getDocumentById } from '@/models/document'
 import { validateDisposition } from './validation'
 import { createAuthenticatedApiGatewayHandler } from '@/services/users/middleware'
 import { submitDocumentAccessedEvent } from '../activity'
-import { userInfo } from 'os'
 import { User } from '@/models/user'
 
 connectDatabase()
