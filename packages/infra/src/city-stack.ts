@@ -566,7 +566,7 @@ export class CityStack extends Stack {
       ...processorQueues.map((q) =>
         q
           .metricApproximateAgeOfOldestMessage()
-          .createAlarm(this, `ProcessingStalled${q.queueName}`, {
+          .createAlarm(this, `ProcessingStalled${q.node.id}`, {
             threshold: Duration.days(1).toSeconds(),
             evaluationPeriods: 1,
           }),
