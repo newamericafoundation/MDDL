@@ -22,7 +22,12 @@
         />
         Datalocker
       </v-btn>
-      <v-app-bar-nav-icon v-else color="grey-8" @click.stop="toggleSideNav" />
+      <v-app-bar-nav-icon
+        v-else
+        color="grey-8"
+        @click.stop="toggleSideNav(false)"
+        @keydown.stop.enter="toggleSideNav(true)"
+      />
     </template>
     <template v-if="($vuetify.breakpoint.xs || empty) && title">
       <v-toolbar-title>
@@ -59,7 +64,7 @@
         <v-col
           v-if="
             !!$slots.actionsBeneath ||
-              (title && $vuetify.breakpoint.smAndUp && !empty)
+            (title && $vuetify.breakpoint.smAndUp && !empty)
           "
           cols="12"
           class="pr-2 d-flex justify-end align-center white"

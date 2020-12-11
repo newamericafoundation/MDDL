@@ -9,7 +9,7 @@
   >
     <p>PDF document: {{ document.name }}</p>
   </iframe>
-  <div v-else class="d-flex justify-center image viewer">
+  <div v-else class="justify-center image viewer">
     <img :src="url" :alt="`${documentName} (${fileName})`" />
   </div>
 </template>
