@@ -115,6 +115,7 @@ const config = {
           'style-src': ["'self'"],
           'script-src': getSrc(CspEnum.SCRIPT, process.env.CSP_SCRIPT_SRC),
           'connect-src': getSrc(CspEnum.CONNECT, process.env.CSP_CONNECT_SRC),
+          'frame-src': getSrc(CspEnum.FRAME, process.env.CSP_FRAME_SRC),
           'form-action': ["'self'"],
           'object-src': ["'none'"],
         },

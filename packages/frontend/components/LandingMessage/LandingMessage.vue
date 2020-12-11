@@ -65,7 +65,7 @@ export default class LandingMessage extends mixins(Login) {
     align-items: center;
     text-align: center;
   }
-  .welcome-message {
+  .welcome-message.body-1 {
     font-size: rem(15px) !important;
   }
 }

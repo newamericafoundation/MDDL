@@ -7,4 +7,5 @@ export enum CspEnum {
   CONNECT = 'connect',
   IMAGE = 'img',
   SCRIPT = 'script',
+  FRAME = 'frame',
 }
