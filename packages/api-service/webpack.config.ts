@@ -9,10 +9,7 @@ const SRC_DIR = path.resolve(__dirname, 'src')
 const OUT_DIR = path.resolve(__dirname, 'build')
 const sourcePath = (name: string) => path.resolve(SRC_DIR, 'services', name)
 const directory = (filePath: string) =>
-  filePath
-    .split('/')
-    .slice(0, -1)
-    .join('/')
+  filePath.split('/').slice(0, -1).join('/')
 
 const lambdas: { [index: string]: string } = {}
 entrypoints.forEach((d) => {
@@ -48,6 +45,11 @@ const config = {
   resolve: {
     extensions: ['.ts', '.tsx', '.js'],
     plugins: [new TsconfigPathsPlugin()],
+    alias: {
+      'google-gax': 'noop2',
+      '@google-cloud/common': 'noop2',
+      'spawn-sync': 'noop2',
+    },
   },
   // aws-sdk is already available in the Node.js Lambda environment
   //  so it should not be included in function bundles

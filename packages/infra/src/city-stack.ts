@@ -7,7 +7,6 @@ import {
   Stack,
   StackProps,
 } from '@aws-cdk/core'
-import path = require('path')
 import {
   Function,
   LayerVersion,
@@ -78,11 +77,12 @@ import { SqsEventSource } from '@aws-cdk/aws-lambda-event-sources'
 import { Queue, IQueue } from '@aws-cdk/aws-sqs'
 import { MinimalCloudFrontTarget } from './minimal-cloudfront-target'
 import { EmailSender } from './email-sender'
-import { getCognitoHostedLoginCss } from './utils'
+import { getCognitoHostedLoginCss, pathToApiServiceLambda } from './utils'
 import { StringParameter } from '@aws-cdk/aws-ssm'
 import { ProvidedKeyDetails } from './provided-key'
 import { SnsAction } from '@aws-cdk/aws-cloudwatch-actions'
 import { Topic } from '@aws-cdk/aws-sns'
+import { join } from 'path'
 
 interface ApiHostedDomain extends HostedDomain {
   /**
@@ -293,9 +293,6 @@ enum EnvironmentVariables {
   AUTH_SIGNING_KEY = 'AUTH_SIGNING_KEY',
   AUTH_INTEGRATION_TYPE = 'AUTH_INTEGRATION_TYPE',
 }
-
-const pathToApiServiceLambda = (name: string) =>
-  path.join(__dirname, '..', '..', 'api-service', 'build', `${name}.zip`)
 
 // these variables get inserted to every lambda created by "createLambda" so use sparingly
 const commonEnvironmentVariables = [
@@ -914,6 +911,12 @@ export class CityStack extends Stack {
           css: getCognitoHostedLoginCss(appUrl + '/images/city-logo.svg'),
         },
       )
+
+      new StringParameter(this, 'ClientWebAppMapping', {
+        stringValue: appUrl,
+        parameterName: `/${authStack.stackName}/clientWebApps/${client.userPoolClientId}`,
+        simpleName: false,
+      })
     }
 
     return {
@@ -2286,7 +2289,7 @@ export class CityStack extends Stack {
     return {
       layer: new LayerVersion(this, 'MysqlLayer', {
         code: Code.fromAsset(
-          path.join(__dirname, 'lambdas', 'sql-layer', 'layer.zip'),
+          join(__dirname, 'lambdas', 'sql-layer', 'layer.zip'),
         ),
         compatibleRuntimes: [Runtime.NODEJS_12_X],
       }),
@@ -2300,7 +2303,7 @@ export class CityStack extends Stack {
     return {
       layer: new LayerVersion(this, 'GraphicsMagickLayer', {
         code: Code.fromAsset(
-          path.join(__dirname, 'lambdas', 'gm-layer', 'layer.zip'),
+          join(__dirname, 'lambdas', 'gm-layer', 'layer.zip'),
         ),
         compatibleRuntimes: [Runtime.NODEJS_12_X],
       }),
@@ -2315,7 +2318,7 @@ export class CityStack extends Stack {
   private runMigrations(dbSecret: ISecret, mysqlLayer: ILayerVersion) {
     const runMigrationsFunction = new Function(this, 'RunMigrationsFunction', {
       code: Code.fromAsset(
-        path.join(__dirname, '..', '..', 'api-service', 'dist', 'migrator'),
+        join(__dirname, '..', '..', 'api-service', 'dist', 'migrator'),
       ),
       handler: 'index.handler',
       runtime: Runtime.NODEJS_12_X,

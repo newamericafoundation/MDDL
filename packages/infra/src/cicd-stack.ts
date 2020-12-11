@@ -640,7 +640,7 @@ export class CiCdStack extends Stack {
       stagingStage.addActions(
         new ManualApprovalAction({
           actionName: `ApproveStagingDeploymentStage`,
-          additionalInformation: `Approve to continue deployment of #{Build.BUILD_NUMBER} to staging environments.`,
+          additionalInformation: `Approve to continue deployment of Build #{Build.BUILD_NUMBER} to staging environments.`,
           runOrder: stagingStage.nextSequentialRunOrder(),
         }),
       )
@@ -663,7 +663,7 @@ export class CiCdStack extends Stack {
       stagingStage.addActions(
         new ManualApprovalAction({
           actionName: `ApproveStagingChangeSets`,
-          additionalInformation: `Approve to execute change sets for staging environments.`,
+          additionalInformation: `Approve to execute change sets of Build #{Build.BUILD_NUMBER} in staging environments.`,
           runOrder: approvalOrder,
         }),
       )
@@ -682,7 +682,7 @@ export class CiCdStack extends Stack {
       prodStage.addActions(
         new ManualApprovalAction({
           actionName: `ApproveProductionDeploymentStage`,
-          additionalInformation: `Approve to continue deployment of #{Build.BUILD_NUMBER} to production environments.`,
+          additionalInformation: `Approve to continue deployment of Build #{Build.BUILD_NUMBER} to production environments.`,
           runOrder: prodStage.nextSequentialRunOrder(),
         }),
       )
@@ -716,7 +716,7 @@ export class CiCdStack extends Stack {
       prodStage.addActions(
         new ManualApprovalAction({
           actionName: `ApproveProductionDataAndAuthApplyStage`,
-          additionalInformation: `Approve to apply DataStore and Auth Stack change sets from Build #{Build.BUILD_NUMBER} to production environments.`,
+          additionalInformation: `Approve to apply Data Store and Auth Stack change sets from Build #{Build.BUILD_NUMBER} to production environments.`,
           runOrder: preApplicationApprovalOrder,
         }),
       )
@@ -727,7 +727,7 @@ export class CiCdStack extends Stack {
       const applicationExecuteRunOrder = prodStage.nextSequentialRunOrder()
       const applicationParallelOptions: AddStackOptions = {
         runOrder: applicationRunOrder,
-        executeRunOrder: applicationApprovalOrder,
+        executeRunOrder: applicationExecuteRunOrder,
       }
 
       // add each city to the current stage
@@ -743,8 +743,8 @@ export class CiCdStack extends Stack {
       prodStage.addActions(
         new ManualApprovalAction({
           actionName: `ApproveProductionCityApplyStage`,
-          additionalInformation: `Approve to apply City change sets from Build #{Build.BUILD_NUMBER} to production environments.`,
-          runOrder: applicationExecuteRunOrder,
+          additionalInformation: `Approve to apply City change sets from Build #{Build.BUILD_NUMBER} in production environments.`,
+          runOrder: applicationApprovalOrder,
         }),
       )
     }

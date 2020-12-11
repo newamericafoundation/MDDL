@@ -1,41 +1,14 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import SES from 'aws-sdk/clients/ses'
-import { render } from 'mustache'
 import {
   EnvironmentVariable,
   isProduction,
   requireConfiguration,
 } from '@/config'
-import { existsSync, readFileSync } from 'fs'
-import { join } from 'path'
 import { captureAWSClient } from 'aws-xray-sdk'
+import { renderTemplate } from './renderer'
 
 const ses = captureAWSClient(new SES())
-
-const templatePath = 'templates'
-
-const loadedTemplates: { [index: string]: string } = {}
-
-const loadTemplate = (templateName: string) => {
-  if (!loadedTemplates[templateName]) {
-    const templateResolvedPath = join(
-      __dirname,
-      templatePath,
-      `${templateName}.mustache`,
-    )
-    if (!existsSync(templateResolvedPath)) {
-      throw new Error(`${templateName} not found`)
-    }
-    loadedTemplates[templateName] = readFileSync(templateResolvedPath, 'utf8')
-  }
-  return loadedTemplates[templateName]
-}
-
-const partials = {
-  header: loadTemplate('header'),
-  footer: loadTemplate('footer'),
-  horizontalRule: loadTemplate('horizontalRule'),
-}
 
 type SendEmailOptions = {
   template: string
@@ -45,18 +18,16 @@ type SendEmailOptions = {
   forceSend?: boolean
 }
 
-const renderTemplate = (template: string, data: any) => {
-  return render(loadTemplate(template), data, partials)
-}
-
 export const sendEmail = async (opts: SendEmailOptions) => {
   const { template, subject, data, destination, forceSend = false } = opts
   const emailSender = requireConfiguration(EnvironmentVariable.EMAIL_SENDER)
-  const webAppDomain =
-    'https://' + requireConfiguration(EnvironmentVariable.WEB_APP_DOMAIN)
+  const webAppLogoSrc =
+    'https://' +
+    requireConfiguration(EnvironmentVariable.WEB_APP_DOMAIN) +
+    '/images/city-logo.png'
   const body = renderTemplate(template, {
     ...data,
-    webAppDomain,
+    webAppLogoSrc,
   })
   return new Promise<SES.SendEmailResponse & { Request: SES.SendEmailRequest }>(
     (resolve, reject) => {

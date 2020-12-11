@@ -1,19 +1,9 @@
 import { requireConfiguration } from '@/config'
 import { toMockedFunction } from '@/utils/test'
-import { writeFileSync } from 'fs'
-import { join } from 'path'
 import { sendEmail } from './emailSender'
+import { writeSnapshotFile } from './renderer'
 
 jest.mock('@/config')
-
-// set this to true to save the html files locally so they can be inspected
-const WRITE_FILES = false
-
-const writeFile = (name: string, content: string | undefined) => {
-  if (WRITE_FILES) {
-    writeFileSync(join(__dirname, '__snapshots__', name + '.html'), content)
-  }
-}
 
 describe('sendEmail', () => {
   beforeEach(() => {
@@ -45,7 +35,7 @@ describe('sendEmail', () => {
       }
     `)
     expect(results.Request.Message.Body.Html?.Data).toMatchSnapshot()
-    writeFile(
+    writeSnapshotFile(
       'collectionSharedNotification',
       results.Request.Message.Body.Html?.Data,
     )
@@ -70,6 +60,9 @@ describe('sendEmail', () => {
       }
     `)
     expect(results.Request.Message.Body.Html?.Data).toMatchSnapshot()
-    writeFile('delegateUserInvite', results.Request.Message.Body.Html?.Data)
+    writeSnapshotFile(
+      'delegateUserInvite',
+      results.Request.Message.Body.Html?.Data,
+    )
   })
 })

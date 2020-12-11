@@ -4,6 +4,9 @@
   "entrypoint": "emails/processSendRequest",
   "include": ["templates"]
 }, {
+  "entrypoint": "emails/cognitoCustomMessageHandler",
+  "include": ["templates"]
+}, {
   "entrypoint": "documents/getById"
 }, {
   "entrypoint": "documents/getByUserId"

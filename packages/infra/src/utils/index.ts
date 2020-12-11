@@ -16,3 +16,6 @@ export const getCognitoHostedLoginCss = (logoUrl?: string) => {
 
   return css.replace('__BANNER_BACKGROUND_URL__', bannerBackgroundUrl)
 }
+
+export const pathToApiServiceLambda = (name: string) =>
+  join(__dirname, '..', '..', '..', 'api-service', 'build', `${name}.zip`)

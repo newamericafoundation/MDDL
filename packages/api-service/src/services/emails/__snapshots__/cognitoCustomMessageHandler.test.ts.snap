@@ -1,7 +1,25 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`sendEmail renders collectionSharedNotification template correctly 2`] = `
-"
+exports[`cognitoCustomMessageHandler renders password reset template 1`] = `
+Object {
+  "callerContext": Object {
+    "awsSdk": "v1",
+    "clientId": "829084D7",
+  },
+  "region": "us-east-1",
+  "request": Object {
+    "clientMetadata": Object {},
+    "codeParameter": "CODE",
+    "linkParameter": "LINK",
+    "userAttributes": Object {
+      "email": "staylor@example.com",
+      "family_name": "Taylor",
+      "given_name": "Sam",
+      "sub": "829084D7-F359-49CF-8D36-F6A7310B542E",
+    },
+  },
+  "response": Object {
+    "emailMessage": "
 <!DOCTYPE html PUBLIC \\"-//W3C//DTD XHTML 1.0 Strict//EN\\" \\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\\">
 <html data-editor-version=\\"2\\" class=\\"sg-campaigns\\" xmlns=\\"http://www.w3.org/1999/xhtml\\">
 
@@ -219,7 +237,7 @@ exports[`sendEmail renders collectionSharedNotification template correctly 2`] =
                                   <td style=\\"padding:25px 20px 25px 20px;line-height:20px;text-align:inherit;\\"
                                     height=\\"100%\\" valign=\\"top\\" bgcolor=\\"\\">
 
-      <h2 style=\\"text-align: center;\\">You've received new <br />documents.</h2>
+      <h2 style=\\"text-align: center;\\">Your verification code.</h2>
       <br/>
       <table width=\\"100%\\" border=\\"0\\" cellspacing=\\"0\\" cellpadding=\\"0\\">
           <tr>
@@ -229,19 +247,9 @@ exports[`sendEmail renders collectionSharedNotification template correctly 2`] =
           </tr>
       </table>
       <br/>
-      <p style=\\"text-align: center; font-weight: bold; padding-top: 20px\\" class=\\"primary-color\\">Sam Smithers</p>
+      <p style=\\"text-align: center;\\">Your password reset code is <br/><br/>CODE</p>
       <br/>
-      <p style=\\"text-align: center;\\">has shared documents with you in the <br/>Datalocker. Click below to view them. </p>
-      <br/>
-      <table width=\\"100%\\" border=\\"0\\" cellspacing=\\"0\\" cellpadding=\\"0\\">
-          <tr>
-              <td align=\\"center\\">
-                  <div>
-                      <a href=\\"https:&#x2F;&#x2F;mylink1234\\" class=\\"cta\\">View Files</a>
-                  </div>
-              </td>
-          </tr>
-      </table>
+      <p style=\\"text-align: center;\\">Please enter this where prompted <br/>to allow you to reset your password.</p>
 
 
                                     <br/><br/>
@@ -299,11 +307,36 @@ exports[`sendEmail renders collectionSharedNotification template correctly 2`] =
 
 </html>
 
-"
+",
+    "emailSubject": "Data Locker: Your verification code",
+  },
+  "triggerSource": "CustomMessage_ForgotPassword",
+  "userName": "829084D7-F359-49CF-8D36-F6A7310B542E",
+  "userPoolId": "us-east-1_userpool",
+  "version": 1,
+}
 `;
 
-exports[`sendEmail renders delegateUserInvite template correctly 2`] = `
-"
+exports[`cognitoCustomMessageHandler renders resend code template 1`] = `
+Object {
+  "callerContext": Object {
+    "awsSdk": "v1",
+    "clientId": "829084D7",
+  },
+  "region": "us-east-1",
+  "request": Object {
+    "clientMetadata": Object {},
+    "codeParameter": "CODE",
+    "linkParameter": "LINK",
+    "userAttributes": Object {
+      "email": "staylor@example.com",
+      "family_name": "Taylor",
+      "given_name": "Sam",
+      "sub": "829084D7-F359-49CF-8D36-F6A7310B542E",
+    },
+  },
+  "response": Object {
+    "emailMessage": "
 <!DOCTYPE html PUBLIC \\"-//W3C//DTD XHTML 1.0 Strict//EN\\" \\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\\">
 <html data-editor-version=\\"2\\" class=\\"sg-campaigns\\" xmlns=\\"http://www.w3.org/1999/xhtml\\">
 
@@ -521,7 +554,7 @@ exports[`sendEmail renders delegateUserInvite template correctly 2`] = `
                                   <td style=\\"padding:25px 20px 25px 20px;line-height:20px;text-align:inherit;\\"
                                     height=\\"100%\\" valign=\\"top\\" bgcolor=\\"\\">
 
-      <h2 style=\\"text-align: center;\\">A client has granted access <br />to their account.</h2>
+      <h2 style=\\"text-align: center;\\">Please verify your <br />email address.</h2>
       <br/>
       <table width=\\"100%\\" border=\\"0\\" cellspacing=\\"0\\" cellpadding=\\"0\\">
           <tr>
@@ -531,15 +564,13 @@ exports[`sendEmail renders delegateUserInvite template correctly 2`] = `
           </tr>
       </table>
       <br/>
-      <p style=\\"text-align: center; font-weight: bold; padding-top: 20px\\" class=\\"primary-color\\">Sam Smithers</p>
-      <br/>
-      <p style=\\"text-align: center;\\">has allowed you to manage and share files on<br/>their behalf in Datalocker.</p>
+      <p style=\\"text-align: center;\\">Welcome to Datalocker.<br/>Please verify your email address to get started.</p>
       <br/>
       <table width=\\"100%\\" border=\\"0\\" cellspacing=\\"0\\" cellpadding=\\"0\\">
           <tr>
               <td align=\\"center\\">
                   <div>
-                      <a href=\\"https:&#x2F;&#x2F;mylink1234\\" class=\\"cta\\">Accept</a>
+                      <div class=\\"cta\\">{##Verify Email##}</a>
                   </div>
               </td>
           </tr>
@@ -601,5 +632,337 @@ exports[`sendEmail renders delegateUserInvite template correctly 2`] = `
 
 </html>
 
-"
+",
+    "emailSubject": "Data Locker: Welcome!",
+  },
+  "triggerSource": "CustomMessage_ResendCode",
+  "userName": "829084D7-F359-49CF-8D36-F6A7310B542E",
+  "userPoolId": "us-east-1_userpool",
+  "version": 1,
+}
+`;
+
+exports[`cognitoCustomMessageHandler renders welcome template 1`] = `
+Object {
+  "callerContext": Object {
+    "awsSdk": "v1",
+    "clientId": "829084D7",
+  },
+  "region": "us-east-1",
+  "request": Object {
+    "clientMetadata": Object {},
+    "codeParameter": "CODE",
+    "linkParameter": "LINK",
+    "userAttributes": Object {
+      "email": "staylor@example.com",
+      "family_name": "Taylor",
+      "given_name": "Sam",
+      "sub": "829084D7-F359-49CF-8D36-F6A7310B542E",
+    },
+  },
+  "response": Object {
+    "emailMessage": "
+<!DOCTYPE html PUBLIC \\"-//W3C//DTD XHTML 1.0 Strict//EN\\" \\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\\">
+<html data-editor-version=\\"2\\" class=\\"sg-campaigns\\" xmlns=\\"http://www.w3.org/1999/xhtml\\">
+
+<head>
+  <meta http-equiv=\\"Content-Type\\" content=\\"text/html; charset=utf-8\\" />
+  <meta name=\\"viewport\\" content=\\"width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1\\" />
+  <!--[if !mso]><!-->
+  <meta http-equiv=\\"X-UA-Compatible\\" content=\\"IE=Edge\\" />
+  <!--<![endif]-->
+  <!--[if (gte mso 9)|(IE)]>
+    <xml>
+    <o:OfficeDocumentSettings>
+    <o:AllowPNG/>
+    <o:PixelsPerInch>96</o:PixelsPerInch>
+    </o:OfficeDocumentSettings>
+    </xml>
+    <![endif]-->
+  <!--[if (gte mso 9)|(IE)]>
+    <style type=\\"text/css\\">
+      body {width: 515px;margin: 0 auto;}
+      table {border-collapse: collapse;}
+      table, td {mso-table-lspace: 0pt;mso-table-rspace: 0pt;}
+      img {-ms-interpolation-mode: bicubic;}
+    </style>
+    <![endif]-->
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&display=swap');
+    </style>
+
+  <style type=\\"text/css\\">
+    body,
+    p,
+    div {
+      font-family: 'Noto Sans', sans-serif;
+      font-size: 14px;
+    }
+
+    h2 {
+      font-style: normal;
+      font-weight: 600;
+      line-height: 27px;
+      text-align: center;
+      color: #2F3033;
+    }
+
+    body {
+      color: #000000;
+    }
+
+    body a {
+      text-decoration: none;
+    }
+
+    p {
+      margin: 0;
+      padding: 0;
+    }
+
+    table.wrapper {
+      width: 100% !important;
+      table-layout: fixed;
+      -webkit-font-smoothing: antialiased;
+      -webkit-text-size-adjust: 100%;
+      -moz-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;
+    }
+
+    img.max-width {
+      max-width: 100% !important;
+    }
+
+    .column.of-2 {
+      width: 50%;
+    }
+
+    .column.of-3 {
+      width: 33.333%;
+    }
+
+    .column.of-4 {
+      width: 25%;
+    }
+
+    .primary-color {
+      color: #2157E4
+    }
+
+    a.cta, div.cta > a {
+        background-color: #2157E4;
+        border: 1px solid #2157E4;
+        border-radius: 8px;
+        display: inline-block;
+        color: #fff;
+        padding: 9px 50px;
+        text-align: center;
+        text-decoration: none;
+        -webkit-text-size-adjust: none;
+    }
+
+    [role=\\"modules-container\\"] {
+      border-radius: 4px;
+    }
+
+    @media screen and (max-width:515px) {
+
+      [role=\\"modules-container\\"] {
+        border-radius: 0;
+      }
+
+      .preheader .rightColumnContent,
+      .footer .rightColumnContent {
+        text-align: left !important;
+      }
+
+      .preheader .rightColumnContent div,
+      .preheader .rightColumnContent span,
+      .footer .rightColumnContent div,
+      .footer .rightColumnContent span {
+        text-align: left !important;
+      }
+
+      .preheader .rightColumnContent,
+      .preheader .leftColumnContent {
+        font-size: 80% !important;
+        padding: 5px 0;
+      }
+
+      table.wrapper-mobile {
+        width: 100% !important;
+        table-layout: fixed;
+      }
+
+      img.max-width {
+        height: auto !important;
+        max-width: 480px !important;
+      }
+
+      a.bulletproof-button {
+        display: block !important;
+        width: auto !important;
+        font-size: 80%;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+      }
+
+      .columns {
+        width: 100% !important;
+      }
+
+      .column {
+        display: block !important;
+        width: 100% !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+      }
+
+      .total_spacer {
+        padding: 0px 0px 0px 0px;
+      }
+    }
+  </style>
+  <!--user entered Head Start-->
+
+  <!--End Head user entered-->
+</head>
+
+<body>
+  <center class=\\"wrapper\\"
+    data-body-style=\\"font-size: 14px; font-family: arial; color: #000000; background-color: #ebebeb;\\">
+    <div class=\\"webkit\\">
+      <table cellpadding=\\"0\\" cellspacing=\\"0\\" border=\\"0\\" width=\\"100%\\" class=\\"wrapper\\" bgcolor=\\"#ebebeb\\">
+        <tr>
+          <td valign=\\"top\\" bgcolor=\\"#ebebeb\\" width=\\"100%\\">
+            <table width=\\"100%\\" role=\\"content-container\\" class=\\"outer\\" align=\\"center\\" cellpadding=\\"0\\" cellspacing=\\"0\\"
+              border=\\"0\\">
+              <tr>
+                <td width=\\"100%\\">
+                  <table width=\\"100%\\" cellpadding=\\"0\\" cellspacing=\\"0\\" border=\\"0\\">
+                    <tr>
+                      <td>
+                        <!--[if mso]>
+                          <center>
+                          <table><tr><td width=\\"600\\">
+                          <![endif]-->
+                        <table width=\\"100%\\" cellpadding=\\"0\\" cellspacing=\\"0\\" border=\\"0\\"
+                          style=\\"width: 100%; max-width:515px; padding: 20px 0 20px 0;\\" align=\\"center\\">
+                          <tr>
+                            <td role=\\"modules-container\\"
+                              style=\\"padding: 0px 0px 0px 0px; color: #000000; text-align: left;\\" bgcolor=\\"#ffffff\\"
+                              width=\\"100%\\" align=\\"left\\">
+
+                              <table class=\\"module preheader preheader-hide\\" role=\\"module\\" data-type=\\"preheader\\"
+                                border=\\"0\\" cellpadding=\\"0\\" cellspacing=\\"0\\" width=\\"100%\\"
+                                style=\\"display: none !important; mso-hide: all; visibility: hidden; opacity: 0; color: transparent; height: 0; width: 0;\\">
+                                <tr>
+                                  <td role=\\"module-content\\">
+                                    <p></p>
+                                  </td>
+                                </tr>
+                              </table>
+
+                              <table class=\\"wrapper\\" role=\\"module\\" data-type=\\"image\\" border=\\"0\\" cellpadding=\\"0\\" cellspacing=\\"0\\" width=\\"100%\\" style=\\"table-layout: fixed;\\">
+                                <tr>
+                                  <td style=\\"font-size:6px;line-height:10px;padding:75px 0px 0px 0px;\\" valign=\\"top\\" align=\\"center\\">
+                                    <img class=\\"max-width\\" border=\\"0\\" style=\\"display:block;color:#000000;text-decoration:none;font-family:Helvetica, arial, sans-serif;font-size:16px;max-width:115px !important;width:100%;height:auto !important;\\" src=\\"https://mydatalocker.org/images/city-logo.png\\" alt=\\"\\" width=\\"115\\">
+                                  </td>
+                                </tr>
+                              </table>
+
+                              <table class=\\"module\\" role=\\"module\\" data-type=\\"text\\" border=\\"0\\" cellpadding=\\"0\\"
+                                cellspacing=\\"0\\" width=\\"100%\\" style=\\"table-layout: fixed;\\">
+                                <tr>
+                                  <td style=\\"padding:25px 20px 25px 20px;line-height:20px;text-align:inherit;\\"
+                                    height=\\"100%\\" valign=\\"top\\" bgcolor=\\"\\">
+
+      <h2 style=\\"text-align: center;\\">Please verify your <br />email address.</h2>
+      <br/>
+      <table width=\\"100%\\" border=\\"0\\" cellspacing=\\"0\\" cellpadding=\\"0\\">
+          <tr>
+              <td align=\\"center\\">
+                  <div style=\\"max-width: 340px; border-top: 1px solid #D8DBDF\\"></div>
+              </td>
+          </tr>
+      </table>
+      <br/>
+      <p style=\\"text-align: center;\\">Welcome to Datalocker.<br/>Please verify your email address to get started.</p>
+      <br/>
+      <table width=\\"100%\\" border=\\"0\\" cellspacing=\\"0\\" cellpadding=\\"0\\">
+          <tr>
+              <td align=\\"center\\">
+                  <div>
+                      <div class=\\"cta\\">{##Verify Email##}</a>
+                  </div>
+              </td>
+          </tr>
+      </table>
+
+
+                                    <br/><br/>
+                                  </td>
+                                </tr>
+                              </table>
+                              <table class=\\"module\\" role=\\"module\\" data-type=\\"divider\\" border=\\"0\\" cellpadding=\\"0\\"
+                                cellspacing=\\"0\\" width=\\"100%\\" style=\\"table-layout: fixed;\\">
+                                <tr>
+                                  <td style=\\"padding:0px 0px 0px 0px;\\" role=\\"module-content\\" height=\\"100%\\" valign=\\"top\\"
+                                    bgcolor=\\"\\">
+                                    <table border=\\"0\\" cellpadding=\\"0\\" cellspacing=\\"0\\" align=\\"center\\" width=\\"100%\\"
+                                      height=\\"5px\\" style=\\"line-height:5px; font-size:5px;\\">
+                                      <tr>
+                                        <td style=\\"padding: 0px 0px 5px 0px;\\" bgcolor=\\"#ebebeb\\"></td>
+                                      </tr>
+                                    </table>
+                                  </td>
+                                </tr>
+                              </table>
+
+                              <div data-role=\\"module-unsubscribe\\" class=\\"module unsubscribe-css__unsubscribe___2CDlR\\"
+                                role=\\"module\\" data-type=\\"unsubscribe\\"
+                                style=\\"background-color:#ebebeb;color:#7a7a7a;font-size:11px;line-height:20px;padding:30px 0px 30px 0px;text-align:center\\">
+                                <div class=\\"Unsubscribe--addressLine\\">
+                                  <p class=\\"Unsubscribe--senderName\\"
+                                    style=\\"font-family:;font-size:11px;line-height:20px\\">New America</p>
+                                  <p style=\\"font-family:;font-size:11px;line-height:20px\\"><span
+                                      class=\\"Unsubscribe--senderAddress\\">740 15th Street NW, Suite 900</span>, <span
+                                      class=\\"Unsubscribe--senderCity\\">Washington</span>, <span
+                                      class=\\"Unsubscribe--senderState\\">DC</span> <span
+                                      class=\\"Unsubscribe--senderZip\\">20005</span> </p>
+                                </div>
+                              </div>
+
+                            </td>
+                          </tr>
+                        </table>
+                        <!--[if mso]>
+                          </td></tr></table>
+                          </center>
+                          <![endif]-->
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </center>
+</body>
+
+</html>
+
+",
+    "emailSubject": "Data Locker: Welcome!",
+  },
+  "triggerSource": "CustomMessage_SignUp",
+  "userName": "829084D7-F359-49CF-8D36-F6A7310B542E",
+  "userPoolId": "us-east-1_userpool",
+  "version": 1,
+}
 `;

@@ -1,5 +1,6 @@
 import {
   Construct,
+  Duration,
   IDependable,
   RemovalPolicy,
   Stack,
@@ -11,6 +12,7 @@ import {
   CfnUserPoolUICustomizationAttachment,
   StringAttribute,
   UserPool,
+  UserPoolOperation,
   VerificationEmailStyle,
 } from '@aws-cdk/aws-cognito'
 import { Topic } from '@aws-cdk/aws-sns'
@@ -27,7 +29,9 @@ import { Bucket, RedirectProtocol } from '@aws-cdk/aws-s3'
 import { BucketWebsiteTarget } from '@aws-cdk/aws-route53-targets'
 import { MinimalCloudFrontTarget } from './minimal-cloudfront-target'
 import { EmailSender } from './email-sender'
-import { getCognitoHostedLoginCss } from './utils'
+import { getCognitoHostedLoginCss, pathToApiServiceLambda } from './utils'
+import { Function, Code, Runtime } from '@aws-cdk/aws-lambda'
+import { PolicyStatement } from '@aws-cdk/aws-iam'
 
 interface CustomHostedDomain extends HostedDomain {
   /**
@@ -89,6 +93,8 @@ export class AuthStack extends Stack {
     } else {
       this.authUrl = userPool.userPoolProviderUrl
     }
+
+    this.addTriggers(userPool)
 
     // SNS Topics for SES Bounce Event
     new Topic(this, 'SesBounceTopic', {
@@ -279,5 +285,31 @@ export class AuthStack extends Stack {
     if (uiCustomization) {
       uiCustomization.addDependsOn(aRecord.node.defaultChild as CfnRecordSet)
     }
+  }
+
+  private addTriggers(userPool: UserPool) {
+    const parameterPath = `/${this.stackName}/clientWebApps`
+    const customMessageHandler = new Function(this, 'CustomMessageHandler', {
+      code: Code.fromAsset(
+        pathToApiServiceLambda('emails/cognitoCustomMessageHandler'),
+      ),
+      environment: {
+        CLIENT_WEB_APP_PARAMETER_PATH: parameterPath,
+      },
+      handler: 'index.handler',
+      memorySize: 256,
+      timeout: Duration.seconds(10),
+      runtime: Runtime.NODEJS_12_X,
+    })
+    customMessageHandler.addToRolePolicy(
+      new PolicyStatement({
+        actions: ['ssm:GetParameter'],
+        resources: [
+          `arn:${this.partition}:ssm:${this.region}:${this.account}:parameter${parameterPath}/*`,
+        ],
+      }),
+    )
+
+    userPool.addTrigger(UserPoolOperation.CUSTOM_MESSAGE, customMessageHandler)
   }
 }
