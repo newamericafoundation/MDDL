@@ -5,4 +5,5 @@ export const {
   userToApiUser,
   hasAcceptedTermsOfUse,
   userName,
+  userToApiSharer,
 } = jest.requireActual('@/services/users')

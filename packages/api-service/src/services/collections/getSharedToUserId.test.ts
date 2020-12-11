@@ -40,6 +40,12 @@ describe('getSharedToUserId', () => {
   it('returns collections', async () => {
     toMockedFunction(getUsersById).mockImplementationOnce(async () => [
       User.fromDatabaseJson({
+        id: userId,
+        givenName: 'Creator',
+        familyName: 'User',
+        email: 'myemail@example.com',
+      }),
+      User.fromDatabaseJson({
         id: 'mockUser1',
         givenName: 'User1',
         familyName: 'User1',
@@ -72,7 +78,7 @@ describe('getSharedToUserId', () => {
     )
     expect(await getSharedToUserId(event)).toMatchInlineSnapshot(`
       Object {
-        "body": "{\\"sharedCollections\\":[{\\"collection\\":{\\"name\\":\\"My First Collection\\",\\"createdDate\\":\\"2015-01-12T13:14:15.000Z\\",\\"id\\":\\"myCollectionId1\\",\\"links\\":[{\\"href\\":\\"/collections/myCollectionId1/documents\\",\\"rel\\":\\"documents\\",\\"type\\":\\"GET\\"}]},\\"owner\\":{\\"id\\":\\"mockUser1\\",\\"givenName\\":\\"User1\\",\\"familyName\\":\\"User1\\",\\"name\\":\\"User1 User1\\"}},{\\"collection\\":{\\"name\\":\\"My Second Collection\\",\\"createdDate\\":\\"2015-01-27T13:14:15.000Z\\",\\"id\\":\\"myCollectionId2\\",\\"links\\":[{\\"href\\":\\"/collections/myCollectionId2/documents\\",\\"rel\\":\\"documents\\",\\"type\\":\\"GET\\"}]},\\"owner\\":{\\"id\\":\\"mockUser2\\",\\"givenName\\":\\"User2\\",\\"familyName\\":\\"User2\\",\\"name\\":\\"User2 User2\\"}}]}",
+        "body": "{\\"sharedCollections\\":[{\\"collection\\":{\\"name\\":\\"My First Collection\\",\\"createdDate\\":\\"2015-01-12T13:14:15.000Z\\",\\"id\\":\\"myCollectionId1\\",\\"links\\":[{\\"href\\":\\"/collections/myCollectionId1/documents\\",\\"rel\\":\\"documents\\",\\"type\\":\\"GET\\"}]},\\"owner\\":{\\"id\\":\\"mockUser1\\",\\"givenName\\":\\"User1\\",\\"familyName\\":\\"User1\\",\\"name\\":\\"User1 User1\\"},\\"shareInformation\\":{\\"sharedBy\\":{\\"id\\":\\"myUserId\\",\\"name\\":\\"Creator User\\",\\"email\\":\\"myemail@example.com\\"},\\"sharedDate\\":\\"2015-01-12T13:14:15.000Z\\"}},{\\"collection\\":{\\"name\\":\\"My Second Collection\\",\\"createdDate\\":\\"2015-01-27T13:14:15.000Z\\",\\"id\\":\\"myCollectionId2\\",\\"links\\":[{\\"href\\":\\"/collections/myCollectionId2/documents\\",\\"rel\\":\\"documents\\",\\"type\\":\\"GET\\"}]},\\"owner\\":{\\"id\\":\\"mockUser2\\",\\"givenName\\":\\"User2\\",\\"familyName\\":\\"User2\\",\\"name\\":\\"User2 User2\\"},\\"shareInformation\\":{\\"sharedBy\\":{\\"id\\":\\"myUserId\\",\\"name\\":\\"Creator User\\",\\"email\\":\\"myemail@example.com\\"},\\"sharedDate\\":\\"2015-01-27T13:14:15.000Z\\"}}]}",
         "cookies": Array [],
         "headers": Object {
           "Content-Type": "application/json",

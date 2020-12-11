@@ -26,12 +26,17 @@ export const handler = createAuthenticatedApiGatewayHandler(
       CollectionGrantType.INDIVIDUALEMAIL,
       user.email as string, // checked in auth layer
     )
-    const userIds = [...new Set(foundCollections.map((c) => c.ownerId))]
-    let foundOwners: User[] = []
+    const userIds = [
+      ...new Set([
+        ...foundCollections.map((c) => c.ownerId),
+        ...foundCollections.map((c) => c.createdBy),
+      ]),
+    ]
+    let foundUsers: User[] = []
     if (userIds.length) {
-      foundOwners = await getUsersById(userIds)
+      foundUsers = await getUsersById(userIds)
     }
-    return formatSharedCollections(foundCollections, foundOwners, [
+    return formatSharedCollections(foundCollections, foundUsers, [
       CollectionPermission.ListDocuments,
     ])
   },

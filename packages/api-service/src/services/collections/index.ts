@@ -8,10 +8,11 @@ import {
   CollectionGrantType,
   CollectionListItem,
   Link,
+  SharedCollectionList,
   SharedCollectionListItem,
 } from 'api-client'
 import { submitDocumentsAccessedEvent } from '../activity'
-import { userToApiOwner } from '../users'
+import { userToApiOwner, userToApiSharer } from '../users'
 import { CollectionPermission } from './authorization'
 import { APIGatewayProxyEventV2 } from 'aws-lambda'
 import { Document } from '@/models/document'
@@ -54,17 +55,22 @@ export const formatSharedCollections = (
   collections: Collection[],
   users: User[],
   permissions: CollectionPermission[],
-) => ({
+): SharedCollectionList => ({
   sharedCollections: collections
     .map((collection): SharedCollectionListItem | null => {
-      const { ownerId } = collection
+      const { ownerId, createdBy, createdAt } = collection
       const owner = users.find((u) => u.id == ownerId)
-      if (!owner) {
+      const sharer = users.find((u) => u.id == createdBy)
+      if (!owner || !sharer) {
         return null
       }
       return {
         collection: formatCollectionListItem(collection, permissions),
         owner: userToApiOwner(owner),
+        shareInformation: {
+          sharedBy: userToApiSharer(sharer),
+          sharedDate: createdAt.toISOString(),
+        },
       }
     })
     .filter((c) => c !== null) as SharedCollectionListItem[],

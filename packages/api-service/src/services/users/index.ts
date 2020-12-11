@@ -1,6 +1,6 @@
 import { EnforceUserTermsOfUseAcceptance } from '@/constants'
 import { findAccountDelegateForAccountByEmail } from '@/models/accountDelegate'
-import { getUserById, insertUser, updateUser, User } from '@/models/user'
+import { getUserById, insertUser, updateUser } from '@/models/user'
 import {
   requireToken,
   requireTokenTimestamp,
@@ -8,7 +8,12 @@ import {
 } from '@/utils/api-gateway'
 import { APIGatewayRequest } from '@/utils/middleware'
 import { getUserInfo } from '@/utils/oauth'
-import { Owner, User as ApiUser, UserDelegatedAccessStatus } from 'api-client'
+import {
+  Owner,
+  User as ApiUser,
+  UserDelegatedAccessStatus,
+  Sharer,
+} from 'api-client'
 import createError from 'http-errors'
 
 export const requireUserData = async (
@@ -105,6 +110,17 @@ export const userToApiOwner = (user: {
   givenName: user.givenName || null,
   familyName: user.familyName || null,
   name: userName(user),
+})
+
+export const userToApiSharer = (user: {
+  id: string
+  givenName?: string
+  familyName?: string
+  email?: string
+}): Sharer => ({
+  id: user.id,
+  name: userName(user),
+  email: user.email || null,
 })
 
 export const hasAcceptedTermsOfUse = (user: { attributes?: any }) => {

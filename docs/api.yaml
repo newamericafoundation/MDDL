@@ -828,6 +828,41 @@ components:
           description: The users name or email address, if name not provided
           example: sam.citizen@example.com
       type: object
+    Sharer:
+      description: A user who shared information
+      required:
+        - id
+        - email
+        - name
+      properties:
+        id:
+          type: string
+          example: 2D3D5CF7-ED9D-48F1-8A14-12B0C1114B64
+          description: The user id
+        email:
+          type: string
+          nullable: true
+          description: The users email address
+          example: sam.citizen@example.com
+        name:
+          type: string
+          description: The users name or email address, if name not provided
+          example: sam.citizen@example.com
+      type: object
+    ShareInformation:
+      description: Information on how data was shared
+      required:
+        - sharedBy
+        - sharedDate
+      properties:
+        sharedBy:
+          $ref: '#/components/schemas/Sharer'
+        sharedDate:
+          type: string
+          description: The date the access delegation was added
+          format: date-time
+          example: '2020-01-01T01:01:01Z'
+      type: object
     User:
       description: A user
       required:
@@ -996,10 +1031,13 @@ components:
       description: Basic details for listing a shared collection
       required:
         - owner
+        - shareInformation
         - collection
       properties:
         owner:
           $ref: '#/components/schemas/Owner'
+        shareInformation:
+          $ref: '#/components/schemas/ShareInformation'
         collection:
           $ref: '#/components/schemas/CollectionListItem'
     CollectionListItem:

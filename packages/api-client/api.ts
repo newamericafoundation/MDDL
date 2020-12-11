@@ -712,6 +712,25 @@ export interface Owner {
     name: string;
 }
 /**
+ * Information on how data was shared
+ * @export
+ * @interface ShareInformation
+ */
+export interface ShareInformation {
+    /**
+     * 
+     * @type {Sharer}
+     * @memberof ShareInformation
+     */
+    sharedBy: Sharer;
+    /**
+     * The date the access delegation was added
+     * @type {string}
+     * @memberof ShareInformation
+     */
+    sharedDate: string;
+}
+/**
  * A result containing a list of shared collections
  * @export
  * @interface SharedCollectionList
@@ -738,10 +757,41 @@ export interface SharedCollectionListItem {
     owner: Owner;
     /**
      * 
+     * @type {ShareInformation}
+     * @memberof SharedCollectionListItem
+     */
+    shareInformation: ShareInformation;
+    /**
+     * 
      * @type {CollectionListItem}
      * @memberof SharedCollectionListItem
      */
     collection: CollectionListItem;
+}
+/**
+ * A user who shared information
+ * @export
+ * @interface Sharer
+ */
+export interface Sharer {
+    /**
+     * The user id
+     * @type {string}
+     * @memberof Sharer
+     */
+    id: string;
+    /**
+     * The users email address
+     * @type {string}
+     * @memberof Sharer
+     */
+    email: string | null;
+    /**
+     * The users name or email address, if name not provided
+     * @type {string}
+     * @memberof Sharer
+     */
+    name: string;
 }
 /**
  * A user
