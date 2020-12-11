@@ -1,26 +1,18 @@
 <template>
-  <v-card rounded class="px-4 py-3 mb-2 grey-2">
-    <v-row align="center" no-gutters style="min-height: 1rem">
-      <v-col>
-        <span>{{ delegate.email }}</span>
-      </v-col>
-      <v-col cols="auto">
-        <v-btn
-          :title="`${$t('navigation.close')}`"
-          style="min-height: 32px"
-          icon
-          @click="onXButton"
-        >
-          <v-icon>$close</v-icon>
-        </v-btn>
-      </v-col>
-    </v-row>
-    <v-row
-      v-if="isExpired || isInvited"
-      align="start"
-      no-gutters
-      class="subtitle"
-    >
+  <v-card rounded class="px-4 py-3 grey-2">
+    <div class="d-flex justify-space-between align-center">
+      <span class="text-break">{{ delegate.email }}</span>
+      <v-btn
+        :title="`${$t('navigation.close')}`"
+        style="min-height: 32px"
+        icon
+        class="mx-2"
+        @click="onXButton"
+      >
+        <v-icon>$close</v-icon>
+      </v-btn>
+    </div>
+    <div v-if="isExpired || isInvited" class="d-flex subtitle">
       <span v-if="isInvited">{{ $t('delegateAccess.invitePending') }}</span>
       <template v-else-if="isExpired">
         <span>{{ $t('delegateAccess.inviteExpired') }}</span>
@@ -28,7 +20,7 @@
           {{ $t('delegateAccess.resendInvite') }}
         </v-btn>
       </template>
-    </v-row>
+    </div>
     <ConfirmationDialog
       v-model="showRemoveConfirmation"
       title="delegateAccess.removeConfirmationTitle"
@@ -67,6 +59,7 @@ export default class DelegateCard extends Vue {
     await this.$store.dispatch('delegate/delete', this.delegate.id)
     this.$emit('delete')
     this.showRemoveConfirmation = false
+    this.showUninviteConfirmation = false
     this.loading = false
   }
 

@@ -1,17 +1,21 @@
 <template>
-  <div>
+  <div class="d-flex mt-4 justify-center">
     <AppBar :empty="true" :title="toolbarTitle">
       <template v-slot:nav-action>
-        <BackButton tabindex="0" class="mt-1" />
+        <BackButton v-if="step === 'top-level'" tabindex="0" class="mt-1" />
+        <v-btn
+          v-else
+          :title="`${$t('navigation.back')}`"
+          icon
+          @click="step = 'top-level'"
+        >
+          <v-icon small class="mt-1">$chevron-left</v-icon>
+        </v-btn>
       </template>
     </AppBar>
-    <v-window v-model="step">
+    <v-window v-model="step" class="pa-8 mt-8">
       <v-window-item value="top-level">
-        <v-toolbar flat>
-          <BackButton tabindex="0" />
-          <v-toolbar-title>{{ $t('navigation.account') }}</v-toolbar-title>
-        </v-toolbar>
-        <div class="window-container ma-8 mt-0">
+        <div class="window-container mx-auto">
           <v-btn
             text
             width="100%"
@@ -22,7 +26,7 @@
             <v-spacer />
             <v-icon small class="mx-1">$chevron-right</v-icon>
           </v-btn>
-          <v-divider />
+          <v-divider class="my-0" />
           <v-btn
             text
             width="100%"
@@ -34,7 +38,7 @@
             <v-spacer />
             <v-icon small class="mx-1">$chevron-right</v-icon>
           </v-btn>
-          <v-divider />
+          <v-divider class="my-0" />
           <v-footer v-if="userStore.profile" fixed class="pa-8">
             <v-card
               outlined
@@ -58,17 +62,7 @@
         </div>
       </v-window-item>
       <v-window-item value="language">
-        <v-toolbar flat>
-          <v-btn
-            :title="`${$t('navigation.back')}`"
-            icon
-            @click="step = 'top-level'"
-          >
-            <v-icon>$chevron-left</v-icon>
-          </v-btn>
-          <v-toolbar-title>{{ $t('account.language') }}</v-toolbar-title>
-        </v-toolbar>
-        <div class="window-container ma-8">
+        <div class="window-container mx-auto">
           <v-select
             v-if="$i18n"
             v-model="$i18n.locale"
@@ -80,19 +74,7 @@
         </div>
       </v-window-item>
       <v-window-item value="delegate">
-        <v-toolbar flat>
-          <v-btn
-            :title="`${$t('navigation.back')}`"
-            icon
-            @click="step = 'top-level'"
-          >
-            <v-icon>$chevron-left</v-icon>
-          </v-btn>
-          <v-toolbar-title>
-            {{ $t('delegateAccess.pageTitle') }}
-          </v-toolbar-title>
-        </v-toolbar>
-        <div class="window-container ma-8">
+        <div class="window-container mx-auto">
           <ValidationObserver ref="observer">
             <v-form @submit.prevent>
               <ValidationProvider
@@ -198,6 +180,19 @@ export default class Account extends Vue {
   loading = false
   userStore = userStore
 
+  get toolbarTitle() {
+    switch (this.step) {
+      case 'top-level':
+        return 'navigation.account'
+      case 'language':
+        return 'account.language'
+      case 'delegate':
+        return 'delegateAccess.pageTitle'
+      default:
+        return 'navigation.account'
+    }
+  }
+
   get accountName() {
     return userStore.profile ? userStore.profile.name : ''
   }
@@ -251,6 +246,15 @@ export default class Account extends Vue {
 
 <style lang="scss" scoped>
 .v-card.full-width {
+  width: 100%;
+}
+
+.v-window {
+  width: 100%;
+}
+
+.window-container {
+  max-width: 598px;
   width: 100%;
 }
 </style>

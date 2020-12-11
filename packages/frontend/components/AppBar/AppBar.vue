@@ -24,7 +24,7 @@
       </v-btn>
       <v-app-bar-nav-icon v-else color="grey-8" @click.stop="toggleSideNav" />
     </template>
-    <template v-if="$vuetify.breakpoint.xs && title">
+    <template v-if="($vuetify.breakpoint.xs || empty) && title">
       <v-toolbar-title>
         {{ $t(title) }}
       </v-toolbar-title>
@@ -58,7 +58,8 @@
       <v-row id="extension" no-gutters class="white">
         <v-col
           v-if="
-            !!$slots.actionsBeneath || (title && $vuetify.breakpoint.smAndUp)
+            !!$slots.actionsBeneath ||
+              (title && $vuetify.breakpoint.smAndUp && !empty)
           "
           cols="12"
           class="pr-2 d-flex justify-end align-center white"
