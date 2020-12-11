@@ -18,12 +18,11 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from 'nuxt-property-decorator'
-import { capitalize } from '@/assets/js/stringUtils'
 
 @Component({
   head() {
     return {
-      title: capitalize(this.$t('tabTitles.shared') as string),
+      title: this.$t('tabTitles.shared') as string,
     }
   },
 })

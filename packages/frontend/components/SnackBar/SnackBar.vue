@@ -10,7 +10,7 @@
   >
     <v-row>
       <!-- Whitespace matters next line, using white-space: pre-line -->
-      <v-col class="message">{{ capitalize($t(message)) }}</v-col>
+      <v-col class="message">{{ $t(message) }}</v-col>
       <v-col cols="auto">
         <v-row justify="end">
           <v-btn
@@ -36,14 +36,14 @@
                 query: action.query ? action.query : {},
               })
             "
-            class="font-weight-bold capitalize"
+            class="font-weight-bold"
           >
             {{ $t(action.name) }}
           </nuxt-link>
         </v-row>
 
         <v-row v-for="(action, i) in clickActions" :key="`click-${i}`">
-          <v-btn class="font-weight-bold capitalize" text @click="action.do">
+          <v-btn class="font-weight-bold" text @click="action.do">
             {{ $t(action.name) }}
           </v-btn>
         </v-row>
@@ -62,12 +62,9 @@
 <script lang="ts">
 import { Vue, Component, Prop } from 'nuxt-property-decorator'
 import { snackbarStore } from '@/plugins/store-accessor'
-import { capitalize } from '@/assets/js/stringUtils'
 
 @Component
 export default class SnackBar extends Vue {
-  capitalize = capitalize
-
   get isVisible() {
     return snackbarStore.isVisible
   }

@@ -40,7 +40,7 @@
                 class="body-1 font-weight-medium"
                 expand-icon="mdi-menu-down"
               >
-                {{ capitalize($t('document.description')) }}
+                {{ $t('document.description') }}
               </v-expansion-panel-header>
               <v-expansion-panel-content class="pt-4 body-1">
                 {{ document.description }}
@@ -58,9 +58,9 @@
       </div>
     </v-main>
     <DesktopSideBar>
-      <DocumentActions :document="document" />
+      <DocumentActions class="mt-8 py-0" :document="document" />
       <v-divider />
-      <div class="pl-8">
+      <div class="pl-8 pt-2">
         <span class="font-weight-bold">
           {{ $t('dateAdded') }}
         </span>
@@ -104,7 +104,7 @@
         <v-container class="pa-8">
           <ValidationObserver ref="observer">
             <v-form @submit.prevent>
-              <p class="subtitle-1 capitalize">{{ $t('document.fileName') }}</p>
+              <p class="subtitle-1">{{ $t('document.fileName') }}</p>
               <ValidationProvider
                 v-slot="{ errors }"
                 name="name"
@@ -114,10 +114,10 @@
                   v-model="newName"
                   :error-messages="errors"
                   outlined
-                  :placeholder="capitalize($t('document.editNamePlaceholder'))"
+                  :placeholder="$t('document.editNamePlaceholder')"
                 />
               </ValidationProvider>
-              <p class="subtitle-1 capitalize">
+              <p class="subtitle-1">
                 {{ $t('document.description') }}
               </p>
               <ValidationProvider
@@ -129,9 +129,7 @@
                   v-model="newDescription"
                   :error-messages="errors"
                   outlined
-                  :placeholder="
-                    capitalize($t('document.enterDescriptionPlaceholder'))
-                  "
+                  :placeholder="$t('document.enterDescriptionPlaceholder')"
                 />
               </ValidationProvider>
             </v-form>
@@ -152,7 +150,7 @@ import {
 } from 'api-client'
 import { format } from 'date-fns'
 import { ValidationObserver, ValidationProvider } from 'vee-validate'
-import { capitalize } from '@/assets/js/stringUtils'
+
 import download from '@/assets/js/download'
 import { UpdateDocumentInput } from '@/store/document'
 import { Breadcrumb } from '@/types/nav'
@@ -172,7 +170,6 @@ import { UserRole } from '@/types/user'
   },
 })
 export default class ViewDocument extends Vue {
-  capitalize = capitalize
   showMenu = false
   loading = true
   document: Document | null = null
@@ -185,7 +182,7 @@ export default class ViewDocument extends Vue {
   userStore = userStore
 
   async mounted() {
-    this.title = capitalize(this.$t('tabTitles.document') as string)
+    this.title = this.$t('tabTitles.document') as string
     const data: Document = await this.$store.dispatch(
       'document/getById',
       this.$route.params.id,

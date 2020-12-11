@@ -25,6 +25,7 @@
       v-model="showRemoveConfirmation"
       title="delegateAccess.removeConfirmationTitle"
       body="delegateAccess.removeConfirmationBody"
+      confirm-label="delegateAccess.removeConfirmationAction"
       :on-confirm="removeDelegate"
       :loading="loading"
     />
@@ -32,6 +33,7 @@
       v-model="showUninviteConfirmation"
       title="delegateAccess.uninviteConfirmationTitle"
       body="delegateAccess.uninviteConfirmationBody"
+      confirm-label="delegateAccess.uninviteConfirmationAction"
       :on-confirm="removeDelegate"
       :loading="loading"
     />
@@ -45,6 +47,7 @@ import {
   UserDelegatedAccessStatus,
 } from 'api-client'
 import { Vue, Component, Prop } from 'nuxt-property-decorator'
+import { snackbarStore } from '@/plugins/store-accessor'
 
 @Component
 export default class DelegateCard extends Vue {
@@ -58,6 +61,11 @@ export default class DelegateCard extends Vue {
     this.loading = true
     await this.$store.dispatch('delegate/delete', this.delegate.id)
     this.$emit('delete')
+    snackbarStore.setParams({
+      message: 'toast.delegateRemoved',
+    })
+    snackbarStore.setProgress(-1)
+    snackbarStore.setVisible(true)
     this.showRemoveConfirmation = false
     this.showUninviteConfirmation = false
     this.loading = false

@@ -81,11 +81,11 @@
                 v-model="email"
                 :error-messages="
                   individualEmailAddresses.length >= 10
-                    ? [capitalize($tc('sharing.tooManyRecipients', 10))]
+                    ? [$tc('sharing.tooManyRecipients', 10)]
                     : errors
                 "
                 outlined
-                :placeholder="capitalize($t('sharing.addRecipientPlaceholder'))"
+                :placeholder="$t('sharing.addRecipientPlaceholder')"
                 type="email"
                 :disabled="individualEmailAddresses.length >= 10"
                 @keydown.enter="addEmail"
@@ -200,7 +200,7 @@
 <script lang="ts">
 import { Vue, Component, Watch } from 'nuxt-property-decorator'
 import { validate, ValidationObserver, ValidationProvider } from 'vee-validate'
-import { capitalize } from '@/assets/js/stringUtils'
+
 import { Document } from 'api-client'
 import SnackParams from '@/types/snackbar'
 import { RawLocation } from 'vue-router'
@@ -217,7 +217,7 @@ import { format } from 'date-fns'
   },
   head() {
     return {
-      title: capitalize(this.$t('controls.share') as string),
+      title: this.$t('controls.share') as string,
     }
   },
 })
@@ -227,7 +227,7 @@ export default class Share extends Vue {
 
   step = 0
   length = 3
-  capitalize = capitalize
+
   email = ''
   recompute = false
   isLoading = false

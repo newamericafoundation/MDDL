@@ -189,7 +189,6 @@ import {
 } from '@/types/activity'
 import { format, getUnixTime, parseISO } from 'date-fns'
 import { cloneDeep, isEqual } from 'lodash'
-import { capitalize } from '@/assets/js/stringUtils'
 
 @Component({
   components: { InfiniteLoading },

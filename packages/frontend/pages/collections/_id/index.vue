@@ -64,14 +64,14 @@
       </template>
       <template v-else>
         <p class="d-flex justify-center">
-          {{ capitalize($t('sharedFolder.emptyCollection')) }}
+          {{ $t('sharedFolder.emptyCollection') }}
         </p>
         <nuxt-link
           class="d-flex justify-center nuxt-link"
           :to="localePath('/dashboard')"
         >
           <v-btn text color="primary" class="body-1 font-weight-bold">
-            {{ capitalize($t('sharedFolder.returnDashboard')) }}
+            {{ $t('sharedFolder.returnDashboard') }}
           </v-btn>
         </nuxt-link>
       </template>
@@ -114,7 +114,7 @@ import {
   User as ApiUser,
 } from 'api-client'
 import { userStore, snackbarStore } from '@/plugins/store-accessor'
-import { capitalize } from '@/assets/js/stringUtils'
+
 import download from '@/assets/js/download'
 import { format } from 'date-fns'
 
@@ -129,7 +129,7 @@ export default class ViewCollection extends Vue {
   loading = true
   documents: DocumentListItem[] = []
   title = ''
-  capitalize = capitalize
+
   collection: CollectionListItem | null = null
   sharedCollection: SharedCollectionListItem | null = null
   sharer: ApiUser | null

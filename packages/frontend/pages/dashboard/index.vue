@@ -9,13 +9,12 @@ import { Vue, Component } from 'nuxt-property-decorator'
 import { userStore, snackbarStore } from '@/plugins/store-accessor'
 import SnackParams from '@/types/snackbar'
 import ClientDashboard from '@/layouts/dashboard.vue'
-import { capitalize } from '@/assets/js/stringUtils'
 
 @Component({
   layout: 'dashboard',
   head() {
     return {
-      title: capitalize(this.$t('tabTitles.dashboard') as string),
+      title: this.$t('tabTitles.dashboard') as string,
     }
   },
 })

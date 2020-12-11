@@ -14,7 +14,7 @@
             <v-icon color="primary">{{ item.icon }}</v-icon>
           </v-list-item-action>
           <v-list-item-content>
-            <v-list-item-title class="capitalize" v-text="$t(item.label)" />
+            <v-list-item-title v-text="$t(item.label)" />
           </v-list-item-content>
         </v-list-item>
       </nuxt-link>
@@ -27,7 +27,7 @@
           <v-icon color="primary">{{ item.icon }}</v-icon>
         </v-list-item-action>
         <v-list-item-content>
-          <v-list-item-title class="capitalize" v-text="$t(item.label)" />
+          <v-list-item-title v-text="$t(item.label)" />
         </v-list-item-content>
       </v-list-item>
     </template>

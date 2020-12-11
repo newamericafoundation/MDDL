@@ -6,14 +6,13 @@
 
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator'
-import { capitalize } from '@/assets/js/stringUtils'
 
 @Component({
   layout: 'centered',
 
   head() {
     return {
-      title: capitalize(this.$t('navigation.signIn') as string),
+      title: this.$t('navigation.signIn') as string,
     }
   },
 })

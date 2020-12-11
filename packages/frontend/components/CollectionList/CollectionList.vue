@@ -27,14 +27,14 @@
       />
     </template>
     <div v-else>
-      <p class="d-flex justify-center capitalize">
+      <p class="d-flex justify-center">
         {{ $t('sharedFolder.noCollections') }}
       </p>
       <nuxt-link
         class="body-1 font-weight-medium share-link d-flex justify-center"
         :to="localePath('/share')"
       >
-        {{ capitalize($t('sharedFolder.shareFirstDocument')) }}
+        {{ $t('sharedFolder.shareFirstDocument') }}
       </nuxt-link>
     </div>
   </div>
@@ -62,7 +62,6 @@
 import { Vue, Component, Prop, Watch } from 'nuxt-property-decorator'
 import { userStore } from '@/plugins/store-accessor'
 import { CollectionListItem } from 'api-client'
-import { capitalize } from '@/assets/js/stringUtils'
 import { DataTableHeader } from 'vuetify'
 import { format } from 'date-fns'
 
@@ -74,7 +73,6 @@ export default class CollectionList extends Vue {
   format = format
   loading = true
   selected: boolean[] = []
-  capitalize = capitalize
   headers: DataTableHeader[] = []
 
   async mounted() {

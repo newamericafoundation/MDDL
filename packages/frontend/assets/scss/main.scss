@@ -65,11 +65,6 @@
     display: none !important;
   }
 
-  // input label
-  .v-input .v-label {
-    @extend .capitalize;
-  }
-
   // Text Field
   .v-text-field {
     .v-label,
@@ -96,7 +91,6 @@
       border-bottom: 1px solid var(--grey-4);
     }
     .v-toolbar__title {
-      @extend .capitalize;
       font-weight: 600;
     }
     .v-toolbar__content {
@@ -118,7 +112,6 @@
         opacity: 0.04;
       }
       span {
-        @extend .capitalize;
         text-transform: initial;
       }
     }
@@ -198,9 +191,6 @@
     &:not(.v-btn--text):not(.v-btn--icon) {
       box-shadow: 0 3px 3px rgba(0, 0, 0, 0.13);
     }
-    .v-btn__content {
-      text-transform: capitalize;
-    }
     // for some reason :to on a button gives it a weird background, this removes it
     &.v-btn--router.v-btn--active {
       &:before {
@@ -251,7 +241,6 @@
       position: fixed;
       bottom: 0;
       .v-snack__content {
-        @extend .capitalize;
         font-weight: 700;
       }
     }
@@ -299,7 +288,6 @@
     .v-data-table-header {
       th {
         &.text-start {
-          @extend .capitalize;
           &.sortable {
             span {
               margin-right: 0.5rem;
@@ -309,18 +297,6 @@
         border-bottom: none;
       }
     }
-  }
-
-  // capitalize first letter
-  // note: doesn't work on inline elements
-  @mixin capitalize() {
-    &:first-letter {
-      text-transform: uppercase;
-    }
-  }
-
-  .capitalize {
-    @include capitalize();
   }
 
   .unselectable {

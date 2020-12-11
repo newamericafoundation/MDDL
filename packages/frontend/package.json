@@ -1,7 +1,7 @@
 {
   "name": "frontend",
   "version": "1.0.0",
-  "description": "Homeless data locker frontend",
+  "description": "Datalocker is designed to help families who are seeking permanent supportive housing. Datalocker facilitates the storage and sharing of personal documents with case managers and relevant City agencies in a way that is both easy and secure.",
   "main": "index.js",
   "license": "MIT",
   "private": true,

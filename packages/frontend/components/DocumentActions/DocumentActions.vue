@@ -29,6 +29,7 @@
       title="document.deleteConfirmationTitle"
       :on-confirm="confirmDelete"
       :loading="loading"
+      confirm-label="controls.confirmDelete"
     />
   </v-list>
 </template>
@@ -46,7 +47,7 @@ import download from '@/assets/js/download'
 @Component
 export default class DocumentActions extends Vue {
   @Prop({ required: true }) document: DocumentListItem | Document
-  @Prop({ default: () => {} }) onDelete: () => void
+  @Prop({ default: () => () => {} }) onDelete: () => void
 
   showDeleteConfirmation = false
   loading = false

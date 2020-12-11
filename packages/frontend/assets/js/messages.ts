@@ -7,33 +7,32 @@ const es: any = require('vuetify/lib/locale/es')
 export default {
   en: {
     datalocker: 'Datalocker',
-    name: 'name', // TODO: replace with filename
+    name: 'Name', // TODO: replace with filename
 
     // label appearing in tabular content (list of users, list of shared collections etc)
     // as well as side bar on document view
     dateAdded: 'Date Added',
 
     toast: {
-      acceptedDelegateInvite: 'Delegate access accepted.',
-      accountRemoved: 'account removed',
-      downloadLoadingState: 'preparing download',
-      sharingComplete: 'Sharing complete',
-      switchAccount: 'switch clients',
-      uploading: 'adding file...', // displayed while a file is uploading
-      uploadComplete: 'file added',
-      fileDeletedConfirmation: 'file deleted.',
+      acceptedDelegateInvite: 'Delegate Access Accepted.',
+      delegateRemoved: 'Client Removed',
+      downloadLoadingState: 'Preparing download',
+      sharingComplete: 'Sharing Complete',
+      uploading: 'Adding File...', // displayed while a file is uploading
+      uploadComplete: 'Upload Complete',
+      fileDeletedConfirmation: 'File Deleted',
     },
 
     login: {
-      getStarted: 'Get started',
-      welcomeTitle: 'welcome to Datalocker',
+      getStarted: 'Get Started',
+      welcomeTitle: 'Welcome to Datalocker',
       welcomeMessage: {
         CLIENT:
-          "We're here to help you share documents with case managers in a way that's easy, convenient, and secure.",
+          'Datalocker is designed to help families who are seeking permanent supportive housing. Datalocker facilitates the storage and sharing of personal documents with case managers and relevant City agencies in a way that is both easy and secure.',
         CBO:
-          "We're here to help coordinate the secure collection and controlled distribution of client documents and files.",
+          'Datalocker is designed to help families who are seeking permanent supportive housing. Datalocker facilitates the storage and sharing of personal documents with case managers and relevant City agencies in a way that is both easy and secure.',
         AGENT:
-          'This platform helps facilitate the collection and distribution of documents between clients, case managers, and agencies.',
+          'Datalocker is designed to help families who are seeking permanent supportive housing. Datalocker facilitates the storage and sharing of personal documents with case managers and relevant City agencies in a way that is both easy and secure.',
       },
     },
 
@@ -48,7 +47,7 @@ export default {
       faq: 'FAQ',
       loading: 'Loading',
       loggingIn: 'Logging in...',
-      manageAccounts: 'Manage Clients',
+      manageAccounts: 'Manage Accounts',
       signIn: 'Sign in',
       signOut: 'Sign out',
       switchAccount: 'Switch Clients',
@@ -57,48 +56,47 @@ export default {
 
     document: {
       // This is the title of the confirmation dialog for deleting a document
-      deleteConfirmationTitle: 'Are you sure you want to delete this file?',
+      deleteConfirmationTitle: 'Delete this file?',
       // This is the body content of the confirmation dialog for deleting a document
       deleteConfirmationBody:
         'Anyone with shared access will no longer be able to view this file. This cannot be undone.',
       documentMenu: 'Document menu',
-      downloadZip: 'download Zip',
-      downloadPdf: 'download PDF',
-      description: 'description', // displayed beneath the document and expands to show description (if any)
-      editDetailsTitle: 'edit details', // page title on edit details screen
-      enterNamePlaceholder: 'enter new file name',
-      enterDescriptionPlaceholder: 'enter description',
-      fileName: 'file name', // shown as a label on edit details screen
+      downloadZip: 'Download Zip',
+      downloadPdf: 'Download PDF',
+      description: 'Description', // displayed beneath the document and expands to show description (if any)
+      editDetailsTitle: 'Edit Details', // page title on edit details screen
+      enterNamePlaceholder: 'Enter a new file name',
+      enterDescriptionPlaceholder: 'Enter description',
+      fileName: 'File Name', // shown as a label on edit details screen
 
-      noDocuments: 'there are no files saved to your account', // shown on dashboard when there are no documents
+      noDocuments: 'There are no files saved to your account yet.', // shown on dashboard when there are no documents
       previewOf: 'Preview of',
       uploadFirst: 'Add your first file', // label on the empty state upload button
       thumbnailOf: 'Thumbnail of',
     },
 
     controls: {
-      accept: 'accept', // eg. accept terms of use
-      add: 'add', // eg. add a delegate
-      allFiles: 'all files', // shown as tab label on the dashboard
-      cancel: 'cancel', // cancel button
-      confirm: 'confirm',
-      declineAndLogOut: 'decline & log out', // decline TOS button
-      delete: 'delete', // delete document kebab item
-      done: 'done',
-      download: 'download', // edit document kebab item and button text
-      editDetails: 'edit details', // edit document kebab item
-      next: 'next',
-      share: 'share', // share button
-      shared: 'share', // label of shared tab on dashboard
-      upload: 'add',
-      view: 'view',
+      accept: 'Accept', // eg. accept terms of use
+      add: 'Add', // eg. add a delegate
+      allFiles: 'All Files', // shown as tab label on the dashboard
+      cancel: 'Cancel', // cancel button
+      confirm: 'Confirm',
+      confirmDelete: 'Yes, Delete',
+      declineAndLogOut: 'Decline & Log Out', // decline TOS button
+      delete: 'Delete', // delete document kebab item
+      done: 'Done',
+      download: 'Download', // edit document kebab item and button text
+      editDetails: 'Edit Details', // edit document kebab item
+      next: 'Next',
+      share: 'Share', // share button
+      shared: 'Shared', // label of shared tab on dashboard
+      upload: 'Add',
+      view: 'View',
     },
 
     // account settings page
     account: {
-      language: 'language', // open language selector
-      pageTitle: 'account settings',
-      deleteAccount: 'delete your account',
+      language: 'Language', // open language selector
     },
 
     // All copy related to the create shared folder flow
@@ -120,8 +118,6 @@ export default {
       disclaimerTitle: 'Reminder',
       shareDocumentDisclaimer:
         'Datalocker facilitates document sharing with {emails} email accounts',
-      shareSettingsDisclaimer:
-        'you can change these settings any time in the collections information menu.',
 
       // on the confirmation step, could be "recipient" or "recipients" depending on number of items
       confirmRecipientsLabel: 'Recipient | Recipients',
@@ -130,12 +126,12 @@ export default {
 
     tabTitles: {
       about: 'About',
-      authorizing: 'authorizing', // not important - used while logging in
-      dashboard: 'dashboard',
-      document: 'document', // used for document preview while page is loading, then changes to document title
+      authorizing: 'Authorizing', // not important - used while logging in
+      dashboard: 'Dashboard',
+      document: 'Document', // used for document preview while page is loading, then changes to document title
       faq: 'FAQ',
-      shared: 'shared', // used in share flow
-      sharedBy: 'shared by', // used in share flow
+      shared: 'Shared', // used in share flow
+      sharedBy: 'Shared by', // used in share flow
       termsOfUse: 'Terms of Use', // used while viewing TOU
       welcome: 'Welcome', // displayed on the initial landing page
     },
@@ -143,18 +139,20 @@ export default {
     delegateAccess: {
       pageTitle: 'Account Access', // title in account menu and page title of delegation flow
       menuTitle: 'Who Can Access Your Account', // title in account menu and page title of delegation flow
-      emailPlaceholder: 'add people via email',
-      addConfirmationTitle: 'are you sure you want to add this person?',
+      emailPlaceholder: 'Add people via email',
+      addConfirmationTitle: 'Give this person access to your account?',
       addConfirmationBody:
-        'They will be able to manage and share files on your behalf. You can always revoke access via the Account menu.',
-      removeConfirmationTitle:
-        'Are you sure you want to remove this person from your account?',
+        'They will be able to manage and share files for you. You can always manage or take away access to your documents in the Account menu settings.',
+      addConfirmationAction: 'Yes, Give Access',
+      removeConfirmationTitle: 'Remove this person from your account?',
       removeConfirmationBody:
-        'They will no longer be able to manage or share files on your behalf. You can always grant access again via the Account menu.',
-      uninviteConfirmationTitle:
-        'Are you sure you want to cancel this invitation?',
-      uninviteConfirmationBody: 'You can resend any time using this screen.',
-      tooManyDelegates: 'up to {count} people can access your account',
+        'They will no longer be able to manage or share files for you. You can always give them access to your documents again in the Account menu settings.',
+      removeConfirmationAction: 'Yes, Remove',
+      uninviteConfirmationTitle: 'Cancel this invitation?',
+      uninviteConfirmationBody:
+        'You can resend at any time in the Account menu settings.',
+      uninviteConfirmationAction: 'Yes, Cancel',
+      tooManyDelegates: 'Up to {count} people can access your account',
       invitePending: 'Invitation pending',
       inviteExpired: 'Invitation expired.',
       resendInvite: 'Resend?',
@@ -164,8 +162,8 @@ export default {
     activity: {
       accessed: 'accessed',
       added: 'added',
-      delegateInvited: 'to access your account',
-      delegateAccepted: 'can now access your account',
+      delegateInvited: 'to manage and share files on your behalf',
+      delegateAccepted: 'can now manage and share files on your behalf',
       delegateDeleted: 'has been removed from your account',
       deleted: 'deleted',
       edited: 'edited details of',
@@ -183,11 +181,11 @@ export default {
     sharedFolder: {
       // empty state for list of shared folders
       noCollections: "You haven't shared any documents yet.", // message
-      shareFirstDocument: 'share your first document', // call to action
+      shareFirstDocument: 'Share your first document', // call to action
 
       // empty state for an individual shared folder
-      emptyCollection: 'all files have been removed from Datalocker.', // message
-      returnDashboard: 'return to dashboard', // call to action
+      emptyCollection: 'All files have been removed from Datalocker.', // message
+      returnDashboard: 'Return to dashboard', // call to action
 
       // empty state for list of clients who have shared collections with user
       noSharedDocuments: "You haven't received any shared files yet.",
@@ -196,25 +194,28 @@ export default {
     cbo: {
       selectClient: 'Select a client to access their account',
       clickToRemove: 'Click {close} to remove a client',
-      noClientsTitle: 'No clients added yet',
+      noClientsTitle:
+        'You have not been added to any client Datalocker accounts',
       noClientsBody:
-        'A client can provide access by navigating to their Account menu.',
-      removeConfirmationTitle:
-        'Are you sure you want to remove this client from your Datalocker?',
+        "Once a client adds you to their Datalocker account, you'll be able to manage and share files on their behalf from this screen.\n\nA client can provide access to their documents  in the Account menu settings in Datalocker.",
+      noClientActionLabel: 'Not a case worker?',
+      noClientActionText: 'Click here for client login',
+      removeConfirmationTitle: 'Remove this client from your Datalocker?',
       removeConfirmationBody:
         "You'll no longer have access to shared files. This cannot be undone.",
+      removeConfirmationAction: 'Yes, Remove',
       errorAcceptingInvite:
         'Invite could not be accepted. Please ensure you are logged in with the email address that received the invite.',
     },
 
     agent: {
-      clientNameLabel: 'name', // label of client name column in agent view
-      sharedFolderNameLabel: 'name', // label of shared folder name column in agent view
-      reorderFiles: 'reorder files', // shown in agent view when downloading as PDF
+      clientNameLabel: 'Name', // label of client name column in agent view
+      sharedFolderNameLabel: 'Name', // label of shared folder name column in agent view
+      reorderFiles: 'Reorder Files', // shown in agent view when downloading as PDF
       downloadZip: 'Download Zip',
       dateShared: 'Date Shared', // label in side bar
       sharedBy: 'Shared By', // label in side bar
-      selectClient: 'Select a client to view their files',
+      selectClient: 'Select client to access shared files',
     },
 
     $vuetify: {

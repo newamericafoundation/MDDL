@@ -2,10 +2,10 @@
   <div class="landing-container">
     <CityLogo />
     <h2 class="text-heading-2 mt-4 mb-4 primary--text">
-      {{ capitalize($t('login.welcomeTitle')) }}
+      {{ $t('login.welcomeTitle') }}
     </h2>
     <div class="body-1 welcome-message mb-8">
-      {{ capitalize($t(message)) }}
+      {{ $t(message) }}
     </div>
     <ButtonLarge
       :label="$t('login.getStarted')"
@@ -17,7 +17,7 @@
 
 <script lang="ts">
 import { Component, mixins, Prop } from 'nuxt-property-decorator'
-import { capitalize } from '@/assets/js/stringUtils'
+
 import { Login } from '@/mixins/login'
 import { UserRole } from '@/types/user'
 import { userStore } from '@/plugins/store-accessor'
@@ -31,7 +31,6 @@ import { userStore } from '@/plugins/store-accessor'
 export default class LandingMessage extends mixins(Login) {
   @Prop({ required: true }) role: UserRole
 
-  capitalize = capitalize
   message = ''
 
   async mounted() {

@@ -26,19 +26,6 @@ export default class Accept extends Vue {
           snackbarStore.setProgress(-1)
           snackbarStore.setParams({
             message: 'toast.acceptedDelegateInvite',
-            actions: [
-              {
-                name: 'toast.switchAccount',
-                do: async () => {
-                  await this.$store.commit(
-                    'user/setOwnerId',
-                    delegate.allowsAccessToUser!.id,
-                  )
-                  await snackbarStore.setVisible(false)
-                  this.$router.push(this.localePath('/'))
-                },
-              },
-            ],
           })
           snackbarStore.setVisible(true)
           this.$router.push(this.localePath('/'))

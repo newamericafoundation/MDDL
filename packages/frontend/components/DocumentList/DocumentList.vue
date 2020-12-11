@@ -39,11 +39,14 @@
     </template>
     <EmptyState v-else body="document.noDocuments">
       <template v-slot:action>
-        <UploadButton
-          class="text-center"
-          :label="$t('document.uploadFirst')"
-          :text-button="true"
-        />
+        <div class="d-flex justify-center">
+          <UploadButton
+            class="text-center"
+            :label="$t('document.uploadFirst')"
+            :outlined="true"
+            px="12"
+          />
+        </div>
       </template>
     </EmptyState>
   </div>

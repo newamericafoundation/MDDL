@@ -10,14 +10,15 @@
         'upload-label',
         'font-weight-medium',
         'body-1',
-        'px-4',
+        `px-${px}`,
         textButton ? 'text' : 'v-btn',
         { disabled: isLoading },
+        { 'v-btn--outlined': outlined },
         { 'font-weight-bold': textButton },
       ]"
     >
       <v-icon v-if="prependIcon" class="mr-4" small v-text="prependIcon" />
-      {{ capitalize($t(label)) }}
+      {{ $t(label) }}
       <input
         id="file-input"
         ref="fileInput"
@@ -56,7 +57,7 @@
           </v-btn>
         </v-toolbar>
         <v-container class="pa-8">
-          <p class="subtitle-1">{{ capitalize($t('document.fileName')) }}</p>
+          <p class="subtitle-1">{{ $t('document.fileName') }}</p>
           <ValidationObserver ref="observer">
             <v-form @submit.prevent>
               <ValidationProvider
@@ -68,7 +69,7 @@
                   v-model="documentName"
                   :error-messages="errors"
                   outlined
-                  :placeholder="capitalize($t('document.editNamePlaceholder'))"
+                  :placeholder="$t('document.editNamePlaceholder')"
                 />
               </ValidationProvider>
             </v-form>
@@ -83,7 +84,6 @@
 import { Vue, Component, Prop } from 'nuxt-property-decorator'
 import { snackbarStore } from '@/plugins/store-accessor'
 import { ValidationObserver, ValidationProvider } from 'vee-validate'
-import { capitalize } from '@/assets/js/stringUtils'
 
 @Component({
   components: {
@@ -92,8 +92,6 @@ import { capitalize } from '@/assets/js/stringUtils'
   },
 })
 export default class UploadButton extends Vue {
-  capitalize = capitalize
-
   @Prop({ default: 'controls.upload' })
   label: string
 
@@ -102,6 +100,10 @@ export default class UploadButton extends Vue {
 
   @Prop({ default: false })
   textButton: boolean
+
+  @Prop({ default: false }) outlined: boolean
+
+  @Prop({ default: '4' }) px: string | number
 
   multiple = false
   showDialog = false
@@ -191,6 +193,11 @@ export default class UploadButton extends Vue {
     background-color: var(--primary);
     color: var(--white);
     height: 36px;
+    &.v-btn--outlined {
+      background-color: transparent !important;
+      color: var(--primary);
+      box-shadow: none !important;
+    }
     &.disabled {
       background-color: var(--grey-3);
       color: var(--grey-5);

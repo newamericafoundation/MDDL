@@ -88,13 +88,11 @@
                   :disabled="delegates.length >= 10"
                   :error-messages="
                     delegates.length >= 10
-                      ? [capitalize($tc('delegateAccess.tooManyDelegates', 10))]
+                      ? [$tc('delegateAccess.tooManyDelegates', 10)]
                       : errors
                   "
                   outlined
-                  :placeholder="
-                    capitalize($t('delegateAccess.emailPlaceholder'))
-                  "
+                  :placeholder="$t('delegateAccess.emailPlaceholder')"
                   type="email"
                 />
                 <v-row justify="end">
@@ -136,6 +134,7 @@
           v-model="showConfirmation"
           title="delegateAccess.addConfirmationTitle"
           body="delegateAccess.addConfirmationBody"
+          confirm-label="delegateAccess.addConfirmationAction"
           :on-confirm="confirmDelegate"
           :loading="loading"
         />
@@ -148,7 +147,7 @@
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator'
 import { ValidationObserver, ValidationProvider } from 'vee-validate'
-import { capitalize } from '@/assets/js/stringUtils'
+
 import { snackbarStore, userStore } from '@/plugins/store-accessor'
 import {
   UserDelegatedAccess,
@@ -164,13 +163,11 @@ import {
   },
   head() {
     return {
-      title: capitalize(this.$t('navigation.account') as string),
+      title: this.$t('navigation.account') as string,
     }
   },
 })
 export default class Account extends Vue {
-  capitalize = capitalize
-
   step = 'top-level'
   email = ''
   delegates: UserDelegatedAccess[] = []

@@ -69,6 +69,7 @@
       v-model="showConfirmation"
       title="cbo.removeConfirmationTitle"
       body="cbo.removeConfirmationBody"
+      confirm-label="cbo.removeConfirmationAction"
       :on-confirm="removeClient"
       :loading="loading"
     >
@@ -91,13 +92,29 @@
     class="ma-12"
     title="cbo.noClientsTitle"
     body="cbo.noClientsBody"
-  />
+  >
+    <template v-slot:action>
+      <div class="primary--text text-subtitle-2 text-center">
+        {{ $t('cbo.noClientActionLabel') }}
+      </div>
+      <div class="d-flex justify-center">
+        <v-btn
+          min-height="20px"
+          height="20px"
+          text
+          color="primary"
+          class="font-weight-bold"
+        >
+          {{ $t('cbo.noClientActionText') }}
+        </v-btn>
+      </div>
+    </template>
+  </EmptyState>
 </template>
 
 <script lang="ts">
 import { Vue, Component, Prop } from 'nuxt-property-decorator'
 import { DelegatedClient } from '@/types/delegate'
-import { capitalize } from '@/assets/js/stringUtils'
 import { userStore } from '@/plugins/store-accessor'
 import { DataTableHeader } from 'vuetify'
 import { format } from 'date-fns'
@@ -109,7 +126,6 @@ export default class ClientList extends Vue {
   clientToDelete: DelegatedClient | null = null
   showConfirmation = false
   loading = true
-  capitalize = capitalize
   headers: DataTableHeader[] = []
   format = format
 

@@ -17,12 +17,12 @@
         <br />
       </v-row>
       <v-card-title class="text-heading-1 mx-2">
-        {{ capitalize($t(title)) }}
+        {{ $t(title) }}
         <slot name="post-title" />
       </v-card-title>
 
       <v-card-text class="ma-2">
-        {{ capitalize($t(body)) }}
+        {{ $t(body) }}
       </v-card-text>
 
       <v-card-actions class="px-8 pb-8">
@@ -33,7 +33,7 @@
           @click="closeDialog"
           @keydown.enter="closeDialog"
         >
-          {{ capitalize($t('controls.cancel')) }}
+          {{ $t('controls.cancel') }}
         </v-btn>
         <v-btn
           class="a11y-focus-darker"
@@ -42,7 +42,7 @@
           @click="onConfirm"
           @keydown.enter="onConfirm"
         >
-          {{ capitalize($t('controls.confirm')) }}
+          {{ $t(confirmLabel) }}
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -51,7 +51,6 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from 'nuxt-property-decorator'
-import { capitalize } from '@/assets/js/stringUtils'
 
 @Component
 export default class ConfirmationDialog extends Vue {
@@ -61,8 +60,7 @@ export default class ConfirmationDialog extends Vue {
   @Prop({ default: true }) closable: boolean
   @Prop({ default: false }) value: boolean
   @Prop({ default: false }) loading: boolean
-
-  capitalize = capitalize
+  @Prop({ default: 'controls.confirm' }) confirmLabel: string
 
   mounted() {
     this.$nuxt.$on('focusConfirmationDialog', this.focusConfirmationDialog)
