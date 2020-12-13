@@ -64,7 +64,7 @@
         <v-col
           v-if="
             !!$slots.actionsBeneath ||
-            (title && $vuetify.breakpoint.smAndUp && !empty)
+              (title && $vuetify.breakpoint.smAndUp && !empty)
           "
           cols="12"
           class="pr-2 d-flex justify-end align-center white"

@@ -23,7 +23,6 @@ export default class Accept extends Vue {
       const delegate = await this.$store
         .dispatch('delegate/acceptInvite', this.$route.params.id)
         .then((delegate: UserDelegatedAccess) => {
-          snackbarStore.setProgress(-1)
           snackbarStore.setParams({
             message: 'toast.acceptedDelegateInvite',
           })

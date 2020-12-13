@@ -117,6 +117,15 @@ export default class UploadButton extends Vue {
 
   onFileInput(event: any) {
     if (event?.target?.files && event.target.files.length) {
+      for (const file of event.target.files) {
+        if (file.size > this.$config.maxFileSize) {
+          snackbarStore.setParams({
+            message: 'toast.fileTooLarge',
+          })
+          snackbarStore.setVisible(true)
+          return
+        }
+      }
       this.files = event.target.files
       this.documentName = event.target.files[0].name
         .split('.')

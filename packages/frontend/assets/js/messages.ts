@@ -21,6 +21,7 @@ export default {
       uploading: 'Adding File...', // displayed while a file is uploading
       uploadComplete: 'Upload Complete',
       fileDeletedConfirmation: 'File Deleted',
+      fileTooLarge: 'File too large (must be < 10MB)',
     },
 
     login: {
