@@ -27,6 +27,7 @@ export default {
     login: {
       getStarted: 'Get Started',
       welcomeTitle: 'Welcome to Datalocker',
+      footerLogoAlt: 'Footer logo',
       welcomeMessage: {
         CLIENT:
           'Datalocker is designed to help families who are seeking permanent supportive housing. Datalocker facilitates the storage and sharing of personal documents with case managers and relevant City agencies in a way that is both easy and secure.',

@@ -12,6 +12,7 @@
       @click.native="setRoleLoginRedirect(role)"
       @keydown.native.enter="setRoleLoginRedirect(role)"
     />
+    <CityLogoFooter v-if="showFooterLogo" class="mt-10 mb-3" />
   </div>
 </template>
 
@@ -40,6 +41,10 @@ export default class LandingMessage extends mixins(Login) {
     if (this.role === userStore.role && !this.$auth.loggedIn) {
       this.$auth.login()
     }
+  }
+
+  get showFooterLogo(): boolean {
+    return this.$config.footerLogo === '1'
   }
 }
 </script>

@@ -20,12 +20,3 @@ export default class CityLogo extends Vue {
   }
 }
 </script>
-
-<style scoped lang="scss">
-.logo {
-  display: block;
-  background-repeat: no-repeat;
-  background-size: contain;
-  background-position: center center;
-}
-</style>
