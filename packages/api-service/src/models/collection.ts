@@ -42,7 +42,7 @@ export class Collection extends BaseModel {
   static get modifiers() {
     return {
       fieldsForList(query: QueryBuilder<Collection>) {
-        const fields = ['id', 'name', 'createdAt', 'ownerId']
+        const fields = ['id', 'name', 'createdAt', 'ownerId', 'createdBy']
         return query.select(...fields.map((f) => Collection.ref(f)))
       },
       byOwnerId(query: QueryBuilder<Document>, userId: string) {
