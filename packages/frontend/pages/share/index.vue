@@ -59,71 +59,80 @@
         />
       </div>
     </v-window-item>
-    <v-window-item :class="[{ mobile: $vuetify.breakpoint.xs }]">
-      <div class="window-container px-8 pt-8" style="max-width: 564px">
-        <v-row>
-          <v-col cols="auto" class="pr-0">
-            <v-icon v-if="true" class="mb-2">$profile</v-icon>
-          </v-col>
-          <v-col class="font-weight-medium">
-            {{ $t('sharing.recipients') }}
-          </v-col>
-        </v-row>
-        <ValidationObserver ref="observer">
-          <v-form @submit.prevent>
-            <ValidationProvider
-              v-slot="{ errors }"
-              mode="eager"
-              name="email"
-              :rules="emailValidationRules"
-            >
-              <v-text-field
-                v-model="email"
-                :error-messages="
-                  individualEmailAddresses.length >= 10
-                    ? [$tc('sharing.tooManyRecipients', 10)]
-                    : errors
-                "
-                outlined
-                :placeholder="$t('sharing.addRecipientPlaceholder')"
-                type="email"
-                :disabled="individualEmailAddresses.length >= 10"
-                @keydown.enter="addEmail"
-                @blur="addEmail"
-              />
-            </ValidationProvider>
-          </v-form>
-        </ValidationObserver>
-        <v-card
-          v-for="(email, i) in individualEmailAddresses"
-          :key="i"
-          rounded
-          class="invitee px-4 py-1 mb-2 grey-2"
+    <v-window-item
+      :class="[{ mobile: $vuetify.breakpoint.xs }]"
+      style="min-height: 100%"
+    >
+      <div class="d-flex flex-column" style="min-height: calc(100vh - 88px)">
+        <div
+          class="window-container px-8 pt-8 mb-2 flex-grow-1"
+          style="max-width: 564px; width: 100%"
         >
-          <v-row align="center" no-gutters>
-            <v-col>
-              <span>{{ email }}</span>
+          <v-row>
+            <v-col cols="auto" class="pr-0">
+              <v-icon v-if="true" class="mb-2">$profile</v-icon>
             </v-col>
-            <v-col cols="auto">
-              <v-btn
-                :title="`${$t('navigation.close')}`"
-                icon
-                @click="removeEmail(i)"
-              >
-                <v-icon>$close</v-icon>
-              </v-btn>
+            <v-col class="font-weight-medium">
+              {{ $t('sharing.recipients') }}
             </v-col>
           </v-row>
-        </v-card>
+          <ValidationObserver ref="observer">
+            <v-form @submit.prevent>
+              <ValidationProvider
+                v-slot="{ errors }"
+                mode="eager"
+                name="email"
+                :rules="emailValidationRules"
+              >
+                <v-text-field
+                  v-model="email"
+                  :error-messages="
+                    individualEmailAddresses.length >= 10
+                      ? [$tc('sharing.tooManyRecipients', 10)]
+                      : errors
+                  "
+                  outlined
+                  :placeholder="$t('sharing.addRecipientPlaceholder')"
+                  type="email"
+                  :disabled="individualEmailAddresses.length >= 10"
+                  @keydown.enter="addEmail"
+                  @blur="addEmail"
+                />
+              </ValidationProvider>
+            </v-form>
+          </ValidationObserver>
+          <v-card
+            v-for="(email, i) in individualEmailAddresses"
+            :key="i"
+            rounded
+            class="invitee px-4 py-1 mb-2 grey-2"
+          >
+            <v-row align="center" no-gutters>
+              <v-col>
+                <span>{{ email }}</span>
+              </v-col>
+              <v-col cols="auto">
+                <v-btn
+                  :title="`${$t('navigation.close')}`"
+                  icon
+                  @click="removeEmail(i)"
+                >
+                  <v-icon>$close</v-icon>
+                </v-btn>
+              </v-col>
+            </v-row>
+          </v-card>
+        </div>
+        <FooterCard
+          class="d-flex align-self-end mx-auto"
+          title="sharing.disclaimerTitle"
+          :body="
+            $t('sharing.shareDocumentDisclaimer', {
+              emails: domainsList,
+            })
+          "
+        />
       </div>
-      <FooterCard
-        title="sharing.disclaimerTitle"
-        :body="
-          $t('sharing.shareDocumentDisclaimer', {
-            emails: domainsList,
-          })
-        "
-      />
     </v-window-item>
     <v-window-item>
       <div class="window-container px-8 pt-12 d-flex justify-center">
@@ -150,7 +159,7 @@
             v-if="selectedDocs.length > sliceFiles"
             class="float-right"
             text
-            @click="sliceFiles = 10"
+            @click="sliceFiles = 100"
           >
             {{ $tc('sharing.plusNMore', selectedDocs.length - sliceFiles) }}
           </v-btn>
@@ -163,7 +172,10 @@
             }}:
           </p>
           <v-card
-            v-for="(email, i) in individualEmailAddresses.slice(0, 5)"
+            v-for="(email, i) in individualEmailAddresses.slice(
+              0,
+              sliceRecipients,
+            )"
             :key="`recipient-${i}`"
             rounded
             class="invitee px-4 py-4 mb-2 d-flex grey-2"

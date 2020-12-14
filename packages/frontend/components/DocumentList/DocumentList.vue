@@ -10,7 +10,7 @@
         hide-default-footer
         :show-select="selectable"
         :item-class="() => 'clickable'"
-        @click:row="previewDocument"
+        @click:row="onDocumentClick"
       >
         <template v-slot:item.icon="{ item }">
           <DocumentThumbnail :document="item" />
@@ -164,11 +164,11 @@ export default class DocumentList extends Vue {
   }
 
   @Watch('selected')
-  emitSelect() {
-    this.$emit('input', this.selected)
+  emitSelect(val: DocumentListItem[]) {
+    this.$emit('input', val)
   }
 
-  previewDocument(document: DocumentListItem) {
+  onDocumentClick(document: DocumentListItem) {
     if (this.selectable) {
       if (
         this.selected.map((selectedDoc) => selectedDoc.id).includes(document.id)

@@ -16,7 +16,7 @@
       :value="checked"
       color="primary"
       class="check"
-      @change="emitChange"
+      style="pointer-events: none"
     />
     <DocumentMenu
       v-else-if="showActions"
@@ -48,7 +48,8 @@ import { RawLocation } from 'vue-router'
 export default class DocumentCard extends Vue {
   @Prop({ required: true }) document: DocumentListItem
   @Prop({ default: false }) selectable: boolean
-  @Prop({ default: null }) value: DocumentListItem[]
+  // stores "selected" documents
+  @Prop({ default: null }) value: DocumentListItem[] | null
   @Prop({ default: null }) owner: Owner | null
   @Prop({ default: true }) showActions: boolean
   @Prop({
@@ -61,9 +62,11 @@ export default class DocumentCard extends Vue {
   checked = false
 
   mounted() {
-    this.checked = this.value
-      .map((document: DocumentListItem) => document.id)
-      .includes(this.document.id)
+    this.checked =
+      !!this.value &&
+      this.value
+        .map((document: DocumentListItem) => document.id)
+        .includes(this.document.id)
   }
 
   get documentDate() {
@@ -71,7 +74,7 @@ export default class DocumentCard extends Vue {
   }
 
   onClick() {
-    if (this.selectable) {
+    if (this.selectable && this.value) {
       if (this.checked) {
         this.emitChange(
           this.value.filter(

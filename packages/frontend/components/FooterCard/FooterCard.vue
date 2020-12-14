@@ -1,5 +1,5 @@
 <template>
-  <v-footer fixed class="pa-8 d-flex justify-center">
+  <div class="pa-8 d-flex justify-center">
     <v-sheet outlined color="#c8d3ee" rounded>
       <v-card
         outlined
@@ -16,7 +16,7 @@
         </span>
       </v-card>
     </v-sheet>
-  </v-footer>
+  </div>
 </template>
 
 <script lang="ts">
