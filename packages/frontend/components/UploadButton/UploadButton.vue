@@ -69,7 +69,7 @@
                   v-model="documentName"
                   :error-messages="errors"
                   outlined
-                  :placeholder="$t('document.editNamePlaceholder')"
+                  :placeholder="$t('document.enterNamePlaceholder')"
                 />
               </ValidationProvider>
             </v-form>
@@ -165,6 +165,7 @@ export default class UploadButton extends Vue {
 
     this.$store.dispatch('user/getDocuments')
     this.$store.dispatch('user/scheduleDocumentsRefresh')
+    this.$emit('complete')
 
     this.reset()
   }

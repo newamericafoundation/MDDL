@@ -1,30 +1,34 @@
 <template>
-  <div>
-    <v-menu v-model="showMenu" absolute offset-y style="max-width: 600px">
-      <template v-slot:activator="{ on, attrs }">
-        <v-btn
-          :title="`${$t('document.documentMenu')}`"
-          v-bind="attrs"
-          icon
-          class="ml-4 text-body-1 font-weight-medium documentMenu a11y-focus"
-          :color="color"
-          v-on="on"
-          @click.prevent="() => {}"
-          @keydown.enter="focusDocumentMenuList"
-          @keydown.space="focusDocumentMenuList"
-        >
-          <v-icon>$dots-horizontal</v-icon>
-        </v-btn>
-      </template>
+  <v-menu
+    v-model="showMenu"
+    absolute
+    offset-y
+    style="max-width: 600px"
+    :close-on-content-click="false"
+  >
+    <template v-slot:activator="{ on, attrs }">
+      <v-btn
+        :title="`${$t('document.documentMenu')}`"
+        v-bind="attrs"
+        icon
+        class="ml-4 text-body-1 font-weight-medium documentMenu a11y-focus"
+        :color="color"
+        v-on="on"
+        @click.prevent="() => {}"
+        @keydown.enter="focusDocumentMenuList"
+        @keydown.space="focusDocumentMenuList"
+      >
+        <v-icon>$dots-horizontal</v-icon>
+      </v-btn>
+    </template>
 
-      <DocumentActions
-        ref="documentMenuList"
-        :document="document"
-        class="a11y-focus"
-        tabindex="-1"
-      />
-    </v-menu>
-  </div>
+    <DocumentActions
+      ref="documentMenuList"
+      :document="document"
+      class="a11y-focus"
+      tabindex="-1"
+    />
+  </v-menu>
 </template>
 
 <script lang="ts">

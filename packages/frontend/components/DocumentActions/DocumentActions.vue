@@ -10,8 +10,8 @@
       <v-btn
         class="justify-start"
         text
-        @click="showConfirmationDialog()"
-        @keydown.enter="showConfirmationDialog()"
+        @click="showConfirmationDialog"
+        @keydown.enter="showConfirmationDialog"
       >
         <v-icon small class="mr-2" color="primary">$delete</v-icon>
         {{ $t('controls.delete') }}

@@ -101,7 +101,7 @@ export default class DocumentList extends Vue {
   selected: DocumentListItem[] = []
   headers: DataTableHeader[] = []
   format = format
-  _documents: DocumentListItem[] = []
+  cachedDocuments: DocumentListItem[] = []
 
   async mounted() {
     await this.reload()
@@ -149,7 +149,7 @@ export default class DocumentList extends Vue {
 
   get documents() {
     // eslint-disable-next-line no-unused-expressions
-    return [...this._documents].sort(
+    return [...this.cachedDocuments].sort(
       (d1: DocumentListItem, d2: DocumentListItem) => {
         if (this.preSelected.includes(d1.id)) {
           if (this.preSelected.includes(d2.id)) {
@@ -194,13 +194,13 @@ export default class DocumentList extends Vue {
   }
 
   async reload() {
-    this._documents = this.fetchDocuments
+    this.cachedDocuments = this.fetchDocuments
       ? await this.fetchDocuments()
       : await this.$store.dispatch('user/getDocuments')
     this.selected = []
     if (this.preSelected) {
       for (const id of this.preSelected) {
-        const document = this._documents.find(
+        const document = this.cachedDocuments.find(
           (d: DocumentListItem) => d.id === id,
         )
         if (document) {

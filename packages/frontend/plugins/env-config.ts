@@ -15,7 +15,7 @@ export const envConfig = {
     showBuildInfo: process.env.SHOW_BUILD_INFO,
     authStrategy: 'oauth2',
     authTokenIdClaim: process.env.AUTH_TOKEN_ID_CLAIM || 'sub',
-    maxFileSize: 1000000,
+    maxFileSize: 10000000,
   },
 }
 /**

@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="value" width="350" persistent>
+  <v-dialog v-model="isShown" width="350" persistent>
     <v-card ref="confirmationDialog" class="confirmation-card a11y-focus">
       <v-row v-if="closable" class="py-4">
         <v-btn
@@ -64,6 +64,14 @@ export default class ConfirmationDialog extends Vue {
 
   mounted() {
     this.$nuxt.$on('focusConfirmationDialog', this.focusConfirmationDialog)
+  }
+
+  get isShown() {
+    return this.value
+  }
+
+  set isShown(val: boolean) {
+    this.$emit('input', val)
   }
 
   closeDialog() {

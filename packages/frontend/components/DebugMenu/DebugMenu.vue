@@ -42,6 +42,8 @@ export default class DebugMenu extends Vue {
 
   delegateToAccept = ''
 
+  showConfirmation = false
+
   mounted() {
     if (this.$auth.loggedIn) {
       const claims = decode(this.$auth.getToken(this.$config.authStrategy))

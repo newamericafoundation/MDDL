@@ -8,12 +8,20 @@
         </v-btn>
         <template v-if="$vuetify.breakpoint.xs">
           <ShareButton class="float-right" />
-          <UploadButton prepend-icon="$plus" class="float-right ml-2" />
+          <UploadButton
+            prepend-icon="$plus"
+            class="float-right ml-2"
+            @complete="onUpload"
+          />
         </template>
       </template>
       <template v-if="$vuetify.breakpoint.smAndUp" v-slot:actionsBeneath>
         <ShareButton class="float-right my-2" />
-        <UploadButton prepend-icon="$plus" class="float-right my-2 ml-2" />
+        <UploadButton
+          prepend-icon="$plus"
+          class="float-right my-2 ml-2"
+          @complete="onUpload"
+        />
       </template>
       <template v-slot:extensions>
         <v-tabs
@@ -35,7 +43,7 @@
       <template>
         <v-tabs-items v-model="currentTab">
           <v-tab-item value="tab-docs" tabindex="0">
-            <DocumentList class="mx-sm-8" />
+            <DocumentList ref="documentList" class="mx-sm-8" />
           </v-tab-item>
           <v-tab-item value="tab-collections" tabindex="0">
             <CollectionList class="mx-sm-8" />
@@ -81,6 +89,12 @@ export default class ClientDashboard extends Vue {
         tab: this.currentTab,
       },
     })
+  }
+
+  onUpload() {
+    setTimeout(() => {
+      ;(this.$refs.documentList as any).reload()
+    }, 1000)
   }
 }
 </script>

@@ -8,7 +8,11 @@
         v-if="!!document && userStore.isClient && $vuetify.breakpoint.xs"
         v-slot:actions
       >
-        <DocumentMenu color="primary" :on-delete="onDelete" />
+        <DocumentMenu
+          color="primary"
+          :on-delete="onDelete"
+          :document="document"
+        />
         <ShareButton :preselected="[document.id]" />
       </template>
       <template
@@ -114,7 +118,7 @@
                   v-model="newName"
                   :error-messages="errors"
                   outlined
-                  :placeholder="$t('document.editNamePlaceholder')"
+                  :placeholder="$t('document.enterNamePlaceholder')"
                 />
               </ValidationProvider>
               <p class="subtitle-1">
