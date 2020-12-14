@@ -21,7 +21,7 @@ describe('sendEmail', () => {
       destination: {
         ToAddresses: ['testemail@example.com'],
       },
-      subject: `Data Locker: You've been sent documents`,
+      subject: `Datalocker: You've been sent documents`,
       data: {
         link: 'https://mylink1234',
         name: 'Sam Smithers',
@@ -46,7 +46,7 @@ describe('sendEmail', () => {
       destination: {
         ToAddresses: ['testemail@example.com'],
       },
-      subject: `Data Locker: You've been granted access to an account`,
+      subject: `Datalocker: You've been granted access to an account`,
       data: {
         link: 'https://mylink1234',
         name: 'Sam Smithers',

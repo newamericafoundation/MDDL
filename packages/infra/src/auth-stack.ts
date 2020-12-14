@@ -130,7 +130,7 @@ export class AuthStack extends Stack {
         : undefined,
       userVerification: {
         emailStyle: VerificationEmailStyle.LINK,
-        emailSubject: 'Data Locker - Please verify your email',
+        emailSubject: 'Datalocker - Please verify your email',
       },
       selfSignUpEnabled: true,
       passwordPolicy: {

@@ -17,15 +17,15 @@ const SourceMapping: {
   [index: string]: { template: string; subject: string }
 } = {
   [TriggerSource.CustomMessage_ResendCode]: {
-    subject: 'Data Locker: Welcome!',
+    subject: 'Datalocker: Welcome!',
     template: 'welcome',
   },
   [TriggerSource.CustomMessage_SignUp]: {
-    subject: 'Data Locker: Welcome!',
+    subject: 'Datalocker: Welcome!',
     template: 'welcome',
   },
   [TriggerSource.CustomMessage_ForgotPassword]: {
-    subject: 'Data Locker: Your verification code',
+    subject: 'Datalocker: Your verification code',
     template: 'passwordReset',
   },
 }

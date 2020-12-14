@@ -294,7 +294,7 @@ Object {
 </html>
 
 ",
-    "emailSubject": "Data Locker: Your verification code",
+    "emailSubject": "Datalocker: Your verification code",
   },
   "triggerSource": "CustomMessage_ForgotPassword",
   "userName": "829084D7-F359-49CF-8D36-F6A7310B542E",
@@ -605,7 +605,7 @@ Object {
 </html>
 
 ",
-    "emailSubject": "Data Locker: Welcome!",
+    "emailSubject": "Datalocker: Welcome!",
   },
   "triggerSource": "CustomMessage_ResendCode",
   "userName": "829084D7-F359-49CF-8D36-F6A7310B542E",
@@ -916,7 +916,7 @@ Object {
 </html>
 
 ",
-    "emailSubject": "Data Locker: Welcome!",
+    "emailSubject": "Datalocker: Welcome!",
   },
   "triggerSource": "CustomMessage_SignUp",
   "userName": "829084D7-F359-49CF-8D36-F6A7310B542E",
