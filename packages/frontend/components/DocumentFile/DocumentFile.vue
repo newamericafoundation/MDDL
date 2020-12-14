@@ -9,7 +9,7 @@
   >
     <p>PDF document: {{ document.name }}</p>
   </iframe>
-  <div v-else class="justify-center image viewer">
+  <div v-else class="text-center image viewer">
     <img :src="url" :alt="`${documentName} (${fileName})`" />
   </div>
 </template>
@@ -105,7 +105,7 @@ export default class DocumentFile extends Vue {
   }
   &.image {
     img {
-      width: 100%;
+      max-width: 90%;
       object-fit: contain;
       border-radius: 0.5rem;
     }
