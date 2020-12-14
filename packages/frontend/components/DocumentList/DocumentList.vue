@@ -4,6 +4,7 @@
       <v-data-table
         v-show="$vuetify.breakpoint.smAndUp"
         v-model="selected"
+        :disable-pagination="true"
         :headers="headers"
         :items="documents"
         hide-default-footer

@@ -3,6 +3,7 @@
     <template v-if="collections.length">
       <v-data-table
         v-show="$vuetify.breakpoint.smAndUp"
+        :disable-pagination="true"
         :headers="headers"
         :items="collections"
         hide-default-footer

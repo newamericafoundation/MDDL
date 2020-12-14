@@ -2,6 +2,7 @@
   <div v-if="clients.length">
     <v-data-table
       v-show="$vuetify.breakpoint.smAndUp"
+      :disable-pagination="true"
       :headers="headers"
       :items="clients"
       hide-default-footer
