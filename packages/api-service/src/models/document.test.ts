@@ -10,6 +10,7 @@ import {
   documentIsInCollectionWithGrant,
   setDocumentThumbnailPath,
   deleteDocument,
+  documentsInAnyCollectionWithGrantAndOwner,
 } from './document'
 import { v4 as uuidv4 } from 'uuid'
 import { connectDatabase } from '@/utils/database'
@@ -393,6 +394,7 @@ describe('DocumentModel', () => {
             requirementValue: userEmail,
             createdAt: new Date(),
             createdBy: userId,
+            ownerId: userId,
           },
         ],
       })
@@ -478,6 +480,7 @@ describe('DocumentModel', () => {
             requirementValue: userEmail,
             createdAt: new Date(),
             createdBy: userId,
+            ownerId: userId,
           },
         ],
       })
@@ -488,6 +491,131 @@ describe('DocumentModel', () => {
     })
     it('returns 1 if document found', async () => {
       expect(await deleteDocument(documentId)).toStrictEqual(1)
+    })
+  })
+
+  describe('documentsInAnyCollectionWithGrantAndOwner', () => {
+    const ownerId = uuidv4()
+    const collectionId1 = uuidv4()
+    const collectionId2 = uuidv4()
+    const userEmail = 'testgrantemail'
+    let document1: DocumentModel
+    let document2: DocumentModel
+    beforeAll(async () => {
+      document1 = await DocumentModel.query().insertAndFetch({
+        name: 'My Test Document 1',
+        ownerId,
+        createdBy: ownerId,
+        createdAt: new Date('2015-01-12T13:14:15Z'),
+        updatedBy: ownerId,
+        updatedAt: new Date('2015-01-12T13:14:15Z'),
+      })
+      document2 = await DocumentModel.query().insertAndFetch({
+        name: 'My Test Document 2',
+        ownerId,
+        createdBy: ownerId,
+        createdAt: new Date('2015-01-12T13:24:15Z'),
+        updatedBy: ownerId,
+        updatedAt: new Date('2015-01-12T13:24:15Z'),
+      })
+      await createCollection({
+        id: collectionId1,
+        name,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        ownerId,
+        createdBy: ownerId,
+        updatedBy: ownerId,
+        collectionDocuments: [
+          {
+            documentId: document1.id,
+            createdAt: new Date('2015-01-15T13:14:15Z'),
+            createdBy: ownerId,
+          },
+          {
+            documentId: document2.id,
+            createdAt: new Date('2015-01-16T13:14:15Z'),
+            createdBy: ownerId,
+          },
+        ],
+        grants: [
+          {
+            id: uuidv4(),
+            requirementType: CollectionGrantType.INDIVIDUALEMAIL,
+            requirementValue: userEmail,
+            createdAt: new Date('2015-01-17T13:14:15Z'),
+            createdBy: ownerId,
+            ownerId,
+          },
+        ],
+      })
+      await createCollection({
+        id: collectionId2,
+        name,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        ownerId,
+        createdBy: ownerId,
+        updatedBy: ownerId,
+        collectionDocuments: [
+          {
+            documentId: document1.id,
+            createdAt: new Date('2015-01-18T13:14:15Z'),
+            createdBy: ownerId,
+          },
+        ],
+        grants: [
+          {
+            id: uuidv4(),
+            requirementType: CollectionGrantType.INDIVIDUALEMAIL,
+            requirementValue: userEmail,
+            createdAt: new Date('2015-01-18T13:14:15Z'),
+            createdBy: ownerId,
+            ownerId,
+          },
+        ],
+      })
+    })
+    it('returns empty if no documents found', async () => {
+      const id = uuidv4()
+      expect(
+        await documentsInAnyCollectionWithGrantAndOwner(
+          id,
+          CollectionGrantType.INDIVIDUALEMAIL,
+          userEmail,
+        ),
+      ).toStrictEqual([])
+    })
+    it('returns documents when found', async () => {
+      const result = await documentsInAnyCollectionWithGrantAndOwner(
+        ownerId,
+        CollectionGrantType.INDIVIDUALEMAIL,
+        userEmail,
+      )
+      expect(result).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            createdAt: new Date('2015-01-12T13:14:15.000Z'),
+            name: 'My Test Document 1',
+            thumbnailPath: null,
+            updatedAt: new Date('2015-01-12T13:14:15.000Z'),
+            grantCreatedAt: new Date('2015-01-18T13:14:15.000Z'),
+            grantCreatedBy: ownerId,
+            documentCollectionCreatedBy: ownerId,
+            documentCollectionCreatedAt: new Date('2015-01-18T13:14:15.000Z'),
+          }),
+          expect.objectContaining({
+            createdAt: new Date('2015-01-12T13:24:15.000Z'),
+            name: 'My Test Document 2',
+            thumbnailPath: null,
+            updatedAt: new Date('2015-01-12T13:24:15.000Z'),
+            grantCreatedAt: new Date('2015-01-17T13:14:15.000Z'),
+            grantCreatedBy: ownerId,
+            documentCollectionCreatedBy: ownerId,
+            documentCollectionCreatedAt: new Date('2015-01-16T13:14:15.000Z'),
+          }),
+        ]),
+      )
     })
   })
 })

@@ -27,7 +27,6 @@ import { EnvironmentVariable, requireConfiguration } from '@/config'
 import { submitCollectionCreatedEvent } from '../activity'
 import { User } from '@/models/user'
 import { userName } from '../users'
-import { captureException } from '@/utils/sentry'
 
 connectDatabase()
 
@@ -95,6 +94,7 @@ export const handler = createAuthenticatedApiGatewayHandler(
         requirementValue: email,
         createdBy,
         createdAt,
+        ownerId,
       })),
     }
 

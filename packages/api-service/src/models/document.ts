@@ -4,6 +4,8 @@ import { Model, QueryBuilder } from 'objection'
 import { File } from './file'
 import { CollectionDocument } from './collectionDocument'
 import { CollectionGrant } from './collectionGrant'
+import { Collection } from './__mocks__/collection'
+import { max, compareAsc } from 'date-fns'
 
 export class Document extends BaseModel {
   // columns
@@ -157,6 +159,52 @@ export const documentIsInCollectionWithGrant = async (
       CollectionDocument.query().select('collectionId').where({ documentId }),
     )
     .first())
+}
+
+export type SharedDocument = Document & {
+  grantCreatedBy: string
+  grantCreatedAt: Date
+  documentCollectionCreatedBy: string
+  documentCollectionCreatedAt: Date
+}
+export const documentsInAnyCollectionWithGrantAndOwner = async (
+  ownerId: string,
+  requirementType: string,
+  requirementValue: string,
+): Promise<SharedDocument[]> => {
+  const foundDocuments = (await Document.query()
+    .join(
+      CollectionDocument.tableName,
+      Document.ref('id'),
+      CollectionDocument.ref('documentId'),
+    )
+    .join(
+      CollectionGrant.tableName,
+      CollectionDocument.ref('collectionId'),
+      CollectionGrant.ref('collectionId'),
+    )
+    .where(CollectionGrant.ref('requirementType'), requirementType)
+    .where(CollectionGrant.ref('requirementValue'), requirementValue)
+    .where(CollectionGrant.ref('ownerId'), ownerId)
+    .modify('fieldsForList')
+    .select(
+      CollectionGrant.ref('createdBy  as grantCreatedBy'),
+      CollectionGrant.ref('createdAt as grantCreatedAt'),
+      CollectionDocument.ref('createdBy as documentCollectionCreatedBy'),
+      CollectionDocument.ref('createdAt as documentCollectionCreatedAt'),
+    )
+    .orderBy(Document.ref('createdAt'))) as SharedDocument[]
+
+  // we sort ascending here as we will flip the array after removing duplicates
+  const sortedDocuments = foundDocuments.sort((d1, d2) => {
+    return compareAsc(
+      max([d1.documentCollectionCreatedAt, d1.grantCreatedAt]),
+      max([d2.documentCollectionCreatedAt, d2.grantCreatedAt]),
+    )
+  })
+  const deduplicatedDocumentsObj: { [index: string]: SharedDocument } = {}
+  sortedDocuments.map((d) => (deduplicatedDocumentsObj[d.id] = d))
+  return Object.values(deduplicatedDocumentsObj).reverse()
 }
 
 export const setDocumentThumbnailPath = async (id: string, path: string) => {

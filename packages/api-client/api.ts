@@ -769,6 +769,38 @@ export interface SharedCollectionListItem {
     collection: CollectionListItem;
 }
 /**
+ * A result containing a list of shared documents
+ * @export
+ * @interface SharedDocumentsList
+ */
+export interface SharedDocumentsList {
+    /**
+     * The documents list
+     * @type {Array<SharedDocumentsListItem>}
+     * @memberof SharedDocumentsList
+     */
+    sharedDocuments: Array<SharedDocumentsListItem>;
+}
+/**
+ * Details for listing a shared document
+ * @export
+ * @interface SharedDocumentsListItem
+ */
+export interface SharedDocumentsListItem {
+    /**
+     * 
+     * @type {ShareInformation}
+     * @memberof SharedDocumentsListItem
+     */
+    latestShareInformation: ShareInformation;
+    /**
+     * 
+     * @type {DocumentListItem}
+     * @memberof SharedDocumentsListItem
+     */
+    document: DocumentListItem;
+}
+/**
  * A user who shared information
  * @export
  * @interface Sharer
@@ -2350,11 +2382,10 @@ export const UserApiAxiosParamCreator = function (configuration?: Configuration)
          * List collections owned by a user
          * @summary List collections owned by a user
          * @param {string} userId ID of user to find collections for
-         * @param {string} [search] Search string to narrow down list
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listUserCollections: async (userId: string, search?: string, options: any = {}): Promise<RequestArgs> => {
+        listUserCollections: async (userId: string, options: any = {}): Promise<RequestArgs> => {
             // verify required parameter 'userId' is not null or undefined
             if (userId === null || userId === undefined) {
                 throw new RequiredError('userId','Required parameter userId was null or undefined when calling listUserCollections.');
@@ -2380,10 +2411,6 @@ export const UserApiAxiosParamCreator = function (configuration?: Configuration)
                 localVarHeaderParameter["Authorization"] = "Bearer " + localVarAccessTokenValue;
             }
 
-            if (search !== undefined) {
-                localVarQueryParameter['search'] = search;
-            }
-
 
     
             const query = new URLSearchParams(localVarUrlObj.search);
@@ -2406,11 +2433,10 @@ export const UserApiAxiosParamCreator = function (configuration?: Configuration)
          * List collections shared to user
          * @summary List collections shared to user
          * @param {string} userId ID of user to find accessible collections for
-         * @param {string} [search] Search string to narrow down list
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listUserCollectionsShared: async (userId: string, search?: string, options: any = {}): Promise<RequestArgs> => {
+        listUserCollectionsShared: async (userId: string, options: any = {}): Promise<RequestArgs> => {
             // verify required parameter 'userId' is not null or undefined
             if (userId === null || userId === undefined) {
                 throw new RequiredError('userId','Required parameter userId was null or undefined when calling listUserCollectionsShared.');
@@ -2436,10 +2462,6 @@ export const UserApiAxiosParamCreator = function (configuration?: Configuration)
                 localVarHeaderParameter["Authorization"] = "Bearer " + localVarAccessTokenValue;
             }
 
-            if (search !== undefined) {
-                localVarQueryParameter['search'] = search;
-            }
-
 
     
             const query = new URLSearchParams(localVarUrlObj.search);
@@ -2462,11 +2484,10 @@ export const UserApiAxiosParamCreator = function (configuration?: Configuration)
          * List documents owned by a user
          * @summary List documents owned by a user
          * @param {string} userId ID of user to find documents for
-         * @param {string} [search] Search string to narrow down list
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listUserDocuments: async (userId: string, search?: string, options: any = {}): Promise<RequestArgs> => {
+        listUserDocuments: async (userId: string, options: any = {}): Promise<RequestArgs> => {
             // verify required parameter 'userId' is not null or undefined
             if (userId === null || userId === undefined) {
                 throw new RequiredError('userId','Required parameter userId was null or undefined when calling listUserDocuments.');
@@ -2492,8 +2513,55 @@ export const UserApiAxiosParamCreator = function (configuration?: Configuration)
                 localVarHeaderParameter["Authorization"] = "Bearer " + localVarAccessTokenValue;
             }
 
-            if (search !== undefined) {
-                localVarQueryParameter['search'] = search;
+
+    
+            const query = new URLSearchParams(localVarUrlObj.search);
+            for (const key in localVarQueryParameter) {
+                query.set(key, localVarQueryParameter[key]);
+            }
+            for (const key in options.query) {
+                query.set(key, options.query[key]);
+            }
+            localVarUrlObj.search = (new URLSearchParams(query)).toString();
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * List documents shared by a user to the calling user
+         * @summary List documents shared by a user
+         * @param {string} userId ID of user who has shared documents to an agent
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listUserDocumentsShared: async (userId: string, options: any = {}): Promise<RequestArgs> => {
+            // verify required parameter 'userId' is not null or undefined
+            if (userId === null || userId === undefined) {
+                throw new RequiredError('userId','Required parameter userId was null or undefined when calling listUserDocumentsShared.');
+            }
+            const localVarPath = `/users/{userId}/documents/shared`
+                .replace(`{${"userId"}}`, encodeURIComponent(String(userId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, 'https://example.com');
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication datalocker_auth required
+            // oauth required
+            if (configuration && configuration.accessToken) {
+                const localVarAccessTokenValue = typeof configuration.accessToken === 'function'
+                    ? await configuration.accessToken("datalocker_auth", [])
+                    : await configuration.accessToken;
+                localVarHeaderParameter["Authorization"] = "Bearer " + localVarAccessTokenValue;
             }
 
 
@@ -2629,12 +2697,11 @@ export const UserApiFp = function(configuration?: Configuration) {
          * List collections owned by a user
          * @summary List collections owned by a user
          * @param {string} userId ID of user to find collections for
-         * @param {string} [search] Search string to narrow down list
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async listUserCollections(userId: string, search?: string, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionList>> {
-            const localVarAxiosArgs = await UserApiAxiosParamCreator(configuration).listUserCollections(userId, search, options);
+        async listUserCollections(userId: string, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionList>> {
+            const localVarAxiosArgs = await UserApiAxiosParamCreator(configuration).listUserCollections(userId, options);
             return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
                 const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
                 return axios.request(axiosRequestArgs);
@@ -2644,12 +2711,11 @@ export const UserApiFp = function(configuration?: Configuration) {
          * List collections shared to user
          * @summary List collections shared to user
          * @param {string} userId ID of user to find accessible collections for
-         * @param {string} [search] Search string to narrow down list
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async listUserCollectionsShared(userId: string, search?: string, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SharedCollectionList>> {
-            const localVarAxiosArgs = await UserApiAxiosParamCreator(configuration).listUserCollectionsShared(userId, search, options);
+        async listUserCollectionsShared(userId: string, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SharedCollectionList>> {
+            const localVarAxiosArgs = await UserApiAxiosParamCreator(configuration).listUserCollectionsShared(userId, options);
             return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
                 const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
                 return axios.request(axiosRequestArgs);
@@ -2659,12 +2725,25 @@ export const UserApiFp = function(configuration?: Configuration) {
          * List documents owned by a user
          * @summary List documents owned by a user
          * @param {string} userId ID of user to find documents for
-         * @param {string} [search] Search string to narrow down list
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async listUserDocuments(userId: string, search?: string, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<DocumentList>> {
-            const localVarAxiosArgs = await UserApiAxiosParamCreator(configuration).listUserDocuments(userId, search, options);
+        async listUserDocuments(userId: string, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<DocumentList>> {
+            const localVarAxiosArgs = await UserApiAxiosParamCreator(configuration).listUserDocuments(userId, options);
+            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
+                const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
+                return axios.request(axiosRequestArgs);
+            };
+        },
+        /**
+         * List documents shared by a user to the calling user
+         * @summary List documents shared by a user
+         * @param {string} userId ID of user who has shared documents to an agent
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listUserDocumentsShared(userId: string, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SharedCollectionList>> {
+            const localVarAxiosArgs = await UserApiAxiosParamCreator(configuration).listUserDocumentsShared(userId, options);
             return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
                 const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
                 return axios.request(axiosRequestArgs);
@@ -2757,34 +2836,41 @@ export const UserApiFactory = function (configuration?: Configuration, basePath?
          * List collections owned by a user
          * @summary List collections owned by a user
          * @param {string} userId ID of user to find collections for
-         * @param {string} [search] Search string to narrow down list
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listUserCollections(userId: string, search?: string, options?: any): AxiosPromise<CollectionList> {
-            return UserApiFp(configuration).listUserCollections(userId, search, options).then((request) => request(axios, basePath));
+        listUserCollections(userId: string, options?: any): AxiosPromise<CollectionList> {
+            return UserApiFp(configuration).listUserCollections(userId, options).then((request) => request(axios, basePath));
         },
         /**
          * List collections shared to user
          * @summary List collections shared to user
          * @param {string} userId ID of user to find accessible collections for
-         * @param {string} [search] Search string to narrow down list
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listUserCollectionsShared(userId: string, search?: string, options?: any): AxiosPromise<SharedCollectionList> {
-            return UserApiFp(configuration).listUserCollectionsShared(userId, search, options).then((request) => request(axios, basePath));
+        listUserCollectionsShared(userId: string, options?: any): AxiosPromise<SharedCollectionList> {
+            return UserApiFp(configuration).listUserCollectionsShared(userId, options).then((request) => request(axios, basePath));
         },
         /**
          * List documents owned by a user
          * @summary List documents owned by a user
          * @param {string} userId ID of user to find documents for
-         * @param {string} [search] Search string to narrow down list
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listUserDocuments(userId: string, search?: string, options?: any): AxiosPromise<DocumentList> {
-            return UserApiFp(configuration).listUserDocuments(userId, search, options).then((request) => request(axios, basePath));
+        listUserDocuments(userId: string, options?: any): AxiosPromise<DocumentList> {
+            return UserApiFp(configuration).listUserDocuments(userId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * List documents shared by a user to the calling user
+         * @summary List documents shared by a user
+         * @param {string} userId ID of user who has shared documents to an agent
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listUserDocumentsShared(userId: string, options?: any): AxiosPromise<SharedCollectionList> {
+            return UserApiFp(configuration).listUserDocumentsShared(userId, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -2888,39 +2974,48 @@ export class UserApi extends BaseAPI {
      * List collections owned by a user
      * @summary List collections owned by a user
      * @param {string} userId ID of user to find collections for
-     * @param {string} [search] Search string to narrow down list
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof UserApi
      */
-    public listUserCollections(userId: string, search?: string, options?: any) {
-        return UserApiFp(this.configuration).listUserCollections(userId, search, options).then((request) => request(this.axios, this.basePath));
+    public listUserCollections(userId: string, options?: any) {
+        return UserApiFp(this.configuration).listUserCollections(userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * List collections shared to user
      * @summary List collections shared to user
      * @param {string} userId ID of user to find accessible collections for
-     * @param {string} [search] Search string to narrow down list
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof UserApi
      */
-    public listUserCollectionsShared(userId: string, search?: string, options?: any) {
-        return UserApiFp(this.configuration).listUserCollectionsShared(userId, search, options).then((request) => request(this.axios, this.basePath));
+    public listUserCollectionsShared(userId: string, options?: any) {
+        return UserApiFp(this.configuration).listUserCollectionsShared(userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * List documents owned by a user
      * @summary List documents owned by a user
      * @param {string} userId ID of user to find documents for
-     * @param {string} [search] Search string to narrow down list
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof UserApi
      */
-    public listUserDocuments(userId: string, search?: string, options?: any) {
-        return UserApiFp(this.configuration).listUserDocuments(userId, search, options).then((request) => request(this.axios, this.basePath));
+    public listUserDocuments(userId: string, options?: any) {
+        return UserApiFp(this.configuration).listUserDocuments(userId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * List documents shared by a user to the calling user
+     * @summary List documents shared by a user
+     * @param {string} userId ID of user who has shared documents to an agent
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UserApi
+     */
+    public listUserDocumentsShared(userId: string, options?: any) {
+        return UserApiFp(this.configuration).listUserDocumentsShared(userId, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

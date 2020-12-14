@@ -1,6 +1,7 @@
 import { EnvironmentVariable, requireConfiguration } from '@/config'
+import { logger } from '@/utils/logging'
 import { getLogStreamNextSequenceToken, putLogEvents } from '@/utils/logstream'
-import { captureException, wrapAsyncHandler } from '@/utils/sentry'
+import { wrapAsyncHandler } from '@/utils/sentry'
 import { deleteMessages } from '@/utils/sqs'
 import { SQSEvent } from 'aws-lambda'
 import groupBy from 'lodash/groupBy'
@@ -66,8 +67,7 @@ export const handler = wrapAsyncHandler(
         )
         setSequenceToken(logStreamName, nextSequenceToken)
       } catch (ex) {
-        console.error('An error occurred putting log events', ex)
-        captureException(ex)
+        logger.error(ex, 'An error occurred putting log events')
         // clean up sequence token as we may have cached the wrong value
         deleteSequenceToken(logStreamName)
         // we need to throw so that unprocessed messages are put back on the queue

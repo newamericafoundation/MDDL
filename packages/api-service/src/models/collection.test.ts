@@ -65,6 +65,7 @@ describe('CollectionModel', () => {
             requirementValue: userId,
             createdAt: new Date(),
             createdBy: userId,
+            ownerId: userId,
           },
         ],
       })
@@ -84,6 +85,7 @@ describe('CollectionModel', () => {
             requirementValue: userId,
             createdAt: new Date(),
             createdBy: userId,
+            ownerId: userId,
           },
         ],
       })
@@ -127,6 +129,7 @@ describe('CollectionModel', () => {
             requirementValue: grant1Value,
             createdBy: userId,
             createdAt: new Date(),
+            ownerId: userId,
           },
           {
             id: uuidv4(),
@@ -134,6 +137,7 @@ describe('CollectionModel', () => {
             requirementValue: grant2Value,
             createdBy: userId,
             createdAt: new Date(),
+            ownerId: userId,
           },
         ],
       })
@@ -242,6 +246,7 @@ describe('CollectionModel', () => {
               requirementValue: 'mytestemail@example.com',
               createdAt: new Date(),
               createdBy: userId,
+              ownerId: userId,
             },
           ],
         }),

@@ -21,6 +21,8 @@
 }, {
   "entrypoint": "documents/createThumbnail"
 }, {
+  "entrypoint": "documents/getSharedByUserId"
+}, {
   "entrypoint": "documents/attachThumbnailToDocument"
 }, {
   "entrypoint": "collections/createCollectionForUser"

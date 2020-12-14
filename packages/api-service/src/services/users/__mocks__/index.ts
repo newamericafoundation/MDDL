@@ -1,4 +1,5 @@
 export const requireUserData = jest.fn()
+export const hasDelegatedAccessToUserAccount = jest.fn(async () => false)
 
 export const {
   userToApiOwner,

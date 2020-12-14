@@ -11,10 +11,8 @@ import { AnySchema } from 'joi'
 import createError from 'http-errors'
 import pPipe from 'p-pipe'
 import { parseAndValidate } from './validation'
-import {
-  captureException,
-  wrapMiddlewareHandler as sentryWrapHandler,
-} from './sentry'
+import { wrapMiddlewareHandler as sentryWrapHandler } from './sentry'
+import { logger } from './logging'
 
 export const compose = pPipe
 
@@ -60,8 +58,7 @@ export const formatApiGatewayResult = <E = APIGatewayProxyEventV2>(
       return createErrorResponse(error.message, error.statusCode)
     }
 
-    captureException(error)
-    console.error(error)
+    logger.error(error)
 
     return createErrorResponse('An internal error occurred', 500)
   }

@@ -1099,7 +1099,7 @@ export class CityStack extends Stack {
     // add permissions for cloudformation encryption of lambda variables
     kmsKey.addToResourcePolicy(
       new PolicyStatement({
-        actions: ['kms:Encrypt'],
+        actions: ['kms:Encrypt', 'kms:CreateGrant', 'kms:Decrypt'],
         resources: ['*'],
         principals: [new AnyPrincipal()],
         conditions: {
@@ -1717,6 +1717,31 @@ export class CityStack extends Stack {
             EnvironmentVariables.ACTIVITY_CLOUDWATCH_LOG_GROUP,
           ],
           auditLogGroupPermissions: {
+            includeRead: true,
+          },
+        },
+      ),
+      authorizer,
+      throttlingSettings: ReadRouteDefaultThrottling,
+    })
+
+    // add lambda and route to list shared documents from a user
+    this.addRoute(api, {
+      name: 'ListUserDocumentsShared',
+      routeKey: 'GET /users/{userId}/documents/shared',
+      lambdaFunction: this.createLambda(
+        'ListUserDocumentsShared',
+        pathToApiServiceLambda('documents/getSharedByUserId'),
+        {
+          dbSecret,
+          layers: [mySqlLayer],
+          extraEnvironmentVariables: [
+            ...authEnvironmentVariables,
+            EnvironmentVariables.AGENCY_EMAIL_DOMAINS_WHITELIST,
+            EnvironmentVariables.DOCUMENTS_BUCKET,
+          ],
+          // permission needed to create presigned urls for thumbnails
+          documentBucketPermissions: {
             includeRead: true,
           },
         },

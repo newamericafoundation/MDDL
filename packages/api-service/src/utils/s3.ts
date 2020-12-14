@@ -50,7 +50,7 @@ export const getPresignedDownloadUrl = (
     Bucket: getDocumentsBucket(),
     Key: path,
     Expires: expires,
-    ResponseContentDisposition: `${disposition}; filename=${filename}`,
+    ResponseContentDisposition: `${disposition}; filename="${filename}"`,
   })
 }
 

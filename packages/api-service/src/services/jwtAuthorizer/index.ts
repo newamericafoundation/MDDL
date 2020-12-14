@@ -1,5 +1,6 @@
 import { decodeToken } from '@/utils/jwt'
-import { captureException, wrapAsyncHandler } from '@/utils/sentry'
+import { logger } from '@/utils/logging'
+import { wrapAsyncHandler } from '@/utils/sentry'
 
 // see https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-lambda-authorizer.html#http-api-lambda-authorizer.payload-format-response
 type AuthorizerResponse = {
@@ -35,7 +36,7 @@ export const handler = wrapAsyncHandler(
         context: data,
       }
     } catch (err) {
-      console.log('Token could not be verified. Token value:', token)
+      logger.warn('Token could not be verified. Token value:', token)
     }
 
     return {

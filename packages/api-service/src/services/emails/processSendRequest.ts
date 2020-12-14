@@ -5,6 +5,7 @@ import { SQSEvent } from 'aws-lambda'
 import { SendRequest, sendRequestSchema } from './validation'
 import { sendEmail } from './emailSender'
 import { wrapAsyncHandler } from '@/utils/sentry'
+import { logger } from '@/utils/logging'
 
 const getQueueUrl = () =>
   requireConfiguration(EnvironmentVariable.EMAIL_PROCESSOR_SQS_QUEUE_URL)
@@ -17,7 +18,8 @@ export const handler = wrapAsyncHandler(
         sendRequestSchema,
       )
       if (error) {
-        console.error(
+        logger.error(
+          error,
           'Error occurred validating record. Message will be removed from queue.',
           record,
         )

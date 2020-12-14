@@ -31,12 +31,6 @@ paths:
           required: true
           schema:
             type: string
-        - name: search
-          in: query
-          description: Search string to narrow down list
-          required: false
-          schema:
-            type: string
       responses:
         '200':
           description: Successful operation
@@ -197,12 +191,6 @@ paths:
           required: true
           schema:
             type: string
-        - name: search
-          in: query
-          description: Search string to narrow down list
-          required: false
-          schema:
-            type: string
       responses:
         '200':
           description: Successful operation
@@ -259,10 +247,29 @@ paths:
           required: true
           schema:
             type: string
-        - name: search
-          in: query
-          description: Search string to narrow down list
-          required: false
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SharedCollectionList'
+        '404':
+          description: User not found
+      security:
+        - datalocker_auth: []
+  '/users/{userId}/documents/shared':
+    get:
+      tags:
+        - user
+      summary: List documents shared by a user
+      description: List documents shared by a user to the calling user
+      operationId: listUserDocumentsShared
+      parameters:
+        - name: userId
+          in: path
+          description: ID of user who has shared documents to an agent
+          required: true
           schema:
             type: string
       responses:
@@ -1015,6 +1022,28 @@ components:
           description: The collections list
           items:
             $ref: '#/components/schemas/CollectionListItem'
+    SharedDocumentsList:
+      type: object
+      description: A result containing a list of shared documents
+      required:
+        - sharedDocuments
+      properties:
+        sharedDocuments:
+          type: array
+          description: The documents list
+          items:
+            $ref: '#/components/schemas/SharedDocumentsListItem'
+    SharedDocumentsListItem:
+      type: object
+      description: Details for listing a shared document
+      required:
+        - latestShareInformation
+        - document
+      properties:
+        latestShareInformation:
+          $ref: '#/components/schemas/ShareInformation'
+        document:
+          $ref: '#/components/schemas/DocumentListItem'
     SharedCollectionList:
       type: object
       description: A result containing a list of shared collections

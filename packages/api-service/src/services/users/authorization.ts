@@ -6,16 +6,18 @@ import {
   hasDelegatedAccessToUserAccount,
   requireUserData,
 } from '@/services/users'
+import { hasAnyGrantToUsersCollections } from '../documents'
 
 export enum UserPermission {
   WriteUser = 'write:user',
   GetUser = 'get:user',
 
   WriteCollection = 'write:collection',
-  ListCollections = 'list:collection',
+  ListCollections = 'list:collections',
 
   WriteDocument = 'write:document',
-  ListDocuments = 'list:document',
+  ListDocuments = 'list:documents',
+  ListSharedDocuments = 'list:sharedDocuments',
 
   ListActivity = 'list:activity',
 
@@ -42,6 +44,10 @@ const getPermissionsToUser = async (
       UserPermission.WriteDocument,
       UserPermission.ListDocuments,
     ]
+  }
+
+  if (await hasAnyGrantToUsersCollections(ownerId, userEmail)) {
+    return [UserPermission.ListSharedDocuments]
   }
 
   // can't find any permissions

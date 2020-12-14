@@ -120,6 +120,7 @@ export interface CreateCollectionGrantInput {
   requirementValue: string
   createdBy: string
   createdAt: Date
+  ownerId: string
 }
 
 export const createCollection = async (collection: CreateCollectionInput) => {

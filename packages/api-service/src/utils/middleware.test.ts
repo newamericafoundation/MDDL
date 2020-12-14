@@ -1,6 +1,8 @@
 import { formatApiGatewayResult, compose } from './middleware'
 import createError from 'http-errors'
 
+jest.mock('@/utils/logging')
+
 class MockAwsError extends Error {
   statusCode: number
   isRetryable: boolean

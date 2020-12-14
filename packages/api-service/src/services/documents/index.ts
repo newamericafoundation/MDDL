@@ -1,6 +1,5 @@
 import {
   Document as DocumentContract,
-  DocumentList as DocumentListContract,
   DocumentFile as DocumentFileContract,
   FileContentTypeEnum,
   FileDownloadDispositionTypeEnum,
@@ -8,10 +7,10 @@ import {
 } from 'api-client'
 import { Document, documentIsInCollectionWithGrant } from '@/models/document'
 import { File } from '@/models/file'
-import { createJsonResponse } from '@/utils/api-gateway'
 import { getPresignedDownloadUrl, getPresignedUploadUrl } from '@/utils/s3'
 import { DocumentPermission } from './authorization'
 import { emailIsWhitelisted } from '@/utils/whitelist'
+import { collectionGrantExistsToOwner } from '@/models/collectionGrant'
 
 export const createLinksForFile = (file: File) => {
   const links: any[] = []
@@ -136,6 +135,20 @@ export const hasAccessToDocumentViaCollectionGrant = async (
       documentId,
       CollectionGrantType.INDIVIDUALEMAIL,
       userEmail,
+    ))
+  )
+}
+
+export const hasAnyGrantToUsersCollections = async (
+  ownerUserId: string,
+  accessingUserEmail: string,
+) => {
+  return (
+    emailIsWhitelisted(accessingUserEmail) &&
+    (await collectionGrantExistsToOwner(
+      ownerUserId,
+      CollectionGrantType.INDIVIDUALEMAIL,
+      accessingUserEmail,
     ))
   )
 }

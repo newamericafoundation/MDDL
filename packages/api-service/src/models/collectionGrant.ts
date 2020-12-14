@@ -8,6 +8,7 @@ export class CollectionGrant extends BaseModel {
   public requirementValue: string
   public createdBy: string
   public createdAt: Date
+  public ownerId: string
 
   static get tableName() {
     return 'collections_grants'
@@ -21,6 +22,7 @@ export class CollectionGrant extends BaseModel {
         'requirementType',
         'requirementValue',
         'createdBy',
+        'ownerId',
       ],
       properties: {
         id: { type: 'string', minLength: 1, maxLength: 40 },
@@ -29,6 +31,7 @@ export class CollectionGrant extends BaseModel {
         requirementValue: { type: 'string', maxLength: 255 },
         createdAt: { type: 'date-time' },
         createdBy: { type: 'string', maxLength: 255 },
+        ownerId: { type: 'string', maxLength: 255 },
       },
     }
   }
@@ -45,6 +48,17 @@ export const collectionGrantExists = async (
 ) => {
   return !!(await CollectionGrant.query()
     .where({ collectionId, requirementType, requirementValue })
+    .select(`id`)
+    .first())
+}
+
+export const collectionGrantExistsToOwner = async (
+  ownerId: string,
+  requirementType: string,
+  requirementValue: string,
+) => {
+  return !!(await CollectionGrant.query()
+    .where({ ownerId, requirementType, requirementValue })
     .select(`id`)
     .first())
 }

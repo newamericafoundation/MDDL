@@ -13,6 +13,7 @@ import {
 import { APIGatewayProxyEventV2 } from 'aws-lambda'
 import { CollectionGrant } from '@/models/collectionGrant'
 import { CollectionGrantType } from 'api-client'
+import { v4 as uuidv4 } from 'uuid'
 
 jest.mock('@/utils/database')
 jest.mock('@/models/collection')
@@ -42,6 +43,7 @@ describe('getGrantsByCollectionId', () => {
   })
 
   it('returns documents', async () => {
+    const ownerId = uuidv4()
     toMockedFunction(getGrantsByCollectionId).mockImplementationOnce(
       async () => [
         CollectionGrant.fromJson({
@@ -51,6 +53,7 @@ describe('getGrantsByCollectionId', () => {
           requirementValue: 'myGrantId1',
           createdAt: new Date('2015-01-12T13:14:15Z'),
           createdBy: userId,
+          ownerId,
         }),
         CollectionGrant.fromJson({
           id: 'myGrantId2',
@@ -59,6 +62,7 @@ describe('getGrantsByCollectionId', () => {
           requirementValue: 'myGrantId2',
           createdAt: new Date('2015-01-12T13:14:15Z'),
           createdBy: userId,
+          ownerId,
         }),
       ],
     )

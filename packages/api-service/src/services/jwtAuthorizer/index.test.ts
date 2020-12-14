@@ -3,6 +3,7 @@ import { decodeToken } from '@/utils/jwt'
 import { toMockedFunction } from '@/utils/test'
 
 jest.mock('@/utils/jwt')
+jest.mock('@/utils/logging')
 
 describe('jwtAuthorizer', () => {
   it('rejects bad event', async () => {
