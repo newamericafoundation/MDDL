@@ -15,8 +15,8 @@
               {{ actionIcon(activity.type) }}
             </v-icon>
           </v-list-item-avatar>
-          <v-list-item-content class="mt-3">
-            <v-list-item-title class="menu-2 mb-2">
+          <v-list-item-content class="mt-2">
+            <v-list-item-title class="menu-2 mb-2" style="white-space: normal">
               <template v-if="canShowActionResult(activity)">
                 <span class="text-heading-3 primary--text">
                   {{ principalName(activity.principal) }}

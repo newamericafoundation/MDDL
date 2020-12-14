@@ -2,7 +2,7 @@
   <v-list>
     <v-list-item v-if="canEdit">
       <v-btn class="justify-start" text @click="editDetails">
-        <v-icon small class="mr-2" color="primary">$pencil</v-icon>
+        <v-icon class="mr-2" color="primary">$pencil</v-icon>
         {{ $t('controls.editDetails') }}
       </v-btn>
     </v-list-item>

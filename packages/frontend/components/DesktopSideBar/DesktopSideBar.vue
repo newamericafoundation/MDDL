@@ -1,7 +1,9 @@
 <template>
   <v-navigation-drawer
-    :value="$vuetify.breakpoint.smAndUp"
+    v-if="!$vuetify.breakpoint.xs"
+    :value="true"
     clipped
+    stateless
     app
     fixed
     right
