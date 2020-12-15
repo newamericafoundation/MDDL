@@ -13,8 +13,8 @@
           <CityLogo v-if="$vuetify.breakpoint.xs" width="96px" class="my-12" />
           <CityLogo v-else class="my-12" />
         </v-col>
-        <v-col class="px-12" cols="12">
-          <MarkdownContent :content-path="markdown" class="ma-8" />
+        <v-col class="px-3" cols="12">
+          <MarkdownContent :content-path="markdown" />
         </v-col>
       </v-row>
       <v-row
