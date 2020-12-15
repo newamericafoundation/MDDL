@@ -5,15 +5,12 @@
         <BackButton tabindex="0" />
       </template>
     </AppBar>
-    <MarkdownContent content-path="faq" class="ma-8" />
+    <MarkdownContent :content-path="markdown" />
   </div>
 </template>
 
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator'
-import { $content as contentFunc } from '@nuxt/content'
-import { IContentDocument } from '@nuxt/content/types/content'
-import VueI18n, { IVueI18n } from 'vue-i18n'
 
 @Component({
   head() {
@@ -23,5 +20,12 @@ import VueI18n, { IVueI18n } from 'vue-i18n'
   },
   auth: false,
 })
-export default class FaqPage extends Vue {}
+export default class FaqPage extends Vue {
+  markdown = ''
+
+  created() {
+    const locale = this.$i18n.locale
+    this.markdown = require(`@/assets/content/faq/${locale}.md`)
+  }
+}
 </script>

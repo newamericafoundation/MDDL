@@ -14,7 +14,7 @@
           <CityLogo v-else class="my-12" />
         </v-col>
         <v-col class="px-12" cols="12">
-          <MarkdownContent content-path="terms-of-use" class="ma-8" />
+          <MarkdownContent :content-path="markdown" class="ma-8" />
         </v-col>
       </v-row>
       <v-row
@@ -41,12 +41,9 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, mixins } from 'nuxt-property-decorator'
+import { Component, mixins } from 'nuxt-property-decorator'
 import { userStore } from '@/plugins/store-accessor'
 import Navigation from '@/mixins/navigation'
-import { $content as contentFunc } from '@nuxt/content'
-import { IContentDocument } from '@nuxt/content/types/content'
-import VueI18n, { IVueI18n } from 'vue-i18n'
 
 @Component({
   layout: 'empty',
@@ -60,6 +57,12 @@ import VueI18n, { IVueI18n } from 'vue-i18n'
 })
 export default class TermsOfUse extends mixins(Navigation) {
   loading = false
+  markdown = ''
+
+  created() {
+    const locale = this.$i18n.locale
+    this.markdown = require(`@/assets/content/terms-of-use/${locale}.md`)
+  }
 
   get hasAccepted() {
     return userStore.profile && userStore.profile.termsOfUseAccepted

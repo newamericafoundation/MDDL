@@ -63,11 +63,7 @@ const config = {
     '@nuxtjs/pwa',
     'nuxt-i18n',
     '@nuxtjs/sentry',
-    '@nuxt/content',
   ],
-  content: {
-    liveEdit: false,
-  },
   pwa: {
     // TODO: other PWA features like icon and colour scheme
     manifest: {
@@ -104,6 +100,11 @@ const config = {
       if (isClient) {
         config.devtool = 'inline-source-map' // prevents eval() execution - see: https://github.com/webpack/webpack/issues/5627#issuecomment-374386048
       }
+      config.module.rules.push({
+        test: /\.md$/,
+        loader: 'raw-loader',
+        options: {},
+      })
     },
     plugins: [
       new CspHtmlWebpackPlugin(
@@ -180,6 +181,7 @@ const config = {
       '@plugins/store-accessor.ts',
       '@/plugins/api-accessor.ts',
       '@/plugins/env-config.ts',
+      '@/plugins/showdown.ts',
     ],
   },
 }

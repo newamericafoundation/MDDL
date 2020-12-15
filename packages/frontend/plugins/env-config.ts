@@ -1,20 +1,16 @@
-import { v4 as uuidv4 } from 'uuid'
-
 export const envConfig = {
   config: {
     agencyEmailDomainsWhitelist: process.env.AGENCY_EMAIL_DOMAINS_WHITELIST,
     authorizationEndpoint: process.env.AUTH_URL,
     buildNumber: process.env.BUILD_NUMBER,
     buildTime: process.env.CODEBUILD_START_TIME,
-    content: {
-      dbHash: uuidv4(), // nuxt content unique hash
-    },
     googleAnalytics: {
       id: process.env.GOOGLE_ANALYTICS_TRACKING_ID,
     },
     showBuildInfo: process.env.SHOW_BUILD_INFO,
     authStrategy: 'oauth2',
     authTokenIdClaim: process.env.AUTH_TOKEN_ID_CLAIM || 'sub',
+    footerLogo: process.env.FOOTER_LOGO,
     maxFileSize: 10000000,
   },
 }

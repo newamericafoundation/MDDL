@@ -1,36 +1,24 @@
 <template>
-  <article v-if="page">
-    <h1>{{ page.title }}</h1>
-    <nuxt-content :document="page" />
+  <article v-if="markdown" class="ma-8">
+    <VueShowdown :markdown="markdown.default" />
   </article>
 </template>
 
 <script lang="ts">
 import { Vue, Component, Prop } from 'nuxt-property-decorator'
-import { $content as contentFunc } from '@nuxt/content'
-import { IContentDocument } from '@nuxt/content/types/content'
-import VueI18n, { IVueI18n } from 'vue-i18n'
 
 @Component
 export default class MarkdownContent extends Vue {
-  page: IContentDocument | IContentDocument[] | null = null
   @Prop({ required: true }) contentPath: string
+  markdown = ''
 
-  async fetch() {
-    const locale = this.$i18n.locale
-    this.page = await this.$content(`${this.contentPath}/${locale}`)
-      .fetch()
-      .catch(async () => {
-        const fallbackPage = await this.$content(
-          `${this.contentPath}/en`,
-        ).fetch()
-        return fallbackPage
-      })
+  created() {
+    this.markdown = this.contentPath
   }
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 h1,
 h2,
 h3,
