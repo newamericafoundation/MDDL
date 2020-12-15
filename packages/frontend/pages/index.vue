@@ -11,7 +11,6 @@ import { userStore } from '../plugins/store-accessor'
 
 @Component({
   name: 'DefaultLandingPage',
-  layout: 'landing',
   auth: false,
   head() {
     return {

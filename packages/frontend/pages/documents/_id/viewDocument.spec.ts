@@ -52,6 +52,7 @@ describe('Documents component', () => {
           params: {
             id: '1',
           },
+          query: {},
         },
         $store: {
           dispatch: () => '',

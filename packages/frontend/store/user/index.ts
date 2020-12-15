@@ -400,6 +400,15 @@ export default class User extends VuexModule {
     ) as DelegatedClient[]
   }
 
+  @Action
+  async fetchImpersonatedDelegate(): Promise<DelegatedClient | undefined> {
+    if (!this.isActingAsDelegate) return undefined
+    const clients = await this.fetchDelegatedClients()
+    return clients.find(
+      (c: DelegatedClient) => c.allowsAccessToUser.id === this.ownerId,
+    )
+  }
+
   @Action({ rawError: true })
   async delegateAccess(
     payload: UserDelegatedAccessCreate,

@@ -8,8 +8,7 @@
         },
       })
     "
-    outlined
-    class="ml-1 text-body-1 font-weight-medium"
+    class="text-body-1 font-weight-medium"
     color="primary white--text"
   >
     <v-icon left>$send</v-icon>

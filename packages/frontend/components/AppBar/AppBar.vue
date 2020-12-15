@@ -25,8 +25,8 @@
       <v-app-bar-nav-icon
         v-else
         color="grey-8"
-        @click.stop="toggleSideNav(false)"
-        @keydown.stop.enter="toggleSideNav(true)"
+        @click.stop="() => toggleSideNav(false)"
+        @keydown.stop.enter="() => toggleSideNav(true)"
       />
     </template>
     <template v-if="($vuetify.breakpoint.xs || empty) && title">
@@ -64,7 +64,7 @@
         <v-col
           v-if="
             !!$slots.actionsBeneath ||
-            (title && $vuetify.breakpoint.smAndUp && !empty)
+              (title && $vuetify.breakpoint.smAndUp && !empty)
           "
           cols="12"
           class="pr-2 d-flex justify-end align-center white"
@@ -86,35 +86,7 @@
             rounded="0"
           >
             <v-col cols="12">
-              <template v-for="(crumb, i) in breadcrumbs">
-                <v-btn
-                  v-if="crumb.to"
-                  :key="`crumb-${i}`"
-                  text
-                  primary
-                  :to="localePath(crumb.to)"
-                  :class="{ 'font-weight-bold': i === 0 }"
-                >
-                  {{ $t(crumb.title) }}
-                </v-btn>
-                <div
-                  v-else
-                  :key="`crumb-${i}`"
-                  class="body-2 pl-4 primary--text d-inline"
-                >
-                  {{ crumb.title }}
-                </div>
-                <v-icon
-                  v-if="i < breadcrumbs.length - 1"
-                  :key="`crumb-chevron-${i}`"
-                  class="align-center"
-                  color="blue-light"
-                  size="0.6rem"
-                  :style="'margin-top: -0.1rem'"
-                >
-                  $chevron-right
-                </v-icon>
-              </template>
+              <Breadcrumbs :value="breadcrumbs" />
             </v-col>
           </v-row>
           <slot name="extensions" />
@@ -169,7 +141,7 @@ import { Vue, Component, Prop, mixins } from 'nuxt-property-decorator'
 import Navigation from '@/mixins/navigation'
 import { Breadcrumb } from '@/types/nav'
 import { userStore } from '@/plugins/store-accessor'
-import { UserRole } from '../../types/user'
+import { UserRole } from '@/types/user'
 
 @Component({
   mixins: [Navigation],

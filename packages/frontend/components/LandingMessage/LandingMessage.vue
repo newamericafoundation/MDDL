@@ -29,12 +29,6 @@ import { userStore } from '@/plugins/store-accessor'
   auth: false,
 })
 export default class LandingMessage extends Vue {
-  mounted() {
-    if (!this.$auth.loggedIn) {
-      this.$auth.login()
-    }
-  }
-
   get message() {
     return userStore.role !== null
       ? `login.welcomeMessage.${UserRole[userStore.role]}`

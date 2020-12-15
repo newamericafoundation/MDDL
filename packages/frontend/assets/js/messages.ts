@@ -220,6 +220,11 @@ export default {
       sharedFolderNameLabel: 'Name', // label of shared folder name column in agent view
     },
 
+    landing: {
+      community: 'COMMUNITY SERVICES',
+      agency: 'AGENCY SERVICES',
+    },
+
     $vuetify: {
       ...vuetifyEn,
       dataTable: {

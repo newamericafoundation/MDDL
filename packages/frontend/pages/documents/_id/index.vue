@@ -274,23 +274,38 @@ export default class ViewDocument extends Vue {
   }
 
   get breadcrumbs() {
-    const crumbs: Breadcrumb[] = [
-      {
-        title: userStore.isClient
-          ? 'navigation.dashboard'
-          : 'navigation.clients',
-        to: '/dashboard',
-      },
-    ]
-    if (
-      !userStore.isClient &&
-      this.$route.query.ownerName &&
-      this.$route.query.ownerId
-    )
+    const crumbs: Breadcrumb[] = []
+    if (userStore.isClient) {
       crumbs.push({
-        title: this.$route.query.ownerName as string,
-        to: `/collections/owner/${this.$route.query.ownerId}`,
+        title: 'navigation.dashboard',
+        to: '/dashboard',
       })
+    } else if (userStore.isAgent) {
+      crumbs.push({
+        title: 'navigation.clients',
+        to: '/dashboard',
+      })
+    } else if (userStore.isCbo) {
+      crumbs.push({
+        title: 'navigation.clients',
+        click: () => {
+          userStore.clearOwnerId()
+          this.$router.push(this.localePath('/dashboard'))
+        },
+      })
+    }
+    if (this.$route.query.ownerName && this.$route.query.ownerId) {
+      if (userStore.isAgent)
+        crumbs.push({
+          title: this.$route.query.ownerName as string,
+          to: `/collections/owner/${this.$route.query.ownerId}`,
+        })
+      else if (userStore.isCbo && userStore.isActingAsDelegate)
+        crumbs.push({
+          title: this.$route.query.ownerName as string,
+          to: `/dashboard`,
+        })
+    }
     if (this.document)
       crumbs.push({
         title: this.document.name,

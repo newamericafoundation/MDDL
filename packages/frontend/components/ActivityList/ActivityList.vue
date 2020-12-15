@@ -89,7 +89,7 @@
                   class="resources__item"
                 >
                   <v-icon size="20" class="mr-4" color="primary">$file</v-icon>
-                  <span class="text-body-3 grey-9 text-truncate">
+                  <span class="text-body-3 grey-9--text text-truncate">
                     {{ document.name }}
                   </span>
                 </div>
@@ -106,7 +106,7 @@
                   <v-icon size="20" class="mr-4" color="primary">
                     $profile
                   </v-icon>
-                  <span class="text-body-3 grey-9">{{ item.name }}</span>
+                  <span class="text-body-3 grey-9--text">{{ item.name }}</span>
                 </div>
                 <a
                   v-if="agent(activity.relatedResources).length > 5"
@@ -136,7 +136,7 @@
                   <v-icon size="20" class="mr-4" color="primary">
                     $profile
                   </v-icon>
-                  <span class="text-body-3 grey-9">{{ item.name }}</span>
+                  <span class="text-body-3 grey-9--text">{{ item.name }}</span>
                 </div>
               </div>
             </div>

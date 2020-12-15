@@ -36,7 +36,7 @@ export default async ({
     const promises: Promise<any>[] = []
     if (!userStore.userId) {
       const claims = decode($auth.getToken($config.authStrategy))
-      userStore.setUserId(claims[$config.authTokenIdClaim])
+      await userStore.setUserId(claims[$config.authTokenIdClaim])
     }
     if (!userStore.profile) {
       promises.push(userStore.fetchProfile())
@@ -49,7 +49,11 @@ export default async ({
       redirect(app.localePath('/terms-of-use'))
     }
 
-    if (route.path === app.localePath('/'))
+    if (
+      ['/client', '/agency', '/community', '/']
+        .map((r) => app.localePath(r))
+        .includes(route.path)
+    )
       redirect(app.localePath('/dashboard'))
   }
 }

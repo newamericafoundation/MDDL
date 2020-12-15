@@ -1,0 +1,5 @@
+# ignore tests
+*.spec.ts
+
+# ignore storybook stories
+*.stories.ts

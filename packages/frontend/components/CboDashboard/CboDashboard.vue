@@ -18,7 +18,7 @@
           <v-col>
             <div class="font-weight-bold grey-9--text pl-3 py-2">
               <template v-if="onSwitchPage">
-                {{ $t('cbo.selectClient') }}
+                <Breadcrumbs :value="breadcrumbs" />
               </template>
               <template v-else>
                 {{ closeText[0] }}
@@ -58,10 +58,17 @@
 import { Vue, Component, mixins } from 'nuxt-property-decorator'
 import { userStore } from '@/plugins/store-accessor'
 import { RawLocation } from 'vue-router'
+import { Breadcrumb } from '@/types/nav'
 
 @Component
 export default class CboDashboard extends Vue {
   userStore = userStore
+
+  breadcrumbs: Breadcrumb[] = [
+    {
+      title: 'navigation.clients',
+    },
+  ]
 
   get switchRoute() {
     return this.localeRoute({
@@ -86,7 +93,7 @@ export default class CboDashboard extends Vue {
   }
 
   get onSwitchPage() {
-    return this.$route.query.tab === 'switch' || !this.$route.query.tab
+    return this.$route.query.tab !== 'manage'
   }
 }
 </script>

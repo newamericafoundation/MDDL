@@ -85,6 +85,7 @@ import { userStore } from '@/plugins/store-accessor'
 import { DataTableHeader } from 'vuetify'
 import { format } from 'date-fns'
 import { RawLocation } from 'vue-router'
+import { DelegatedClient } from '../../types/delegate'
 
 @Component
 export default class DocumentList extends Vue {
@@ -168,7 +169,7 @@ export default class DocumentList extends Vue {
     this.$emit('input', val)
   }
 
-  onDocumentClick(document: DocumentListItem) {
+  async onDocumentClick(document: DocumentListItem) {
     if (this.selectable) {
       if (
         this.selected.map((selectedDoc) => selectedDoc.id).includes(document.id)
@@ -186,6 +187,19 @@ export default class DocumentList extends Vue {
           query: {
             ownerId: this.owner.id,
             ownerName: `${this.owner?.name}`,
+          },
+        }) as RawLocation,
+      )
+    } else if (userStore.isCbo && userStore.isActingAsDelegate) {
+      const delegate:
+        | DelegatedClient
+        | undefined = await userStore.fetchImpersonatedDelegate()
+      this.$router.push(
+        this.localeRoute({
+          path: `/documents/${document.id}`,
+          query: {
+            ownerId: delegate!.allowsAccessToUser.id,
+            ownerName: delegate!.allowsAccessToUser.name,
           },
         }) as RawLocation,
       )
