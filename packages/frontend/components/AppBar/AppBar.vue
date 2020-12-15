@@ -232,7 +232,6 @@ export default class AppBar extends mixins(Navigation) {
 
   async signOut() {
     await this.$auth.logout()
-    this.$router.push(this.localePath('/'))
   }
 }
 </script>

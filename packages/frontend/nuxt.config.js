@@ -176,6 +176,7 @@ const config = {
     },
     redirect: {
       callback: '/authorize',
+      logout: process.env.AUTH_LOGOUT_URL,
     },
     plugins: [
       '@plugins/store-accessor.ts',

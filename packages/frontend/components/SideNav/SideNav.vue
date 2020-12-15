@@ -37,6 +37,7 @@ import Navigation from '@/mixins/navigation'
 export default class SideNav extends mixins(Navigation) {
   format = format
   navBarStore = navBarStore
+  userStore = userStore
   focusTimer: number = 0
 
   get isVisible() {
@@ -90,7 +91,6 @@ export default class SideNav extends mixins(Navigation) {
       label: 'navigation.signOut',
       click: async () => {
         await this.$auth.logout()
-        this.$router.push(this.localePath('/'))
       },
     },
   ]

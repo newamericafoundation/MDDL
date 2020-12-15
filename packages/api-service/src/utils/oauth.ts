@@ -1,7 +1,9 @@
 import { EnvironmentVariable, requireConfiguration } from '@/config'
 import fetch from 'node-fetch'
+import { logger } from './logging'
 import { getIntegrationType, IntegrationType } from './oauthIntegration'
 import { signRequest } from './requestSigner'
+import createError from 'http-errors'
 
 type UserInfo = {
   sub: string
@@ -21,12 +23,15 @@ export const getUserInfo = async (token: string): Promise<UserInfo> => {
     headers,
   })
   if (!result.ok) {
-    throw new Error(
-      'User info could not be fetched: ' +
-        result.status +
-        ' ' +
-        (await result.text()),
-    )
+    // generally this error is from a bad token, but if we're not sure we'll log it
+    const text = await result.text()
+    if (!text.includes('cpui.oauth.unknownOauthAccessToken')) {
+      // doesn't look like a bad token error
+      logger.error(
+        new Error(`User info could not be fetched: ${result.status} ${text}`),
+      )
+    }
+    throw new createError.Unauthorized()
   }
   return mapResultToUserData(await result.json())
 }
