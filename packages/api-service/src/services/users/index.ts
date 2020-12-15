@@ -6,6 +6,7 @@ import {
   requireTokenTimestamp,
   requireUserId,
 } from '@/utils/api-gateway'
+import { logger } from '@/utils/logging'
 import { APIGatewayRequest } from '@/utils/middleware'
 import { getUserInfo } from '@/utils/oauth'
 import {
@@ -36,6 +37,10 @@ export const requireUserData = async (
   return userData
 }
 
+const isOverLength = (input: string | undefined, length: number) => {
+  return input && input.length > length
+}
+
 export const getUserData = async (
   id: string,
   token: string,
@@ -54,11 +59,28 @@ export const getUserData = async (
   }
 
   // load in user info from oauth
-  const {
+  let {
     given_name: givenName,
     family_name: familyName,
     email,
   } = await getUserInfo(token)
+
+  if (
+    isOverLength(givenName, 255) ||
+    isOverLength(familyName, 255) ||
+    isOverLength(email, 255)
+  ) {
+    // log this so we know about it
+    logger.error(
+      new Error(
+        `givenName, familyName or email for user id ${id} is over 255 character maximum`,
+      ),
+    )
+  }
+
+  givenName = givenName?.substring(0, 254)
+  familyName = familyName?.substring(0, 254)
+  email = email?.substring(0, 254)
 
   // insert user if it did not already exist
   if (!user) {

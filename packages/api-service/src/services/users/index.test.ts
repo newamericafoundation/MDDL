@@ -4,6 +4,7 @@ import { toMockedFunction } from '@/utils/test'
 import { getUserData } from './index'
 
 jest.mock('@/utils/oauth')
+jest.mock('@/utils/logging')
 jest.mock('@/models/user')
 
 describe('getUserData', () => {
@@ -78,5 +79,39 @@ describe('getUserData', () => {
     expect(toMockedFunction(getUserInfo)).toHaveBeenCalled()
     expect(toMockedFunction(insertUser)).not.toHaveBeenCalled()
     expect(toMockedFunction(updateUser)).toHaveBeenCalled()
+  })
+  it('truncates data when needed', async () => {
+    const data = {
+      ...janeCitizenData,
+      familyName:
+        '24E921EB-0540-4606-9BD7-BAB2BC1BA4EF24E921EB-0540-4606-9BD7-BAB2BC1BA4EF24E921EB-0540-4606-9BD7-BAB2BC1BA4EF24E921EB-0540-4606-9BD7-BAB2BC1BA4EF24E921EB-0540-4606-9BD7-BAB2BC1BA4EF24E921EB-0540-4606-9BD7-BAB2BC1BA4EF24E921EB-0540-4606-9BD7-BAB2BC1BA4EF24E921EB-0540-4606-9BD7-BAB2BC1BA4EF',
+      syncTimestamp: '1603343236',
+    }
+    toMockedFunction(getUserById).mockImplementationOnce(async () =>
+      User.fromDatabaseJson(data),
+    )
+    toMockedFunction(updateUser).mockImplementationOnce(async () =>
+      User.fromDatabaseJson(data),
+    )
+    toMockedFunction(getUserInfo).mockImplementationOnce(async () => ({
+      sub: userId,
+      email_verified: 'true',
+      given_name: data.givenName,
+      family_name: data.familyName,
+      email: data.email,
+      username: userId,
+    }))
+    expect(await getUserData(userId, token, issuedAt)).toEqual(
+      expect.objectContaining(data),
+    )
+    expect(toMockedFunction(getUserInfo)).toHaveBeenCalled()
+    expect(toMockedFunction(insertUser)).not.toHaveBeenCalled()
+    expect(toMockedFunction(updateUser)).toHaveBeenCalledWith(
+      userId,
+      expect.objectContaining({
+        familyName:
+          '24E921EB-0540-4606-9BD7-BAB2BC1BA4EF24E921EB-0540-4606-9BD7-BAB2BC1BA4EF24E921EB-0540-4606-9BD7-BAB2BC1BA4EF24E921EB-0540-4606-9BD7-BAB2BC1BA4EF24E921EB-0540-4606-9BD7-BAB2BC1BA4EF24E921EB-0540-4606-9BD7-BAB2BC1BA4EF24E921EB-0540-4606-9BD7-BAB2BC1BA4EF24',
+      }),
+    )
   })
 })
