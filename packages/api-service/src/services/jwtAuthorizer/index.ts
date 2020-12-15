@@ -16,12 +16,14 @@ type AuthorizerRequest = {
   headers: Record<string, string>
 }
 
+const UNAUTHORIZED: AuthorizerResponse = {
+  isAuthorized: false,
+}
+
 export const handler = wrapAsyncHandler(
   async (request: AuthorizerRequest): Promise<AuthorizerResponse> => {
     if (!request.headers.authorization) {
-      return {
-        isAuthorized: false,
-      }
+      return UNAUTHORIZED
     }
 
     let token = request.headers.authorization
@@ -31,6 +33,17 @@ export const handler = wrapAsyncHandler(
 
     try {
       const data = await decodeToken(token)
+
+      // check expiry date
+      if (data['exp'] && new Date(data['exp'] * 1000) < new Date()) {
+        return UNAUTHORIZED
+      }
+
+      // check not valid before date
+      if (data['nbf'] && new Date(data['nbf'] * 1000) > new Date()) {
+        return UNAUTHORIZED
+      }
+
       return {
         isAuthorized: true,
         context: data,
@@ -39,9 +52,7 @@ export const handler = wrapAsyncHandler(
       logger.warn('Token could not be verified. Token value:', token)
     }
 
-    return {
-      isAuthorized: false,
-    }
+    return UNAUTHORIZED
   },
   {
     rethrowAfterCapture: true,

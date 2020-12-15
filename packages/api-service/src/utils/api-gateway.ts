@@ -146,5 +146,8 @@ export const createStatusCodeResponse = (
   }
 }
 
-export const createErrorResponse = (msg: string, httpStatusCode = 400) =>
-  createJsonResponse({ message: msg }, httpStatusCode)
+export const createErrorResponse = (
+  msg: string,
+  httpStatusCode = 400,
+  otherProps = {},
+) => createJsonResponse({ message: msg, ...otherProps }, httpStatusCode)

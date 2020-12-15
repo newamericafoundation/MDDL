@@ -1,3 +1,4 @@
+import { getConfiguration, EnvironmentVariable } from '@/config'
 import { EnforceUserTermsOfUseAcceptance } from '@/constants'
 import { findAccountDelegateForAccountByEmail } from '@/models/accountDelegate'
 import { getUserById, insertUser, updateUser } from '@/models/user'
@@ -41,6 +42,28 @@ const isOverLength = (input: string | undefined, length: number) => {
   return input && input.length > length
 }
 
+const handleUnverifiedEmail = (email: string) => {
+  const redirectUrl = getConfiguration(
+    EnvironmentVariable.AUTH_EMAIL_UNVERIFIED_REDIRECT,
+  )
+  if (!redirectUrl) {
+    // no redirect url specified, so just deny user
+    throw new createError.Forbidden('email not verified')
+  }
+
+  // redirect to specified endpoint
+  const queryParameterSeparator = redirectUrl.includes('?') ? '&' : '?'
+  const redirectResponse = new createError.Forbidden(
+    'email not verified, follow location link to verify.',
+  )
+  redirectResponse.otherProps = {
+    location: `${redirectUrl}${queryParameterSeparator}emailAddress=${encodeURIComponent(
+      email,
+    )}`,
+  }
+  throw redirectResponse
+}
+
 export const getUserData = async (
   id: string,
   token: string,
@@ -59,11 +82,13 @@ export const getUserData = async (
   }
 
   // load in user info from oauth
-  let {
-    given_name: givenName,
-    family_name: familyName,
-    email,
-  } = await getUserInfo(token)
+  const data = await getUserInfo(token)
+  let { given_name: givenName, family_name: familyName, email } = data
+  const { email_verified } = data
+
+  if (!email_verified || email_verified === 'false') {
+    handleUnverifiedEmail(email)
+  }
 
   if (
     isOverLength(givenName, 255) ||

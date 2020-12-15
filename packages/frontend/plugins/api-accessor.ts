@@ -92,7 +92,18 @@ export default async (
       return res
     },
     (err: AxiosError) => {
-      if (err.response && err.response.status === 401) {
+      if (!err.response) return
+
+      if (
+        err.response.status === 403 &&
+        err.response.data &&
+        err.response.data.location
+      ) {
+        window.location = err.response.data.location
+        return
+      }
+      if (err.response && [401, 403].includes(err.response.status)) {
+        // custom authorizer throws a 403
         $auth.login()
       }
     },

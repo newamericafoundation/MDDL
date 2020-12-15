@@ -55,7 +55,11 @@ export const formatApiGatewayResult = <E = APIGatewayProxyEventV2>(
     return createStatusCodeResponse(204)
   } catch (error) {
     if (createError.isHttpError(error)) {
-      return createErrorResponse(error.message, error.statusCode)
+      return createErrorResponse(
+        error.message,
+        error.statusCode,
+        error.otherProps,
+      )
     }
 
     logger.error(error)

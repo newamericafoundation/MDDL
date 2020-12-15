@@ -460,7 +460,7 @@ The suggested key policy is as follows, please see the "Sid" elements for the pu
       "Sid": "AllowKeyUseForLambdaEnvironmentVariables",
       "Effect": "Allow",
       "Principal": { "AWS": "*" },
-      "Action": "kms:Encrypt",
+      "Action": ["kms:Encrypt", "kms:Decrypt", "kms:CreateGrant"],
       "Resource": "*",
       "Condition": {
         "StringEquals": {

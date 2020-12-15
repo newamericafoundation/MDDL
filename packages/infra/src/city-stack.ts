@@ -118,6 +118,11 @@ interface JwtConfiguration {
    * If provided, will be resolved to a SSM Parameter Store String parameter for the shared secret signing key for auth integration
    */
   signingKeyParameterPath?: string
+
+  /**
+   * If provided, when a user attempts to use the platform with an unverified email address, they will be redirected to this endpoint.
+   */
+  emailUnverifiedRedirectEndpoint?: string
 }
 
 interface MonitoringConfiguration {
@@ -292,6 +297,7 @@ enum EnvironmentVariables {
   ENVIRONMENT_NAME = 'ENVIRONMENT_NAME',
   AUTH_SIGNING_KEY = 'AUTH_SIGNING_KEY',
   AUTH_INTEGRATION_TYPE = 'AUTH_INTEGRATION_TYPE',
+  AUTH_EMAIL_UNVERIFIED_REDIRECT = 'AUTH_EMAIL_UNVERIFIED_REDIRECT',
 }
 
 // these variables get inserted to every lambda created by "createLambda" so use sparingly
@@ -304,6 +310,7 @@ const authEnvironmentVariables = [
   EnvironmentVariables.USERINFO_ENDPOINT,
   EnvironmentVariables.AUTH_SIGNING_KEY,
   EnvironmentVariables.AUTH_INTEGRATION_TYPE,
+  EnvironmentVariables.AUTH_EMAIL_UNVERIFIED_REDIRECT,
 ]
 
 export class CityStack extends Stack {
@@ -492,6 +499,12 @@ export class CityStack extends Stack {
       [EnvironmentVariables.AUTH_INTEGRATION_TYPE]: jwtConfiguration.integrationType
         ? jwtConfiguration.integrationType
         : 'OAUTH',
+    }
+
+    if (jwtConfiguration.emailUnverifiedRedirectEndpoint) {
+      this.environmentVariables[
+        EnvironmentVariables.AUTH_EMAIL_UNVERIFIED_REDIRECT
+      ] = jwtConfiguration.emailUnverifiedRedirectEndpoint
     }
 
     if (monitoring) {
