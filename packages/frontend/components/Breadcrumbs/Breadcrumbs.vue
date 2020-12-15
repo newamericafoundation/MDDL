@@ -1,5 +1,5 @@
 <template>
-  <div class="py-2">
+  <div class="py-2 d-flex align-center">
     <template v-for="(crumb, i) in value">
       <v-btn
         v-if="crumb.to"
@@ -22,15 +22,16 @@
       >
         {{ $t(crumb.title) }}
       </v-btn>
-      <div
+      <span
         v-else
         :key="`crumb-${i}`"
-        :class="`body-2 pl-4 primary--text d-inline${
+        :class="`body-2 pl-4 primary--text${
           i === 0 ? ' font-weight-bold' : ''
         }`"
+        style="margin-top: 2px"
       >
         {{ $t(crumb.title) }}
-      </div>
+      </span>
       <v-icon
         v-if="i < value.length - 1"
         :key="`crumb-chevron-${i}`"

@@ -401,11 +401,12 @@ export default class User extends VuexModule {
   }
 
   @Action
-  async fetchImpersonatedDelegate(): Promise<DelegatedClient | undefined> {
-    if (!this.isActingAsDelegate) return undefined
+  async fetchImpersonatedDelegate(): Promise<DelegatedClient | null> {
     const clients = await this.fetchDelegatedClients()
-    return clients.find(
-      (c: DelegatedClient) => c.allowsAccessToUser.id === this.ownerId,
+    return (
+      clients.find(
+        (c: DelegatedClient) => c.allowsAccessToUser.id === this.ownerId,
+      ) ?? null
     )
   }
 

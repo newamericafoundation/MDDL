@@ -21,8 +21,8 @@
         v-if="userStore.isClient && $vuetify.breakpoint.smAndUp"
         v-slot:actionsBeneath
       >
-        <ShareButton class="float-right" />
-        <UploadButton prepend-icon="$plus" class="float-right ml-2" />
+        <ShareButton class="float-right my-2" />
+        <UploadButton prepend-icon="$plus" class="float-right ml-2 my-2" />
       </template>
       <template v-slot:extensions>
         <div class="text-heading-2 pa-4">{{ name }}</div>

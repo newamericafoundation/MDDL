@@ -63,7 +63,7 @@ import { DelegatedClient } from '@/types/delegate'
 export default class ClientDashboard extends Vue {
   currentTab = 'tab-docs'
   userStore = userStore
-  delegatedClient: DelegatedClient | undefined = undefined
+  delegatedClient: DelegatedClient | null = null
 
   async mounted() {
     if (this.$route.query.tab) {
