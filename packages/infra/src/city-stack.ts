@@ -211,7 +211,8 @@ export interface Props extends StackProps {
    */
   hostedZoneAttributes?: HostedZoneAttributes
   /**
-   * Additional callback URLs to be registered with the Auth Stack
+   * Additional callback URLs to be registered with the Auth Stack.
+   * These are used for both login and logout callback URLs.
    * Useful for development environments.
    * @default false
    */
@@ -415,11 +416,12 @@ export class CityStack extends Stack {
 
     // add auth stack integration
     const { jwtConfiguration } = this.addAuthIntegration(
+      `https://${webAppDomain}`,
       [`https://${webAppDomain}/authorize`, ...additionalCallbackUrls],
+      [`https://${webAppDomain}`, ...additionalCallbackUrls],
       authStack,
       apiDomainConfig,
       jwtAuth,
-      `https://${webAppDomain}`,
     )
 
     // create/reference the city key used for encryption of resources in this stack
@@ -860,11 +862,12 @@ export class CityStack extends Stack {
    * @param jwtAuth The JWT Auth, if not using the auth stack
    */
   private addAuthIntegration(
+    appUrl: string,
     callbackUrls: string[],
+    logoutUrls: string[],
     authStack?: AuthStack,
     apiDomainConfig?: HostedDomain,
     jwtAuth?: JwtConfiguration,
-    appUrl?: string,
   ): { jwtConfiguration: JwtConfiguration } {
     // if JWT Auth is given, shortcut out
     if (jwtAuth) {
@@ -889,6 +892,7 @@ export class CityStack extends Stack {
       preventUserExistenceErrors: true,
       oAuth: {
         callbackUrls,
+        logoutUrls,
         scopes: [OAuthScope.PROFILE, OAuthScope.OPENID, OAuthScope.EMAIL],
         flows: {
           authorizationCodeGrant: true,
