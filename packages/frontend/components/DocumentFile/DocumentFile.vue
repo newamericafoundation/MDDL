@@ -62,7 +62,7 @@ export default class DocumentFile extends Vue {
   }
 
   async processTif() {
-    if (!this.url.endsWith('.tiff') && !this.url.endsWith('.tif')) return
+    if (!this.url.includes('.tiff') && !this.url.includes('.tif')) return
 
     const UTIF = await import('utif')
     const req = await fetch(this.url)

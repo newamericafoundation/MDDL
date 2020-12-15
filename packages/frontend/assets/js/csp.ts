@@ -5,7 +5,7 @@ import { CspEnum } from '../../types/environment'
 
 const connectSrc: Array<string | undefined> = ["'self'", process.env.API_URL]
 const scriptSrc: Array<string | undefined> = ["'self'"]
-const imgSrc: Array<string | undefined> = ["'self'"]
+const imgSrc: Array<string | undefined> = ["'self'", 'data:']
 const frameSrc: Array<string | undefined> = ["'self'"]
 
 export function getSrc(srcType: CspEnum, envVar: any) {
