@@ -1,11 +1,11 @@
 <template>
   <div>
-    <AppBar v-if="hasAccepted" :empty="true">
+    <AppBar v-if="hasAccepted || !$auth.loggedIn" :empty="true">
       <template v-slot:nav-action>
         <BackButton tabindex="0" />
       </template>
     </AppBar>
-    <SideNav v-if="hasAccepted" />
+    <SideNav v-if="hasAccepted && $auth.loggedIn" />
     <v-divider class="mt-13 mb-0" />
     <v-container :class="{ 'mt-8': hasAccepted }">
       <v-row no-gutters align="center" justify="center">
@@ -17,7 +17,12 @@
           <MarkdownContent content-path="terms-of-use" class="ma-8" />
         </v-col>
       </v-row>
-      <v-row v-if="!hasAccepted" no-gutters justify="end" class="pa-12">
+      <v-row
+        v-if="!hasAccepted && $auth.loggedIn"
+        no-gutters
+        justify="end"
+        class="pa-12"
+      >
         <v-btn
           :disabled="loading"
           outlined
@@ -31,7 +36,7 @@
         </v-btn>
       </v-row>
     </v-container>
-    <SnackBar v-if="hasAccepted" />
+    <SnackBar v-if="hasAccepted && $auth.loggedIn" />
   </div>
 </template>
 
@@ -51,6 +56,7 @@ import VueI18n, { IVueI18n } from 'vue-i18n'
     }
   },
   mixins: [Navigation],
+  auth: false,
 })
 export default class TermsOfUse extends mixins(Navigation) {
   loading = false

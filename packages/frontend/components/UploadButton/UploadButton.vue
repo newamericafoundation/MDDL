@@ -157,7 +157,7 @@ export default class UploadButton extends Vue {
       message: 'toast.uploadComplete',
       actions: [
         {
-          name: 'view',
+          name: 'controls.view',
           to: `/documents/${document.id}`,
         },
       ],

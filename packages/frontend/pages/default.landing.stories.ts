@@ -1,5 +1,5 @@
 export default {
-  title: 'Pages/Landing',
+  title: 'Pages/DefaultLanding',
 }
 
 export const StoryName = () => '<Landing />'

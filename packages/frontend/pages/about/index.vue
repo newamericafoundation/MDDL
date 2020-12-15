@@ -1,5 +1,12 @@
 <template>
-  <MarkdownContent content-path="about" class="ma-8" />
+  <div>
+    <AppBar :empty="true">
+      <template v-slot:nav-action>
+        <BackButton tabindex="0" />
+      </template>
+    </AppBar>
+    <MarkdownContent content-path="about" class="ma-8" />
+  </div>
 </template>
 
 <script lang="ts">
@@ -14,6 +21,7 @@ import VueI18n, { IVueI18n } from 'vue-i18n'
       title: this.$t('tabTitles.about') as string,
     }
   },
+  auth: false,
 })
 export default class AboutPage extends Vue {}
 </script>

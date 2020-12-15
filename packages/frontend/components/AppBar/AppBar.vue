@@ -64,7 +64,7 @@
         <v-col
           v-if="
             !!$slots.actionsBeneath ||
-              (title && $vuetify.breakpoint.smAndUp && !empty)
+            (title && $vuetify.breakpoint.smAndUp && !empty)
           "
           cols="12"
           class="pr-2 d-flex justify-end align-center white"
@@ -184,15 +184,21 @@ export default class AppBar extends mixins(Navigation) {
   recompute = false
 
   mounted() {
+    // TODO: attempting to get the app bar to compute its height correctly
+    //       need a better way of waiting for all elements to mount and then recompute height
     this.recompute = !this.recompute
     setTimeout(() => {
       this.recompute = !this.recompute
     }, 1000)
+    setTimeout(() => {
+      this.recompute = !this.recompute
+    }, 3000)
   }
 
   get showActivityButton() {
     return (
-      userStore.isClient || (userStore.isCbo && userStore.isActingAsDelegate)
+      this.$vuetify.breakpoint.smAndUp &&
+      (userStore.isClient || (userStore.isCbo && userStore.isActingAsDelegate))
     )
   }
 

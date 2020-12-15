@@ -1,27 +1,39 @@
 <template>
-  <v-footer v-show="$vuetify.breakpoint.smAndUp" fixed class="justify-end pa-0">
-    <div class="blue-mid-light px-4 d-flex align-center">
+  <v-footer
+    v-show="$vuetify.breakpoint.smAndUp"
+    fixed
+    :class="[`justify-${justify}`, 'pa-0']"
+    style="pointer-events: none"
+  >
+    <div
+      :class="[backgroundColor, 'px-4', 'd-flex', 'align-center']"
+      style="pointer-events: all"
+    >
       <v-btn
         min-height="12px"
-        class="grey-5--text px-1"
+        :class="[`${color}--text`, 'px-1']"
         text
         :to="localePath('/terms-of-use')"
       >
         {{ $t('navigation.termsOfUse') }}
       </v-btn>
-      <div class="d-inline grey-5--text dot">·</div>
+      <v-icon small :class="['d-inline', `${color}--text`]">
+        mdi-circle-small
+      </v-icon>
       <v-btn
         min-height="12px"
-        class="grey-5--text px-1"
+        :class="[`${color}--text`, 'px-1']"
         text
         :to="localePath('/about')"
       >
         {{ $t('navigation.about') }}
       </v-btn>
-      <div class="d-inline grey-5--text dot">·</div>
+      <v-icon small :class="['d-inline', `${color}--text`]">
+        mdi-circle-small
+      </v-icon>
       <v-btn
         min-height="12px"
-        class="grey-5--text px-1"
+        :class="[`${color}--text`, 'px-1']"
         text
         :to="localePath('/faq')"
       >
@@ -32,14 +44,18 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'nuxt-property-decorator'
+import { Vue, Component, Prop } from 'nuxt-property-decorator'
 
 @Component
-export default class FooterLinks extends Vue {}
+export default class FooterLinks extends Vue {
+  @Prop({ default: 'grey-5' }) color: string
+  @Prop({ default: 'blue-mid-light' }) backgroundColor: string
+  @Prop({ default: 'end' }) justify: string
+}
 </script>
 
 <style scoped lang="scss">
-.dot {
-  margin-top: 1px;
-}
+// .dot {
+//   margin-top: 1px;
+// }
 </style>

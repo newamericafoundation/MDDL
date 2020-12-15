@@ -1,8 +1,6 @@
+const validationEn: any = require('vee-validate/dist/locale/en')
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const en: any = require('vuetify/lib/locale/en')
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const es: any = require('vuetify/lib/locale/es')
-// import es from 'vuetify/lib/locale/es'
+const vuetifyEn: any = require('vuetify/lib/locale/en')
 
 export default {
   en: {
@@ -144,11 +142,11 @@ export default {
       emailPlaceholder: 'Add people via email',
       addConfirmationTitle: 'Give this person access to your account?',
       addConfirmationBody:
-        'They will be able to manage and share files for you. You can always manage or take away access to your documents in the Account menu settings.',
+        'They will be able to manage and share files for you. You can always manage or take away access to your files in the Account menu settings.',
       addConfirmationAction: 'Yes, Give Access',
       removeConfirmationTitle: 'Remove this person from your account?',
       removeConfirmationBody:
-        'They will no longer be able to manage or share files for you. You can always give them access to your documents again in the Account menu settings.',
+        'They will no longer be able to manage or share files for you. You can always give them access to your files again in the Account menu settings.',
       removeConfirmationAction: 'Yes, Remove',
       uninviteConfirmationTitle: 'Cancel this invitation?',
       uninviteConfirmationBody:
@@ -182,11 +180,11 @@ export default {
     // Copy where you are viewing shared folders
     sharedFolder: {
       // empty state for list of shared folders
-      noCollections: "You haven't shared any documents yet.", // message
+      noCollections: "You haven't shared any files yet.", // message
       shareFirstDocument: 'Share your first document', // call to action
 
       // empty state for an individual shared folder
-      emptyCollection: 'All files have been removed from Datalocker.', // message
+      emptyCollection: 'All files have been removed from this folder.', // message
       returnDashboard: 'Return to dashboard', // call to action
 
       // empty state for list of clients who have shared collections with user
@@ -199,8 +197,8 @@ export default {
       noClientsTitle:
         'You have not been added to any client Datalocker accounts',
       noClientsBody:
-        "Once a client adds you to their Datalocker account, you'll be able to manage and share files on their behalf from this screen.\n\nA client can provide access to their documents  in the Account menu settings in Datalocker.",
-      noClientActionLabel: 'Not a case worker?',
+        "Once a client adds you to their Datalocker account, you'll be able to manage and share files on their behalf from this screen.\n\nA client can provide access to their files in the Account menu settings in Datalocker.",
+      noClientActionLabel: 'Not a case manager?',
       noClientActionText: 'Click here for client login',
       removeConfirmationTitle: 'Remove this client from your Datalocker?',
       removeConfirmationBody:
@@ -212,16 +210,18 @@ export default {
 
     agent: {
       clientNameLabel: 'Name', // label of client name column in agent view
-      sharedFolderNameLabel: 'Name', // label of shared folder name column in agent view
-      reorderFiles: 'Reorder Files', // shown in agent view when downloading as PDF
-      downloadZip: 'Download Zip',
       dateShared: 'Date Shared', // label in side bar
-      sharedBy: 'Shared By', // label in side bar
+      downloadZip: 'Download Zip',
+      noClientActionLabel: 'Not a government employee?',
+      noClientActionText: 'Click here for client login',
+      reorderFiles: 'Reorder Files', // shown in agent view when downloading as PDF
       selectClient: 'Select client to access shared files',
+      sharedBy: 'Shared By', // label in side bar
+      sharedFolderNameLabel: 'Name', // label of shared folder name column in agent view
     },
 
     $vuetify: {
-      ...en,
+      ...vuetifyEn,
       dataTable: {
         sortBy: 'Sort by',
         ariaLabel: {
@@ -230,6 +230,11 @@ export default {
         },
       },
       noDataText: 'No data',
+    },
+    validations: {
+      ...validationEn,
+      whitelist: 'Must be an approved agency email',
+      notSameAsUserEmail: 'You cannot enter your own email address',
     },
   },
 }

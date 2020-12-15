@@ -113,7 +113,7 @@ export default class User extends VuexModule {
         await this.setRole(role)
       }
     } else {
-      await this.setRole(null)
+      await this.setRole(UserRole.CLIENT)
     }
     return this._role
   }

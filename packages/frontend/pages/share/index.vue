@@ -341,7 +341,7 @@ export default class Share extends Vue {
       message: `${this.$t('toast.sharingComplete') as string}`,
       actions: [
         {
-          name: 'view',
+          name: 'controls.view',
           to: `/collections/${collection.id}`,
         },
       ],

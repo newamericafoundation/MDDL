@@ -40,7 +40,26 @@
       body="sharedFolder.noSharedDocuments"
       class="ma-12"
       image-size="256px"
-    />
+    >
+      <template v-slot:action>
+        <div class="primary--text text-subtitle-2 text-center">
+          {{ $t('agent.noClientActionLabel') }}
+        </div>
+        <div class="d-flex justify-center">
+          <v-btn
+            min-height="20px"
+            height="20px"
+            text
+            color="primary"
+            class="font-weight-bold"
+            @click="switchToClient"
+            @keypress.enter="switchToClient"
+          >
+            {{ $t('agent.noClientActionText') }}
+          </v-btn>
+        </div>
+      </template>
+    </EmptyState>
   </div>
   <div v-else>
     <v-card
@@ -61,6 +80,7 @@ import { userStore } from '@/plugins/store-accessor'
 import { SharedCollectionListItem } from '@/types/transformed'
 import { format } from 'date-fns'
 import { DataTableHeader } from 'vuetify'
+import { UserRole } from '@/types/user'
 
 @Component
 export default class SharedOwnerList extends Vue {
@@ -113,6 +133,11 @@ export default class SharedOwnerList extends Vue {
         name: c.owner.name,
         createdDate: format(c.collection.createdDate, 'LLL d, yyyy'),
       }))
+  }
+
+  switchToClient() {
+    userStore.setRole(UserRole.CLIENT)
+    this.$router.replace(this.localePath('/dashboard'))
   }
 
   previewCollection(ownerRowItem: any) {

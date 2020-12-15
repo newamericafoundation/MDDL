@@ -105,6 +105,8 @@
           text
           color="primary"
           class="font-weight-bold"
+          @click="switchToClient"
+          @keypress.enter="switchToClient"
         >
           {{ $t('cbo.noClientActionText') }}
         </v-btn>
@@ -119,6 +121,7 @@ import { DelegatedClient } from '@/types/delegate'
 import { userStore } from '@/plugins/store-accessor'
 import { DataTableHeader } from 'vuetify'
 import { format } from 'date-fns'
+import { UserRole } from '@/types/user'
 
 @Component
 export default class ClientList extends Vue {
@@ -183,6 +186,11 @@ export default class ClientList extends Vue {
     await this.loadDelegatedClients()
     await userStore.clearOwnerId()
     this.loading = false
+  }
+
+  switchToClient() {
+    userStore.setRole(UserRole.CLIENT)
+    this.$router.replace(this.localePath('/dashboard'))
   }
 
   impersonate(client: DelegatedClient) {

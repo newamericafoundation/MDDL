@@ -78,7 +78,7 @@ const config = {
     },
   },
   i18n: {
-    locales: ['en', 'test'],
+    locales: ['en'],
     defaultLocale: 'en',
     vueI18n: {
       fallbackLocale: 'en',

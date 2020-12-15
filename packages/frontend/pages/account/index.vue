@@ -27,33 +27,35 @@
             <v-icon small class="mx-1">$chevron-right</v-icon>
           </v-btn>
           <v-divider class="my-0" />
-          <v-btn
-            text
-            width="100%"
-            class="font-weight-bold"
-            append-icon="chevron-right"
-            @click="step = 'language'"
-          >
-            {{ $t('account.language') }}
-            <v-spacer />
-            <v-icon small class="mx-1">$chevron-right</v-icon>
-          </v-btn>
-          <v-divider class="my-0" />
+          <template v-if="$i18n.locales.length > 1">
+            <v-btn
+              text
+              width="100%"
+              class="font-weight-bold"
+              @click="step = 'language'"
+            >
+              {{ $t('account.language') }}
+              <v-spacer />
+              <v-icon small class="mx-1">$chevron-right</v-icon>
+            </v-btn>
+            <v-divider class="my-0" />
+          </template>
           <v-footer v-if="userStore.profile" fixed class="pa-8">
             <v-card
               outlined
               :class="[
                 $vuetify.breakpoint.xs ? 'full-width' : '',
                 'grey-2--text',
-                'px-4',
+                'px-6 py-2',
               ]"
             >
               <v-row align="center">
-                <v-col cols="2" sm="auto">
-                  <v-icon large>$profile</v-icon>
-                </v-col>
-                <v-col cols="10" sm="" class="grey-8--text">
-                  <p v-if="!accountEmailIsName" v-text="accountName" />
+                <v-col cols="12" sm="" class="grey-8--text">
+                  <p
+                    v-if="!accountEmailIsName"
+                    class="font-weight-bold mb-0"
+                    v-text="accountName"
+                  />
                   <p class="mb-0" v-text="accountEmail" />
                 </v-col>
               </v-row>
@@ -81,7 +83,7 @@
                 v-slot="{ errors, valid }"
                 mode="eager"
                 name="email"
-                rules="required|email|max:255"
+                :rules="`required|email|max:255|is_not:${accountEmail}`"
               >
                 <v-text-field
                   v-model="email"
@@ -171,11 +173,14 @@ export default class Account extends Vue {
   step = 'top-level'
   email = ''
   delegates: UserDelegatedAccess[] = []
-  maxDelegates = 1 // possibly want multiple delegates in a future iteration
   recompute = false
   showConfirmation = false
   loading = false
   userStore = userStore
+
+  mounted() {
+    this.loadDelegates()
+  }
 
   get toolbarTitle() {
     switch (this.step) {
@@ -215,10 +220,6 @@ export default class Account extends Vue {
         UserDelegatedAccessStatus.INVITATIONEXPIRED,
       ].includes(d.status),
     )
-  }
-
-  mounted() {
-    this.loadDelegates()
   }
 
   async confirmDelegate() {

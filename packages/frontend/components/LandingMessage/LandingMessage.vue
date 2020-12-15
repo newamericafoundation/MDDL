@@ -9,17 +9,17 @@
     </div>
     <ButtonLarge
       :label="$t('login.getStarted')"
-      @click.native="setRoleLoginRedirect(role)"
-      @keydown.native.enter="setRoleLoginRedirect(role)"
+      @click.native="logIn"
+      @keydown.native.enter="logIn"
     />
     <CityLogoFooter v-if="showFooterLogo" class="mt-10 mb-3" />
+    <FooterLinks justify="center" color="primary" background-color="none" />
   </div>
 </template>
 
 <script lang="ts">
-import { Component, mixins, Prop } from 'nuxt-property-decorator'
+import { Component, Vue, Prop } from 'nuxt-property-decorator'
 
-import { Login } from '@/mixins/login'
 import { UserRole } from '@/types/user'
 import { userStore } from '@/plugins/store-accessor'
 
@@ -27,24 +27,26 @@ import { userStore } from '@/plugins/store-accessor'
   name: 'LandingMessage',
   layout: 'landing',
   auth: false,
-  mixins: [Login],
 })
-export default class LandingMessage extends mixins(Login) {
-  @Prop({ required: true }) role: UserRole
-
-  message = ''
-
-  async mounted() {
-    this.message = `login.welcomeMessage.${UserRole[this.role]}`
-    await userStore.fetchRole()
-    console.log(this.role, userStore.role)
-    if (this.role === userStore.role && !this.$auth.loggedIn) {
+export default class LandingMessage extends Vue {
+  mounted() {
+    if (!this.$auth.loggedIn) {
       this.$auth.login()
     }
   }
 
+  get message() {
+    return userStore.role !== null
+      ? `login.welcomeMessage.${UserRole[userStore.role]}`
+      : ''
+  }
+
   get showFooterLogo(): boolean {
     return this.$config.footerLogo === '1'
+  }
+
+  logIn() {
+    this.$router.push(this.localePath('/login'))
   }
 }
 </script>

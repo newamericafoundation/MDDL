@@ -13,7 +13,7 @@
           {{ $t('navigation.account') }}
         </v-btn>
         <template v-if="$vuetify.breakpoint.xs">
-          <ShareButton class="float-right" />
+          <ShareButton class="float-right my-2" />
           <UploadButton prepend-icon="$plus" class="float-right ml-2" />
         </template>
       </template>

@@ -60,8 +60,8 @@ Workspace name: frontend
 - Component library: Vuetify.js
 - Nuxt.js modules: Axios, Progressive Web App (PWA)
 - Linting tools: ESLint, Prettier, eslint-config-prettier
-- Accessibility: eslint-plugin-vue-a11y lints static code; Vue Axe analyzes rendered components in the browser via the 
-developer console.
+- Accessibility: eslint-plugin-vue-a11y lints static code; Vue Axe analyzes rendered components in the browser via the
+  developer console.
 - Testing frameworks: Jest, Storybook, (In future we will also use BrowserStack)
 - Rendering mode: Single Page App
 - Deployment target: Static
@@ -70,7 +70,7 @@ developer console.
 
 ## Accessibility
 
-ESLint includes an accessibility check of all Vue components. Futher accessibility 
+ESLint includes an accessibility check of all Vue components. Futher accessibility
 
 ## Static assets
 
@@ -100,10 +100,25 @@ googleAnalytics: {
 }
 ```
 
-# Testing on mobile
+## Testing on mobile
 
 in your [.env](./.env) file, set `MOBILE_TESTING=1`
 
 Then you can run your development server, look at the IP it is running on and add that IP to the development environment cognito config. This is required for the login flow to work correctly. See the third entry in cognito console below for example:
 
 ![IP address in cognito app client settings](./docs/mobile_development.png 'How to add local IP to cognito')
+
+## Internationalisation
+
+See following docs:
+
+- [Nuxt i18n module](https://i18n.nuxtjs.org/)
+- [Vue i18n framework](https://kazupon.github.io/vue-i18n/introduction.html)
+
+To add translations for another language, follow these steps:
+
+1. Update [messages.ts](./assets/js/messages.ts) by copying the `en` block, changing the locale to the appropriate ISO 639-2 code for the language you want to add translations for, and adding appropriate translations for all items. You will also need to import the appropriate vuetify and vee-validate translations. A guide on using `messages.ts` can be found in the [Vue i18n docs](https://kazupon.github.io/vue-i18n/started.html#html).
+2. Add the ISO 639-2 code to [nuxt.config.js](./nuxt.config.js) in the list under `i18n > locales`
+3. For each folder in the [content](./content) directory, add a file named with the new ISO 639-2 code, eg. `jp.ts` which will contain the markdown content for that page. You may use the english versions as a reference, although any markdown is acceptable.
+
+> Note: A language picker will be available when navigating to `/account` as long as more than one translation has been provided. The chosen language will be preserved for the duration of the browser session, with english being the default.
