@@ -70,13 +70,14 @@ describe('getDownloadForCollectionDocuments', () => {
     toMockedFunction(getCollectionById).mockImplementationOnce(async () =>
       Collection.fromDatabaseJson({
         ownerId: userId,
+        name: 'Collection 1',
       }),
     )
     toMockedFunction(objectExists).mockImplementationOnce(async () => true)
     expect(await getDownloadForCollectionDocuments(event))
       .toMatchInlineSnapshot(`
       Object {
-        "body": "{\\"id\\":\\"1b771c7a36ef722cbcbb8ac962e0233ae8fa1463587ab803a7d706107ba243af\\",\\"status\\":\\"SUCCESS\\",\\"fileDownload\\":{\\"href\\":\\"https://presigned-url.for/collections/myCollectionId/1b771c7a36ef722cbcbb8ac962e0233ae8fa1463587ab803a7d706107ba243af\\"}}",
+        "body": "{\\"id\\":\\"1b771c7a36ef722cbcbb8ac962e0233ae8fa1463587ab803a7d706107ba243af\\",\\"status\\":\\"SUCCESS\\",\\"fileDownload\\":{\\"href\\":\\"https://presigned-url.for/collections/myCollectionId/1b771c7a36ef722cbcbb8ac962e0233ae8fa1463587ab803a7d706107ba243af?filename=Collection 1.zip&disposition=attachment\\"}}",
         "cookies": Array [],
         "headers": Object {
           "Content-Type": "application/json",
@@ -117,13 +118,14 @@ describe('getDownloadForCollectionDocuments', () => {
     toMockedFunction(getCollectionById).mockImplementationOnce(async () =>
       Collection.fromDatabaseJson({
         ownerId: userId,
+        name: 'Collection 1',
       }),
     )
     toMockedFunction(objectExists).mockImplementationOnce(async () => true)
     expect(await getDownloadForCollectionDocuments(event))
       .toMatchInlineSnapshot(`
       Object {
-        "body": "{\\"id\\":\\"46f4bb20f05b34f3504eb57f1f18885c7c3e7517cd5790f9ac4199a73728c772\\",\\"status\\":\\"SUCCESS\\",\\"fileDownload\\":{\\"href\\":\\"https://presigned-url.for/collections/myCollectionId/46f4bb20f05b34f3504eb57f1f18885c7c3e7517cd5790f9ac4199a73728c772\\"}}",
+        "body": "{\\"id\\":\\"46f4bb20f05b34f3504eb57f1f18885c7c3e7517cd5790f9ac4199a73728c772\\",\\"status\\":\\"SUCCESS\\",\\"fileDownload\\":{\\"href\\":\\"https://presigned-url.for/collections/myCollectionId/46f4bb20f05b34f3504eb57f1f18885c7c3e7517cd5790f9ac4199a73728c772?filename=Collection 1.zip&disposition=attachment\\"}}",
         "cookies": Array [],
         "headers": Object {
           "Content-Type": "application/json",
@@ -155,6 +157,7 @@ describe('getDownloadForCollectionDocuments', () => {
     toMockedFunction(getCollectionById).mockImplementationOnce(async () =>
       Collection.fromDatabaseJson({
         ownerId: userId,
+        name: 'Collection 1',
       }),
     )
     toMockedFunction(objectExists).mockImplementationOnce(async () => false)

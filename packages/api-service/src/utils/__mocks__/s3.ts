@@ -2,8 +2,12 @@ const s3 = jest.requireActual('@/utils/s3')
 
 export const createFilePath = s3.createFilePath
 
-export const getPresignedDownloadUrl = (path: string) =>
-  `https://presigned-url.for/${path}`
+export const getPresignedDownloadUrl = (
+  path: string,
+  filename: string,
+  disposition: 'attachment' | 'inline',
+) =>
+  `https://presigned-url.for/${path}?filename=${filename}&disposition=${disposition}`
 
 export const getPresignedUploadUrl = (
   path: string,

@@ -65,7 +65,7 @@ describe('getDocumentsByCollectionId', () => {
     )
     expect(await handler(event)).toMatchInlineSnapshot(`
       Object {
-        "body": "{\\"documents\\":[{\\"name\\":\\"My First File\\",\\"createdDate\\":\\"2015-01-12T13:14:15.000Z\\",\\"id\\":\\"myDocumentId1\\",\\"links\\":[{\\"href\\":\\"/documents/myDocumentId1\\",\\"rel\\":\\"self\\",\\"type\\":\\"GET\\"}]},{\\"name\\":\\"My Second File\\",\\"createdDate\\":\\"2015-01-27T13:14:15.000Z\\",\\"id\\":\\"myDocumentId2\\",\\"links\\":[{\\"href\\":\\"/documents/myDocumentId2\\",\\"rel\\":\\"self\\",\\"type\\":\\"GET\\"},{\\"href\\":\\"https://presigned-url.for/my-thumbnail-path\\",\\"rel\\":\\"thumbnail\\",\\"type\\":\\"GET\\"}]}]}",
+        "body": "{\\"documents\\":[{\\"name\\":\\"My First File\\",\\"createdDate\\":\\"2015-01-12T13:14:15.000Z\\",\\"id\\":\\"myDocumentId1\\",\\"links\\":[{\\"href\\":\\"/documents/myDocumentId1\\",\\"rel\\":\\"self\\",\\"type\\":\\"GET\\"}]},{\\"name\\":\\"My Second File\\",\\"createdDate\\":\\"2015-01-27T13:14:15.000Z\\",\\"id\\":\\"myDocumentId2\\",\\"links\\":[{\\"href\\":\\"/documents/myDocumentId2\\",\\"rel\\":\\"self\\",\\"type\\":\\"GET\\"},{\\"href\\":\\"https://presigned-url.for/my-thumbnail-path?filename=thumbnail.png&disposition=inline\\",\\"rel\\":\\"thumbnail\\",\\"type\\":\\"GET\\"}]}]}",
         "cookies": Array [],
         "headers": Object {
           "Content-Type": "application/json",

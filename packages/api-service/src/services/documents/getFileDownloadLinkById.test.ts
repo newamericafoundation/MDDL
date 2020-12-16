@@ -53,7 +53,7 @@ describe('getFileDownloadLinkById', () => {
         FileModel.fromJson({
           id: fileId,
           documentId,
-          name: 'My First File',
+          name: 'My First File.jpg',
           path: 'path/to/file',
           received: false,
           sha256Checksum: 'sha256Checksum',
@@ -66,7 +66,7 @@ describe('getFileDownloadLinkById', () => {
     )
     expect(await getFileDownloadLinkById(event)).toMatchInlineSnapshot(`
       Object {
-        "body": "{\\"href\\":\\"https://presigned-url.for/path/to/file\\"}",
+        "body": "{\\"href\\":\\"https://presigned-url.for/path/to/file?filename=myDocumentId.jpg&disposition=attachment\\"}",
         "cookies": Array [],
         "headers": Object {
           "Content-Type": "application/json",

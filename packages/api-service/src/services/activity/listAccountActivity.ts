@@ -48,7 +48,7 @@ export const handler = createAuthenticatedApiGatewayHandler(
   setContext('nextToken', (r) => getQueryStringParameter(r.event, 'nextToken')),
   requirePermissionToUser(UserPermission.ListActivity),
   async (request: APIGatewayRequest): Promise<ActivityList> => {
-    const { ownerId, nextToken, user } = request as Request
+    const { ownerId, nextToken } = request as Request
     const logStream = {
       logGroupName,
       logStreamName: ownerId,

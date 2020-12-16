@@ -20,6 +20,7 @@ import { validateDisposition } from './validation'
 import { createAuthenticatedApiGatewayHandler } from '@/services/users/middleware'
 import { submitDocumentAccessedEvent } from '../activity'
 import { User } from '@/models/user'
+import { resolveFileName } from '@/utils/fileNamer'
 
 connectDatabase()
 
@@ -67,7 +68,11 @@ export const handler = createAuthenticatedApiGatewayHandler(
     })
 
     return {
-      href: getPresignedDownloadUrl(file.path, file.name, disposition),
+      href: getPresignedDownloadUrl(
+        file.path,
+        resolveFileName(document, file),
+        disposition,
+      ),
     }
   },
 )

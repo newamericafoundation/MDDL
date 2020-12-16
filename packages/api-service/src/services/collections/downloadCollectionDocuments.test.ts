@@ -106,12 +106,13 @@ describe('downloadCollectionDocuments', () => {
     toMockedFunction(getCollectionById).mockImplementationOnce(async () =>
       Collection.fromDatabaseJson({
         ownerId: userId,
+        name: 'Collection 1',
       }),
     )
     toMockedFunction(objectExists).mockImplementationOnce(async () => true)
     expect(await downloadCollectionDocuments(event)).toMatchInlineSnapshot(`
       Object {
-        "body": "{\\"id\\":\\"21ada2387bdfd35ad360d2ee7836674484a5bf14e288ddc44fa92df587e618f7\\",\\"status\\":\\"SUCCESS\\",\\"fileDownload\\":{\\"href\\":\\"https://presigned-url.for/collections/myCollectionId/21ada2387bdfd35ad360d2ee7836674484a5bf14e288ddc44fa92df587e618f7\\"}}",
+        "body": "{\\"id\\":\\"21ada2387bdfd35ad360d2ee7836674484a5bf14e288ddc44fa92df587e618f7\\",\\"status\\":\\"SUCCESS\\",\\"fileDownload\\":{\\"href\\":\\"https://presigned-url.for/collections/myCollectionId/21ada2387bdfd35ad360d2ee7836674484a5bf14e288ddc44fa92df587e618f7?filename=Collection 1.zip&disposition=attachment\\"}}",
         "cookies": Array [],
         "headers": Object {
           "Content-Type": "application/json",
@@ -121,6 +122,7 @@ describe('downloadCollectionDocuments', () => {
       }
     `)
   })
+
   it('returns 404 when collection doesnt exist', async () => {
     expect(await downloadCollectionDocuments(event)).toMatchInlineSnapshot(`
       Object {
@@ -134,10 +136,12 @@ describe('downloadCollectionDocuments', () => {
       }
     `)
   })
+
   it('returns pending when object not found', async () => {
     toMockedFunction(getCollectionById).mockImplementationOnce(async () =>
       Collection.fromDatabaseJson({
         ownerId: userId,
+        name: 'Collection 1',
       }),
     )
     expect(await downloadCollectionDocuments(event)).toMatchInlineSnapshot(`

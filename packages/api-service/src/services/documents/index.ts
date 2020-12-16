@@ -57,7 +57,7 @@ export const createDocumentListItem = (document: Document) => {
     const thumbnailLink = getPresignedDownloadUrl(
       thumbnailPath,
       'thumbnail.png',
-      FileDownloadDispositionTypeEnum.Attachment,
+      FileDownloadDispositionTypeEnum.Inline,
       600, // 10 minute expiry
     )
     links.push({

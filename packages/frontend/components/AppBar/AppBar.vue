@@ -38,8 +38,8 @@
     <SwitchAccountButton
       v-if="
         userStore.isCbo &&
-        userStore.isActingAsDelegate &&
-        $vuetify.breakpoint.smAndUp
+          userStore.isActingAsDelegate &&
+          $vuetify.breakpoint.smAndUp
       "
     />
     <slot name="actions" />
@@ -68,7 +68,7 @@
         <v-col
           v-if="
             !!$slots.actionsBeneath ||
-            (title && $vuetify.breakpoint.smAndUp && !empty)
+              (title && $vuetify.breakpoint.smAndUp && !empty)
           "
           cols="12"
           class="pr-2 d-flex justify-end align-center white"
@@ -173,7 +173,10 @@ export default class AppBar extends mixins(Navigation) {
   }
 
   get showActivityButton() {
-    return this.$vuetify.breakpoint.smAndUp && userStore.isClient
+    return (
+      this.$vuetify.breakpoint.smAndUp &&
+      (userStore.isClient || (userStore.isCbo && userStore.isActingAsDelegate))
+    )
   }
 
   get color() {

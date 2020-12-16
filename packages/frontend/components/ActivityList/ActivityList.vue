@@ -200,7 +200,7 @@ export default class ActivityList extends Vue {
 
   async fetchActivities($state: StateChanger) {
     const data = await this.$store.dispatch('user/getActivity', {
-      id: userStore.userId,
+      id: userStore.ownerId,
       token: this.token,
     })
 

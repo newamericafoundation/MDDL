@@ -43,6 +43,7 @@ const getPermissionsToUser = async (
       UserPermission.ListCollections,
       UserPermission.WriteDocument,
       UserPermission.ListDocuments,
+      UserPermission.ListActivity,
     ]
   }
 
