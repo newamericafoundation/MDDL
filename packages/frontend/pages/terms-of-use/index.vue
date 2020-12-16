@@ -75,7 +75,7 @@ export default class TermsOfUse extends mixins(Navigation) {
   }
 
   cancel() {
-    this.$auth.logout()
+    this.$router.push(this.localePath('/logout'))
   }
 
   back() {

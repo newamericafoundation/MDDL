@@ -44,7 +44,9 @@ export default async ({
     await Promise.all(promises)
     if (
       !userStore.profile!.termsOfUseAccepted &&
-      route.path !== app.localePath('/terms-of-use')
+      !['/terms-of-use', '/logout']
+        .map((r) => app.localePath(r))
+        .includes(route.path)
     ) {
       redirect(app.localePath('/terms-of-use'))
     }
