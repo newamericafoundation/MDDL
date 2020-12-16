@@ -72,6 +72,9 @@ const config = {
       useWebmanifestExtension: true,
       display: 'fullscreen',
     },
+    icon: {
+      sizes: [64, 120, 144, 152, 192, 384, 512],
+    },
   },
   i18n: {
     locales: ['en'],

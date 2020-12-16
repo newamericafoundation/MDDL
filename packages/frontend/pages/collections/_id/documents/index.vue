@@ -83,26 +83,30 @@
           </v-btn>
         </nuxt-link>
       </template>
-      <DesktopSideBar v-if="userStore.isAgent">
-        <v-btn block color="primary" @click="downloadZip">
-          <v-icon class="ml-2 mr-4" small left>$folder</v-icon>
-          {{ $t('document.downloadZip') }}
-        </v-btn>
-        <v-divider class="my-8" />
-        <div v-if="sharedCollection" class="px-8">
-          <span class="font-weight-bold subtitle-2">
-            {{ $t('agent.dateShared') }}
-          </span>
-          <p class="font-weight-thin subtitle-2 grey-7--text">
-            {{ sharedDate }}
-          </p>
-          <span class="font-weight-bold subtitle-2">
-            {{ $t('agent.sharedBy') }}
-          </span>
-          <p class="font-weight-thin subtitle-2 grey-7--text">
-            {{ sharerName }}
-          </p>
-        </div>
+      <DesktopSideBar>
+        <template v-if="userStore.isAgent">
+          <template v-if="documents.length">
+            <v-btn block color="primary" @click="downloadZip">
+              <v-icon class="ml-2 mr-4" small left>$folder</v-icon>
+              {{ $t('agent.downloadZip') }}
+            </v-btn>
+            <v-divider class="my-8" />
+          </template>
+          <div v-if="sharedCollection" class="px-8 mt-5">
+            <span class="font-weight-bold subtitle-2">
+              {{ $t('agent.dateShared') }}
+            </span>
+            <p class="font-weight-thin subtitle-2 grey-7--text">
+              {{ sharedDate }}
+            </p>
+            <span class="font-weight-bold subtitle-2">
+              {{ $t('agent.sharedBy') }}
+            </span>
+            <p class="font-weight-thin subtitle-2 grey-7--text">
+              {{ sharerName }}
+            </p>
+          </div>
+        </template>
       </DesktopSideBar>
     </v-main>
   </div>
