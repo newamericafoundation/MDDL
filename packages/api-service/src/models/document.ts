@@ -37,7 +37,14 @@ export class Document extends BaseModel {
         return query.select(...fields.map((f) => Document.ref(f)))
       },
       fieldsForSingle(query: QueryBuilder<Document>) {
-        const fields = ['id', 'name', 'description', 'createdAt', 'ownerId']
+        const fields = [
+          'id',
+          'name',
+          'description',
+          'thumbnailPath',
+          'createdAt',
+          'ownerId',
+        ]
         return query
           .select(...fields.map((f) => Document.ref(f)))
           .withGraphFetched('files')
