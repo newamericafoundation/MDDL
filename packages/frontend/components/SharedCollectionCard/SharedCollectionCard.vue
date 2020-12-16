@@ -15,6 +15,8 @@
 import { SharedCollectionListItem } from 'api-client'
 import { Vue, Component, Prop } from 'nuxt-property-decorator'
 import { format } from 'date-fns'
+import { RawLocation } from 'vue-router'
+import { userStore } from '@/plugins/store-accessor'
 
 @Component
 export default class CollectionCard extends Vue {
@@ -22,7 +24,12 @@ export default class CollectionCard extends Vue {
 
   onClick() {
     this.$router.push(
-      this.localePath(`/collections/${this.collectionListItem.collection.id}`),
+      this.localeRoute({
+        path: `/collections/${this.collectionListItem.collection.id}/documents`,
+        query: {
+          owner: userStore.ownerId,
+        },
+      }) as RawLocation,
     )
   }
 }

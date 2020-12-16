@@ -48,6 +48,7 @@ import { userStore } from '@/plugins/store-accessor'
 import { format } from 'date-fns'
 import { SharedCollectionListItem } from '@/types/transformed'
 import { DataTableHeader } from 'vuetify'
+import { RawLocation } from 'vue-router'
 
 @Component
 export default class SharedCollectionList extends Vue {
@@ -98,7 +99,14 @@ export default class SharedCollectionList extends Vue {
   }
 
   previewCollection(collectionRowItem: any) {
-    this.$router.push(this.localePath(`/collections/${collectionRowItem.id}`))
+    this.$router.push(
+      this.localeRoute({
+        path: `/collections/${collectionRowItem.id}/documents`,
+        query: {
+          owner: this.ownerId,
+        },
+      }) as RawLocation,
+    )
   }
 }
 </script>

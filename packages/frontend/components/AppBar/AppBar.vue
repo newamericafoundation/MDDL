@@ -23,7 +23,7 @@
         Datalocker
       </v-btn>
       <v-app-bar-nav-icon
-        v-else
+        v-else-if="!customMobileNav"
         color="grey-8"
         @click.stop="() => toggleSideNav(false)"
         @keydown.stop.enter="() => toggleSideNav(true)"
@@ -36,7 +36,11 @@
     </template>
     <v-spacer />
     <SwitchAccountButton
-      v-if="userStore.isCbo && userStore.isActingAsDelegate"
+      v-if="
+        userStore.isCbo &&
+        userStore.isActingAsDelegate &&
+        $vuetify.breakpoint.smAndUp
+      "
     />
     <slot name="actions" />
     <template v-if="!empty">
@@ -64,7 +68,7 @@
         <v-col
           v-if="
             !!$slots.actionsBeneath ||
-              (title && $vuetify.breakpoint.smAndUp && !empty)
+            (title && $vuetify.breakpoint.smAndUp && !empty)
           "
           cols="12"
           class="pr-2 d-flex justify-end align-center white"
@@ -150,6 +154,7 @@ export default class AppBar extends mixins(Navigation) {
   @Prop({ default: false }) empty: boolean
   @Prop({ default: () => [] }) breadcrumbs: Breadcrumb[]
   @Prop({ default: '' }) title: string
+  @Prop({ default: false }) customMobileNav: boolean
 
   showActivity = false
   userStore = userStore
@@ -168,10 +173,7 @@ export default class AppBar extends mixins(Navigation) {
   }
 
   get showActivityButton() {
-    return (
-      this.$vuetify.breakpoint.smAndUp &&
-      (userStore.isClient || (userStore.isCbo && userStore.isActingAsDelegate))
-    )
+    return this.$vuetify.breakpoint.smAndUp && userStore.isClient
   }
 
   get color() {

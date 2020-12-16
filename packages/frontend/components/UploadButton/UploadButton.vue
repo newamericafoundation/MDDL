@@ -41,10 +41,12 @@
       <v-card>
         <v-toolbar flat>
           <v-btn class="mr-2 a11y-focus" icon @click.stop="reset">
-            <v-icon>$chevron-left</v-icon>
+            <v-icon small>$chevron-left</v-icon>
           </v-btn>
 
-          <v-toolbar-title>{{ $t('details') }}</v-toolbar-title>
+          <v-toolbar-title>
+            {{ $t('document.editDetailsTitle') }}
+          </v-toolbar-title>
           <v-spacer />
           <v-btn
             color="primary"
@@ -53,7 +55,7 @@
             @click="uploadDocument"
             @keydown.enter="uploadDocument"
           >
-            {{ $t('controls.upload') }}
+            {{ $t('controls.done') }}
           </v-btn>
         </v-toolbar>
         <v-container class="pa-8">

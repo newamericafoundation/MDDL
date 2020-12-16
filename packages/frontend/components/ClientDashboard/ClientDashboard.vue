@@ -2,7 +2,12 @@
   <div>
     <AppBar :breadcrumbs="breadcrumbs">
       <template v-if="userStore.isClient" v-slot:actions>
-        <v-btn text class="white--text" :to="localePath('/account')">
+        <v-btn
+          v-if="$vuetify.breakpoint.smAndUp"
+          text
+          class="white--text"
+          :to="localePath('/account')"
+        >
           <v-icon left>$cog</v-icon>
           {{ $t('navigation.account') }}
         </v-btn>

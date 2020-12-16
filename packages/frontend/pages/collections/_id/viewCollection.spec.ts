@@ -1,6 +1,6 @@
 import Vuex from 'vuex'
 import { shallowMount } from '@vue/test-utils'
-import ViewCollection from '@/pages/collections/_id/index.vue'
+import ViewCollection from '@/pages/collections/_id/documents/index.vue'
 import Layout from '@/layouts/default.vue'
 import flushPromises from 'flush-promises'
 

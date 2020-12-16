@@ -21,7 +21,7 @@
           :disabled="isNextDisabled"
           @click="next"
         >
-          {{ $t('controls.next') }}
+          {{ $t(step === 2 ? 'controls.done' : 'controls.next') }}
         </v-btn>
       </template>
       <template v-else-if="$vuetify.breakpoint.smAndUp" v-slot:actionsBeneath>
@@ -138,7 +138,7 @@
       <div class="window-container px-8 pt-12 d-flex justify-center">
         <div>
           <p class="font-weight-bold pt-4">
-            {{ $tc('sharing.confirmSharedFiles', selectedDocs.length) }}:
+            {{ $tc('sharing.confirmSharedFiles', selectedDocs.length) }}
           </p>
           <v-card
             v-for="(doc, i) in selectedDocs.slice(0, sliceFiles)"
@@ -169,7 +169,7 @@
                 'sharing.confirmRecipientsLabel',
                 individualEmailAddresses.length,
               )
-            }}:
+            }}
           </p>
           <v-card
             v-for="(email, i) in individualEmailAddresses.slice(
@@ -218,7 +218,7 @@ import SnackParams from '@/types/snackbar'
 import { RawLocation } from 'vue-router'
 import { VeeObserver } from 'vee-validate/dist/types/types'
 import { ValidationContext } from 'vee-validate/dist/types/components/common'
-import { snackbarStore } from '@/plugins/store-accessor'
+import { snackbarStore, userStore } from '@/plugins/store-accessor'
 import { format } from 'date-fns'
 
 @Component({
@@ -342,7 +342,16 @@ export default class Share extends Vue {
       actions: [
         {
           name: 'controls.view',
-          to: `/collections/${collection.id}`,
+          do: () => {
+            this.$router.push(
+              this.localeRoute({
+                path: `/collections/${collection.id}/documents`,
+                query: {
+                  owner: userStore.ownerId,
+                },
+              }) as RawLocation,
+            )
+          },
         },
       ],
     })

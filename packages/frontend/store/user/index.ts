@@ -314,13 +314,13 @@ export default class User extends VuexModule {
 
   @Action({ rawError: true, commit: 'setSharedCollections' })
   getSharedCollections(): Promise<SharedCollectionListItem[]> {
-    if (!this.ownerId) return Promise.reject(new Error('UserID not set'))
-    return api.user.listUserCollectionsShared(this.ownerId).then((response) => {
+    if (!this._userId) return Promise.reject(new Error('UserID not set'))
+    return api.user.listUserCollectionsShared(this._userId).then((response) => {
       return (response.data.sharedCollections
         ? response.data.sharedCollections
         : []
       ).map(
-        (c: ClientSharedCollectionListItem) =>
+        (c) =>
           (Object.assign({}, c, {
             collection: {
               ...c.collection,

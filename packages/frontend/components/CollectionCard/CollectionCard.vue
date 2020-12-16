@@ -34,6 +34,8 @@
 import { CollectionListItem } from 'api-client'
 import { Vue, Component, Prop } from 'nuxt-property-decorator'
 import { format } from 'date-fns'
+import { userStore } from '@/plugins/store-accessor'
+import { RawLocation } from 'vue-router'
 
 @Component
 export default class CollectionCard extends Vue {
@@ -51,7 +53,14 @@ export default class CollectionCard extends Vue {
       this.checked = !this.checked
       this.emitChange(this.checked)
     } else {
-      this.$router.push(this.localePath(`/collections/${this.collection.id}`))
+      this.$router.push(
+        this.localeRoute({
+          path: `/collections/${this.collection.id}/documents`,
+          query: {
+            owner: userStore.ownerId,
+          },
+        }) as RawLocation,
+      )
     }
   }
 

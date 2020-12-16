@@ -12,9 +12,9 @@ export default {
     dateAdded: 'Date Added',
 
     toast: {
-      acceptedDelegateInvite: 'Delegate Access Accepted.',
+      acceptedDelegateInvite: 'Delegate Access Accepted',
       delegateRemoved: 'Client Removed',
-      downloadLoadingState: 'Preparing download',
+      downloadLoadingState: 'Preparing Download',
       sharingComplete: 'Sharing Complete',
       uploading: 'Adding File...', // displayed while a file is uploading
       uploadComplete: 'Upload Complete',
@@ -61,7 +61,7 @@ export default {
       deleteConfirmationBody:
         'Anyone with shared access will no longer be able to view this file. This cannot be undone.',
       documentMenu: 'Document menu',
-      downloadZip: 'Download Zip',
+      downloadZip: 'Download All',
       downloadPdf: 'Download PDF',
       description: 'Description', // displayed beneath the document and expands to show description (if any)
       editDetailsTitle: 'Edit Details', // page title on edit details screen
@@ -199,10 +199,11 @@ export default {
       noClientsBody:
         "Once a client adds you to their Datalocker account, you'll be able to manage and share files on their behalf from this screen.\n\nA client can provide access to their files in the Account menu settings in Datalocker.",
       noClientActionLabel: 'Not a case manager?',
-      noClientActionText: 'Click here for client login',
+      noClientActionText:
+        'If you are seeking permanent supportive housing, click here.',
       removeConfirmationTitle: 'Remove this client from your Datalocker?',
       removeConfirmationBody:
-        "You'll no longer have access to shared files. This cannot be undone.",
+        'You will no longer be able to view, manage, or share files on their behalf. This cannot be undone.',
       removeConfirmationAction: 'Yes, Remove',
       errorAcceptingInvite:
         'Invite could not be accepted. Please ensure you are logged in with the email address that received the invite.',
@@ -211,9 +212,9 @@ export default {
     agent: {
       clientNameLabel: 'Name', // label of client name column in agent view
       dateShared: 'Date Shared', // label in side bar
-      downloadZip: 'Download Zip',
       noClientActionLabel: 'Not a government employee?',
-      noClientActionText: 'Click here for client login',
+      noClientActionText:
+        'If you are seeking permanent supportive housing, click here.',
       reorderFiles: 'Reorder Files', // shown in agent view when downloading as PDF
       selectClient: 'Select client to access shared files',
       sharedBy: 'Shared By', // label in side bar
@@ -237,7 +238,7 @@ export default {
       noDataText: 'No data',
     },
     validations: {
-      ...validationEn,
+      ...validationEn.messages,
       whitelist: 'Must be an approved agency email',
       notSameAsUserEmail: 'You cannot enter your own email address',
     },

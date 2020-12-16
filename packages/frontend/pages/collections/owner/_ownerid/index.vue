@@ -11,7 +11,7 @@ import { Vue, Component } from 'nuxt-property-decorator'
 import { DocumentListItem, User } from 'api-client'
 import { format } from 'date-fns'
 import { userStore } from '@/plugins/store-accessor'
-import { SharedCollectionListItem } from '../../../../types/transformed'
+import { SharedCollectionListItem } from '@/types/transformed'
 
 @Component({
   head() {

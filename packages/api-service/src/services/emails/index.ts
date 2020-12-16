@@ -26,7 +26,7 @@ export const queueSharedCollectionNotification = async (
   await sendEmailRequest({
     template: 'collectionSharedNotification',
     toAddresses: emails,
-    subject: `Datalocker: You've been sent documents`,
+    subject: `You’ve received new documents`,
     data: collection,
   })
 }
@@ -44,7 +44,7 @@ export const queueDelegateUserInvitation = async (
   await sendEmailRequest({
     template: 'delegateUserInvite',
     toAddresses: [email],
-    subject: `Datalocker: You've been granted access to an account`,
+    subject: `You’ve been given access to a client account`,
     data: {
       name: userName,
       link: acceptLink,

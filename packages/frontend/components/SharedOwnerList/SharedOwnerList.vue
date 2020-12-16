@@ -1,34 +1,34 @@
 <template>
   <div v-if="!loading">
-    <template v-if="collections.length">
+    <template v-if="owners.length">
       <v-data-table
         v-show="$vuetify.breakpoint.smAndUp"
         :disable-pagination="true"
         :headers="headers"
-        :items="collections"
+        :items="owners"
         hide-default-footer
         :item-class="itemClass"
         :class="{ 'ma-8': $vuetify.breakpoint.smAndUp }"
-        @click:row="previewCollection"
+        @click:row="viewCollections"
       >
         <template v-slot:item.icon>
           <v-icon color="primary">$profile</v-icon>
         </template>
       </v-data-table>
       <v-card
-        v-for="(collection, i) in collections"
+        v-for="(owner, i) in owners"
         v-show="$vuetify.breakpoint.xs"
         :key="`sharedOwner-${i}`"
         rounded="0"
       >
-        <v-list-item class="grow py-4" @click="previewCollection(collection)">
+        <v-list-item class="grow py-4" @click="viewCollections(owner)">
           <v-list-item-avatar>
             <v-icon size="24">$profile</v-icon>
           </v-list-item-avatar>
 
           <v-list-item-content>
             <v-list-item-title class="subtitle-1">
-              {{ collection.name }}
+              {{ owner.name }}
             </v-list-item-title>
           </v-list-item-content>
         </v-list-item>
@@ -116,7 +116,7 @@ export default class SharedOwnerList extends Vue {
     this.loading = false
   }
 
-  get collections() {
+  get owners() {
     // TODO: created date could be any of the dates of the collections shared by an owner
     //       not necessarily most or least recent
     return userStore.sharedCollections
@@ -140,10 +140,8 @@ export default class SharedOwnerList extends Vue {
     this.$router.replace(this.localePath('/dashboard'))
   }
 
-  previewCollection(ownerRowItem: any) {
-    this.$router.push(
-      this.localePath(`/collections/owner/${ownerRowItem.ownerId}`),
-    )
+  viewCollections(owner: any) {
+    this.$router.push(this.localePath(`/collections/owner/${owner.ownerId}`))
   }
 
   itemClass(item: SharedCollectionListItem, i: number) {

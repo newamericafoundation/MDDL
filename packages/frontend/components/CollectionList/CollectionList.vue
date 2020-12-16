@@ -65,6 +65,7 @@ import { userStore } from '@/plugins/store-accessor'
 import { CollectionListItem } from 'api-client'
 import { DataTableHeader } from 'vuetify'
 import { format } from 'date-fns'
+import { RawLocation } from 'vue-router'
 
 @Component
 export default class CollectionList extends Vue {
@@ -121,7 +122,14 @@ export default class CollectionList extends Vue {
   }
 
   previewCollection(collectionRowItem: any) {
-    this.$router.push(this.localePath(`/collections/${collectionRowItem.id}`))
+    this.$router.push(
+      this.localeRoute({
+        path: `/collections/${collectionRowItem.id}/documents`,
+        query: {
+          owner: userStore.ownerId,
+        },
+      }) as RawLocation,
+    )
   }
 }
 </script>

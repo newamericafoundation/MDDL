@@ -249,7 +249,7 @@ Object {
       <br/>
       <p style=\\"text-align: center;\\">Your password reset code is <br/><br/>CODE</p>
       <br/>
-      <p style=\\"text-align: center;\\">Please enter this where prompted <br/>to allow you to reset your password.</p>
+      <p style=\\"text-align: center;\\">Please return to Datalocker and<br/>enter this in the field labeled “Code”<br/>to reset your password.</p>
 
 
                                     <br/><br/>
@@ -294,7 +294,7 @@ Object {
 </html>
 
 ",
-    "emailSubject": "Datalocker: Your verification code",
+    "emailSubject": "Your verification code",
   },
   "triggerSource": "CustomMessage_ForgotPassword",
   "userName": "829084D7-F359-49CF-8D36-F6A7310B542E",
@@ -605,7 +605,7 @@ Object {
 </html>
 
 ",
-    "emailSubject": "Datalocker: Welcome!",
+    "emailSubject": "Welcome!",
   },
   "triggerSource": "CustomMessage_ResendCode",
   "userName": "829084D7-F359-49CF-8D36-F6A7310B542E",
@@ -916,7 +916,7 @@ Object {
 </html>
 
 ",
-    "emailSubject": "Datalocker: Welcome!",
+    "emailSubject": "Welcome!",
   },
   "triggerSource": "CustomMessage_SignUp",
   "userName": "829084D7-F359-49CF-8D36-F6A7310B542E",

@@ -6,9 +6,17 @@
     />
   </div>
   <div v-else class="px-sm-8 pt-8 blue-super-light">
-    <AppBar :breadcrumbs="breadcrumbs">
-      <template v-if="userStore.isClient" v-slot:actions>
-        <v-btn text class="white--text" :to="localePath('/account')">
+    <AppBar :custom-mobile-nav="true" :breadcrumbs="breadcrumbs">
+      <template v-if="$vuetify.breakpoint.xs" v-slot:nav-action>
+        <BackButton tabindex="0" />
+      </template>
+      <template v-if="!userStore.isAgent" v-slot:actions>
+        <v-btn
+          v-if="userStore.isClient && $vuetify.breakpoint.smAndUp"
+          text
+          class="white--text"
+          :to="localePath('/account')"
+        >
           <v-icon left>$cog</v-icon>
           {{ $t('navigation.account') }}
         </v-btn>
@@ -18,13 +26,13 @@
         </template>
       </template>
       <template
-        v-if="userStore.isClient && $vuetify.breakpoint.smAndUp"
+        v-if="$vuetify.breakpoint.smAndUp && !userStore.isAgent"
         v-slot:actionsBeneath
       >
         <ShareButton class="float-right my-2" />
         <UploadButton prepend-icon="$plus" class="float-right ml-2 my-2" />
       </template>
-      <template v-slot:extensions>
+      <template v-if="$vuetify.breakpoint.xs" v-slot:extensions>
         <div class="text-heading-2 pa-4">{{ name }}</div>
       </template>
     </AppBar>
@@ -34,7 +42,7 @@
         type="list-item-three-line, image, list-item"
       ></v-skeleton-loader>
     </div>
-    <div v-else>
+    <v-main v-else>
       <template v-if="documents.length">
         <DocumentList
           :fetch-documents="fetchDocuments"
@@ -43,7 +51,7 @@
         <div v-if="$vuetify.breakpoint.xs && userStore.isAgent" class="pa-4">
           <v-btn block color="primary" @click="downloadZip">
             <v-icon class="ml-2 mr-4" small left>$folder</v-icon>
-            {{ $t('agent.downloadZip') }}
+            {{ $t('document.downloadZip') }}
           </v-btn>
           <v-divider class="my-8" />
           <div v-if="sharedCollection" class="px-8">
@@ -75,30 +83,28 @@
           </v-btn>
         </nuxt-link>
       </template>
-      <DesktopSideBar>
-        <template v-if="userStore.isAgent">
-          <v-btn block color="primary" @click="downloadZip">
-            <v-icon class="ml-2 mr-4" small left>$folder</v-icon>
-            {{ $t('agent.downloadZip') }}
-          </v-btn>
-          <v-divider class="my-8" />
-          <div v-if="sharedCollection" class="px-8">
-            <span class="font-weight-bold subtitle-2">
-              {{ $t('agent.dateShared') }}
-            </span>
-            <p class="font-weight-thin subtitle-2 grey-7--text">
-              {{ sharedDate }}
-            </p>
-            <span class="font-weight-bold subtitle-2">
-              {{ $t('agent.sharedBy') }}
-            </span>
-            <p class="font-weight-thin subtitle-2 grey-7--text">
-              {{ sharerName }}
-            </p>
-          </div>
-        </template>
+      <DesktopSideBar v-if="userStore.isAgent">
+        <v-btn block color="primary" @click="downloadZip">
+          <v-icon class="ml-2 mr-4" small left>$folder</v-icon>
+          {{ $t('document.downloadZip') }}
+        </v-btn>
+        <v-divider class="my-8" />
+        <div v-if="sharedCollection" class="px-8">
+          <span class="font-weight-bold subtitle-2">
+            {{ $t('agent.dateShared') }}
+          </span>
+          <p class="font-weight-thin subtitle-2 grey-7--text">
+            {{ sharedDate }}
+          </p>
+          <span class="font-weight-bold subtitle-2">
+            {{ $t('agent.sharedBy') }}
+          </span>
+          <p class="font-weight-thin subtitle-2 grey-7--text">
+            {{ sharerName }}
+          </p>
+        </div>
       </DesktopSideBar>
-    </div>
+    </v-main>
   </div>
 </template>
 
@@ -117,6 +123,9 @@ import { userStore, snackbarStore } from '@/plugins/store-accessor'
 
 import download from '@/assets/js/download'
 import { format } from 'date-fns'
+import { Breadcrumb } from '@/types/nav'
+import { DelegatedClient } from '@/types/delegate'
+import { SharedCollectionListItem as TransformedSharedCollectionListItem } from '@/types/transformed'
 
 @Component({
   head() {
@@ -124,24 +133,37 @@ import { format } from 'date-fns'
       title: (this as ViewCollection).title,
     }
   },
+  layout: 'empty',
 })
 export default class ViewCollection extends Vue {
   loading = true
   documents: DocumentListItem[] = []
   title = ''
 
-  collection: CollectionListItem | null = null
-  sharedCollection: SharedCollectionListItem | null = null
   sharer: ApiUser | null
   userStore = userStore
+  delegatedClient: DelegatedClient | null = null
 
-  mounted() {
+  async mounted() {
     this.title = this.$t('tabTitles.shared') as string
-    this.fetchDocuments().then((res: DocumentListItem[]) => {
-      this.documents = res
-      this.loading = false
-    })
-    this.findCollection()
+    if (this.$route.query.owner !== userStore.ownerId && userStore.isCbo) {
+      await userStore.setOwnerId(this.$route.query.owner as string)
+    }
+    const promises = [
+      this.fetchDocuments().then((res: DocumentListItem[]) => {
+        this.documents = res
+      }),
+      this.findCollection(),
+      userStore.isCbo
+        ? userStore
+            .fetchImpersonatedDelegate()
+            .then((d: DelegatedClient | null) => {
+              this.delegatedClient = d
+            })
+        : Promise.resolve(),
+    ]
+    await Promise.all(promises)
+    this.loading = false
   }
 
   fetchDocuments() {
@@ -161,44 +183,35 @@ export default class ViewCollection extends Vue {
     this.$store
       .dispatch('collection/download', this.$route.params.id)
       .then((v: DocumentsDownload) => {
-        download(v.fileDownload!.href, this.name || 'collection' + '.zip')
+        download(v.fileDownload!.href, (this.name || 'collection') + '.zip')
         snackbarStore.setVisible(false)
       })
   }
 
-  async findCollection() {
-    let collection = (userStore.collections as CollectionListItem[]).find(
-      (c) => c.id === this.$route.params.id,
-    )
-    let sharedCollection: SharedCollectionListItem | undefined
-    sharedCollection = ((userStore.sharedCollections as unknown) as SharedCollectionListItem[]).find(
-      (c) => c.collection.id === this.$route.params.id,
-    )
-
-    if (!collection || !sharedCollection) {
-      await this.$store.dispatch('user/getCollections')
-      await this.$store.dispatch('user/getSharedCollections')
-      collection = (userStore.collections as CollectionListItem[]).find(
+  get collection(): CollectionListItem | null {
+    return (
+      (userStore.collections as CollectionListItem[]).find(
         (c) => c.id === this.$route.params.id,
-      )
-      sharedCollection = ((userStore.sharedCollections as unknown) as SharedCollectionListItem[]).find(
+      ) ?? null
+    )
+  }
+
+  get sharedCollection(): TransformedSharedCollectionListItem | null {
+    return (
+      (userStore.sharedCollections as TransformedSharedCollectionListItem[]).find(
         (c) => c.collection.id === this.$route.params.id,
-      )
-    }
-    if (collection) {
-      this.title = collection.name
-      this.collection = collection
-    }
-    if (sharedCollection) {
-      this.sharedCollection = sharedCollection
-      if (!this.collection) this.title = sharedCollection.collection.name
-    }
+      ) ?? null
+    )
+  }
+
+  async findCollection() {
+    if (!this.collection) await userStore.getCollections()
+
+    if (!this.collection) await userStore.getSharedCollections()
   }
 
   get name() {
-    if (this.collection) return this.collection.name
-    if (this.sharedCollection) return this.sharedCollection.collection.name
-    return ''
+    return this.collection?.name ?? this.sharedCollection?.collection.name ?? ''
   }
 
   get sharedDate() {
@@ -215,21 +228,49 @@ export default class ViewCollection extends Vue {
   }
 
   get breadcrumbs() {
-    if (this.sharedCollection && this.collection)
-      return [
-        {
-          title: 'navigation.clients',
-          to: '/',
+    const crumbs: Breadcrumb[] = []
+
+    if (this.$vuetify.breakpoint.xs) {
+      return crumbs
+    }
+
+    if (userStore.isClient) {
+      crumbs.push({
+        title: 'navigation.dashboard',
+        to: '/dashboard',
+      })
+    } else if (userStore.isAgent) {
+      crumbs.push({
+        title: 'navigation.clients',
+        to: '/dashboard',
+      })
+    } else if (userStore.isCbo) {
+      crumbs.push({
+        title: 'navigation.clients',
+        click: () => {
+          userStore.clearOwnerId()
+          this.$router.push(this.localePath('/dashboard'))
         },
-        {
-          title: this.sharerName,
-          to: `/collections/owner/${this.sharedCollection.owner.id}`,
-        },
-        {
-          title: this.collection.name,
-        },
-      ]
-    return []
+      })
+    }
+
+    if (this.delegatedClient) {
+      crumbs.push({
+        title: this.delegatedClient!.allowsAccessToUser.name,
+        to: '/dashboard',
+      })
+    } else if (this.sharedCollection) {
+      crumbs.push({
+        title: this.sharedCollection.owner.name,
+        to: `/collections/owner/${this.sharedCollection.owner.id}`,
+      })
+    }
+
+    crumbs.push({
+      title: this.name,
+    })
+
+    return crumbs
   }
 }
 </script>

@@ -26,9 +26,7 @@ No. Datalocker is a tool that facilitates the collection and sharing of document
 
 #### Is Datalocker secure? Who can access my data?
 
-Privacy and security is a key feature of Datalocker. All data is end-to-end encrypted. When end-to-end encrypted, documents and information are secured from falling into the wrong hands. End-to-end encryption ensures only authorized users can access documents.
-
-Datalocker is designed to allow users to store and share documents with authorized users, such as case managers and city workers, in order to improve the process of providing documents needed for permanent supportive housing applications. Datalocker is managed by a secure and privately held organization. Personal records will not be stored in city or government systems.
+We have worked hard to ensure that Datalocker is as secure as possible and that Datalocker users have control of their data and transparency into what’s happening with it. Datalocker allows users to store and share documents with the case managers and city employees whom they have authorized to have access in order to improve the process of providing documents needed for permanent supportive housing applications.
 
 #### Can I use Datalocker to apply for other City services?
 
