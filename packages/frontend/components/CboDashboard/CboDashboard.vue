@@ -43,7 +43,7 @@
         </v-row>
       </template>
     </AppBar>
-    <v-window v-model="$route.query.tab">
+    <v-window v-model="$route.query.tab" touchless>
       <v-window-item value="switch">
         <ClientList />
       </v-window-item>

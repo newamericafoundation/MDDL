@@ -1,5 +1,9 @@
 <template>
-  <v-window v-model="step" :class="{ 'pt-12': $vuetify.breakpoint.smAndUp }">
+  <v-window
+    v-model="step"
+    :class="{ 'pt-12': $vuetify.breakpoint.smAndUp }"
+    :touch="onSwipe"
+  >
     <AppBar :empty="$vuetify.breakpoint.xs" :title="toolbarTitle">
       <template v-if="$vuetify.breakpoint.xs" v-slot:nav-action>
         <BackButton v-show="step === 0" tabindex="0" class="mt-1" />
@@ -270,6 +274,11 @@ export default class Share extends Vue {
   prev() {
     this.step -= this.step > 0 ? 1 : 0
     ;(this.$refs.observer as any).reset()
+  }
+
+  onSwipe = {
+    left: this.prev,
+    right: this.isNextDisabled ? () => {} : this.next,
   }
 
   get domainsList() {

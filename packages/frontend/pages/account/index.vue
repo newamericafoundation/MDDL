@@ -13,7 +13,7 @@
         </v-btn>
       </template>
     </AppBar>
-    <v-window v-model="step" class="pa-8 mt-8">
+    <v-window v-model="step" touchless class="pa-8 mt-8">
       <v-window-item value="top-level">
         <div class="window-container mx-auto">
           <v-btn
