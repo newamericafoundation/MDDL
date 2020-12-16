@@ -10,12 +10,12 @@
         </v-card-title>
         <hr v-else-if="!isDuplicate(activity, idx)" />
         <v-list-item v-if="!isDuplicate(activity, idx)" three-line>
-          <v-list-item-avatar size="38" color="primary" class="mr-3">
+          <v-list-item-avatar size="38" color="primary" class="avatar mr-3">
             <v-icon class="pa-1" size="30" color="white">
               {{ actionIcon(activity.type) }}
             </v-icon>
           </v-list-item-avatar>
-          <v-list-item-content class="mt-2">
+          <v-list-item-content class="mt-2 py-6">
             <v-list-item-title class="menu-2 mb-2" style="white-space: normal">
               <template v-if="canShowActionResult(activity)">
                 <span class="text-heading-3 primary--text">
@@ -187,7 +187,7 @@ import {
   RegisteredActivityActionTypes,
   ResourceMetadata,
 } from '@/types/activity'
-import { format, getUnixTime, parseISO } from 'date-fns'
+import { format, getUnixTime, parseISO, getISODay } from 'date-fns'
 import { cloneDeep, isEqual } from 'lodash'
 
 @Component({
@@ -353,14 +353,15 @@ export default class ActivityList extends Vue {
   }
 
   /**
-   * Determines a new date to display or suppress current date
+   * Determines a new date in local time. Helper to display/suppress current date
+   * on the UI
    * @param date {string}
    */
   isNewDate(date: string, index: number) {
     if (index !== 0) {
-      const activityDate = date.split('T')[0]
-      const prevDate = this.activities[index - 1].date.split('T')[0]
-      return activityDate !== prevDate
+      const activityDay = getISODay(parseISO(date))
+      const prevDay = getISODay(parseISO(this.activities[index - 1].date))
+      return activityDay !== prevDay
     }
     return true
   }
@@ -462,5 +463,11 @@ export default class ActivityList extends Vue {
   text-decoration: none;
   margin-left: 36px;
   font-size: 15px;
+}
+hr {
+  margin: 0 !important;
+}
+.avatar {
+  top: 6px;
 }
 </style>
