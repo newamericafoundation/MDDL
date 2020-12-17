@@ -3,6 +3,7 @@
 @import 'helpers';
 @import 'a11y';
 @import 'vuetifyVariables';
+@import 'vuetify-dialog';
 /**
  * Below imports are styles moved from their inlined source This is to help circumvent CSP policy preventing inlined
  * styles. Once Nuxt core properly supports SPA CSP options these styles can be replaced with their native implementations.

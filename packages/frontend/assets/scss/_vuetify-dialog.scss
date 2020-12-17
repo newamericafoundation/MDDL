@@ -1,0 +1,58 @@
+/**
+ * Hacky solution to fix missing native Vuetify styles that are missing from any
+ * <v-dialog> component. Remove if a better solution is found.
+ */
+.v-dialog__content {
+  align-items: center;
+  display: flex;
+  height: 100%;
+  justify-content: center;
+  left: 0;
+  pointer-events: none;
+  position: fixed;
+  top: 0;
+  transition: 0.2s cubic-bezier(0.25, 0.8, 0.25, 1), z-index 1ms;
+  width: 100%;
+  z-index: 6;
+  outline: none;
+}
+.v-dialog {
+  border-radius: 0.4rem;
+  //margin: 24px;
+  overflow-y: auto;
+  pointer-events: auto;
+  transition: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  width: 100%;
+  z-index: inherit;
+  box-shadow: 0px 11px 15px -7px rgba(0, 0, 0, 0.2),
+    0px 24px 38px 3px rgba(0, 0, 0, 0.14), 0px 9px 46px 8px rgba(0, 0, 0, 0.12);
+}
+.v-dialog--fullscreen {
+  border-radius: 0;
+  margin: 0;
+  height: 100%;
+  position: fixed;
+  overflow-y: auto;
+  top: 0;
+  left: 0;
+}
+.v-toolbar__content,
+.v-toolbar__extension {
+  align-items: center;
+  display: flex;
+  position: relative;
+  z-index: 0;
+}
+.v-toolbar__content,
+.v-toolbar__extension {
+  padding: 4px 16px;
+}
+.v-dialog:not(.v-dialog--fullscreen) {
+  max-height: 90%;
+}
+.v-dialog--fullscreen > .v-card {
+  min-height: 100%;
+  min-width: 100%;
+  margin: 0 !important;
+  padding: 0 !important;
+}
