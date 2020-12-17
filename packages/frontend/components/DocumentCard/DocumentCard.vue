@@ -29,8 +29,12 @@
         <DocumentThumbnail :document="document" />
       </v-col>
       <v-col cols="6">
-        <v-card-title class="body-1">{{ document.name }}</v-card-title>
-
+        <v-card-title
+          class="body-1 ellipsis"
+          :class="{ 'ellipsis--inline': $vuetify.breakpoint.xs }"
+        >
+          {{ document.name }}
+        </v-card-title>
         <v-card-subtitle>{{ documentDate }}</v-card-subtitle>
       </v-col>
     </v-row>

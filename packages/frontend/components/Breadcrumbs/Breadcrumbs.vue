@@ -25,10 +25,9 @@
       <span
         v-else
         :key="`crumb-${i}`"
-        :class="`body-2 pl-4 primary--text${
+        :class="`body-2 pl-4 ellipsis breadcrumb-last primary--text${
           i === 0 ? ' font-weight-bold' : ''
         }`"
-        style="margin-top: 2px"
       >
         {{ $t(crumb.title) }}
       </span>
@@ -55,3 +54,9 @@ export default class Breadcrumbs extends Vue {
   @Prop({ required: true }) value: Breadcrumb[]
 }
 </script>
+
+<style scoped lang="scss">
+.breadcrumb-last {
+  padding-right: 12px;
+}
+</style>

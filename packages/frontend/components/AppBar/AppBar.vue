@@ -64,7 +64,7 @@
       </v-btn>
     </template>
     <template v-if="showExtension" v-slot:extension>
-      <v-row id="extension" no-gutters class="white">
+      <v-row id="extension" no-gutters class="white row-extension">
         <v-col
           v-if="
             !!$slots.actionsBeneath ||
@@ -217,6 +217,9 @@ export default class AppBar extends mixins(Navigation) {
 .v-app-bar {
   &::v-deep .v-toolbar__extension {
     padding: 0;
+  }
+  .row-extension {
+    width: 100%;
   }
 }
 </style>

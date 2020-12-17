@@ -310,6 +310,7 @@ export default class ViewDocument extends Vue {
       crumbs.push({
         title: this.document.name,
       })
+
     return crumbs
   }
 }

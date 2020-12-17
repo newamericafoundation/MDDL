@@ -9,7 +9,7 @@
         :items="documents"
         hide-default-footer
         :show-select="selectable"
-        :item-class="() => 'clickable'"
+        :item-class="() => 'clickable document-row'"
         @click:row="onDocumentClick"
       >
         <template v-slot:item.icon="{ item }">
@@ -226,8 +226,13 @@ export default class DocumentList extends Vue {
 }
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
 a.dashboard-link {
   text-decoration: none;
+}
+// document filename cell
+.document-row td.text-start:nth-child(2) {
+  @include ellipsis;
+  max-width: 0;
 }
 </style>

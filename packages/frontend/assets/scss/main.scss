@@ -19,6 +19,14 @@
     margin: 20px 0;
   }
 
+  .ellipsis {
+    @include ellipsis;
+  }
+  .ellipsis--inline {
+    width: 100%;
+    display: inline-block;
+  }
+
   .container {
     padding: 0;
   }
@@ -140,6 +148,9 @@
     .v-expansion-panel-header {
       border-bottom: 1pt solid var(--grey-4);
       padding-bottom: 0;
+    }
+    .v-expansion-panel-content__wrap {
+      @include ellipsis();
     }
   }
 

@@ -6,13 +6,11 @@ import VueAnalytics from 'vue-analytics'
 import VueI18n, { IVueI18n } from 'vue-i18n'
 // eslint-disable-next-line import/named
 import { NuxtVueI18n } from 'nuxt-i18n'
-import { $content } from '@nuxt/content'
 
 declare module 'vue/types/vue' {
   interface Vue extends NuxtVueI18n.Options.NuxtI18nInterface {
     $api: ApiService
     $auth: Auth
-    $content: typeof $content
     $ga: VueAnalytics
     $gtm: {
       push(options: {
