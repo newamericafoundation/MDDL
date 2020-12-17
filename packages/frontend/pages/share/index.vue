@@ -30,12 +30,11 @@
       </template>
       <template v-else-if="$vuetify.breakpoint.smAndUp" v-slot:actionsBeneath>
         <v-btn
-          v-show="step > 0"
           text
           :title="`${$t('navigation.back')}`"
           class="a11y-focus body-1 mx-2"
           tabindex="0"
-          @click="prev"
+          @click="prevOrBack"
         >
           <v-icon small>$arrow-left</v-icon>
           <span class="px-2 grey-8--text">{{ $t('navigation.back') }}</span>
@@ -46,7 +45,7 @@
           :disabled="isNextDisabled"
           @click="next"
         >
-          {{ $t('controls.next') }}
+          {{ $t(step === 2 ? 'controls.done' : 'controls.next') }}
         </v-btn>
       </template>
     </AppBar>
@@ -274,6 +273,18 @@ export default class Share extends Vue {
   prev() {
     this.step -= this.step > 0 ? 1 : 0
     ;(this.$refs.observer as any).reset()
+  }
+
+  prevOrBack() {
+    if (this.step === 0) {
+      if (window.history.length) {
+        this.$router.back()
+      } else {
+        this.$router.push(this.localePath('/dashboard'))
+      }
+    } else {
+      this.prev()
+    }
   }
 
   onSwipe = {
