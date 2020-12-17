@@ -1,6 +1,6 @@
-# Homeless Data Locker (HDL)
+# Datalocker
 
-Homeless Data Locker project for NYC and Baltimore
+Datalocker is designed to help families who are seeking permanent supportive housing. Datalocker facilitates the storage and sharing of personal documents with case managers and relevant City agencies in a way that is both easy and secure.
 
 ## Getting Started
 
@@ -142,6 +142,12 @@ If a City is configured in a multi-tenant manner, documents are encrypted with a
 
 A City stack will provision its own database and credentials on creation so it is fully isolated from other City data.
 
-## Information Classification
+## Security
+
+### Information Classification
 
 [Please find a detailed information classification here.](docs/information_classification.md)
+
+### Robots.txt
+
+A [robots.txt](packages/frontend/static/robots.txt) file has been configured for the frontend to disallow all web crawlers from scanning the site. This can be configured manually if you fork this repository, or can also be configured on a per-tenant basis using the static assets feature of the CI/CD Pipeline.
