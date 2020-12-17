@@ -181,7 +181,6 @@ export default class ViewCollection extends Vue {
     snackbarStore.setParams({
       message: 'toast.downloadLoadingState',
     })
-    snackbarStore.setProgress(-1)
     snackbarStore.setVisible(true)
 
     this.$store

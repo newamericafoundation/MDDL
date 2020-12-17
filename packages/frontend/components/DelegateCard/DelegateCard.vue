@@ -64,7 +64,6 @@ export default class DelegateCard extends Vue {
     snackbarStore.setParams({
       message: 'toast.delegateRemoved',
     })
-    snackbarStore.setProgress(-1)
     snackbarStore.setVisible(true)
     this.showRemoveConfirmation = false
     this.showUninviteConfirmation = false

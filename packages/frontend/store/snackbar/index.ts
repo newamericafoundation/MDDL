@@ -17,6 +17,8 @@ export default class Snackbar extends VuexModule {
   visible = false
   _progress: number | null = null
 
+  timeout: number = 0
+
   get isVisible() {
     return this.visible
   }
@@ -54,7 +56,17 @@ export default class Snackbar extends VuexModule {
   @Mutation
   setParams(payload: SnackParams) {
     this._params = payload
+    this._params.timeoutMilliseconds = payload.timeoutMilliseconds ?? 5000
     this._progress = null
+    window.clearTimeout(this.timeout)
+    if (
+      this._params.timeoutMilliseconds &&
+      this._params.timeoutMilliseconds > 0
+    ) {
+      this.timeout = window.setTimeout(() => {
+        this.visible = false
+      }, this._params.timeoutMilliseconds)
+    }
   }
 
   @Mutation

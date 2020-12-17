@@ -86,6 +86,7 @@
 import { Vue, Component, Prop } from 'nuxt-property-decorator'
 import { snackbarStore } from '@/plugins/store-accessor'
 import { ValidationObserver, ValidationProvider } from 'vee-validate'
+import SnackParams from '@/types/snackbar'
 
 @Component({
   components: {
@@ -141,7 +142,8 @@ export default class UploadButton extends Vue {
     snackbarStore.setParams({
       message: 'toast.uploading',
       dismissable: false,
-    })
+      timeoutMilliseconds: 0,
+    } as SnackParams)
     snackbarStore.setProgress(0)
     snackbarStore.setVisible(true)
 

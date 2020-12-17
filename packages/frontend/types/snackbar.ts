@@ -13,4 +13,5 @@ export default interface SnackParams {
   actions?: SnackAction[]
   dismissable?: boolean
   color?: ThemeColor
+  timeoutMilliseconds?: number
 }
