@@ -15,7 +15,7 @@
           {{ $config.buildNumber }}
         </p>
         <span class="font-weight-bold">Build time:</span>
-        {{ format(new Date($config.buildTime), 'd/M/y h:mma') }}
+        {{ buildTime }}
       </div>
       <NavItemList :items="footerNavItems" />
     </v-footer>
@@ -42,6 +42,14 @@ export default class SideNav extends mixins(Navigation) {
 
   get isVisible() {
     return navBarStore.side
+  }
+
+  get buildTime() {
+    const buildTime = parseInt(this.$config.buildTime)
+    if (buildTime) {
+      return format(new Date(buildTime), 'd/M/y h:mma')
+    }
+    return ''
   }
 
   set isVisible(value: boolean) {
