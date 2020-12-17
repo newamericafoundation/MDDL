@@ -254,27 +254,35 @@ export default class ActivityList extends Vue {
     } else if (
       [ActivityActionTypeEnum.DOCUMENTEDITED].includes(activity.type)
     ) {
-      return `<span class='primary--text'>${activity.resource.name}</span>`
+      return `<span class='primary--text'>${this.resourceName(
+        activity.resource,
+      )}</span>`
     } else if (
       [ActivityActionTypeEnum.DELEGATEDUSERINVITED].includes(activity.type)
     ) {
-      return `<span class='primary--text'>${
-        activity.resource.name
-      }</span> ${this.$t('activity.delegateInvited')}`
+      return `<span class='primary--text'>${this.resourceName(
+        activity.resource,
+      )}</span> ${this.$t(
+        this.delegatedUserMessageName('activity.delegateInvited'),
+      )}`
     } else if (
       [ActivityActionTypeEnum.DELEGATEDUSERINVITEACCEPTED].includes(
         activity.type,
       )
     ) {
-      return `<span class='primary--text'>${
-        activity.resource.name
-      }</span> ${this.$t('activity.delegateAccepted')}`
+      return `<span class='primary--text'>${this.resourceName(
+        activity.resource,
+      )}</span> ${this.$t(
+        this.delegatedUserMessageName('activity.delegateAccepted'),
+      )}`
     } else if (
       [ActivityActionTypeEnum.DELEGATEDUSERDELETED].includes(activity.type)
     ) {
-      return `<span class='primary--text'>${
-        activity.resource.name
-      }</span> ${this.$t('activity.delegateDeleted')}`
+      return `<span class='primary--text'>${this.resourceName(
+        activity.resource,
+      )}</span> ${this.$t(
+        this.delegatedUserMessageName('activity.delegateDeleted'),
+      )}`
     }
     return false
   }
@@ -380,6 +388,26 @@ export default class ActivityList extends Vue {
   principalName(principal: ActivityPrincipal) {
     const { id, name } = principal
     return id === userStore.userId ? this.$t('activity.you') : name
+  }
+
+  resourceName(resource: ActivityResource) {
+    const { name } = resource
+    return this.currentUserIsResource(resource) ? this.$t('activity.you') : name
+  }
+
+  currentUserIsResource(resource: ActivityResource) {
+    const { id, name } = resource
+    return (
+      id === userStore.userId ||
+      (userStore.profile && name === userStore.profile.email)
+    )
+  }
+
+  delegatedUserMessageName(messageName: string) {
+    if (userStore.isCbo) {
+      return `${messageName}Cbo`
+    }
+    return `${messageName}Client`
   }
 
   relatedDocuments(resources?: ActivityResource[]) {

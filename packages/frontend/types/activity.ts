@@ -17,11 +17,11 @@ export const ActivityResourceTypeEnumMessageMap: any = new Map([
   [ActivityActionTypeEnum.DELEGATEDUSERINVITED, messages.en.activity.invited],
   [
     ActivityActionTypeEnum.DELEGATEDUSERINVITEACCEPTED,
-    messages.en.activity.delegateAccepted,
+    messages.en.activity.delegateAcceptedClient,
   ],
   [
     ActivityActionTypeEnum.DELEGATEDUSERDELETED,
-    messages.en.activity.delegateDeleted,
+    messages.en.activity.delegateDeletedClient,
   ],
 ])
 
