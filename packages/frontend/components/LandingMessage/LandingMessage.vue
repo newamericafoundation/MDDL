@@ -13,7 +13,13 @@
       @keydown.native.enter="logIn"
     />
     <CityLogoFooter v-if="showFooterLogo" class="mt-10 mb-3" />
-    <FooterLinks justify="center" color="primary" background-color="none" />
+    <FooterLinks
+      justify="center"
+      color="primary"
+      background-color="none"
+      :always-show="true"
+      :fixed="$vuetify.breakpoint.height > 615"
+    />
   </div>
 </template>
 
@@ -56,7 +62,6 @@ export default class LandingMessage extends Vue {
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 100vh;
   }
   .landing-container {
     width: rem(240px);
@@ -67,6 +72,11 @@ export default class LandingMessage extends Vue {
   }
   .welcome-message.body-1 {
     font-size: rem(15px) !important;
+  }
+  @media (min-height: 615px) {
+    .landing-layout-container-inner {
+      height: 100vh;
+    }
   }
 }
 </style>

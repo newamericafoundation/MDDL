@@ -1,7 +1,7 @@
 <template>
   <v-footer
-    v-show="$vuetify.breakpoint.smAndUp"
-    fixed
+    v-show="shouldShow"
+    :fixed="fixed"
     :class="[`justify-${justify}`, 'pa-0']"
     style="pointer-events: none"
   >
@@ -51,6 +51,12 @@ export default class FooterLinks extends Vue {
   @Prop({ default: 'grey-5' }) color: string
   @Prop({ default: 'blue-mid-light' }) backgroundColor: string
   @Prop({ default: 'end' }) justify: string
+  @Prop({ default: false }) alwaysShow: boolean
+  @Prop({ default: true }) fixed: boolean
+
+  get shouldShow() {
+    return this.alwaysShow || this.$vuetify.breakpoint.smAndUp
+  }
 }
 </script>
 
