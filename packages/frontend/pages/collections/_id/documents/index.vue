@@ -88,7 +88,7 @@
           <template v-if="documents.length">
             <v-btn block color="primary" @click="downloadZip">
               <v-icon class="ml-2 mr-4" small left>$folder</v-icon>
-              {{ $t('agent.downloadZip') }}
+              {{ $t('document.downloadZip') }}
             </v-btn>
             <v-divider class="my-8" />
           </template>
