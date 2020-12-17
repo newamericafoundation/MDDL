@@ -83,7 +83,7 @@
             <v-form @submit.prevent>
               <ValidationProvider
                 v-slot="{ errors }"
-                mode="eager"
+                mode="aggressive"
                 name="email"
                 :rules="emailValidationRules"
               >
