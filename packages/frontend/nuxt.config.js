@@ -1,4 +1,5 @@
 import CspHtmlWebpackPlugin from 'csp-html-webpack-plugin'
+import cheerio from 'cheerio'
 import { CspEnum } from './types/environment'
 import messages from './assets/js/messages.ts'
 import { envConfig } from './plugins/env-config.ts'
@@ -11,9 +12,6 @@ const config = {
     title: 'Loading...',
     titleTemplate: '%s | Datalocker',
     meta: [
-      {
-        charset: 'utf-8',
-      },
       {
         name: 'viewport',
         content: 'width=device-width, initial-scale=1',
@@ -133,6 +131,25 @@ const config = {
           nonceEnabled: {
             'script-src': true,
             'style-src': true,
+          },
+          processFn: (builtPolicy, htmlPluginData, $) => {
+            // this function was adapted from https://github.com/slackhq/csp-html-webpack-plugin/blob/master/plugin.js
+            // to prepend charset since charset must be in first 1024 bytes on firefox
+            let metaTag = $('meta[http-equiv="Content-Security-Policy"]')
+            // Add element if it doesn't exist.
+            if (!metaTag.length) {
+              metaTag = cheerio.load(
+                '<meta http-equiv="Content-Security-Policy">',
+              )('meta')
+              metaTag.prependTo($('head'))
+            }
+            // build the policy into the context attr of the csp meta tag
+            metaTag.attr('content', builtPolicy)
+
+            const charset = cheerio.load('<meta charset="utf-8">')('meta')
+            charset.prependTo($('head'))
+            // eslint-disable-next-line no-param-reassign
+            htmlPluginData.html = $.html()
           },
         },
       ),
