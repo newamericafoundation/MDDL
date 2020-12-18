@@ -83,7 +83,7 @@
                 v-slot="{ errors, valid }"
                 mode="eager"
                 name="email"
-                :rules="`required|email|max:255|is_not:${accountEmail}`"
+                :rules="`email|max:255|is_not:${accountEmail}`"
               >
                 <v-text-field
                   v-model="email"
@@ -102,7 +102,9 @@
                     <v-btn
                       class="body-1 font-weight-medium"
                       color="primary"
-                      :disabled="!valid || delegates.length >= 10"
+                      :disabled="
+                        !valid || delegates.length >= 10 || email.length === 0
+                      "
                       @click="showConfirmation = true"
                     >
                       {{ $t('controls.add') }}

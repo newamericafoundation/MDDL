@@ -259,7 +259,7 @@ export default class Share extends Vue {
 
     // we wait until mounted to assign this since jest cannot mock $config
     // until the component is mounted
-    this.emailValidationRules = `required|email|emailWhitelist:${this.$config.agencyEmailDomainsWhitelist}`
+    this.emailValidationRules = `email|emailWhitelist:${this.$config.agencyEmailDomainsWhitelist}`
   }
 
   next() {
@@ -303,7 +303,9 @@ export default class Share extends Vue {
     return (
       (this.step >= 2 && this.individualEmailAddresses.length >= 10) ||
       (this.step >= 1 &&
-        (!this.emailInputValid || !this.individualEmailAddresses.length)) ||
+        (!this.emailInputValid ||
+          (this.email.length === 0 &&
+            !this.individualEmailAddresses.length))) ||
       this.selectedDocs.length === 0 ||
       this.isLoading
     )
