@@ -23,12 +23,16 @@ const getPermissionsToCollection = async (
     return Object.values(CollectionPermission)
   }
 
+  const permissions: CollectionPermission[] = []
   if (
     user.email &&
     (await hasDelegatedAccessToUserAccount(user.email, collection.ownerId))
   ) {
     // check for delegated access
-    return [CollectionPermission.ListDocuments, CollectionPermission.ListGrants]
+    permissions.push(
+      CollectionPermission.ListDocuments,
+      CollectionPermission.ListGrants,
+    )
   }
 
   if (
@@ -36,14 +40,14 @@ const getPermissionsToCollection = async (
     (await hasAccessToCollectionViaGrant(collection.id, user.email))
   ) {
     // check if this is a shared collection to this individual
-    return [
+    permissions.push(
       CollectionPermission.ListDocuments,
       CollectionPermission.DownloadDocuments,
-    ]
+    )
   }
 
   // can't find any permissions
-  return []
+  return [...new Set(permissions)]
 }
 
 export const requirePermissionToCollection = (

@@ -35,24 +35,26 @@ const getPermissionsToUser = async (
     return Object.values(UserPermission)
   }
 
+  const permissions: UserPermission[] = []
+
   // check if user is delegated access to this account
   if (await hasDelegatedAccessToUserAccount(userEmail, ownerId)) {
-    return [
+    permissions.push(
       UserPermission.WriteCollection,
       UserPermission.WriteCollection,
       UserPermission.ListCollections,
       UserPermission.WriteDocument,
       UserPermission.ListDocuments,
       UserPermission.ListActivity,
-    ]
+    )
   }
 
   if (await hasAnyGrantToUsersCollections(ownerId, userEmail)) {
-    return [UserPermission.ListSharedDocuments]
+    permissions.push(UserPermission.ListSharedDocuments)
   }
 
   // can't find any permissions
-  return []
+  return [...new Set(permissions)]
 }
 
 const getPermissionsToAgent = async (

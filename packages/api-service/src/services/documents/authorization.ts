@@ -23,12 +23,16 @@ const getPermissionsToDocument = async (
     return Object.values(DocumentPermission)
   }
 
+  const permissions: DocumentPermission[] = []
   if (
     user.email &&
     (await hasDelegatedAccessToUserAccount(user.email, document.ownerId))
   ) {
     // check for delegated access
-    return [DocumentPermission.GetDocument, DocumentPermission.WriteDocument]
+    permissions.push(
+      DocumentPermission.GetDocument,
+      DocumentPermission.WriteDocument,
+    )
   }
 
   if (
@@ -36,11 +40,11 @@ const getPermissionsToDocument = async (
     (await hasAccessToDocumentViaCollectionGrant(document.id, user.email))
   ) {
     // check if in a shared collection to this individual
-    return [DocumentPermission.GetDocument]
+    permissions.push(DocumentPermission.GetDocument)
   }
 
   // can't find any permissions
-  return []
+  return [...new Set(permissions)]
 }
 
 export const requirePermissionToDocument = (
