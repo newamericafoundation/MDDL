@@ -103,7 +103,7 @@ For full reference of properties, see:
             "GOOGLE_ANALYTICS_TRACKING_ID": "UA-123456789-1",
             "SHOW_BUILD_INFO": "1"
           },
-          "staticAssetsPath": "DevCityStack",
+          "assetsOverridePath": "DevCityStack",
           "apiDomainConfig": {
             "certificateArn": "arn:aws:acm:us-west-2:111111111111:certificate/cccccccc-cccc-cccc-cccc-cccccccccccc",
             "domain": "dev-city-api.datalocker.example.com",
@@ -144,7 +144,7 @@ For full reference of properties, see:
             "AUTH_CLIENT_ID": "5984716e12bf48bbb7a96ada8ed7311f",
             "GOOGLE_ANALYTICS_TRACKING_ID": "UA-123456789-1"
           },
-          "staticAssetsPath": "MyCity1",
+          "assetsOverridePath": "MyCity1",
           "apiDomainConfig": {
             "certificateArn": "arn:aws:acm:us-west-2:111111111111:certificate/cccccccc-cccc-cccc-cccc-cccccccccccc",
             "domain": "my-city1-api.datalocker.example.com"
@@ -179,7 +179,7 @@ For full reference of properties, see:
             "AUTH_CLIENT_ID": "5984716e12bf48bbb7a96ada8ed7311f",
             "GOOGLE_ANALYTICS_TRACKING_ID": "UA-123456789-1"
           },
-          "staticAssetsPath": "MyCity2",
+          "assetsOverridePath": "MyCity2",
           "apiDomainConfig": {
             "certificateArn": "arn:aws:acm:us-west-2:111111111111:certificate/cccccccc-cccc-cccc-cccc-cccccccccccc",
             "domain": "my-city2-api.datalocker.example.com"
@@ -258,7 +258,7 @@ For full reference of properties, see:
             "AUTH_CLIENT_ID": "5984716e12bf48bbb7a96ada8ed7311f",
             "GOOGLE_ANALYTICS_TRACKING_ID": "UA-123456789-1"
           },
-          "staticAssetsPath": "MyCity1",
+          "assetsOverridePath": "MyCity1",
           "apiDomainConfig": {
             "certificateArn": "arn:aws:acm:us-west-2:222222222222:certificate/cccccccc-cccc-cccc-cccc-cccccccccccc",
             "domain": "my-city1-api.datalocker.prod.com"
@@ -293,7 +293,7 @@ For full reference of properties, see:
             "AUTH_CLIENT_ID": "5984716e12bf48bbb7a96ada8ed7311f",
             "GOOGLE_ANALYTICS_TRACKING_ID": "UA-123456789-1"
           },
-          "staticAssetsPath": "MyCity2",
+          "assetsOverridePath": "MyCity2",
           "apiDomainConfig": {
             "certificateArn": "arn:aws:acm:us-west-2:222222222222:certificate/cccccccc-cccc-cccc-cccc-cccccccccccc",
             "domain": "my-city2-api.datalocker.prod.com"
@@ -526,7 +526,7 @@ The suggested key policy is as follows, please see the "Sid" elements for the pu
 }
 ```
 
-## (Optional) Upload static resources for different city stacks
+## (Optional) Upload static resources and assets for different city stacks
 
-If you have static resources that are different per city stack and not included in the `frontend/static` code base, after the above deployment you'll be able to upload these to the created 'Static Assets Bucket' with the prefix defined by `staticAssetsPath` for the specific city's stack.
-For example, from the above configuration, `logo.svg` for `MyCity2` should be uploaded to the `MyCity2Stack/logo.svg` key. This will then be set as the logo for the `MyCity2` build.
+If you have static resources (in the frontend/static directory) or assets (frontend/assets directory) that are different per city stack and not included in the code base, after the above deployment you'll be able to upload these to the created 'Static Assets Bucket' with the prefix defined by `assetsOverridePath` for the specific city's stack. This will perform an S3 sync with the 'static' and 'assets' paths only
+For example, from the above configuration, `images/city-logo.svg` for `MyCity2` should be uploaded to the `MyCity2Stack/static/images/city-logo.svg` key. This will then be set as the logo for the `MyCity2` build.

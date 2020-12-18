@@ -205,7 +205,7 @@ export interface Props extends StackProps {
   /**
    * The path (S3 prefix) in the static assets bucket (supplied by CI/CD stack) that assets specific to this city can be copied from.
    */
-  staticAssetsPath?: string
+  assetsOverridePath?: string
   /**
    * Hosted zone attributes for adding record sets to
    */

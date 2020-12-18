@@ -84,9 +84,9 @@ interface CityStackArtifactBuildConfiguration {
   }
 
   /**
-   * The path in the static assets bucket to transfer files such as the logo from during build time
+   * The path in the assets bucket to transfer files such as the logo from during build time
    */
-  staticAssetsPath?: string
+  assetsOverridePath?: string
 }
 
 export interface Props extends StackProps {
@@ -328,9 +328,12 @@ export class CiCdStack extends Stack {
         'BUILD_NUMBER=$(cat build-details.json | python -c "import sys, json; print(json.load(sys.stdin)[\'buildNumber\'])")',
         `echo "${envFileContents}\nBUILD_NUMBER=$BUILD_NUMBER\nBUILD_TIME=$CODEBUILD_START_TIME\nBUILD_ENVIRONMENT=${cba.name}" > packages/frontend/.env`,
       )
-      if (cba.staticAssetsPath) {
+      if (cba.assetsOverridePath) {
         buildCommands.push(
-          `aws s3 sync s3://$STATIC_ASSETS_BUCKET/${cba.staticAssetsPath} packages/frontend/static`,
+          `aws s3 sync s3://$STATIC_ASSETS_BUCKET/${cba.assetsOverridePath}/static packages/frontend/static`,
+        )
+        buildCommands.push(
+          `aws s3 sync s3://$STATIC_ASSETS_BUCKET/${cba.assetsOverridePath}/assets packages/frontend/assets`,
         )
       }
       buildCommands.push(
@@ -503,7 +506,7 @@ export class CiCdStack extends Stack {
     const cityBuildArgs = cityStacks.map(
       (cs): CityStackArtifactBuildConfiguration => ({
         name: cs.name,
-        staticAssetsPath: cs.props.staticAssetsPath,
+        assetsOverridePath: cs.props.assetsOverridePath,
         env: {
           ...cs.props.webAppBuildVariables,
           AGENCY_EMAIL_DOMAINS_WHITELIST:
