@@ -26,6 +26,8 @@
         :multiple="multiple"
         class="fileInput"
         accept="application/pdf, image/jpeg, image/png, image/tiff"
+        @click="resetSelection"
+        @keydown.enter="resetSelection()"
         @change="onFileInput"
       />
     </label>
@@ -52,8 +54,8 @@
             color="primary"
             text
             :disabled="!documentName"
+            @keydown.enter="uploadDocument()"
             @click="uploadDocument"
-            @keydown.enter="uploadDocument"
           >
             {{ $t('controls.done') }}
           </v-btn>
@@ -117,6 +119,10 @@ export default class UploadButton extends Vue {
 
   snackMessage = ''
   documentName = ''
+
+  resetSelection(event: any) {
+    event.target.value = ''
+  }
 
   onFileInput(event: any) {
     if (event?.target?.files && event.target.files.length) {
