@@ -28,6 +28,12 @@
     display: inline-block;
   }
 
+  .text-link {
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
   .container {
     padding: 0;
   }
