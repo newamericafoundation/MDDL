@@ -19,6 +19,7 @@ import {
 
 jest.mock('@/config')
 jest.mock('@/utils/database')
+jest.mock('@/utils/logging')
 jest.mock('@/utils/sqs')
 jest.mock('@/utils/s3')
 jest.mock('@/models/document')

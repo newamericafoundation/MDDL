@@ -23,6 +23,7 @@ import { Bucket, HttpMethods, EventType } from '@aws-cdk/aws-s3'
 import {
   OriginAccessIdentity,
   CloudFrontWebDistribution,
+  SecurityPolicyProtocol,
 } from '@aws-cdk/aws-cloudfront'
 import { DataStoreStack } from './data-store-stack'
 import { AuthStack } from './auth-stack'
@@ -968,6 +969,7 @@ export class CityStack extends Stack {
       )
       viewerCertificate = ViewerCertificate.fromAcmCertificate(certificate, {
         aliases: [hostedDomainConfig.domain],
+        securityPolicy: SecurityPolicyProtocol.TLS_V1_2_2019,
       })
     }
 

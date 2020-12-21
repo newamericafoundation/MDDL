@@ -3,6 +3,7 @@ import { DocumentsPrefix } from '@/constants'
 import S3 from 'aws-sdk/clients/s3'
 import { readFileSync, writeFileSync } from 'fs'
 import { captureAWSClient } from 'aws-xray-sdk'
+import { logger } from './logging'
 
 const s3 = captureAWSClient(
   new S3({
@@ -93,16 +94,20 @@ export const uploadObjectStream = (
   key: string,
   otherParams: Partial<S3.PutObjectRequest> = {},
 ) => {
+  const Bucket = getDocumentsBucket()
   return s3.upload(
     {
       ...otherParams,
-      Bucket: getDocumentsBucket(),
+      Bucket,
       Key: key,
       Body: stream,
     },
     (err) => {
       if (err) {
-        throw new Error(`Error streaming object to s3: ${err}`)
+        logger.error(err)
+        throw new Error(
+          `Error streaming object to s3 for ${Bucket}, ${key}: ${err}`,
+        )
       }
     },
   )

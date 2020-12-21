@@ -1,5 +1,7 @@
-import { formatApiGatewayResult, compose } from './middleware'
+import { formatApiGatewayResult, compose, requireValidBody } from './middleware'
 import createError from 'http-errors'
+import { string, object } from 'joi'
+import { createMockEvent } from './test'
 
 jest.mock('@/utils/logging')
 
@@ -103,6 +105,42 @@ describe('formatApiGatewayResult', () => {
         },
         "isBase64Encoded": false,
         "statusCode": 200,
+      }
+    `)
+  })
+})
+
+export const testSchema = object({
+  name: string().min(1).max(255).required(),
+})
+
+describe('requireValidBody', () => {
+  it('throws error on invalid body', () => {
+    const event = createMockEvent()
+    const func = requireValidBody(testSchema)
+    event.body = `<body>
+    <data>Test</data>
+    </body>`
+    expect(() => func({ event })).toThrowErrorMatchingInlineSnapshot(
+      `"validation error: the body could not be read"`,
+    )
+  })
+  it('throws error on no body', () => {
+    const event = createMockEvent()
+    const func = requireValidBody(testSchema)
+    expect(() => func({ event })).toThrowErrorMatchingInlineSnapshot(
+      `"validation error: body was expected but empty"`,
+    )
+  })
+  it('works with a valid body', () => {
+    const event = createMockEvent()
+    const func = requireValidBody(testSchema)
+    event.body = JSON.stringify({
+      name: 'test',
+    })
+    expect(func({ event }).body).toMatchInlineSnapshot(`
+      Object {
+        "name": "test",
       }
     `)
   })
