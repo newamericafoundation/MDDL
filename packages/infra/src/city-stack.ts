@@ -312,6 +312,7 @@ const authEnvironmentVariables = [
   EnvironmentVariables.AUTH_SIGNING_KEY,
   EnvironmentVariables.AUTH_INTEGRATION_TYPE,
   EnvironmentVariables.AUTH_EMAIL_UNVERIFIED_REDIRECT,
+  EnvironmentVariables.AGENCY_EMAIL_DOMAINS_WHITELIST,
 ]
 
 export class CityStack extends Stack {
@@ -1633,10 +1634,7 @@ export class CityStack extends Stack {
         {
           dbSecret,
           layers: [mySqlLayer],
-          extraEnvironmentVariables: [
-            ...authEnvironmentVariables,
-            EnvironmentVariables.AGENCY_EMAIL_DOMAINS_WHITELIST,
-          ],
+          extraEnvironmentVariables: [...authEnvironmentVariables],
         },
       ),
       authorizer,
@@ -1653,7 +1651,6 @@ export class CityStack extends Stack {
         extraEnvironmentVariables: [
           ...authEnvironmentVariables,
           EnvironmentVariables.WEB_APP_DOMAIN,
-          EnvironmentVariables.AGENCY_EMAIL_DOMAINS_WHITELIST,
           EnvironmentVariables.ACTIVITY_RECORD_SQS_QUEUE_URL,
           EnvironmentVariables.EMAIL_PROCESSOR_SQS_QUEUE_URL,
         ],
@@ -1754,7 +1751,6 @@ export class CityStack extends Stack {
           layers: [mySqlLayer],
           extraEnvironmentVariables: [
             ...authEnvironmentVariables,
-            EnvironmentVariables.AGENCY_EMAIL_DOMAINS_WHITELIST,
             EnvironmentVariables.DOCUMENTS_BUCKET,
           ],
           // permission needed to create presigned urls for thumbnails
@@ -1789,7 +1785,6 @@ export class CityStack extends Stack {
           extraEnvironmentVariables: [
             ...authEnvironmentVariables,
             EnvironmentVariables.DOCUMENTS_BUCKET,
-            EnvironmentVariables.AGENCY_EMAIL_DOMAINS_WHITELIST,
           ],
           documentBucketPermissions: {
             includeRead: true,
@@ -1814,7 +1809,6 @@ export class CityStack extends Stack {
           extraEnvironmentVariables: [
             ...authEnvironmentVariables,
             EnvironmentVariables.DOCUMENTS_BUCKET,
-            EnvironmentVariables.AGENCY_EMAIL_DOMAINS_WHITELIST,
             EnvironmentVariables.ACTIVITY_RECORD_SQS_QUEUE_URL,
           ],
           // permission needed to create presigned urls (for get)
@@ -1960,7 +1954,6 @@ export class CityStack extends Stack {
           extraEnvironmentVariables: [
             ...authEnvironmentVariables,
             EnvironmentVariables.DOCUMENTS_BUCKET,
-            EnvironmentVariables.AGENCY_EMAIL_DOMAINS_WHITELIST,
           ],
           // permission needed to create presigned urls for thumbnails
           documentBucketPermissions: {
@@ -2027,7 +2020,6 @@ export class CityStack extends Stack {
           ...authEnvironmentVariables,
           EnvironmentVariables.DOCUMENTS_BUCKET,
           EnvironmentVariables.CREATE_COLLECTION_ZIP_FUNCTION_NAME,
-          EnvironmentVariables.AGENCY_EMAIL_DOMAINS_WHITELIST,
           EnvironmentVariables.ACTIVITY_RECORD_SQS_QUEUE_URL,
         ],
         collectionBucketPermissions: {
@@ -2064,7 +2056,6 @@ export class CityStack extends Stack {
           extraEnvironmentVariables: [
             ...authEnvironmentVariables,
             EnvironmentVariables.DOCUMENTS_BUCKET,
-            EnvironmentVariables.AGENCY_EMAIL_DOMAINS_WHITELIST,
             EnvironmentVariables.ACTIVITY_RECORD_SQS_QUEUE_URL,
           ],
           collectionBucketPermissions: {

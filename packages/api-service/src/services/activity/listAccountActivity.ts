@@ -11,11 +11,12 @@ import {
 } from '@/services/users/authorization'
 import { createAuthenticatedApiGatewayHandler } from '@/services/users/middleware'
 import { User } from '@/models/user'
-import { getLogEvents } from '@/utils/logstream'
+import { getLogEvents, GetLogEventsResponse } from '@/utils/logstream'
 import { EnvironmentVariable, requireConfiguration } from '@/config'
 import { hasValue } from '@/utils/array'
 import { parseAndValidate } from '@/utils/validation'
 import { submitActivitySchema } from './validation'
+import { logger } from '@/utils/logging'
 
 connectDatabase()
 type Request = APIGatewayRequest & {
@@ -53,7 +54,19 @@ export const handler = createAuthenticatedApiGatewayHandler(
       logGroupName,
       logStreamName: ownerId,
     }
-    const logEvents = await getLogEvents(logStream, nextToken)
+
+    // set up default result if log stream does not exist yet
+    let logEvents: GetLogEventsResponse = {
+      events: [],
+      nextBackwardToken: undefined,
+      nextForwardToken: undefined,
+    }
+    try {
+      logEvents = await getLogEvents(logStream, nextToken)
+    } catch (err) {
+      logger.error(err, logStream)
+    }
+
     const events = logEvents.events
       ? logEvents.events.map((e) => e.message as string).filter(hasValue)
       : []

@@ -44,9 +44,13 @@ We currently have templates for:
 
 The frontend uses AWS Cognito hosted login to serve sign in, sign out, and other auth-related pages. Customisation can be accomplished by making changes to [hostedLogin.css](./assets/css/hostedLogin.css) and running:
 
-<pre>
+```bash
 aws cognito-idp set-ui-customization --user-pool-id <span style="color: #fa671d">user_pool_id</span> --client-id <span style="color: #fa671d">client_id</span> --css "$(<./packages/infra/src/assets/hostedLogin.css)"
-</pre>
+```
+
+Make sure to set `client_id` to the ID of the Cognito App Client you're testing. This should match the `AUTH_CLIENT_ID` parameter in your `.env` file.
+
+If you need to test the banner image, replace `__BANNER_BACKGROUND_URL__` in the `hostedLogin.css` file locally with the full path of a image hosted in the web app, e.g. `https://dev-city.datalocker.example.com/images/city-logo.svg`
 
 More information can be found on the AWS docs regarding permitted [CSS classes](https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-pools-app-ui-customization.html#cognito-user-pools-app-ui-customization-css) and [CSS variables](https://docs.amplify.aws/ui/customization/theming/q/framework/vue):
 

@@ -1,4 +1,7 @@
-import LogsClient, { InputLogEvent } from 'aws-sdk/clients/cloudwatchlogs'
+import LogsClient, {
+  InputLogEvent,
+  OutputLogEvents,
+} from 'aws-sdk/clients/cloudwatchlogs'
 import { captureAWSClient } from 'aws-xray-sdk'
 
 const logsClient = captureAWSClient(new LogsClient())
@@ -66,11 +69,17 @@ export const putLogEvents = async (
   return result.nextSequenceToken
 }
 
+export type GetLogEventsResponse = {
+  events: OutputLogEvents | undefined
+  nextBackwardToken: string | undefined
+  nextForwardToken: string | undefined
+}
+
 export const getLogEvents = async (
   logStream: LogStream,
   nextToken: string | undefined,
   limit = 50,
-) => {
+): Promise<GetLogEventsResponse> => {
   const { logGroupName, logStreamName } = logStream
   const result = await logsClient
     .getLogEvents({ logGroupName, logStreamName, limit, nextToken }, undefined)
