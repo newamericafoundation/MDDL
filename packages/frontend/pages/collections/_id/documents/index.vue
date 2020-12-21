@@ -130,6 +130,7 @@ import { format } from 'date-fns'
 import { Breadcrumb } from '@/types/nav'
 import { DelegatedClient } from '@/types/delegate'
 import { SharedCollectionListItem as TransformedSharedCollectionListItem } from '@/types/transformed'
+import SnackParams from '@/types/snackbar'
 
 @Component({
   head() {
@@ -180,7 +181,9 @@ export default class ViewCollection extends Vue {
   downloadZip() {
     snackbarStore.setParams({
       message: 'toast.downloadLoadingState',
-    })
+      timeoutMilliseconds: 0,
+    } as SnackParams)
+    snackbarStore.setProgress(-1)
     snackbarStore.setVisible(true)
 
     this.$store

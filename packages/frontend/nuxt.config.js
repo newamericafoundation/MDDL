@@ -95,6 +95,8 @@ const config = {
     transpile: ['vee-validate/dist/rules'],
     extractCSS: {
       ignoreOrder: true,
+      filename: '[contenthash].css',
+      chunkFilename: '[contenthash].css',
     },
     extend(config, { isClient }) {
       // Extend only webpack config for client-bundle
@@ -145,7 +147,6 @@ const config = {
             }
             // build the policy into the context attr of the csp meta tag
             metaTag.attr('content', builtPolicy)
-
             const charset = cheerio.load('<meta charset="utf-8">')('meta')
             charset.prependTo($('head'))
             // eslint-disable-next-line no-param-reassign
