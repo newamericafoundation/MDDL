@@ -278,25 +278,6 @@ export default class User extends VuexModule {
   }
 
   @Action({ rawError: true, commit: 'setDocuments' })
-  scheduleDocumentsRefresh(delayMs = 8000): Promise<DocumentListItem[]> {
-    if (!this.ownerId) return Promise.reject(new Error('UserID not set'))
-    if (this._timeoutId) {
-      clearTimeout(this._timeoutId)
-    }
-    return new Promise<DocumentListItem[]>((resolve, reject) => {
-      this._timeoutId = window.setTimeout(() => {
-        api.user
-          .listUserDocuments(this.ownerId!)
-          .then((response) => {
-            resolve(response.data.documents ? response.data.documents : [])
-          })
-          .catch(reject)
-          .finally(() => (this._timeoutId = null))
-      }, delayMs)
-    })
-  }
-
-  @Action({ rawError: true, commit: 'setDocuments' })
   getDocuments(): Promise<DocumentListItem[]> {
     if (!this.ownerId) return Promise.reject(new Error('UserID not set'))
     return api.user.listUserDocuments(this.ownerId).then((response) => {

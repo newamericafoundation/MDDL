@@ -97,18 +97,6 @@ export default class ClientDashboard extends Vue {
     return []
   }
 
-  get extendAppBar() {
-    return userStore.isClient && this.$vuetify.breakpoint.smAndUp
-  }
-
-  get documents() {
-    return userStore.documents
-  }
-
-  get collections() {
-    return userStore.collections
-  }
-
   @Watch('currentTab')
   onTabChange() {
     this.$router.push({
@@ -123,6 +111,9 @@ export default class ClientDashboard extends Vue {
     setTimeout(() => {
       ;(this.$refs.documentList as any).reload()
     }, 1000)
+    setTimeout(() => {
+      ;(this.$refs.documentList as any).reload()
+    }, 8000)
   }
 }
 </script>
