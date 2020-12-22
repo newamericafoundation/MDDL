@@ -9,12 +9,13 @@
     <div class="font-weight-bold subtitle-2">
       {{ $t('agent.sharedBy') }}
     </div>
-    <div class="font-weight-thin subtitle-2 grey-7--text">
+    <div class="font-weight-thin subtitle-2 grey-7--text" :title="sharerName">
       {{ sharerName }}
     </div>
     <div
       v-if="sharerEmail !== sharerName"
       class="font-weight-thin subtitle-2 grey-7--text email"
+      :title="sharerEmail"
     >
       {{ sharerEmail }}
     </div>

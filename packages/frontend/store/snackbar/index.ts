@@ -17,7 +17,7 @@ export default class Snackbar extends VuexModule {
   visible = false
   _progress: number | null = null
 
-  timeout: number = 0
+  _timeout: number = 0
 
   get isVisible() {
     return this.visible
@@ -56,14 +56,27 @@ export default class Snackbar extends VuexModule {
   @Action
   async setParams(payload: SnackParams) {
     await this.context.commit('_setParams', payload)
-    window.clearTimeout(this.timeout)
+    await this.context.commit('_setTimeout', 0)
     if (
       this._params.timeoutMilliseconds &&
       this._params.timeoutMilliseconds > 0
     ) {
-      this.timeout = window.setTimeout(() => {
-        this.context.commit('setVisible', false)
-      }, this._params.timeoutMilliseconds)
+      await this.context.commit(
+        '_setTimeout',
+        window.setTimeout(() => {
+          this.context.commit('setVisible', false)
+        }, this._params.timeoutMilliseconds),
+      )
+    }
+  }
+
+  @Mutation
+  _setTimeout(timeout: number) {
+    if (timeout === 0) {
+      window.clearTimeout(this._timeout)
+      this._timeout = 0
+    } else {
+      this._timeout = timeout
     }
   }
 
