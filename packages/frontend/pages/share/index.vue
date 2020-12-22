@@ -254,7 +254,7 @@ export default class Share extends Vue {
   async mounted() {
     const collections = await this.$store.dispatch('user/getCollections')
     this.name = this.$t('sharing.defaultName', {
-      date: format(Date.now(), 'LLL d, yyyy'),
+      date: format(Date.now(), 'LLL d, yyyy - k:mm'),
     }) as string
 
     // we wait until mounted to assign this since jest cannot mock $config

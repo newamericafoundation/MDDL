@@ -76,9 +76,15 @@ export default class SharedCollectionList extends Vue {
         value: 'name',
       },
       {
-        text: this.$t('dateAdded') as string,
+        text: this.$t('agent.sharedBy') as string,
         class: 'blue-super-light',
-        value: 'createdDate',
+        value: 'sharerName',
+        sortable: true,
+      },
+      {
+        text: this.$t('agent.dateShared') as string,
+        class: 'blue-super-light',
+        value: 'sharedDate',
         sortable: true,
       },
     ]
@@ -94,7 +100,11 @@ export default class SharedCollectionList extends Vue {
       .map((c: SharedCollectionListItem) => ({
         id: c.collection.id,
         name: c.collection.name,
-        createdDate: format(c.collection.createdDate, 'LLL d, yyyy'),
+        sharerName: c.shareInformation.sharedBy.name,
+        sharedDate: format(
+          new Date(c.shareInformation.sharedDate),
+          'LLL d, yyyy',
+        ),
       }))
   }
 

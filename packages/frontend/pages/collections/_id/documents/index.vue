@@ -59,20 +59,11 @@
             {{ $t('document.downloadZip') }}
           </v-btn>
           <v-divider class="my-8" />
-          <div v-if="sharedCollection" class="px-8">
-            <span class="font-weight-bold subtitle-2">
-              {{ $t('agent.dateShared') }}
-            </span>
-            <p class="font-weight-thin subtitle-2 grey-7--text">
-              {{ sharedDate }}
-            </p>
-            <span class="font-weight-bold subtitle-2">
-              {{ $t('agent.sharedBy') }}
-            </span>
-            <p class="font-weight-thin subtitle-2 grey-7--text">
-              {{ sharerName }}
-            </p>
-          </div>
+          <SharedCollectionDetails
+            v-if="sharedCollection"
+            :collection="sharedCollection"
+            class="px-8"
+          />
         </div>
       </template>
       <template v-else>
@@ -102,20 +93,11 @@
             </v-btn>
             <v-divider class="my-8" />
           </template>
-          <div v-if="sharedCollection" class="px-8 mt-5">
-            <span class="font-weight-bold subtitle-2">
-              {{ $t('agent.dateShared') }}
-            </span>
-            <p class="font-weight-thin subtitle-2 grey-7--text">
-              {{ sharedDate }}
-            </p>
-            <span class="font-weight-bold subtitle-2">
-              {{ $t('agent.sharedBy') }}
-            </span>
-            <p class="font-weight-thin subtitle-2 grey-7--text">
-              {{ sharerName }}
-            </p>
-          </div>
+          <SharedCollectionDetails
+            v-if="sharedCollection"
+            :collection="sharedCollection"
+            class="px-8 mt-5"
+          />
         </template>
       </DesktopSideBar>
     </v-main>
@@ -136,7 +118,6 @@ import {
 import { userStore, snackbarStore } from '@/plugins/store-accessor'
 
 import download from '@/assets/js/download'
-import { format } from 'date-fns'
 import { Breadcrumb } from '@/types/nav'
 import { DelegatedClient } from '@/types/delegate'
 import { SharedCollectionListItem as TransformedSharedCollectionListItem } from '@/types/transformed'
@@ -228,19 +209,6 @@ export default class ViewCollection extends Vue {
 
   get name() {
     return this.collection?.name ?? this.sharedCollection?.collection.name ?? ''
-  }
-
-  get sharedDate() {
-    return this.sharedCollection
-      ? format(
-          new Date(this.sharedCollection.collection.createdDate),
-          'LLL d, yyyy',
-        )
-      : ''
-  }
-
-  get sharerName() {
-    return this.sharedCollection ? this.sharedCollection.owner.name : ''
   }
 
   get breadcrumbs() {
