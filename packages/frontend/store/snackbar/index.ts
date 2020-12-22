@@ -53,20 +53,25 @@ export default class Snackbar extends VuexModule {
     return this._progress
   }
 
-  @Mutation
-  setParams(payload: SnackParams) {
-    this._params = payload
-    this._params.timeoutMilliseconds = payload.timeoutMilliseconds ?? 5000
-    this._progress = null
+  @Action
+  async setParams(payload: SnackParams) {
+    await this.context.commit('_setParams', payload)
     window.clearTimeout(this.timeout)
     if (
       this._params.timeoutMilliseconds &&
       this._params.timeoutMilliseconds > 0
     ) {
       this.timeout = window.setTimeout(() => {
-        this.visible = false
+        this.context.commit('setVisible', false)
       }, this._params.timeoutMilliseconds)
     }
+  }
+
+  @Mutation
+  _setParams(payload: SnackParams) {
+    this._params = payload
+    this._params.timeoutMilliseconds = payload.timeoutMilliseconds ?? 5000
+    this._progress = null
   }
 
   @Mutation

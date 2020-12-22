@@ -1,3 +1,6 @@
 coverage/
 
 .env
+
+.env.nyc
+.env.dev

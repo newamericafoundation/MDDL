@@ -33,7 +33,7 @@ test('SnackbarStore [All in one happy case]', async () => {
     dismissable: false,
     color: ThemeColor.INFO,
   }
-  await store.commit('snackbar/setParams', mockSnackParams)
+  await store.commit('snackbar/_setParams', mockSnackParams)
 
   expect(store.getters['snackbar/isVisible']).toBe(false)
   expect(store.getters['snackbar/message']).toBe(mockSnackParams.message)

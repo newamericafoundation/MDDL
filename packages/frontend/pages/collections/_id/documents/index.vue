@@ -42,14 +42,19 @@
         type="list-item-three-line, image, list-item"
       ></v-skeleton-loader>
     </div>
-    <v-main v-else>
+    <v-main v-else class="blue-super-light">
       <template v-if="documents.length">
         <DocumentList
           :fetch-documents="fetchDocuments"
           :owner="sharedCollection ? sharedCollection.owner : null"
         />
         <div v-if="$vuetify.breakpoint.xs && userStore.isAgent" class="pa-4">
-          <v-btn block color="primary" @click="downloadZip">
+          <v-btn
+            block
+            color="primary"
+            @click="downloadZip"
+            @keypress.enter="downloadZip"
+          >
             <v-icon class="ml-2 mr-4" small left>$folder</v-icon>
             {{ $t('document.downloadZip') }}
           </v-btn>
@@ -86,7 +91,12 @@
       <DesktopSideBar>
         <template v-if="userStore.isAgent">
           <template v-if="documents.length">
-            <v-btn block color="primary" @click="downloadZip">
+            <v-btn
+              block
+              color="primary"
+              @click="downloadZip"
+              @keypress.enter="downloadZip"
+            >
               <v-icon class="ml-2 mr-4" small left>$folder</v-icon>
               {{ $t('document.downloadZip') }}
             </v-btn>
