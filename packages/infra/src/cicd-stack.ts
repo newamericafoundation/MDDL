@@ -305,7 +305,12 @@ export class CiCdStack extends Stack {
     } = {}
 
     // initialise our build commands
-    const buildCommands: string[] = []
+    const buildCommands: string[] = [
+      `mkdir -p assets-backup/static`,
+      `mkdir -p assets-backup/assets`,
+      `cp -r packages/frontend/static assets-backup`,
+      `cp -r packages/frontend/assets assets-backup`,
+    ]
 
     // for each city stack
     cityBuildArgs.forEach((cba, index) => {
@@ -340,6 +345,10 @@ export class CiCdStack extends Stack {
         `OUTPUT_DIR=${cba.name} yarn fe generate${
           index !== 0 ? ' --no-build' : ''
         }`,
+        `rm -rf packages/frontend/static`,
+        `rm -rf packages/frontend/assets`,
+        `cp -r assets-backup/static packages/frontend`,
+        `cp -r assets-backup/assets packages/frontend`,
       )
     })
 
