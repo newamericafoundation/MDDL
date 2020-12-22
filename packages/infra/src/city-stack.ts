@@ -672,18 +672,22 @@ export class CityStack extends Stack {
       }),
     )
 
-    // this will mean server side encryption cannot be specified in the request
-    // and the default bucket encryption will be used (which is the KMS key specified above)
+    // this will mean server side encryption either:
+    // 1. Cannot be specified in the request (which means the default bucket encryption will be used - specified by the KMS key above)
+    // 2. Or the aws:kms type must be specified, and if a key is specified, it must be the KMS key for the stack
+    // This is to work around multipart uploads streamed from the bucket itself which maintain the same encryption headers as the object streamed
+    // All API PutObject actions do not explicitly set a KMS key.
     bucket.addToResourcePolicy(
       new PolicyStatement({
-        sid: 'DenySpecifiedEncryptionHeader',
+        sid: 'DenySpecifiedNonKmsEncryptionHeader',
         effect: Effect.DENY,
         principals: [new AnyPrincipal()],
         actions: ['s3:PutObject'],
         resources: [bucket.arnForObjects('*')],
         conditions: {
-          Null: {
-            's3:x-amz-server-side-encryption': false,
+          StringNotEqualsIfExists: {
+            's3:x-amz-server-side-encryption': 'aws:kms',
+            's3:x-amz-server-side-encryption-aws-kms-key-id': kmsKey.keyArn,
           },
         },
       }),

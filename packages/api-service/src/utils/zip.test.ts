@@ -14,7 +14,7 @@ jest.mock('@/config')
 // this is an integration test so is skipped but checked in to validate behaviour if needed
 describe.skip('zip', () => {
   beforeAll(() => {
-    toMockedFunction(requireConfiguration).mockImplementationOnce(
+    toMockedFunction(requireConfiguration).mockImplementation(
       () => realBucketName,
     )
   })
