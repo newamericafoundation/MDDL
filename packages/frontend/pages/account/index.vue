@@ -1,18 +1,26 @@
 <template>
   <div class="d-flex mt-4 justify-center">
-    <AppBar :empty="true" :title="toolbarTitle">
-      <template v-slot:nav-action>
-        <BackButton v-if="step === 'top-level'" tabindex="0" class="mt-1" />
-        <v-btn
-          v-else
-          :title="`${$t('navigation.back')}`"
-          icon
-          @click="step = 'top-level'"
-        >
-          <v-icon small class="mt-1">$chevron-left</v-icon>
-        </v-btn>
-      </template>
-    </AppBar>
+    <div
+      :class="{
+        'header-container': $vuetify.breakpoint.smAndUp,
+        'header-container-small': !$vuetify.breakpoint.smAndUp,
+      }"
+    >
+      <AppBar :empty="true" :title="toolbarTitle">
+        <template v-slot:nav-action>
+          <BackButton v-if="step === 'top-level'" tabindex="0" class="mt-1" />
+          <v-btn
+            v-else
+            :title="`${$t('navigation.back')}`"
+            icon
+            @click="step = 'top-level'"
+          >
+            <v-icon small class="mt-1">$chevron-left</v-icon>
+          </v-btn>
+        </template>
+      </AppBar>
+    </div>
+    <AppBar :empty="false"></AppBar>
     <v-window v-model="step" touchless class="pa-8 mt-8">
       <v-window-item value="top-level">
         <div class="window-container mx-auto">
@@ -160,7 +168,7 @@ import {
 } from 'api-client'
 
 @Component({
-  layout: 'empty',
+  layout: 'header',
   components: {
     ValidationObserver,
     ValidationProvider,
@@ -256,5 +264,16 @@ export default class Account extends Vue {
 .window-container {
   max-width: 598px;
   width: 100%;
+}
+
+.header-container {
+  header {
+    margin-top: 65px !important;
+  }
+}
+.header-container-small {
+  header {
+    margin-top: 56px !important;
+  }
 }
 </style>

@@ -37,8 +37,7 @@
     <v-spacer />
     <SwitchAccountButton
       v-if="
-        userStore.isCbo &&
-          userStore.isActingAsDelegate &&
+        (userStore.isCbo || userStore.isActingAsDelegate) &&
           $vuetify.breakpoint.smAndUp
       "
     />
@@ -188,7 +187,7 @@ export default class AppBar extends mixins(Navigation) {
       !!this.$slots.extensions ||
       this.breadcrumbs.length ||
       !!this.$slots.actionsBeneath ||
-      (this.title && this.$vuetify.breakpoint.smAndUp)
+      this.$vuetify.breakpoint.smAndUp
     )
   }
 
