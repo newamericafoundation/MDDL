@@ -10,7 +10,7 @@ const config = {
   target: 'static',
   head: {
     title: 'Loading...',
-    titleTemplate: '%s | Datalocker',
+    titleTemplate: '%s | Civifile',
     meta: [
       {
         name: 'viewport',
@@ -65,8 +65,8 @@ const config = {
   pwa: {
     // TODO: other PWA features like icon and colour scheme
     manifest: {
-      name: 'Datalocker',
-      short_name: 'Datalocker',
+      name: 'Civifile',
+      short_name: 'Civifile',
       useWebmanifestExtension: true,
       display: 'fullscreen',
     },

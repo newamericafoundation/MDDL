@@ -20,7 +20,7 @@
           :src="require('@/static/images/city-icon.svg')"
           class="mr-2 mb-1"
         />
-        Datalocker
+        Civifile
       </v-btn>
       <v-app-bar-nav-icon
         v-else-if="!customMobileNav"
