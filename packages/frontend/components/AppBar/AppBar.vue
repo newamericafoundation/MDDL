@@ -184,10 +184,11 @@ export default class AppBar extends mixins(Navigation) {
 
   get showExtension() {
     return (
-      !!this.$slots.extensions ||
-      this.breadcrumbs.length ||
-      !!this.$slots.actionsBeneath ||
-      this.$vuetify.breakpoint.smAndUp
+      this.$auth.loggedIn &&
+      (!!this.$slots.extensions ||
+        this.breadcrumbs.length ||
+        !!this.$slots.actionsBeneath ||
+        this.$vuetify.breakpoint.smAndUp)
     )
   }
 
@@ -207,6 +208,7 @@ export default class AppBar extends mixins(Navigation) {
   }
 
   async signOut() {
+    localStorage.clear()
     await this.$auth.logout()
   }
 }
