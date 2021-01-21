@@ -1,7 +1,7 @@
 <template>
   <v-img
     img="role"
-    :alt="`${$t('datalocker')}`"
+    :alt="`${$t('civiclocker')}`"
     :src="cityLogo"
     :width="width"
   />
