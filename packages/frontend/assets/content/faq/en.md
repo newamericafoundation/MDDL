@@ -54,11 +54,11 @@ No, CivicLocker is not an app that you need to download. It is available online.
 
 ### Where can I learn more about how to use CivicLocker?
 
-https://vimeo.com/datalocker
+https://vimeo.com/civiclocker
 
 ### Where can I review the code for CivicLocker?
 
-https://github.com/newamericafoundation/digi-datalocker
+https://github.com/newamericafoundation/digi-civiclocker
 
 ### I am interested in creating a CivicLocker pilot project in my city, county, or state. What can I do to pursue this opportunity?
 
