@@ -16,7 +16,7 @@ export default class CityLogo extends Vue {
   width: string
 
   get cityLogo(): string {
-    return require('@/static/images/city-logo.svg')
+    return require('@/assets/images/city-logo.svg')
   }
 }
 </script>
