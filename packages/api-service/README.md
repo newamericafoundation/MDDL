@@ -63,5 +63,5 @@ The following environment variables are used within the service code:
 1. `DOCUMENTS_BUCKET`: This is the name of the S3 bucket which files for documents are stored.
 1. `USERINFO_ENDPOINT`: This is the HTTP endpoint to call with a Authorization token to get user information of the caller.
 1. `WEB_APP_DOMAIN`: The domain of the web app, for use in direct links to pages, e.g. for emails.
-1. `EMAIL_SENDER`: The email address and name to be used for sending emails, e.g. `Civifile <noreply@mydomain.com>`
+1. `EMAIL_SENDER`: The email address and name to be used for sending emails, e.g. `CivicLocker <noreply@mydomain.com>`
 1. `AGENCY_EMAIL_DOMAINS_WHITELIST`: The comma separated list of domains to whitelist agency access. Restricts email addresses that collections can be shared to and accessed from. If an explicit match is required, include the '@' at the start of the entry. For example, if the list is `@myspecificdomain.com,partialdomain.net` it will match `name@myspecificdomain.com`, `name@partialdomain.com`, `name@mypartialdomain.com`, `name@my.partialdomain.com` but not match `name@sub.myspecificdomain.com`

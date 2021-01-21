@@ -1,4 +1,4 @@
-# Civifile Infrastructure
+# CivicLocker Infrastructure
 
 ## Useful commands
 
@@ -56,7 +56,7 @@ For full reference of properties, see:
         },
         "emailSender": {
           "address": "noreply@datalocker.example.com",
-          "name": "Civifile"
+          "name": "CivicLocker"
         },
         "customDomain": {
           "certificateArn": "arn:aws:acm:us-east-1:111111111111:certificate/cccccccc-cccc-cccc-cccc-cccccccccccc",
@@ -120,7 +120,7 @@ For full reference of properties, see:
           "additionalCallbackUrls": ["http://localhost:3000/authorize"],
           "emailSender": {
             "address": "noreply@datalocker.example.com",
-            "name": "Civifile"
+            "name": "CivicLocker"
           },
           "agencyEmailDomainsWhitelist": ["@example.com"]
         }
@@ -159,7 +159,7 @@ For full reference of properties, see:
           },
           "emailSender": {
             "address": "noreply@datalocker.example.com",
-            "name": "Civifile"
+            "name": "CivicLocker"
           },
           "agencyEmailDomainsWhitelist": ["@mycity1.gov"]
         }
@@ -194,7 +194,7 @@ For full reference of properties, see:
           },
           "emailSender": {
             "address": "noreply@datalocker.example.com",
-            "name": "Civifile"
+            "name": "CivicLocker"
           },
           "agencyEmailDomainsWhitelist": ["@mycity2.gov"]
         }
@@ -212,7 +212,7 @@ For full reference of properties, see:
         },
         "emailSender": {
           "address": "noreply@datalocker.example.com",
-          "name": "Civifile"
+          "name": "CivicLocker"
         },
         "customDomain": {
           "certificateArn": "arn:aws:acm:us-east-1:222222222222:certificate/cccccccc-cccc-cccc-cccc-cccccccccccc",
@@ -273,7 +273,7 @@ For full reference of properties, see:
           },
           "emailSender": {
             "address": "noreply@datalocker.prod.com",
-            "name": "Civifile"
+            "name": "CivicLocker"
           },
           "agencyEmailDomainsWhitelist": ["@mycity1.gov"]
         }
@@ -308,7 +308,7 @@ For full reference of properties, see:
           },
           "emailSender": {
             "address": "noreply@datalocker.prod.com",
-            "name": "Civifile"
+            "name": "CivicLocker"
           },
           "agencyEmailDomainsWhitelist": ["@mycity2.gov"]
         }

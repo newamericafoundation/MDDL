@@ -7,7 +7,7 @@ const vuetifyEn: any = require('vuetify/lib/locale/en')
 export default merge(
   {
     en: {
-      datalocker: 'Civifile',
+      datalocker: 'CivicLocker',
       name: 'Name', // TODO: replace with filename
 
       // label appearing in tabular content (list of users, list of shared collections etc)
@@ -27,15 +27,15 @@ export default merge(
 
       login: {
         getStarted: 'Get Started',
-        welcomeTitle: 'Welcome to Civifile',
+        welcomeTitle: 'Welcome to CivicLocker',
         footerLogoAlt: 'Footer logo',
         welcomeMessage: {
           CLIENT:
-            'Civifile is designed to help families who are seeking permanent supportive housing. Civifile facilitates the storage and sharing of personal documents with case managers and relevant City agencies in a way that is both easy and secure.',
+            'CivicLocker is designed to help families who are seeking permanent supportive housing. CivicLocker facilitates the storage and sharing of personal documents with case managers and relevant City agencies in a way that is both easy and secure.',
           CBO:
-            'Civifile is designed to help families who are seeking permanent supportive housing. Civifile facilitates the storage and sharing of personal documents with case managers and relevant City agencies in a way that is both easy and secure.',
+            'CivicLocker is designed to help families who are seeking permanent supportive housing. CivicLocker facilitates the storage and sharing of personal documents with case managers and relevant City agencies in a way that is both easy and secure.',
           AGENT:
-            'Civifile is designed to help families who are seeking permanent supportive housing. Civifile facilitates the storage and sharing of personal documents with case managers and relevant City agencies in a way that is both easy and secure.',
+            'CivicLocker is designed to help families who are seeking permanent supportive housing. CivicLocker facilitates the storage and sharing of personal documents with case managers and relevant City agencies in a way that is both easy and secure.',
         },
       },
 
@@ -120,7 +120,7 @@ export default merge(
 
         disclaimerTitle: 'Reminder',
         shareDocumentDisclaimer:
-          'Civifile facilitates document sharing with {emails} email accounts',
+          'CivicLocker facilitates document sharing with {emails} email accounts',
 
         // on the confirmation step, could be "recipient" or "recipients" depending on number of items
         confirmRecipientsLabel: 'Recipient | Recipients',
@@ -200,13 +200,13 @@ export default merge(
         selectClient: 'Select a client to access their account',
         clickToRemove: 'Click {close} to remove a client',
         noClientsTitle:
-          'You have not been added to any client Civifile accounts',
+          'You have not been added to any client CivicLocker accounts',
         noClientsBody:
-          "Once a client adds you to their Civifile account, you'll be able to manage and share files on their behalf from this screen.\n\nA client can provide access to their files in the Account menu settings in Civifile.",
+          "Once a client adds you to their CivicLocker account, you'll be able to manage and share files on their behalf from this screen.\n\nA client can provide access to their files in the Account menu settings in CivicLocker.",
         noClientActionLabel: 'Not a case manager?',
         noClientActionText:
           'If you are seeking permanent supportive housing, click here.',
-        removeConfirmationTitle: 'Remove this client from your Civifile?',
+        removeConfirmationTitle: 'Remove this client from your CivicLocker?',
         removeConfirmationBody:
           'You will no longer be able to view, manage, or share files on their behalf. This cannot be undone.',
         removeConfirmationAction: 'Yes, Remove',

@@ -20,7 +20,7 @@
           :src="require('@/static/images/city-icon.svg')"
           class="mr-2 mb-1"
         />
-        Civifile
+        CivicLocker
       </v-btn>
       <v-app-bar-nav-icon
         v-else-if="!customMobileNav"
@@ -217,7 +217,9 @@ export default class AppBar extends mixins(Navigation) {
 <style scoped lang="scss">
 .v-app-bar {
   &::v-deep .v-toolbar__extension {
-    padding: 0;
+    padding: 2px 0;
+    background: white;
+    height: var(extensionHeight);
   }
   .row-extension {
     width: 100%;

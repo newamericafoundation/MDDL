@@ -231,7 +231,7 @@ exports[`sendEmail renders collectionSharedNotification template correctly 2`] =
       <br/>
       <p style=\\"text-align: center; font-weight: bold; padding-top: 20px\\" class=\\"primary-color\\">Sam Smithers</p>
       <br/>
-      <p style=\\"text-align: center;\\">has shared documents with you in Civifile.</p>
+      <p style=\\"text-align: center;\\">has shared documents with you in CivicLocker.</p>
       <br/>
       <table width=\\"100%\\" border=\\"0\\" cellspacing=\\"0\\" cellpadding=\\"0\\">
           <tr>
@@ -519,7 +519,7 @@ exports[`sendEmail renders delegateUserInvite template correctly 2`] = `
       <br/>
       <p style=\\"text-align: center; font-weight: bold; padding-top: 20px\\" class=\\"primary-color\\">Sam Smithers</p>
       <br/>
-      <p style=\\"text-align: center;\\">has allowed you to manage and share files on<br/>their behalf in Civifile.</p>
+      <p style=\\"text-align: center;\\">has allowed you to manage and share files on<br/>their behalf in CivicLocker.</p>
       <br/>
       <table width=\\"100%\\" border=\\"0\\" cellspacing=\\"0\\" cellpadding=\\"0\\">
           <tr>

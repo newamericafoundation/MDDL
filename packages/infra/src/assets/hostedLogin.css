@@ -31,7 +31,8 @@ h1 {
   width: 300px;
 }
 .modal-dialog .banner-customizable {
-  background: url('__BANNER_BACKGROUND_URL__') no-repeat center center;
+  background: url('https://dev.datalocker.twobulls.dev/images/city-logo.svg')
+    no-repeat center center;
   margin: 0 auto;
   width: 155px;
   height: 155px;
@@ -180,4 +181,8 @@ form[name='signupform'] .redirect-customizable {
 
 #div-forgot-password-msg {
   margin-bottom: 30px;
+}
+
+#div-forgot-password-msg span::after {
+  content: '  If you have not signed up for a CivicLocker account using this email address, you will not receive an email.';
 }

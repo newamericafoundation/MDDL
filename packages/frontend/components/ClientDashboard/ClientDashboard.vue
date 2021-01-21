@@ -1,7 +1,7 @@
 <template>
   <div>
     <AppBar :breadcrumbs="breadcrumbs">
-      <template v-if="userStore.isClient" v-slot:actions>
+      <template v-if="showActions" v-slot:actions>
         <v-btn
           v-if="$vuetify.breakpoint.smAndUp"
           text
@@ -95,6 +95,10 @@ export default class ClientDashboard extends Vue {
       ]
     }
     return []
+  }
+
+  get showActions(): Boolean {
+    return userStore.isClient || userStore.isCbo
   }
 
   @Watch('currentTab')

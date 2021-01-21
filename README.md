@@ -1,6 +1,6 @@
-# Civifile
+# CivicLocker
 
-Civifile is designed to help families who are seeking permanent supportive housing. Civifile facilitates the storage and sharing of personal documents with case managers and relevant City agencies in a way that is both easy and secure.
+CivicLocker is designed to help families who are seeking permanent supportive housing. CivicLocker facilitates the storage and sharing of personal documents with case managers and relevant City agencies in a way that is both easy and secure.
 
 ## Getting Started
 

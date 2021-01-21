@@ -2,8 +2,8 @@
   <div class="d-flex mt-4 justify-center">
     <div
       :class="{
-        'header-container': $vuetify.breakpoint.smAndUp,
-        'header-container-small': !$vuetify.breakpoint.smAndUp,
+        'header-container': $vuetify.breakpoint.mdAndUp,
+        'header-container-small': $vuetify.breakpoint.smAndDown,
       }"
     >
       <AppBar :empty="true" :title="toolbarTitle">
