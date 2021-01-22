@@ -9,8 +9,9 @@
 
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator'
-import { snackbarStore } from '@/plugins/store-accessor'
+import { snackbarStore, userStore } from '@/plugins/store-accessor'
 import { UserDelegatedAccess } from 'api-client'
+import { UserRole } from '../../../../types/user'
 
 @Component({
   layout: 'empty',
@@ -28,6 +29,7 @@ export default class Accept extends Vue {
           })
           snackbarStore.setVisible(true)
           this.$router.push(this.localePath('/'))
+          setTimeout(() => userStore.setRole(UserRole.CBO), 150)
         })
         .catch((e) => {
           this.error = true
