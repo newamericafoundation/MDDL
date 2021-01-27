@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="collection-owner-container">
     <AppBar :breadcrumbs="breadcrumbs" />
     <DesktopSideBar />
     <SideNav />
@@ -56,3 +56,13 @@ export default class OwnerCollections extends Vue {
   }
 }
 </script>
+
+<style lang="scss">
+.collection-owner-container {
+  margin-top: 64px;
+
+  .v-toolbar__extension {
+    height: 100% !important;
+  }
+}
+</style>

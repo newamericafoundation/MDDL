@@ -117,7 +117,7 @@ export const handler = createAuthenticatedApiGatewayHandler(
 
     await queueSharedCollectionNotification({
       collection: {
-        link: `https://${webAppDomain}/collections/${collection.id}/documents?owner=${ownerId}`,
+        link: `https://${webAppDomain}/collections/${collection.id}/documents?owner=${ownerId}&role=2`,
         name: userName(user),
       },
       emails: individualEmailAddresses,

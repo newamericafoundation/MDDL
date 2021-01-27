@@ -6,6 +6,8 @@
 
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator'
+import { userStore } from '@/plugins/store-accessor'
+import { UserRole } from '@/types/user'
 
 @Component({
   layout: 'centered',
@@ -18,7 +20,13 @@ import { Vue, Component } from 'nuxt-property-decorator'
 })
 export default class Login extends Vue {
   mounted() {
-    this.$auth.loginWith(this.$config.authStrategy)
+    if (this.$route.query.role) {
+      const index = Number(this.$route.query.role)
+      userStore.setRole(index)
+      this.$router.push(this.localePath('/'))
+    } else {
+      this.$auth.loginWith(this.$config.authStrategy)
+    }
   }
 }
 </script>

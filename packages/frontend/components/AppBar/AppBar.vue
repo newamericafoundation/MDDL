@@ -37,7 +37,8 @@
     <v-spacer />
     <SwitchAccountButton
       v-if="
-        (userStore.isCbo || userStore.isActingAsDelegate) &&
+        userStore.isCbo &&
+          userStore.isActingAsDelegate &&
           $vuetify.breakpoint.smAndUp
       "
     />
@@ -208,6 +209,7 @@ export default class AppBar extends mixins(Navigation) {
   }
 
   async signOut() {
+    this.$router.push(this.localePath('/'))
     localStorage.clear()
     await this.$auth.logout()
   }
@@ -219,7 +221,6 @@ export default class AppBar extends mixins(Navigation) {
   &::v-deep .v-toolbar__extension {
     padding: 2px 0;
     background: white;
-    height: var(extensionHeight);
   }
   .row-extension {
     width: 100%;

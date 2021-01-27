@@ -8,7 +8,7 @@ CivicLocker can be accessed via web browser on desktop and mobile devices. All u
 
 ### What challenges does CivicLocker address?
 
-Missing documentation is often cited as one of the primary reasons for benefit application denials. Individuals or families in need of benefits, such as public housing, may not be able to easily retrieve or produce documents to verify that they meet eligibility requirements. Additionally, on the City agency side, missing documentation can make a lengthy process even more time-consuming and arduous for both government employees and residents. CivicLocker has been designed to address these challenges.
+Missing documentation is often cited as one of the primary reasons for benefit application denials. Individuals or families in need of benefits, ,such as public housing, may not be able to easily retrieve or produce documents to verify that they meet eligibility requirements. Additionally, on the City agency side, missing documentation can make a lengthy process even more time-consuming and arduous for both government employees and residents. CivicLocker has been designed to address these challenges.
 
 ### If I want to submit documents to apply for permanent supportive housing, do I have to use CivicLocker?
 
@@ -25,6 +25,8 @@ No. At this time, we are piloting CivicLocker. CivicLocker can be used solely to
 ### Is CivicLocker secure?
 
 We are committed to ensuring that CivicLocker is as secure as possible. We encrypt all data end-to-end and any data we store is fully encrypted at rest. End-to-end encryption ensures only authorized users can access documents and unauthorized parties cannot access private information being stored by, or sent to or from, CivicLocker. The system is built and run in compliance with the Health Insurance Portability and Accountability Act (HIPAA) to further ensure the best privacy practices and protections for users.
+
+Personal records in CivicLocker Baltimore will not be stored in city or government systems. No user content will be shared with any entity that the user has not specifically authorized. No user content will ever be sold or used for marketing purposes.
 
 ### Do I control who is able to see my documents through CivicLocker?
 
