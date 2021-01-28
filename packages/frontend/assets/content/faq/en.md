@@ -1,3 +1,7 @@
+## Help - Technical Support
+
+Two Bulls, a technology design studio, is managing the technology support of the CivicLocker Baltimore pilot. For technical support, please email a description of your issue to civiclockerhelp@twobulls.com.
+
 ## Frequently Asked Questions
 
 ### What is CivicLocker?
@@ -34,6 +38,8 @@ Yes. CivicLocker users can choose to share documents with specific authorized pe
 
 Users choose who can see the documents they share. They can also revoke sharing. However, if a user shares documents and subsequently chooses to revoke sharing, the documents that had been shared may have been shared or downloaded by a City case manager before sharing was revoked. All users are encouraged to read CivicLocker’s Terms of Use for a full description of data management protocols.
 
+In the event of unauthorized use or access to CivicLocker please report misuse to civiclockerhelp@twobulls.com.
+
 ### Will CivicLocker create a record of my activity in the system? For example, if I share a document with my case manager, will I be able to see that record in 6 months?
 
 Yes. There is a record in CivicLocker of all activity associated with an account. Users can choose to access past activity or view documents they have shared.
@@ -60,7 +66,7 @@ https://vimeo.com/civiclocker
 
 ### Where can I review the code for CivicLocker?
 
-https://github.com/newamericafoundation/digi-civiclocker
+https://github.com/newamericafoundation/digi-civiclocker https://github.com/newamericafoundation/digi-datalocker
 
 ### I am interested in creating a CivicLocker pilot project in my city, county, or state. What can I do to pursue this opportunity?
 
