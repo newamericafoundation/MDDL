@@ -42,7 +42,7 @@
           $vuetify.breakpoint.smAndUp
       "
     />
-    <slot name="actions" />
+    <slot v-if="!userStore.isCbo" name="actions" />
     <template v-if="!empty">
       <v-btn
         v-if="showActivityButton"
