@@ -28,8 +28,8 @@ export default class Accept extends Vue {
             message: 'toast.acceptedDelegateInvite',
           })
           snackbarStore.setVisible(true)
+          userStore.setRole(UserRole.CBO)
           this.$router.push(this.localePath('/'))
-          setTimeout(() => userStore.setRole(UserRole.CBO), 150)
         })
         .catch((e) => {
           this.error = true
