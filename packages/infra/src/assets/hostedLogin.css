@@ -184,5 +184,5 @@ form[name='signupform'] .redirect-customizable {
 }
 
 #div-forgot-password-msg span::after {
-  content: '  If you have not signed up for a CivicLocker account using this email address, you will not receive an email.';
+  content: '  If you have not signed up for a My Digital Data Locker account using this email address, you will not receive an email.';
 }

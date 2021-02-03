@@ -1,7 +1,7 @@
 <template>
   <v-img
     img="role"
-    :alt="`${$t('civiclocker')}`"
+    :alt="`${$t('myDigitalDataLocker')}`"
     :src="cityLogo"
     :width="width"
   />
@@ -12,7 +12,7 @@ import { Vue, Component, Prop } from 'nuxt-property-decorator'
 
 @Component
 export default class CityLogo extends Vue {
-  @Prop({ default: '155px' })
+  @Prop({ default: '200px' })
   width: string
 
   get cityLogo(): string {
