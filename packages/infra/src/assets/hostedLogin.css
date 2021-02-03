@@ -34,8 +34,8 @@ h1 {
   background: url('https://dev.datalocker.twobulls.dev/images/city-logo.svg')
     no-repeat center center;
   margin: 0 auto;
-  width: 155px;
-  height: 155px;
+  width: 200px;
+  height: 200px;
   background-size: contain;
 }
 a:hover {
