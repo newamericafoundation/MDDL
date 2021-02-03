@@ -27,15 +27,15 @@ export default merge(
 
       login: {
         getStarted: 'Get Started',
-        welcomeTitle: 'Welcome to My Digital Data Locker',
+        welcomeTitle: 'Welcome',
         footerLogoAlt: 'Footer logo',
         welcomeMessage: {
           CLIENT:
-            'My Digital Data Locker is designed to help families who are seeking permanent supportive housing. My Digital Data Locker facilitates the storage and sharing of personal documents with case managers and relevant City agencies in a way that is both easy and secure.',
+            'My Digital Data Locker facilitates the storage and sharing of personal documents with case managers and Baltimore City agencies.  The system is easy and secure.',
           CBO:
-            'My Digital Data Locker is designed to help families who are seeking permanent supportive housing. My Digital Data Locker facilitates the storage and sharing of personal documents with case managers and relevant City agencies in a way that is both easy and secure.',
+            'My Digital Data Locker facilitates the storage and sharing of personal documents with case managers and Baltimore City agencies.  The system is easy and secure.',
           AGENT:
-            'My Digital Data Locker is designed to help families who are seeking permanent supportive housing. My Digital Data Locker facilitates the storage and sharing of personal documents with case managers and relevant City agencies in a way that is both easy and secure.',
+            'My Digital Data Locker facilitates the storage and sharing of personal documents with case managers and Baltimore City agencies.  The system is easy and secure.',
         },
       },
 

@@ -64,7 +64,7 @@ export default class LandingMessage extends Vue {
     justify-content: center;
   }
   .landing-container {
-    width: rem(240px);
+    width: rem(320px);
     display: flex;
     flex-direction: column;
     align-items: center;
