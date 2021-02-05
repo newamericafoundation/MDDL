@@ -3,7 +3,7 @@
     <AppBar :breadcrumbs="breadcrumbs">
       <template v-if="showActions" v-slot:actions>
         <v-btn
-          v-if="$vuetify.breakpoint.smAndUp"
+          v-if="$vuetify.breakpoint.smAndUp && userStore.isClient"
           text
           class="white--text"
           :to="localePath('/account')"

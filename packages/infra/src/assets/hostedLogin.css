@@ -151,11 +151,14 @@ p.redirect-customizable > a {
   margin-top: 30px;
   text-align: center;
 }
+.errorMessage-customizable::after {
+  content: '  If you forgot your password, return to sign-in and select "Forgot your password?"';
+}
 /* Replace sign-up form labels */
-form[name='signupform'] > div:nth-child(4) .label-customizable {
+form[name='signupform'] > div:nth-of-type(2) .label-customizable {
   visibility: hidden;
 }
-form[name='signupform'] > div:nth-child(4):before {
+form[name='signupform'] > div:nth-of-type(2):before {
   content: 'First name';
   margin-top: 20px;
   font-weight: 500;
@@ -163,10 +166,10 @@ form[name='signupform'] > div:nth-child(4):before {
   line-height: 20px;
   color: #000000;
 }
-form[name='signupform'] > div:nth-child(5) .label-customizable {
+form[name='signupform'] > div:nth-of-type(3) .label-customizable {
   visibility: hidden;
 }
-form[name='signupform'] > div:nth-child(5):before {
+form[name='signupform'] > div:nth-of-type(3):before {
   content: 'Last name';
   margin-top: 20px;
   font-weight: 500;
