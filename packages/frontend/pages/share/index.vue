@@ -131,7 +131,7 @@
           title="sharing.disclaimerTitle"
           :body="
             $t('sharing.shareDocumentDisclaimer', {
-              emails: domainsList,
+              emails: !!domainsList ? domainsList : [],
             })
           "
         />
@@ -293,10 +293,17 @@ export default class Share extends Vue {
   }
 
   get domainsList() {
-    const domains = this.$config.agencyEmailDomainsWhitelist.split(',')
-    return `${domains.slice(0, -1).join('; ')} ${
-      domains.length > 1 ? 'and ' : ''
-    }${domains[domains.length - 1]} `
+    const devCityList = ['@newamerica.org', '@twobulls.com']
+    const domains = this.$config.agencyEmailDomainsWhitelist
+      .split(',')
+      .filter(
+        (item: String) =>
+          item !== '@newamerica.org' && item !== '@twobulls.com',
+      )
+    const list = domains.length ? domains : devCityList
+    return `${list.slice(0, -1).join('; ')} ${list.length > 1 ? 'and ' : ''}${
+      list[list.length - 1]
+    } `
   }
 
   get isNextDisabled() {
