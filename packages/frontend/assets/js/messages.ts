@@ -29,14 +29,6 @@ export default merge(
         getStarted: 'Get Started',
         welcomeTitle: 'Welcome',
         footerLogoAlt: 'Footer logo',
-        welcomeMessage: {
-          CLIENT:
-            'My Digital Data Locker facilitates the storage and sharing of personal documents with case managers and Baltimore City agencies. The system is simple, free to use, and secure.',
-          CBO:
-            'My Digital Data Locker facilitates the storage and sharing of personal documents with case managers and Baltimore City agencies. The system is simple, free to use, and secure.',
-          AGENT:
-            'My Digital Data Locker facilitates the storage and sharing of personal documents with case managers and Baltimore City agencies. The system is simple, free to use, and secure.',
-        },
       },
 
       navigation: {

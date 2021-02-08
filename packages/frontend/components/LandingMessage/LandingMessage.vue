@@ -4,9 +4,7 @@
     <h2 class="text-heading-2 mt-4 mb-4 primary--text">
       {{ $t('login.welcomeTitle') }}
     </h2>
-    <div class="body-1 welcome-message mb-8">
-      {{ $t(message) }}
-    </div>
+    <MarkdownContent id="welcome-copy" :content-path="welcomeMarkdown" />
     <ButtonLarge
       :label="$t('login.getStarted')"
       @click.native="logIn"
@@ -35,6 +33,13 @@ import { userStore } from '@/plugins/store-accessor'
   auth: false,
 })
 export default class LandingMessage extends Vue {
+  welcomeMarkdown = ''
+
+  created() {
+    const locale = this.$i18n.locale
+    this.welcomeMarkdown = require(`@/assets/content/client/${locale}.md`)
+  }
+
   get message() {
     return userStore.role !== null
       ? `login.welcomeMessage.${UserRole[userStore.role]}`
@@ -77,6 +82,9 @@ export default class LandingMessage extends Vue {
     .landing-layout-container-inner {
       height: 100vh;
     }
+  }
+  #welcome-copy {
+    margin: 10px 10px 32px !important;
   }
 }
 </style>
