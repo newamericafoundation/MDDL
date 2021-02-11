@@ -31,11 +31,11 @@ h1 {
   width: 300px;
 }
 .modal-dialog .banner-customizable {
-  background: url('https://dev.datalocker.twobulls.dev/images/city-logo.svg')
+  background: url('https://baltimore.mydalock.org/images/city-logo.svg')
     no-repeat center center;
   margin: 0 auto;
   width: 200px;
-  height: 200px;
+  height: 150px;
   background-size: contain;
 }
 a:hover {

@@ -37,7 +37,7 @@ export default class LandingMessage extends Vue {
 
   created() {
     const locale = this.$i18n.locale
-    this.welcomeMarkdown = require(`@/assets/content/client/${locale}.md`)
+    this.welcomeMarkdown = require(`@/assets/content/welcome/${locale}.md`)
   }
 
   get message() {

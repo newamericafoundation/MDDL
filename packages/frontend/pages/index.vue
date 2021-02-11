@@ -22,6 +22,7 @@ export default class DefaultLandingPage extends Vue {
   UserRole = UserRole
 
   mounted() {
+    console.log('Environent: ', process.env.NPM_ENV)
     if (!this.$auth.loggedIn) {
       switch (userStore.role) {
         case UserRole.CBO:
