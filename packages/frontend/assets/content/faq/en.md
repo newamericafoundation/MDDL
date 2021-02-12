@@ -4,6 +4,8 @@ The following information covers basic operating and technical support questions
 
 ## HELP / TECHNICAL SUPPORT
 
+**Help:** Brief training videos covering the functions of My Digital Data Locker available online: [Vimeo.com/mddl](https://vimeo.com/mddl)
+
 **Tech Support:** Two Bulls, a technology design studio, provides technology support for My Digital Data Locker | Baltimore. For technical support, please email a description of your issue to <baltimorehelp@twobulls.com>.
 
 **Technical Requirements:** All users must have an email account. The system can be accessed via web browser on desktop, laptop, and mobile devices.
@@ -76,12 +78,12 @@ No. My Digital Data Locker is not an app that you need to download. The website 
 
 In addition to this document, there are brief training videos covering the functions of My Digital Data Locker available online.
 
-[Vimeo.com/mydigitaldatalocker](https://vimeo.com/mydigitaldatalocker).
+[Vimeo.com/mddl](https://vimeo.com/mddl).
 
 ### 13. Where can I review the code for My Digital Data Locker and why was it developed as an open source project?
 
 My Digital Data Locker | Baltimore is a deployment of the My Digital Data Locker open source project. The project code is available on New America’s github at the following link:
-[github.com/newamericafoundation/digi-mydigitaldatalocker](https://github.com/newamericafoundation/digi-mydigitaldatalocker)
+[github.com/newamericafoundation/mddl](https://github.com/newamericafoundation/mddl)
 
 Using open source software to tackle civic challenges provides many benefits ranging from increasing accountability and transparency, reducing risk and cost, improving security, and enabling faster deployment of tried and tested solutions.
 
@@ -92,3 +94,7 @@ Please email the Digital Impact and Governance Initiative (DIGI) at New America 
 ### 15. Who created My Digital Data Locker | Baltimore?
 
 My Digital Data Locker | Baltimore is the first solution deployed from the My Digital Data Locker open source platform [that was released](https://github.com/newamericafoundation/digi-datalocker) in Beta by New America's Digital Impact and Governance Initiative ([DIGI](https://www.newamerica.org/digital-impact-governance-initiative/)). The project was created through a collaborative and inclusive approach with the aim of improving the provision of public benefits and government services. Organizations involved in developing the system include: [New America](https://www.newamerica.org/), [The Mayor's Office of Economic Opportunity (NYC Opportunity)](https://www1.nyc.gov/site/opportunity/index.page), [The New York City Department of Homeless Services](https://www1.nyc.gov/site/dhs/index.page), [Baltimore's Mayor's Office of Homeless Services](https://homeless.baltimorecity.gov/), [The Journey Home](https://journeyhomebaltimore.org/), [Two Bulls](https://www.twobulls.com/), [Amazon Web Services (AWS)](https://aws.amazon.com/), [The Rockefeller Foundation](https://www.rockefellerfoundation.org/), [Kaiser Permanente](https://community.kp.org/grants-and-volunteering/funding-opportunities), and [The Annie E Casey Foundation](https://www.aecf.org/). We have a monitoring and evaluation review process for the My Digital Date Locker | Baltimore to help us continue to explore how and where to scale the project next. This process will also support the management and prioritization of a backlog of features that could be added or adjusted. For more information, please contact <DIGI@newamerica.org>.
+<br>
+<br>
+<br>
+<br>
