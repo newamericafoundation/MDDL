@@ -15,9 +15,15 @@ $ yarn start
 
 # generate static project
 $ yarn generate
+
+# deploy the web app
+# must be run from the ROOT LEVEL OF THE PROJECT
+$ npm run deploy --city=CityName --bucket=s3://bucket-for-webapp
 ```
 
 For detailed explanation on how things work, check out [Nuxt.js docs](https://nuxtjs.org).
+
+More info about the deployment script and setup can be found in the [infra readme](./packages/infra/README.md).
 
 ## Config
 

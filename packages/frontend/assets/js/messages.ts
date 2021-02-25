@@ -7,12 +7,13 @@ const vuetifyEn: any = require('vuetify/lib/locale/en')
 export default merge(
   {
     en: {
-      datalocker: 'My Digital Data Locker',
-      name: 'Name', // TODO: replace with filename
-
       // label appearing in tabular content (list of users, list of shared collections etc)
       // as well as side bar on document view
       dateAdded: 'Date Added',
+
+      application: {
+        title: 'My Digital Data Locker | Bullville',
+      },
 
       toast: {
         acceptedDelegateInvite: 'Delegate Access Accepted',

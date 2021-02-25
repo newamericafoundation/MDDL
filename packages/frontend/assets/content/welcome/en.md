@@ -1,1 +1,1 @@
-My Digital Data Locker | Baltimore helps residents access solutions to end homelessness. It facilitates the management and sharing of personal documents with case managers and Baltimore City agencies. The system is simple, free to use, and secure.
+My Digital Data Locker helps residents access benefits and government services. It facilitates the management and sharing of personal documents with case managers and City agencies. The system is simple, free to use, and secure.

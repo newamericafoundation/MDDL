@@ -84,3 +84,6 @@ sw.*
 # Storybook cached files
 .nuxt-storybook
 storybook-static
+
+#ci/cd script
+deploy.js

@@ -16,7 +16,7 @@ export default class CityLogoFooter extends Vue {
   width: string
 
   get CityLogoFooter(): string {
-    return require('@/static/images/city-logo-footer.svg')
+    return require('@/assets/images/city-logo-footer.svg')
   }
 }
 </script>

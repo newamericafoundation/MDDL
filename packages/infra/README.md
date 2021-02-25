@@ -20,22 +20,52 @@ yarn infra cdk bootstrap YOUR_ACCOUNT_NUMBER/YOUR_REGION --cloudformation-execut
 ```
 
 Update the `cloudformation-execution-policies` to more restrictive policies as needed.
-Add `--trust ACCOUNT_ID` where ACCOUNT_ID is your CI/CD account, if you are deploying across account.
 
-## Configuring the Pipeline
+## Configuring for Deployment
 
-The CI/CD Stack is configured based on a JSON file that is included with a build when it is deployed from GitHub.
+The Deployment Stack is configured based on a JSON file that is included with a build when it is deployed from the deployment script found below, or via the CI/CD stack of your choosing.
 
-This file should be name `cdk.pipeline.json` and it contains information on the stacks that the pipeline should deploy to and how they are related to each other.
+This file should be named `cdk.pipeline.json` and contains information on the stacks for deployment.  Place this file in the packages/infra directory.
 
 An example configuration can be found below.
 
+Also in that same directory you will need to add a file named `cdk.context.json` which contains the following:
+
+```{
+  "availability-zones:account={accountID}:region={region}": [
+    "us-east-1a",
+    "us-east-1b",
+    "us-east-1c",
+    "us-east-1d",
+    "us-east-1e",
+    "us-east-1f"
+  ]
+}
+```
+
+...be sure to replace the accoundID with your AWS account and the region with your AWS region.
+
 For full reference of properties, see:
 
-1. [CI/CD Stack Properties](src/cicd-stack.ts), for the high level structure
 1. [Auth Stack Properties](src/auth-stack.ts), for the `authStackProps` sections
-1. [Data Store Stack Properties](src/data-store-stack.ts), for the `dataStoreStackProps` sections
-1. [City Stack Properties](src/city-stack.ts), for the `cityStacksProps` sections
+2. [Data Store Stack Properties](src/data-store-stack.ts), for the `dataStoreStackProps` sections
+3. [City Stack Properties](src/city-stack.ts), for the `cityStacksProps` sections
+
+### Example deployment script
+
+Run this command, also found in the root level `package.json`, from the root of the project:
+
+```
+npm run deploy --city=Bullville --bucket=s3://bucket-for-webapp
+```
+
+The city param is the cityStacksProps name that you will create in the example configuration listed below.
+
+The bucket param is the full path to the S3 bucket created after setting up the previously mentioned files and running: 
+
+```
+yarn infra cdk deploy
+```
 
 ### Example configuration
 
@@ -47,7 +77,7 @@ For full reference of properties, see:
   },
   "developStageConfiguration": {
     "authStackProps": {
-      "name": "NonProdAuth",
+      "name": "ProdAuth",
       "props": {
         "userPoolName": "DataLockerUserPool",
         "env": {
@@ -70,7 +100,7 @@ For full reference of properties, see:
       }
     },
     "dataStoreStackProps": {
-      "name": "NonProdDataStore",
+      "name": "ProdDataStore",
       "props": {
         "env": {
           "account": "111111111111",
@@ -88,14 +118,14 @@ For full reference of properties, see:
     },
     "cityStacksProps": [
       {
-        "name": "DevCity",
+        "name": "Bullville",
         "props": {
           "env": {
             "account": "111111111111",
             "region": "us-west-2"
           },
-          "authStackName": "NonProdAuth",
-          "dataStoreStackName": "NonProdDataStore",
+          "authStackName": "ProdAuth",
+          "dataStoreStackName": "ProdDataStore",
           "webAppBuildVariables": {
             "API_URL": "https://dev-city-api.datalocker.example.com",
             "AUTH_URL": "https://auth.datalocker.example.com",
@@ -103,7 +133,6 @@ For full reference of properties, see:
             "GOOGLE_ANALYTICS_TRACKING_ID": "UA-123456789-1",
             "SHOW_BUILD_INFO": "1"
           },
-          "assetsOverridePath": "DevCityStack",
           "apiDomainConfig": {
             "certificateArn": "arn:aws:acm:us-west-2:111111111111:certificate/cccccccc-cccc-cccc-cccc-cccccccccccc",
             "domain": "dev-city-api.datalocker.example.com",
@@ -123,194 +152,6 @@ For full reference of properties, see:
             "name": "My Digital Data Locker"
           },
           "agencyEmailDomainsWhitelist": ["@example.com"]
-        }
-      }
-    ]
-  },
-  "stagingStageConfiguration": {
-    "cityStacksProps": [
-      {
-        "name": "MyCity1Staging",
-        "props": {
-          "env": {
-            "account": "111111111111",
-            "region": "us-west-2"
-          },
-          "authStackName": "NonProdAuth",
-          "dataStoreStackName": "NonProdDataStore",
-          "webAppBuildVariables": {
-            "API_URL": "https://my-city1-api.datalocker.example.com",
-            "AUTH_URL": "https://auth.datalocker.example.com",
-            "AUTH_CLIENT_ID": "5984716e12bf48bbb7a96ada8ed7311f",
-            "GOOGLE_ANALYTICS_TRACKING_ID": "UA-123456789-1"
-          },
-          "assetsOverridePath": "MyCity1",
-          "apiDomainConfig": {
-            "certificateArn": "arn:aws:acm:us-west-2:111111111111:certificate/cccccccc-cccc-cccc-cccc-cccccccccccc",
-            "domain": "my-city1-api.datalocker.example.com"
-          },
-          "webAppDomainConfig": {
-            "certificateArn": "arn:aws:acm:us-east-1:111111111111:certificate/cccccccc-cccc-cccc-cccc-cccccccccccc",
-            "domain": "my-city1.datalocker.example.com"
-          },
-          "hostedZoneAttributes": {
-            "hostedZoneId": "AAAAAAAAAAAAAAA",
-            "zoneName": "datalocker.example.com"
-          },
-          "emailSender": {
-            "address": "noreply@datalocker.example.com",
-            "name": "My Digital Data Locker"
-          },
-          "agencyEmailDomainsWhitelist": ["@mycity1.gov"]
-        }
-      },
-      {
-        "name": "MyCity2Staging",
-        "props": {
-          "env": {
-            "account": "111111111111",
-            "region": "us-west-2"
-          },
-          "authStackName": "NonProdAuth",
-          "dataStoreStackName": "NonProdDataStore",
-          "webAppBuildVariables": {
-            "API_URL": "https://my-city2-api.datalocker.example.com",
-            "AUTH_URL": "https://auth.datalocker.example.com",
-            "AUTH_CLIENT_ID": "5984716e12bf48bbb7a96ada8ed7311f",
-            "GOOGLE_ANALYTICS_TRACKING_ID": "UA-123456789-1"
-          },
-          "assetsOverridePath": "MyCity2",
-          "apiDomainConfig": {
-            "certificateArn": "arn:aws:acm:us-west-2:111111111111:certificate/cccccccc-cccc-cccc-cccc-cccccccccccc",
-            "domain": "my-city2-api.datalocker.example.com"
-          },
-          "webAppDomainConfig": {
-            "certificateArn": "arn:aws:acm:us-east-1:111111111111:certificate/cccccccc-cccc-cccc-cccc-cccccccccccc",
-            "domain": "my-city2.datalocker.example.com"
-          },
-          "hostedZoneAttributes": {
-            "hostedZoneId": "AAAAAAAAAAAAAAA",
-            "zoneName": "datalocker.example.com"
-          },
-          "emailSender": {
-            "address": "noreply@datalocker.example.com",
-            "name": "My Digital Data Locker"
-          },
-          "agencyEmailDomainsWhitelist": ["@mycity2.gov"]
-        }
-      }
-    ]
-  },
-  "prodStageConfiguration": {
-    "authStackProps": {
-      "name": "ProdAuth",
-      "props": {
-        "userPoolName": "DataLockerUserPool",
-        "env": {
-          "account": "222222222222",
-          "region": "us-west-2"
-        },
-        "emailSender": {
-          "address": "noreply@datalocker.example.com",
-          "name": "My Digital Data Locker"
-        },
-        "customDomain": {
-          "certificateArn": "arn:aws:acm:us-east-1:222222222222:certificate/cccccccc-cccc-cccc-cccc-cccccccccccc",
-          "domain": "auth.datalocker.example.com",
-          "shouldCreateRootARecord": true,
-          "hostedZoneAttributes": {
-            "hostedZoneId": "AAAAAAAAAAAAAAA",
-            "zoneName": "datalocker.example.com"
-          }
-        }
-      }
-    },
-    "dataStoreStackProps": {
-      "name": "ProdDataStore",
-      "props": {
-        "env": {
-          "account": "222222222222",
-          "region": "us-west-2"
-        },
-        "vpcConfig": {
-          "natGatewaysCount": 1,
-          "maxAzs": 2
-        },
-        "rdsConfig": {
-          "backupRetentionDays": 7,
-          "maxCapacity": 2
-        }
-      }
-    },
-    "cityStacksProps": [
-      {
-        "name": "MyCity1Prod",
-        "props": {
-          "env": {
-            "account": "222222222222",
-            "region": "us-west-2"
-          },
-          "authStackName": "ProdAuth",
-          "dataStoreStackName": "ProdDataStore",
-          "webAppBuildVariables": {
-            "API_URL": "https://my-city1-api.datalocker.prod.com",
-            "AUTH_URL": "https://auth.datalocker.prod.com",
-            "AUTH_CLIENT_ID": "5984716e12bf48bbb7a96ada8ed7311f",
-            "GOOGLE_ANALYTICS_TRACKING_ID": "UA-123456789-1"
-          },
-          "assetsOverridePath": "MyCity1",
-          "apiDomainConfig": {
-            "certificateArn": "arn:aws:acm:us-west-2:222222222222:certificate/cccccccc-cccc-cccc-cccc-cccccccccccc",
-            "domain": "my-city1-api.datalocker.prod.com"
-          },
-          "webAppDomainConfig": {
-            "certificateArn": "arn:aws:acm:us-east-1:222222222222:certificate/cccccccc-cccc-cccc-cccc-cccccccccccc",
-            "domain": "my-city1.datalocker.prod.com"
-          },
-          "hostedZoneAttributes": {
-            "hostedZoneId": "AAAAAAAAAAAAAAA",
-            "zoneName": "datalocker.prod.com"
-          },
-          "emailSender": {
-            "address": "noreply@datalocker.prod.com",
-            "name": "My Digital Data Locker"
-          },
-          "agencyEmailDomainsWhitelist": ["@mycity1.gov"]
-        }
-      },
-      {
-        "name": "MyCity2Prod",
-        "props": {
-          "env": {
-            "account": "222222222222",
-            "region": "us-west-2"
-          },
-          "authStackName": "ProdAuth",
-          "dataStoreStackName": "ProdDataStore",
-          "webAppBuildVariables": {
-            "API_URL": "https://my-city2-api.datalocker.prod.com",
-            "AUTH_URL": "https://auth.datalocker.prod.com",
-            "AUTH_CLIENT_ID": "5984716e12bf48bbb7a96ada8ed7311f",
-            "GOOGLE_ANALYTICS_TRACKING_ID": "UA-123456789-1"
-          },
-          "assetsOverridePath": "MyCity2",
-          "apiDomainConfig": {
-            "certificateArn": "arn:aws:acm:us-west-2:222222222222:certificate/cccccccc-cccc-cccc-cccc-cccccccccccc",
-            "domain": "my-city2-api.datalocker.prod.com"
-          },
-          "webAppDomainConfig": {
-            "certificateArn": "arn:aws:acm:us-east-1:222222222222:certificate/cccccccc-cccc-cccc-cccc-cccccccccccc",
-            "domain": "my-city2.datalocker.prod.com"
-          },
-          "hostedZoneAttributes": {
-            "hostedZoneId": "AAAAAAAAAAAAAAA",
-            "zoneName": "datalocker.prod.com"
-          },
-          "emailSender": {
-            "address": "noreply@datalocker.prod.com",
-            "name": "My Digital Data Locker"
-          },
-          "agencyEmailDomainsWhitelist": ["@mycity2.gov"]
         }
       }
     ]
@@ -394,16 +235,6 @@ The suggested order for deployment is:
 There is an issue with bringing up Cognito and Styling the UI in a single change set.
 The `UserPoolUICustomizationAttachment` resource requires the domain to already be attached, but the `CustomDomain` resource returns before it is "active" (which can take up to 15 minutes).
 To assist with this, switch the `deployUiCustomization` flag to `false` for first time deploy, and then once the Domain is "active" in Cognito, set it to `true` and redeploy.
-
-### Initial CI/CD Deployment
-
-You'll need to do an initial deployment of the CI/CD stack with
-
-```bash
-yarn infra cdk deploy CiCd -e
-```
-
-This will set up the pipeline and create necessary other resources.
 
 ### (Optional) Using your own KMS Key with the Data Store and City Stacks
 
@@ -525,8 +356,3 @@ The suggested key policy is as follows, please see the "Sid" elements for the pu
   ]
 }
 ```
-
-## (Optional) Upload static resources and assets for different city stacks
-
-If you have static resources (in the frontend/static directory) or assets (frontend/assets directory) that are different per city stack and not included in the code base, after the above deployment you'll be able to upload these to the created 'Static Assets Bucket' with the prefix defined by `assetsOverridePath` for the specific city's stack. This will perform an S3 sync with the 'static' and 'assets' paths only
-For example, from the above configuration, `images/city-logo.svg` for `MyCity2` should be uploaded to the `MyCity2Stack/static/images/city-logo.svg` key. This will then be set as the logo for the `MyCity2` build.

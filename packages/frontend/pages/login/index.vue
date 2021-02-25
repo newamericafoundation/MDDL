@@ -20,7 +20,7 @@ import { UserRole } from '@/types/user'
 })
 export default class Login extends Vue {
   mounted() {
-    if (this.$route.query.role) {
+    if (!!this.$route && this.$route.query.role) {
       const index = Number(this.$route.query.role)
       userStore.setRole(index)
       this.$router.push(this.localePath('/'))

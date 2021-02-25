@@ -17,10 +17,10 @@
         <v-img
           contain
           style="max-width: 24px"
-          :src="require('@/static/images/city-icon.svg')"
+          :src="require('@/assets/images/city-icon.svg')"
           class="mr-2 mb-1"
         />
-        My Digital Data Locker
+        {{ $t('application.title') }}
       </v-btn>
       <v-app-bar-nav-icon
         v-else-if="!customMobileNav"

@@ -4,7 +4,7 @@
       alt=""
       :max-width="imageSize"
       class="mx-auto"
-      :src="require('@/static/images/upload.svg')"
+      :src="require('@/assets/images/upload.svg')"
     />
     <div v-if="title || body" style="max-width: 256px" class="mx-auto">
       <p v-if="title" class="text-center font-weight-bold">{{ $t(title) }}</p>
